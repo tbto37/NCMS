@@ -1,5 +1,5 @@
 # Project Overview & Vibe Coding Guidelines
-## Update Test
+
 ## Tech Stack
 - **Backend**: Java 21, Spring Boot 3.3+, Gradle, Spring Data JPA, Lombok
 - **Frontend**: React 18+, Vite, TypeScript, Tailwind CSS, Axios/TanStack Query
