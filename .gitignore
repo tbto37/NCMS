@@ -1,0 +1,15 @@
+# --- IDE 설정 파일 제외 ---
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# --- 빌드 결과물 및 로그 제외 ---
+target/
+build/
+out/
+*.log
+
+# --- OS 설정 파일 제외 ---
+.DS_Store
+Thumbs.db
