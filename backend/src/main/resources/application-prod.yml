@@ -1,10 +1,10 @@
 spring:
   # PostgreSQL Configuration (Production - Railway)
   datasource:
-    url: jdbc:postgresql://${PGHOST:localhost}:${PGPORT:5432}/${PGDATABASE:ncms}
+    url: jdbc:postgresql://sakura.proxy.rlwy.net:17451/railway
     driver-class-name: org.postgresql.Driver
-    username: ${PGUSER}
-    password: ${PGPASSWORD}
+    username: postgres
+    password: YuTJvljTRuIwrjnnqKyGlKeIWBGYVLAG
 
   h2:
     console:

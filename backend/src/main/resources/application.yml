@@ -4,10 +4,10 @@ spring:
 
   # H2 Database Configuration (Development)
   datasource:
-    url: jdbc:h2:mem:ncms
-    driver-class-name: org.h2.Driver
-    username: sa
-    password:
+    url: jdbc:postgresql://sakura.proxy.rlwy.net:17451/railway
+    driver-class-name: org.postgresql.Driver
+    username: postgres
+    password: YuTJvljTRuIwrjnnqKyGlKeIWBGYVLAG
 
   h2:
     console:
