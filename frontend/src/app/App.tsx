@@ -12,6 +12,7 @@ import {
   TrendingDown,
   MoreHorizontal,
   Eye,
+  EyeOff,
   Edit2,
   Trash2,
   Plus,
@@ -116,21 +117,27 @@ const users = [
 ];
 
 const allOrders = [
-  { id: "ORD-8821", customer: "김민준", product: "MacBook Pro 14인치", category: "전자제품", amount: 2990000, status: "완료", date: "2026-07-21" },
-  { id: "ORD-8820", customer: "이서연", product: "Nike Air Max 2026", category: "의류", amount: 189000, status: "처리중", date: "2026-07-21" },
-  { id: "ORD-8819", customer: "박지훈", product: "삼성 QLED 65인치", category: "전자제품", amount: 1590000, status: "배송중", date: "2026-07-20" },
-  { id: "ORD-8818", customer: "최수아", product: "에어팟 Pro 3세대", category: "전자제품", amount: 359000, status: "완료", date: "2026-07-20" },
-  { id: "ORD-8817", customer: "정우진", product: "아이패드 Air M3", category: "전자제품", amount: 999000, status: "취소", date: "2026-07-19" },
-  { id: "ORD-8816", customer: "강예은", product: "리넨 셔츠 세트", category: "의류", amount: 89000, status: "완료", date: "2026-07-19" },
-  { id: "ORD-8815", customer: "조현서", product: "유기농 그래놀라", category: "식품", amount: 42000, status: "배송중", date: "2026-07-18" },
-  { id: "ORD-8814", customer: "윤하은", product: "원목 책상 1200", category: "가구", amount: 450000, status: "처리중", date: "2026-07-18" },
+  { id: "ORD-8821", customer: "김민준", product: "MacBook Pro 14인치", category: "전자제품", amount: 2990000, status: "승인대기", date: "2026-07-21" },
+  { id: "ORD-8820", customer: "이서연", product: "Nike Air Max 2026", category: "의류", amount: 189000, status: "승인대기", date: "2026-07-21" },
+  { id: "ORD-8819", customer: "박지훈", product: "삼성 QLED 65인치", category: "전자제품", amount: 1590000, status: "승인완료", date: "2026-07-20" },
+  { id: "ORD-8818", customer: "최수아", product: "에어팟 Pro 3세대", category: "전자제품", amount: 359000, status: "인쇄중", date: "2026-07-20" },
+  { id: "ORD-8817", customer: "정우진", product: "아이패드 Air M3", category: "전자제품", amount: 999000, status: "주문취소", date: "2026-07-19" },
+  { id: "ORD-8816", customer: "강예은", product: "리넨 셔츠 세트", category: "의류", amount: 89000, status: "발송완료", date: "2026-07-19" },
+  { id: "ORD-8815", customer: "조현서", product: "유기농 그래놀라", category: "식품", amount: 42000, status: "승인반려", date: "2026-07-18" },
+  { id: "ORD-8814", customer: "윤하은", product: "원목 책상 1200", category: "가구", amount: 450000, status: "승인완료", date: "2026-07-18" },
+  { id: "ORD-8813", customer: "한도윤", product: "무선 마우스 Pro", category: "전자제품", amount: 79000, status: "인쇄중", date: "2026-07-18" },
+  { id: "ORD-8812", customer: "오지민", product: "캐시미어 코트", category: "의류", amount: 380000, status: "발송완료", date: "2026-07-17" },
+  { id: "ORD-8811", customer: "임서준", product: "프로틴 파우더 2kg", category: "식품", amount: 65000, status: "승인대기", date: "2026-07-17" },
+  { id: "ORD-8810", customer: "권나은", product: "원목 선반 세트", category: "가구", amount: 210000, status: "승인반려", date: "2026-07-16" },
 ];
 
 const statusConfig: Record<string, { label: string; color: string; bg: string }> = {
-  완료: { label: "완료", color: "#16a34a", bg: "#dcfce7" },
-  처리중: { label: "처리중", color: "#d97706", bg: "#fef3c7" },
-  배송중: { label: "배송중", color: "#2563eb", bg: "#dbeafe" },
-  취소: { label: "취소", color: "#dc2626", bg: "#fee2e2" },
+  승인대기: { label: "승인대기", color: "#d97706", bg: "#fef3c7" },
+  승인완료: { label: "승인완료", color: "#2563eb", bg: "#dbeafe" },
+  인쇄중:   { label: "인쇄중",   color: "#7c3aed", bg: "#ede9fe" },
+  발송완료: { label: "발송완료", color: "#16a34a", bg: "#dcfce7" },
+  승인반려: { label: "승인반려", color: "#dc2626", bg: "#fee2e2" },
+  주문취소: { label: "주문취소", color: "#6b6860", bg: "#eceae5" },
   활성: { label: "활성", color: "#16a34a", bg: "#dcfce7" },
   비활성: { label: "비활성", color: "#6b6860", bg: "#eceae5" },
   보류: { label: "보류", color: "#d97706", bg: "#fef3c7" },
@@ -138,12 +145,16 @@ const statusConfig: Record<string, { label: string; color: string; bg: string }>
 
 function StatusBadge({ status }: { status: string }) {
   const cfg = statusConfig[status] ?? { label: status, color: "#6b6860", bg: "#eceae5" };
+  const icon =
+    status === "발송완료" || status === "활성" ? <CheckCircle size={10} /> :
+      status === "승인반려" || status === "주문취소" || status === "비활성" ? <XCircle size={10} /> :
+        <Clock size={10} />;
   return (
     <span
       className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium whitespace-nowrap"
       style={{ color: cfg.color, backgroundColor: cfg.bg }}
     >
-      {status === "완료" || status === "활성" ? <CheckCircle size={10} /> : status === "취소" || status === "비활성" ? <XCircle size={10} /> : <Clock size={10} />}
+      {icon}
       {cfg.label}
     </span>
   );
@@ -441,95 +452,227 @@ function UsersScreen() {
   );
 }
 
+const ORDER_TABS = ["전체", "승인대기", "승인완료", "인쇄중", "발송완료", "승인반려", "주문취소"] as const;
+type OrderTab = typeof ORDER_TABS[number];
+
+const TAB_ACTIONS: Record<OrderTab, { label: string; variant: "primary" | "danger" | "ghost" }[]> = {
+  전체:     [],
+  승인대기: [{ label: "주문 승인", variant: "primary" }, { label: "주문 반려", variant: "danger" }],
+  승인완료: [{ label: "인쇄 시작", variant: "primary" }],
+  인쇄중:   [{ label: "발송 처리", variant: "primary" }],
+  발송완료: [{ label: "상세 보기", variant: "ghost" }],
+  승인반려: [{ label: "재승인 요청", variant: "primary" }, { label: "주문 취소", variant: "danger" }],
+  주문취소: [{ label: "상세 보기", variant: "ghost" }],
+};
+
 function OrdersScreen() {
-  const [statusFilter, setStatusFilter] = useState("전체");
-  const filtered = allOrders.filter((o) => statusFilter === "전체" || o.status === statusFilter);
+  const [activeTab, setActiveTab] = useState<OrderTab>("전체");
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+
+  const filtered = activeTab === "전체"
+    ? allOrders
+    : allOrders.filter((o) => o.status === activeTab);
+
+  const allSelected = filtered.length > 0 && filtered.every((o) => selectedIds.has(o.id));
+
+  function toggleAll() {
+    if (allSelected) {
+      setSelectedIds((prev) => {
+        const next = new Set(prev);
+        filtered.forEach((o) => next.delete(o.id));
+        return next;
+      });
+    } else {
+      setSelectedIds((prev) => {
+        const next = new Set(prev);
+        filtered.forEach((o) => next.add(o.id));
+        return next;
+      });
+    }
+  }
+
+  function toggleOne(id: string) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      next.has(id) ? next.delete(id) : next.add(id);
+      return next;
+    });
+  }
+
+  const selectedCount = filtered.filter((o) => selectedIds.has(o.id)).length;
+  const actions = TAB_ACTIONS[activeTab];
+
+  function handleTabChange(tab: OrderTab) {
+    setActiveTab(tab);
+    setSelectedIds(new Set());
+  }
 
   return (
-    <div className="p-4 md:p-6 space-y-4 md:space-y-5">
+    <div className="p-4 md:p-6 space-y-4">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-lg md:text-xl font-semibold text-foreground" style={{ fontFamily: "'Instrument Serif', serif" }}>주문 관리</h1>
-          <p className="text-xs text-muted-foreground mt-0.5">오늘 15건의 새 주문</p>
+          <p className="text-xs text-muted-foreground mt-0.5">총 {allOrders.length}건</p>
         </div>
-        <div className="flex items-center gap-2">
-          <button className="flex items-center gap-1.5 px-2.5 py-1.5 border border-border text-xs rounded hover:bg-secondary transition-colors">
-            <Filter size={11} />
-            <span className="hidden sm:inline">필터</span>
-          </button>
-          <button className="flex items-center gap-1.5 px-2.5 py-1.5 border border-border text-xs rounded hover:bg-secondary transition-colors">
-            <Download size={11} />
-            <span className="hidden sm:inline">내보내기</span>
-          </button>
-        </div>
+        <button className="flex items-center gap-1.5 px-2.5 py-1.5 border border-border text-xs rounded hover:bg-secondary transition-colors">
+          <Download size={11} />
+          <span className="hidden sm:inline">내보내기</span>
+        </button>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        {[
-          { label: "전체", count: allOrders.length, color: "text-foreground" },
-          { label: "완료", count: allOrders.filter((o) => o.status === "완료").length, color: "text-emerald-600" },
-          { label: "처리중", count: allOrders.filter((o) => o.status === "처리중").length, color: "text-amber-600" },
-          { label: "취소", count: allOrders.filter((o) => o.status === "취소").length, color: "text-red-500" },
-        ].map((item) => (
-          <button
-            key={item.label}
-            onClick={() => setStatusFilter(item.label)}
-            className={`bg-card border rounded-lg p-3 md:p-4 text-left transition-all ${statusFilter === item.label ? "border-primary shadow-sm" : "border-border hover:border-foreground/20"}`}
-          >
-            <div className={`text-xl font-semibold ${item.color}`} style={{ fontFamily: "'Instrument Serif', serif" }}>{item.count}</div>
-            <div className="text-xs text-muted-foreground mt-0.5">{item.label} 주문</div>
-          </button>
-        ))}
-      </div>
+      {/* Tabs */}
+      <div className="bg-card border border-border rounded-lg overflow-hidden">
+        <div className="flex overflow-x-auto border-b border-border">
+          {ORDER_TABS.map((tab) => {
+            const count = tab === "전체" ? allOrders.length : allOrders.filter((o) => o.status === tab).length;
+            const active = activeTab === tab;
+            return (
+              <button
+                key={tab}
+                onClick={() => handleTabChange(tab)}
+                className={`flex items-center gap-1.5 px-3 md:px-4 py-3 text-xs font-medium whitespace-nowrap border-b-2 -mb-px transition-colors ${
+                  active
+                    ? "border-primary text-foreground"
+                    : "border-transparent text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {tab}
+                <span className={`text-xs font-mono px-1.5 py-0.5 rounded-full ${active ? "bg-primary text-primary-foreground" : "bg-secondary text-muted-foreground"}`}>
+                  {count}
+                </span>
+              </button>
+            );
+          })}
+        </div>
 
-      <div className="bg-card border border-border rounded-lg">
-        {/* Mobile card list */}
-        <div className="md:hidden divide-y divide-border">
-          {filtered.map((order) => (
-            <div key={order.id} className="px-4 py-3">
-              <div className="flex items-start justify-between gap-2 mb-1">
-                <div className="min-w-0">
-                  <span className="text-xs font-mono text-muted-foreground">{order.id}</span>
-                  <div className="text-xs font-medium text-foreground truncate">{order.product}</div>
-                </div>
-                <StatusBadge status={order.status} />
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-muted-foreground">{order.customer} · {order.date}</span>
-                <span className="text-xs font-medium font-mono">₩{order.amount.toLocaleString()}</span>
-              </div>
+        {/* List */}
+        {filtered.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-16 text-muted-foreground">
+            <Package size={32} className="mb-3 opacity-30" />
+            <p className="text-xs">해당 상태의 주문이 없습니다.</p>
+          </div>
+        ) : (
+          <>
+            {/* Desktop table */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                <tr className="border-b border-border bg-secondary/40">
+                  <th className="px-4 py-2.5 w-8">
+                    <input
+                      type="checkbox"
+                      checked={allSelected}
+                      onChange={toggleAll}
+                      className="rounded border-border accent-primary"
+                    />
+                  </th>
+                  {["주문번호", "고객", "상품", "카테고리", "금액", "상태", "주문일"].map((h) => (
+                    <th key={h} className="px-4 py-2.5 text-left text-xs font-medium text-muted-foreground tracking-wider">{h}</th>
+                  ))}
+                </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                {filtered.map((order) => {
+                  const checked = selectedIds.has(order.id);
+                  return (
+                    <tr
+                      key={order.id}
+                      className={`hover:bg-secondary/40 transition-colors cursor-pointer ${checked ? "bg-secondary/60" : ""}`}
+                      onClick={() => toggleOne(order.id)}
+                    >
+                      <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                        <input
+                          type="checkbox"
+                          checked={checked}
+                          onChange={() => toggleOne(order.id)}
+                          className="rounded border-border accent-primary"
+                        />
+                      </td>
+                      <td className="px-4 py-3 text-xs font-mono text-muted-foreground">{order.id}</td>
+                      <td className="px-4 py-3 text-xs font-medium text-foreground">{order.customer}</td>
+                      <td className="px-4 py-3 text-xs text-muted-foreground max-w-[160px] truncate">{order.product}</td>
+                      <td className="px-4 py-3"><span className="text-xs bg-secondary px-2 py-0.5 rounded">{order.category}</span></td>
+                      <td className="px-4 py-3 text-xs font-medium font-mono">₩{order.amount.toLocaleString()}</td>
+                      <td className="px-4 py-3"><StatusBadge status={order.status} /></td>
+                      <td className="px-4 py-3 text-xs text-muted-foreground font-mono">{order.date}</td>
+                    </tr>
+                  );
+                })}
+                </tbody>
+              </table>
             </div>
-          ))}
-        </div>
 
-        {/* Desktop table */}
-        <div className="hidden md:block overflow-x-auto">
-          <table className="w-full">
-            <thead>
-            <tr className="border-b border-border">
-              {["주문번호", "고객", "상품", "카테고리", "금액", "상태", "날짜", ""].map((h) => (
-                <th key={h} className="px-5 py-3 text-left text-xs font-medium text-muted-foreground tracking-wider">{h}</th>
-              ))}
-            </tr>
-            </thead>
-            <tbody>
-            {filtered.map((order, i) => (
-              <tr key={order.id} className={`${i < filtered.length - 1 ? "border-b border-border" : ""} hover:bg-secondary/50 transition-colors`}>
-                <td className="px-5 py-3 text-xs font-mono text-muted-foreground">{order.id}</td>
-                <td className="px-5 py-3 text-xs font-medium text-foreground">{order.customer}</td>
-                <td className="px-5 py-3 text-xs text-muted-foreground max-w-[140px] truncate">{order.product}</td>
-                <td className="px-5 py-3"><span className="text-xs bg-secondary px-2 py-0.5 rounded">{order.category}</span></td>
-                <td className="px-5 py-3 text-xs font-medium font-mono">₩{order.amount.toLocaleString()}</td>
-                <td className="px-5 py-3"><StatusBadge status={order.status} /></td>
-                <td className="px-5 py-3 text-xs text-muted-foreground font-mono">{order.date}</td>
-                <td className="px-5 py-3">
-                  <button className="text-muted-foreground hover:text-foreground transition-colors"><MoreHorizontal size={13} /></button>
-                </td>
-              </tr>
-            ))}
-            </tbody>
-          </table>
-        </div>
+            {/* Mobile card list */}
+            <div className="md:hidden divide-y divide-border">
+              {/* 전체선택 row */}
+              <div className="flex items-center gap-3 px-4 py-2.5 bg-secondary/40">
+                <input
+                  type="checkbox"
+                  checked={allSelected}
+                  onChange={toggleAll}
+                  className="rounded border-border accent-primary"
+                />
+                <span className="text-xs text-muted-foreground">전체 선택 ({filtered.length}건)</span>
+              </div>
+              {filtered.map((order) => {
+                const checked = selectedIds.has(order.id);
+                return (
+                  <div
+                    key={order.id}
+                    className={`flex items-start gap-3 px-4 py-3 transition-colors ${checked ? "bg-secondary/60" : ""}`}
+                    onClick={() => toggleOne(order.id)}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={checked}
+                      onChange={() => toggleOne(order.id)}
+                      className="mt-0.5 rounded border-border accent-primary shrink-0"
+                      onClick={(e) => e.stopPropagation()}
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2 mb-0.5">
+                        <span className="text-xs font-mono text-muted-foreground">{order.id}</span>
+                        <StatusBadge status={order.status} />
+                      </div>
+                      <div className="text-xs font-medium text-foreground truncate">{order.product}</div>
+                      <div className="flex items-center justify-between mt-1">
+                        <span className="text-xs text-muted-foreground">{order.customer} · {order.date}</span>
+                        <span className="text-xs font-medium font-mono">₩{order.amount.toLocaleString()}</span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Action bar */}
+            {actions.length > 0 && (
+              <div className="flex items-center justify-between px-4 py-3 border-t border-border bg-secondary/30">
+                <span className="text-xs text-muted-foreground">
+                  {selectedCount > 0 ? `${selectedCount}건 선택됨` : "항목을 선택하세요"}
+                </span>
+                <div className="flex items-center gap-2">
+                  {actions.map((action) => (
+                    <button
+                      key={action.label}
+                      disabled={selectedCount === 0}
+                      className={`px-3 py-1.5 text-xs font-medium rounded transition-all disabled:opacity-40 disabled:cursor-not-allowed ${
+                        action.variant === "primary"
+                          ? "bg-primary text-primary-foreground hover:opacity-90"
+                          : action.variant === "danger"
+                            ? "bg-red-500 text-white hover:bg-red-600"
+                            : "border border-border text-foreground hover:bg-secondary"
+                      }`}
+                    >
+                      {action.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
+        )}
       </div>
     </div>
   );
@@ -788,7 +931,86 @@ function SettingsScreen() {
   );
 }
 
+function LoginScreen({ onLogin }: { onLogin: () => void }) {
+  const [id, setId] = useState("");
+  const [pw, setPw] = useState("");
+  const [showPw, setShowPw] = useState(false);
+  const [error, setError] = useState("");
+
+  function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!id || !pw) {
+      setError("아이디와 비밀번호를 입력해주세요.");
+      return;
+    }
+    setError("");
+    onLogin();
+  }
+
+  return (
+    <div className="min-h-screen bg-background flex items-center justify-center px-4">
+      <div className="w-full max-w-sm">
+        <div className="flex flex-col items-center mb-8">
+          <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center mb-4">
+            <Package size={18} className="text-primary-foreground" />
+          </div>
+          <h1 className="text-2xl font-semibold text-foreground" style={{ fontFamily: "'Instrument Serif', serif" }}>관리자 로그인</h1>
+          <p className="text-xs text-muted-foreground mt-1">백오피스 관리 시스템</p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="bg-card border border-border rounded-lg p-6 space-y-4">
+          <div>
+            <label className="block text-xs font-medium text-muted-foreground mb-1.5">아이디</label>
+            <input
+              type="text"
+              value={id}
+              onChange={(e) => setId(e.target.value)}
+              placeholder="관리자 아이디 입력"
+              className="w-full px-3 py-2.5 text-xs bg-secondary border border-border rounded focus:outline-none focus:ring-1 focus:ring-ring transition-shadow"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-muted-foreground mb-1.5">비밀번호</label>
+            <div className="relative">
+              <input
+                type={showPw ? "text" : "password"}
+                value={pw}
+                onChange={(e) => setPw(e.target.value)}
+                placeholder="비밀번호 입력"
+                className="w-full px-3 py-2.5 pr-9 text-xs bg-secondary border border-border rounded focus:outline-none focus:ring-1 focus:ring-ring transition-shadow"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPw((v) => !v)}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {showPw ? <EyeOff size={13} /> : <Eye size={13} />}
+              </button>
+            </div>
+          </div>
+
+          {error && (
+            <p className="text-xs text-red-500">{error}</p>
+          )}
+
+          <button
+            type="submit"
+            className="w-full py-2.5 bg-primary text-primary-foreground text-xs font-medium rounded hover:opacity-90 transition-opacity mt-1"
+          >
+            로그인
+          </button>
+        </form>
+
+        <p className="text-center text-xs text-muted-foreground mt-4">
+          문의: <span className="text-foreground">admin@example.com</span>
+        </p>
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
+  const [loggedIn, setLoggedIn] = useState(false);
   const [activePage, setActivePage] = useState("dashboard");
   const [drawerOpen, setDrawerOpen] = useState(false);
 
@@ -799,6 +1021,8 @@ export default function App() {
     analytics: <AnalyticsScreen />,
     settings: <SettingsScreen />,
   };
+
+  if (!loggedIn) return <LoginScreen onLogin={() => setLoggedIn(true)} />;
 
   const currentNav = navItems.find((n) => n.id === activePage);
 
@@ -862,7 +1086,10 @@ export default function App() {
         </nav>
 
         <div className="p-2 border-t border-border">
-          <button className="w-full flex items-center gap-2.5 px-2.5 py-2.5 md:py-2 rounded text-xs text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors">
+          <button
+            onClick={() => setLoggedIn(false)}
+            className="w-full flex items-center gap-2.5 px-2.5 py-2.5 md:py-2 rounded text-xs text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
+          >
             <LogOut size={13} className="shrink-0" />
             <span>로그아웃</span>
           </button>
