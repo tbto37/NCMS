@@ -1,0 +1,25 @@
+name: ncms
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: ncms-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${PGDATABASE:-ncms}
+      POSTGRES_USER: ${PGUSER:-ncms}
+      POSTGRES_PASSWORD: ${PGPASSWORD:-ncms_local}
+      TZ: Asia/Seoul
+    ports:
+      - "${PGPORT:-5432}:5432"
+    volumes:
+      - ncms-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PGUSER:-ncms} -d ${PGDATABASE:-ncms}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  ncms-postgres-data:
+
