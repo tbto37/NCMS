@@ -27,13 +27,10 @@ import {
   ChevronRight,
   ArrowUpRight,
   ArrowDownRight,
-  RefreshCw,
   Mail,
   Shield,
   Globe,
   Database,
-  Moon,
-  Sun,
   LogOut,
   Menu,
   X,
@@ -143,7 +140,7 @@ function StatusBadge({ status }: { status: string }) {
   const cfg = statusConfig[status] ?? { label: status, color: "#6b6860", bg: "#eceae5" };
   return (
     <span
-      className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium"
+      className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium whitespace-nowrap"
       style={{ color: cfg.color, backgroundColor: cfg.bg }}
     >
       {status === "완료" || status === "활성" ? <CheckCircle size={10} /> : status === "취소" || status === "비활성" ? <XCircle size={10} /> : <Clock size={10} />}
@@ -154,11 +151,11 @@ function StatusBadge({ status }: { status: string }) {
 
 function StatCard({ label, value, sub, trend, icon: Icon, accent }: { label: string; value: string; sub: string; trend?: number; icon: React.ElementType; accent?: boolean }) {
   return (
-    <div className={`bg-card border border-border rounded-lg p-5 flex flex-col gap-3 ${accent ? "bg-primary text-primary-foreground" : ""}`}>
+    <div className={`border border-border rounded-lg p-4 flex flex-col gap-3 ${accent ? "bg-primary text-primary-foreground" : "bg-card"}`}>
       <div className="flex items-start justify-between">
         <span className={`text-xs font-medium tracking-widest uppercase ${accent ? "text-primary-foreground/60" : "text-muted-foreground"}`}>{label}</span>
-        <div className={`w-8 h-8 rounded flex items-center justify-center ${accent ? "bg-primary-foreground/10" : "bg-secondary"}`}>
-          <Icon size={14} className={accent ? "text-primary-foreground" : "text-foreground"} />
+        <div className={`w-7 h-7 rounded flex items-center justify-center ${accent ? "bg-primary-foreground/10" : "bg-secondary"}`}>
+          <Icon size={13} className={accent ? "text-primary-foreground" : "text-foreground"} />
         </div>
       </div>
       <div>
@@ -179,19 +176,20 @@ function StatCard({ label, value, sub, trend, icon: Icon, accent }: { label: str
 
 function DashboardScreen() {
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-4 md:p-6 space-y-4 md:space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-semibold text-foreground" style={{ fontFamily: "'Instrument Serif', serif" }}>대시보드</h1>
+          <h1 className="text-lg md:text-xl font-semibold text-foreground" style={{ fontFamily: "'Instrument Serif', serif" }}>대시보드</h1>
           <p className="text-xs text-muted-foreground mt-0.5">2026년 7월 21일 월요일</p>
         </div>
-        <button className="flex items-center gap-2 px-3 py-1.5 bg-primary text-primary-foreground text-xs font-medium rounded hover:opacity-90 transition-opacity">
-          <Download size={12} />
-          리포트 내보내기
+        <button className="flex items-center gap-1.5 px-3 py-1.5 bg-primary text-primary-foreground text-xs font-medium rounded hover:opacity-90 transition-opacity">
+          <Download size={11} />
+          <span className="hidden sm:inline">리포트 내보내기</span>
+          <span className="sm:hidden">내보내기</span>
         </button>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
         <StatCard label="총 매출" value="₩72.4M" sub="이번 달" trend={14.2} icon={DollarSign} accent />
         <StatCard label="신규 주문" value="2,050" sub="이번 달" trend={8.7} icon={ShoppingCart} />
         <StatCard label="신규 사용자" value="847" sub="이번 달" trend={-3.1} icon={Users} />
@@ -199,12 +197,12 @@ function DashboardScreen() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div className="lg:col-span-2 bg-card border border-border rounded-lg p-5">
+        <div className="lg:col-span-2 bg-card border border-border rounded-lg p-4 md:p-5">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-medium text-foreground">월별 매출 추이</h3>
             <span className="text-xs text-muted-foreground font-mono">2026 YTD</span>
           </div>
-          <ResponsiveContainer width="100%" height={200}>
+          <ResponsiveContainer width="100%" height={180}>
             <AreaChart data={revenueData}>
               <defs>
                 <linearGradient id="revGrad" x1="0" y1="0" x2="0" y2="1">
@@ -213,21 +211,19 @@ function DashboardScreen() {
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(26,25,23,0.06)" />
-              <XAxis dataKey="month" tick={{ fontSize: 11, fill: "#6b6860" }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize: 11, fill: "#6b6860" }} axisLine={false} tickLine={false} tickFormatter={(v) => `${(v / 1000000).toFixed(0)}M`} />
+              <XAxis dataKey="month" tick={{ fontSize: 10, fill: "#6b6860" }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fontSize: 10, fill: "#6b6860" }} axisLine={false} tickLine={false} tickFormatter={(v) => `${(v / 1000000).toFixed(0)}M`} width={32} />
               <Tooltip formatter={(v: number) => [`₩${(v / 1000000).toFixed(1)}M`, "매출"]} contentStyle={{ fontSize: 12, border: "1px solid rgba(26,25,23,0.12)", borderRadius: 6 }} />
               <Area type="monotone" dataKey="revenue" stroke="#1a1917" strokeWidth={1.5} fill="url(#revGrad)" />
             </AreaChart>
           </ResponsiveContainer>
         </div>
 
-        <div className="bg-card border border-border rounded-lg p-5">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-sm font-medium text-foreground">카테고리 비율</h3>
-          </div>
-          <ResponsiveContainer width="100%" height={140}>
+        <div className="bg-card border border-border rounded-lg p-4 md:p-5">
+          <h3 className="text-sm font-medium text-foreground mb-3">카테고리 비율</h3>
+          <ResponsiveContainer width="100%" height={130}>
             <PieChart>
-              <Pie data={categoryData} cx="50%" cy="50%" innerRadius={40} outerRadius={65} dataKey="value" paddingAngle={2}>
+              <Pie data={categoryData} cx="50%" cy="50%" innerRadius={36} outerRadius={58} dataKey="value" paddingAngle={2}>
                 {categoryData.map((_, i) => (
                   <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
                 ))}
@@ -235,11 +231,11 @@ function DashboardScreen() {
               <Tooltip formatter={(v: number) => [`${v}%`, ""]} contentStyle={{ fontSize: 12, border: "1px solid rgba(26,25,23,0.12)", borderRadius: 6 }} />
             </PieChart>
           </ResponsiveContainer>
-          <div className="space-y-1.5 mt-2">
+          <div className="space-y-1.5 mt-1">
             {categoryData.map((item, i) => (
               <div key={item.name} className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full" style={{ backgroundColor: PIE_COLORS[i] }} />
+                  <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: PIE_COLORS[i] }} />
                   <span className="text-xs text-muted-foreground">{item.name}</span>
                 </div>
                 <span className="text-xs font-medium font-mono">{item.value}%</span>
@@ -249,33 +245,53 @@ function DashboardScreen() {
         </div>
       </div>
 
+      {/* Mobile: card list / Desktop: table */}
       <div className="bg-card border border-border rounded-lg">
-        <div className="flex items-center justify-between px-5 py-4 border-b border-border">
+        <div className="flex items-center justify-between px-4 md:px-5 py-3 md:py-4 border-b border-border">
           <h3 className="text-sm font-medium text-foreground">최근 주문</h3>
           <button className="text-xs text-muted-foreground hover:text-foreground transition-colors flex items-center gap-1">
             전체 보기 <ChevronRight size={12} />
           </button>
         </div>
-        <div className="overflow-x-auto">
+
+        {/* Mobile card list */}
+        <div className="md:hidden divide-y divide-border">
+          {recentOrders.map((order) => (
+            <div key={order.id} className="px-4 py-3 flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <div className="flex items-center gap-2 mb-0.5">
+                  <span className="text-xs font-mono text-muted-foreground">{order.id}</span>
+                  <StatusBadge status={order.status} />
+                </div>
+                <div className="text-xs font-medium text-foreground truncate">{order.product}</div>
+                <div className="text-xs text-muted-foreground">{order.customer} · {order.date}</div>
+              </div>
+              <div className="text-xs font-medium font-mono shrink-0">₩{order.amount.toLocaleString()}</div>
+            </div>
+          ))}
+        </div>
+
+        {/* Desktop table */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-border">
-                {["주문번호", "고객", "상품", "금액", "상태", "날짜"].map((h) => (
-                  <th key={h} className="px-5 py-3 text-left text-xs font-medium text-muted-foreground tracking-wider">{h}</th>
-                ))}
-              </tr>
+            <tr className="border-b border-border">
+              {["주문번호", "고객", "상품", "금액", "상태", "날짜"].map((h) => (
+                <th key={h} className="px-5 py-3 text-left text-xs font-medium text-muted-foreground tracking-wider">{h}</th>
+              ))}
+            </tr>
             </thead>
             <tbody>
-              {recentOrders.map((order, i) => (
-                <tr key={order.id} className={`${i < recentOrders.length - 1 ? "border-b border-border" : ""} hover:bg-secondary/50 transition-colors`}>
-                  <td className="px-5 py-3 text-xs font-mono text-muted-foreground">{order.id}</td>
-                  <td className="px-5 py-3 text-xs font-medium text-foreground">{order.customer}</td>
-                  <td className="px-5 py-3 text-xs text-muted-foreground max-w-[160px] truncate">{order.product}</td>
-                  <td className="px-5 py-3 text-xs font-medium font-mono">₩{order.amount.toLocaleString()}</td>
-                  <td className="px-5 py-3"><StatusBadge status={order.status} /></td>
-                  <td className="px-5 py-3 text-xs text-muted-foreground font-mono">{order.date}</td>
-                </tr>
-              ))}
+            {recentOrders.map((order, i) => (
+              <tr key={order.id} className={`${i < recentOrders.length - 1 ? "border-b border-border" : ""} hover:bg-secondary/50 transition-colors`}>
+                <td className="px-5 py-3 text-xs font-mono text-muted-foreground">{order.id}</td>
+                <td className="px-5 py-3 text-xs font-medium text-foreground">{order.customer}</td>
+                <td className="px-5 py-3 text-xs text-muted-foreground max-w-[160px] truncate">{order.product}</td>
+                <td className="px-5 py-3 text-xs font-medium font-mono">₩{order.amount.toLocaleString()}</td>
+                <td className="px-5 py-3"><StatusBadge status={order.status} /></td>
+                <td className="px-5 py-3 text-xs text-muted-foreground font-mono">{order.date}</td>
+              </tr>
+            ))}
             </tbody>
           </table>
         </div>
@@ -294,101 +310,125 @@ function UsersScreen() {
   });
 
   return (
-    <div className="p-6 space-y-5">
+    <div className="p-4 md:p-6 space-y-4 md:space-y-5">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-semibold text-foreground" style={{ fontFamily: "'Instrument Serif', serif" }}>사용자 관리</h1>
-          <p className="text-xs text-muted-foreground mt-0.5">총 {users.length}명의 사용자</p>
+          <h1 className="text-lg md:text-xl font-semibold text-foreground" style={{ fontFamily: "'Instrument Serif', serif" }}>사용자 관리</h1>
+          <p className="text-xs text-muted-foreground mt-0.5">총 {users.length}명</p>
         </div>
-        <button className="flex items-center gap-2 px-3 py-1.5 bg-primary text-primary-foreground text-xs font-medium rounded hover:opacity-90 transition-opacity">
-          <Plus size={12} />
+        <button className="flex items-center gap-1.5 px-3 py-1.5 bg-primary text-primary-foreground text-xs font-medium rounded hover:opacity-90 transition-opacity">
+          <Plus size={11} />
           사용자 추가
         </button>
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-3 gap-3">
         {[
           { label: "전체 사용자", value: users.length, icon: Users },
-          { label: "활성 사용자", value: users.filter((u) => u.status === "활성").length, icon: UserCheck },
+          { label: "활성", value: users.filter((u) => u.status === "활성").length, icon: UserCheck },
           { label: "신규 (이번달)", value: 3, icon: TrendingUp },
         ].map((item) => (
-          <div key={item.label} className="bg-card border border-border rounded-lg p-4 flex items-center gap-4">
-            <div className="w-9 h-9 bg-secondary rounded flex items-center justify-center">
-              <item.icon size={15} className="text-foreground" />
+          <div key={item.label} className="bg-card border border-border rounded-lg p-3 md:p-4 flex items-center gap-2 md:gap-4">
+            <div className="w-8 h-8 bg-secondary rounded flex items-center justify-center shrink-0">
+              <item.icon size={13} className="text-foreground" />
             </div>
-            <div>
-              <div className="text-lg font-semibold" style={{ fontFamily: "'Instrument Serif', serif" }}>{item.value}</div>
-              <div className="text-xs text-muted-foreground">{item.label}</div>
+            <div className="min-w-0">
+              <div className="text-base md:text-lg font-semibold" style={{ fontFamily: "'Instrument Serif', serif" }}>{item.value}</div>
+              <div className="text-xs text-muted-foreground truncate">{item.label}</div>
             </div>
           </div>
         ))}
       </div>
 
       <div className="bg-card border border-border rounded-lg">
-        <div className="flex items-center gap-3 px-5 py-4 border-b border-border">
-          <div className="relative flex-1 max-w-xs">
-            <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 px-4 md:px-5 py-3 border-b border-border">
+          <div className="relative flex-1">
+            <Search size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <input
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="이름 또는 이메일 검색..."
-              className="w-full pl-8 pr-3 py-1.5 text-xs bg-secondary border border-border rounded focus:outline-none focus:ring-1 focus:ring-ring"
+              className="w-full pl-7 pr-3 py-1.5 text-xs bg-secondary border border-border rounded focus:outline-none focus:ring-1 focus:ring-ring"
             />
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 overflow-x-auto">
             {["전체", "관리자", "편집자", "뷰어"].map((r) => (
               <button
                 key={r}
                 onClick={() => setRoleFilter(r)}
-                className={`px-2.5 py-1 text-xs rounded transition-colors ${roleFilter === r ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
+                className={`px-2.5 py-1 text-xs rounded whitespace-nowrap transition-colors ${roleFilter === r ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}
               >
                 {r}
               </button>
             ))}
           </div>
         </div>
-        <div className="overflow-x-auto">
+
+        {/* Mobile card list */}
+        <div className="md:hidden divide-y divide-border">
+          {filtered.map((user) => (
+            <div key={user.id} className="px-4 py-3 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-medium shrink-0">
+                  {user.name[0]}
+                </div>
+                <div className="min-w-0">
+                  <div className="text-xs font-medium text-foreground">{user.name}</div>
+                  <div className="text-xs text-muted-foreground truncate">{user.email}</div>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <StatusBadge status={user.status} />
+                <button className="text-muted-foreground hover:text-foreground"><MoreHorizontal size={13} /></button>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Desktop table */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-border">
-                {["사용자", "역할", "상태", "가입일", "주문 수", ""].map((h) => (
-                  <th key={h} className="px-5 py-3 text-left text-xs font-medium text-muted-foreground tracking-wider">{h}</th>
-                ))}
-              </tr>
+            <tr className="border-b border-border">
+              {["사용자", "역할", "상태", "가입일", "주문 수", ""].map((h) => (
+                <th key={h} className="px-5 py-3 text-left text-xs font-medium text-muted-foreground tracking-wider">{h}</th>
+              ))}
+            </tr>
             </thead>
             <tbody>
-              {filtered.map((user, i) => (
-                <tr key={user.id} className={`${i < filtered.length - 1 ? "border-b border-border" : ""} hover:bg-secondary/50 transition-colors`}>
-                  <td className="px-5 py-3">
-                    <div className="flex items-center gap-3">
-                      <div className="w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-medium">
-                        {user.name[0]}
-                      </div>
-                      <div>
-                        <div className="text-xs font-medium text-foreground">{user.name}</div>
-                        <div className="text-xs text-muted-foreground">{user.email}</div>
-                      </div>
+            {filtered.map((user, i) => (
+              <tr key={user.id} className={`${i < filtered.length - 1 ? "border-b border-border" : ""} hover:bg-secondary/50 transition-colors`}>
+                <td className="px-5 py-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-medium">
+                      {user.name[0]}
                     </div>
-                  </td>
-                  <td className="px-5 py-3">
-                    <span className="text-xs bg-secondary px-2 py-0.5 rounded text-foreground">{user.role}</span>
-                  </td>
-                  <td className="px-5 py-3"><StatusBadge status={user.status} /></td>
-                  <td className="px-5 py-3 text-xs text-muted-foreground font-mono">{user.joined}</td>
-                  <td className="px-5 py-3 text-xs font-mono font-medium">{user.orders}</td>
-                  <td className="px-5 py-3">
-                    <div className="flex items-center gap-2 justify-end">
-                      <button className="text-muted-foreground hover:text-foreground transition-colors"><Eye size={13} /></button>
-                      <button className="text-muted-foreground hover:text-foreground transition-colors"><Edit2 size={13} /></button>
-                      <button className="text-muted-foreground hover:text-red-500 transition-colors"><Trash2 size={13} /></button>
+                    <div>
+                      <div className="text-xs font-medium text-foreground">{user.name}</div>
+                      <div className="text-xs text-muted-foreground">{user.email}</div>
                     </div>
-                  </td>
-                </tr>
-              ))}
+                  </div>
+                </td>
+                <td className="px-5 py-3">
+                  <span className="text-xs bg-secondary px-2 py-0.5 rounded">{user.role}</span>
+                </td>
+                <td className="px-5 py-3"><StatusBadge status={user.status} /></td>
+                <td className="px-5 py-3 text-xs text-muted-foreground font-mono">{user.joined}</td>
+                <td className="px-5 py-3 text-xs font-mono font-medium">{user.orders}</td>
+                <td className="px-5 py-3">
+                  <div className="flex items-center gap-2 justify-end">
+                    <button className="text-muted-foreground hover:text-foreground transition-colors"><Eye size={13} /></button>
+                    <button className="text-muted-foreground hover:text-foreground transition-colors"><Edit2 size={13} /></button>
+                    <button className="text-muted-foreground hover:text-red-500 transition-colors"><Trash2 size={13} /></button>
+                  </div>
+                </td>
+              </tr>
+            ))}
             </tbody>
           </table>
         </div>
-        <div className="flex items-center justify-between px-5 py-3 border-t border-border">
+
+        <div className="flex items-center justify-between px-4 md:px-5 py-3 border-t border-border">
           <span className="text-xs text-muted-foreground">{filtered.length}명 표시</span>
           <div className="flex items-center gap-1">
             {[1, 2, 3].map((p) => (
@@ -406,25 +446,25 @@ function OrdersScreen() {
   const filtered = allOrders.filter((o) => statusFilter === "전체" || o.status === statusFilter);
 
   return (
-    <div className="p-6 space-y-5">
+    <div className="p-4 md:p-6 space-y-4 md:space-y-5">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-semibold text-foreground" style={{ fontFamily: "'Instrument Serif', serif" }}>주문 관리</h1>
+          <h1 className="text-lg md:text-xl font-semibold text-foreground" style={{ fontFamily: "'Instrument Serif', serif" }}>주문 관리</h1>
           <p className="text-xs text-muted-foreground mt-0.5">오늘 15건의 새 주문</p>
         </div>
         <div className="flex items-center gap-2">
-          <button className="flex items-center gap-1.5 px-3 py-1.5 border border-border text-xs rounded hover:bg-secondary transition-colors">
+          <button className="flex items-center gap-1.5 px-2.5 py-1.5 border border-border text-xs rounded hover:bg-secondary transition-colors">
             <Filter size={11} />
-            필터
+            <span className="hidden sm:inline">필터</span>
           </button>
-          <button className="flex items-center gap-1.5 px-3 py-1.5 border border-border text-xs rounded hover:bg-secondary transition-colors">
+          <button className="flex items-center gap-1.5 px-2.5 py-1.5 border border-border text-xs rounded hover:bg-secondary transition-colors">
             <Download size={11} />
-            내보내기
+            <span className="hidden sm:inline">내보내기</span>
           </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
           { label: "전체", count: allOrders.length, color: "text-foreground" },
           { label: "완료", count: allOrders.filter((o) => o.status === "완료").length, color: "text-emerald-600" },
@@ -434,7 +474,7 @@ function OrdersScreen() {
           <button
             key={item.label}
             onClick={() => setStatusFilter(item.label)}
-            className={`bg-card border rounded-lg p-4 text-left transition-all ${statusFilter === item.label ? "border-primary shadow-sm" : "border-border hover:border-foreground/20"}`}
+            className={`bg-card border rounded-lg p-3 md:p-4 text-left transition-all ${statusFilter === item.label ? "border-primary shadow-sm" : "border-border hover:border-foreground/20"}`}
           >
             <div className={`text-xl font-semibold ${item.color}`} style={{ fontFamily: "'Instrument Serif', serif" }}>{item.count}</div>
             <div className="text-xs text-muted-foreground mt-0.5">{item.label} 주문</div>
@@ -443,30 +483,50 @@ function OrdersScreen() {
       </div>
 
       <div className="bg-card border border-border rounded-lg">
-        <div className="overflow-x-auto">
+        {/* Mobile card list */}
+        <div className="md:hidden divide-y divide-border">
+          {filtered.map((order) => (
+            <div key={order.id} className="px-4 py-3">
+              <div className="flex items-start justify-between gap-2 mb-1">
+                <div className="min-w-0">
+                  <span className="text-xs font-mono text-muted-foreground">{order.id}</span>
+                  <div className="text-xs font-medium text-foreground truncate">{order.product}</div>
+                </div>
+                <StatusBadge status={order.status} />
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-muted-foreground">{order.customer} · {order.date}</span>
+                <span className="text-xs font-medium font-mono">₩{order.amount.toLocaleString()}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Desktop table */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr className="border-b border-border">
-                {["주문번호", "고객", "상품", "카테고리", "금액", "상태", "날짜", ""].map((h) => (
-                  <th key={h} className="px-5 py-3 text-left text-xs font-medium text-muted-foreground tracking-wider">{h}</th>
-                ))}
-              </tr>
+            <tr className="border-b border-border">
+              {["주문번호", "고객", "상품", "카테고리", "금액", "상태", "날짜", ""].map((h) => (
+                <th key={h} className="px-5 py-3 text-left text-xs font-medium text-muted-foreground tracking-wider">{h}</th>
+              ))}
+            </tr>
             </thead>
             <tbody>
-              {filtered.map((order, i) => (
-                <tr key={order.id} className={`${i < filtered.length - 1 ? "border-b border-border" : ""} hover:bg-secondary/50 transition-colors`}>
-                  <td className="px-5 py-3 text-xs font-mono text-muted-foreground">{order.id}</td>
-                  <td className="px-5 py-3 text-xs font-medium text-foreground">{order.customer}</td>
-                  <td className="px-5 py-3 text-xs text-muted-foreground max-w-[140px] truncate">{order.product}</td>
-                  <td className="px-5 py-3"><span className="text-xs bg-secondary px-2 py-0.5 rounded">{order.category}</span></td>
-                  <td className="px-5 py-3 text-xs font-medium font-mono">₩{order.amount.toLocaleString()}</td>
-                  <td className="px-5 py-3"><StatusBadge status={order.status} /></td>
-                  <td className="px-5 py-3 text-xs text-muted-foreground font-mono">{order.date}</td>
-                  <td className="px-5 py-3">
-                    <button className="text-muted-foreground hover:text-foreground transition-colors"><MoreHorizontal size={13} /></button>
-                  </td>
-                </tr>
-              ))}
+            {filtered.map((order, i) => (
+              <tr key={order.id} className={`${i < filtered.length - 1 ? "border-b border-border" : ""} hover:bg-secondary/50 transition-colors`}>
+                <td className="px-5 py-3 text-xs font-mono text-muted-foreground">{order.id}</td>
+                <td className="px-5 py-3 text-xs font-medium text-foreground">{order.customer}</td>
+                <td className="px-5 py-3 text-xs text-muted-foreground max-w-[140px] truncate">{order.product}</td>
+                <td className="px-5 py-3"><span className="text-xs bg-secondary px-2 py-0.5 rounded">{order.category}</span></td>
+                <td className="px-5 py-3 text-xs font-medium font-mono">₩{order.amount.toLocaleString()}</td>
+                <td className="px-5 py-3"><StatusBadge status={order.status} /></td>
+                <td className="px-5 py-3 text-xs text-muted-foreground font-mono">{order.date}</td>
+                <td className="px-5 py-3">
+                  <button className="text-muted-foreground hover:text-foreground transition-colors"><MoreHorizontal size={13} /></button>
+                </td>
+              </tr>
+            ))}
             </tbody>
           </table>
         </div>
@@ -477,48 +537,48 @@ function OrdersScreen() {
 
 function AnalyticsScreen() {
   return (
-    <div className="p-6 space-y-5">
+    <div className="p-4 md:p-6 space-y-4 md:space-y-5">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-xl font-semibold text-foreground" style={{ fontFamily: "'Instrument Serif', serif" }}>분석</h1>
+          <h1 className="text-lg md:text-xl font-semibold text-foreground" style={{ fontFamily: "'Instrument Serif', serif" }}>분석</h1>
           <p className="text-xs text-muted-foreground mt-0.5">지난 30일 기준</p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1 overflow-x-auto">
           {["7일", "30일", "90일", "올해"].map((p, i) => (
-            <button key={p} className={`px-2.5 py-1 text-xs rounded transition-colors ${i === 1 ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}>{p}</button>
+            <button key={p} className={`px-2 py-1 text-xs rounded whitespace-nowrap transition-colors ${i === 1 ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"}`}>{p}</button>
           ))}
         </div>
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {[
           { label: "페이지 뷰", value: "1.24M", trend: 22.1, icon: Eye },
           { label: "순 방문자", value: "284K", trend: 11.4, icon: Users },
           { label: "평균 세션", value: "4m 32s", trend: -5.2, icon: Clock },
           { label: "이탈률", value: "38.4%", trend: -2.1, icon: TrendingDown },
         ].map((item) => (
-          <div key={item.label} className="bg-card border border-border rounded-lg p-4">
+          <div key={item.label} className="bg-card border border-border rounded-lg p-3 md:p-4">
             <div className="flex items-center justify-between mb-2">
               <span className="text-xs text-muted-foreground tracking-wider uppercase">{item.label}</span>
-              <item.icon size={13} className="text-muted-foreground" />
+              <item.icon size={12} className="text-muted-foreground" />
             </div>
             <div className="text-xl font-semibold" style={{ fontFamily: "'Instrument Serif', serif" }}>{item.value}</div>
             <span className={`flex items-center text-xs mt-1 ${item.trend >= 0 ? "text-emerald-600" : "text-red-500"}`}>
               {item.trend >= 0 ? <ArrowUpRight size={11} /> : <ArrowDownRight size={11} />}
-              {Math.abs(item.trend)}% 전주 대비
+              {Math.abs(item.trend)}%
             </span>
           </div>
         ))}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        <div className="bg-card border border-border rounded-lg p-5">
+        <div className="bg-card border border-border rounded-lg p-4 md:p-5">
           <h3 className="text-sm font-medium text-foreground mb-4">요일별 세션 & 전환</h3>
-          <ResponsiveContainer width="100%" height={200}>
+          <ResponsiveContainer width="100%" height={180}>
             <BarChart data={weeklyData} barGap={4}>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(26,25,23,0.06)" vertical={false} />
-              <XAxis dataKey="day" tick={{ fontSize: 11, fill: "#6b6860" }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fontSize: 11, fill: "#6b6860" }} axisLine={false} tickLine={false} />
+              <XAxis dataKey="day" tick={{ fontSize: 10, fill: "#6b6860" }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fontSize: 10, fill: "#6b6860" }} axisLine={false} tickLine={false} width={28} />
               <Tooltip contentStyle={{ fontSize: 12, border: "1px solid rgba(26,25,23,0.12)", borderRadius: 6 }} />
               <Bar dataKey="sessions" fill="#eceae5" radius={[3, 3, 0, 0]} name="세션" />
               <Bar dataKey="conversions" fill="#1a1917" radius={[3, 3, 0, 0]} name="전환" />
@@ -526,14 +586,14 @@ function AnalyticsScreen() {
           </ResponsiveContainer>
         </div>
 
-        <div className="bg-card border border-border rounded-lg p-5">
+        <div className="bg-card border border-border rounded-lg p-4 md:p-5">
           <h3 className="text-sm font-medium text-foreground mb-4">매출 vs 주문 추이</h3>
-          <ResponsiveContainer width="100%" height={200}>
+          <ResponsiveContainer width="100%" height={180}>
             <LineChart data={revenueData}>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(26,25,23,0.06)" />
-              <XAxis dataKey="month" tick={{ fontSize: 11, fill: "#6b6860" }} axisLine={false} tickLine={false} />
-              <YAxis yAxisId="left" tick={{ fontSize: 11, fill: "#6b6860" }} axisLine={false} tickLine={false} tickFormatter={(v) => `${(v / 1000000).toFixed(0)}M`} />
-              <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 11, fill: "#6b6860" }} axisLine={false} tickLine={false} />
+              <XAxis dataKey="month" tick={{ fontSize: 10, fill: "#6b6860" }} axisLine={false} tickLine={false} />
+              <YAxis yAxisId="left" tick={{ fontSize: 10, fill: "#6b6860" }} axisLine={false} tickLine={false} tickFormatter={(v) => `${(v / 1000000).toFixed(0)}M`} width={28} />
+              <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 10, fill: "#6b6860" }} axisLine={false} tickLine={false} width={28} />
               <Tooltip contentStyle={{ fontSize: 12, border: "1px solid rgba(26,25,23,0.12)", borderRadius: 6 }} />
               <Line yAxisId="left" type="monotone" dataKey="revenue" stroke="#1a1917" strokeWidth={1.5} dot={false} name="매출" />
               <Line yAxisId="right" type="monotone" dataKey="orders" stroke="#d4a853" strokeWidth={1.5} dot={false} name="주문" />
@@ -542,7 +602,7 @@ function AnalyticsScreen() {
         </div>
       </div>
 
-      <div className="bg-card border border-border rounded-lg p-5">
+      <div className="bg-card border border-border rounded-lg p-4 md:p-5">
         <h3 className="text-sm font-medium text-foreground mb-4">상위 유입 채널</h3>
         <div className="space-y-3">
           {[
@@ -552,12 +612,12 @@ function AnalyticsScreen() {
             { channel: "이메일", sessions: 6800, pct: 5 },
             { channel: "유료 광고", sessions: 4100, pct: 3 },
           ].map((item) => (
-            <div key={item.channel} className="flex items-center gap-3">
-              <span className="text-xs text-muted-foreground w-24 shrink-0">{item.channel}</span>
+            <div key={item.channel} className="flex items-center gap-2 md:gap-3">
+              <span className="text-xs text-muted-foreground w-20 md:w-24 shrink-0">{item.channel}</span>
               <div className="flex-1 bg-secondary rounded-full h-1.5 overflow-hidden">
-                <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${item.pct}%` }} />
+                <div className="h-full bg-primary rounded-full" style={{ width: `${item.pct}%` }} />
               </div>
-              <span className="text-xs font-mono w-12 text-right">{item.sessions.toLocaleString()}</span>
+              <span className="text-xs font-mono w-14 text-right hidden sm:block">{item.sessions.toLocaleString()}</span>
               <span className="text-xs font-mono text-muted-foreground w-8 text-right">{item.pct}%</span>
             </div>
           ))}
@@ -572,18 +632,18 @@ function SettingsScreen() {
   const [activeTab, setActiveTab] = useState("일반");
 
   return (
-    <div className="p-6 space-y-5">
+    <div className="p-4 md:p-6 space-y-4 md:space-y-5">
       <div>
-        <h1 className="text-xl font-semibold text-foreground" style={{ fontFamily: "'Instrument Serif', serif" }}>설정</h1>
+        <h1 className="text-lg md:text-xl font-semibold text-foreground" style={{ fontFamily: "'Instrument Serif', serif" }}>설정</h1>
         <p className="text-xs text-muted-foreground mt-0.5">계정 및 시스템 설정 관리</p>
       </div>
 
-      <div className="flex gap-1 border-b border-border">
+      <div className="flex gap-0 border-b border-border overflow-x-auto">
         {["일반", "알림", "보안", "인테그레이션"].map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`px-4 py-2 text-xs font-medium transition-colors border-b-2 -mb-px ${activeTab === tab ? "border-primary text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+            className={`px-3 md:px-4 py-2 text-xs font-medium whitespace-nowrap transition-colors border-b-2 -mb-px ${activeTab === tab ? "border-primary text-foreground" : "border-transparent text-muted-foreground hover:text-foreground"}`}
           >
             {tab}
           </button>
@@ -592,9 +652,9 @@ function SettingsScreen() {
 
       {activeTab === "일반" && (
         <div className="space-y-4">
-          <div className="bg-card border border-border rounded-lg p-5">
+          <div className="bg-card border border-border rounded-lg p-4 md:p-5">
             <h3 className="text-sm font-medium mb-4">프로필 정보</h3>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
               {[
                 { label: "이름", value: "김관리자", type: "text" },
                 { label: "이메일", value: "admin@example.com", type: "email" },
@@ -616,7 +676,7 @@ function SettingsScreen() {
             </div>
           </div>
 
-          <div className="bg-card border border-border rounded-lg p-5">
+          <div className="bg-card border border-border rounded-lg p-4 md:p-5">
             <h3 className="text-sm font-medium mb-4">시스템 설정</h3>
             <div className="space-y-3">
               {[
@@ -638,12 +698,12 @@ function SettingsScreen() {
       )}
 
       {activeTab === "알림" && (
-        <div className="bg-card border border-border rounded-lg p-5 space-y-4">
-          <h3 className="text-sm font-medium">알림 채널</h3>
+        <div className="bg-card border border-border rounded-lg p-4 md:p-5 space-y-1">
+          <h3 className="text-sm font-medium mb-3">알림 채널</h3>
           {(["email", "push", "sms"] as const).map((key) => (
             <div key={key} className="flex items-center justify-between py-3 border-b border-border last:border-0">
               <div className="flex items-center gap-3">
-                {key === "email" ? <Mail size={14} className="text-muted-foreground" /> : key === "push" ? <Bell size={14} className="text-muted-foreground" /> : <AlertTriangle size={14} className="text-muted-foreground" />}
+                {key === "email" ? <Mail size={13} className="text-muted-foreground" /> : key === "push" ? <Bell size={13} className="text-muted-foreground" /> : <AlertTriangle size={13} className="text-muted-foreground" />}
                 <div>
                   <div className="text-xs font-medium">{key === "email" ? "이메일 알림" : key === "push" ? "푸시 알림" : "SMS 알림"}</div>
                   <div className="text-xs text-muted-foreground">{key === "email" ? "주문, 사용자 관련 알림" : key === "push" ? "브라우저 푸시 알림" : "긴급 알림만"}</div>
@@ -651,7 +711,7 @@ function SettingsScreen() {
               </div>
               <button
                 onClick={() => setNotifications((prev) => ({ ...prev, [key]: !prev[key] }))}
-                className={`w-9 h-5 rounded-full transition-colors relative ${notifications[key] ? "bg-primary" : "bg-muted"}`}
+                className={`w-9 h-5 rounded-full transition-colors relative shrink-0 ${notifications[key] ? "bg-primary" : "bg-muted"}`}
               >
                 <div className={`absolute top-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${notifications[key] ? "translate-x-4" : "translate-x-0.5"}`} />
               </button>
@@ -662,12 +722,12 @@ function SettingsScreen() {
 
       {activeTab === "보안" && (
         <div className="space-y-4">
-          <div className="bg-card border border-border rounded-lg p-5">
+          <div className="bg-card border border-border rounded-lg p-4 md:p-5">
             <div className="flex items-center gap-2 mb-4">
-              <Shield size={14} className="text-foreground" />
+              <Shield size={13} className="text-foreground" />
               <h3 className="text-sm font-medium">보안 설정</h3>
             </div>
-            <div className="space-y-3">
+            <div className="space-y-1">
               {[
                 { label: "2단계 인증", desc: "앱 인증을 통한 추가 보안", active: true },
                 { label: "로그인 알림", desc: "새 기기 로그인 시 알림", active: true },
@@ -683,7 +743,7 @@ function SettingsScreen() {
               ))}
             </div>
           </div>
-          <div className="bg-card border border-border rounded-lg p-5">
+          <div className="bg-card border border-border rounded-lg p-4 md:p-5">
             <h3 className="text-sm font-medium mb-3">비밀번호 변경</h3>
             <div className="space-y-3">
               {["현재 비밀번호", "새 비밀번호", "비밀번호 확인"].map((label) => (
@@ -701,8 +761,8 @@ function SettingsScreen() {
       )}
 
       {activeTab === "인테그레이션" && (
-        <div className="bg-card border border-border rounded-lg p-5 space-y-4">
-          <h3 className="text-sm font-medium">연동 서비스</h3>
+        <div className="bg-card border border-border rounded-lg p-4 md:p-5 space-y-1">
+          <h3 className="text-sm font-medium mb-3">연동 서비스</h3>
           {[
             { name: "Slack", desc: "팀 알림 전송", connected: true },
             { name: "Google Analytics", desc: "사이트 분석 데이터", connected: true },
@@ -710,14 +770,14 @@ function SettingsScreen() {
             { name: "Mailchimp", desc: "이메일 마케팅", connected: false },
           ].map((svc) => (
             <div key={svc.name} className="flex items-center justify-between py-3 border-b border-border last:border-0">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 bg-secondary rounded flex items-center justify-center text-xs font-bold text-muted-foreground">{svc.name[0]}</div>
-                <div>
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-7 h-7 bg-secondary rounded flex items-center justify-center text-xs font-bold text-muted-foreground shrink-0">{svc.name[0]}</div>
+                <div className="min-w-0">
                   <div className="text-xs font-medium">{svc.name}</div>
-                  <div className="text-xs text-muted-foreground">{svc.desc}</div>
+                  <div className="text-xs text-muted-foreground truncate">{svc.desc}</div>
                 </div>
               </div>
-              <button className={`px-3 py-1 text-xs rounded border transition-colors ${svc.connected ? "border-border text-muted-foreground hover:text-red-500 hover:border-red-200" : "border-primary text-primary hover:bg-primary hover:text-primary-foreground"}`}>
+              <button className={`px-2.5 py-1 text-xs rounded border whitespace-nowrap shrink-0 transition-colors ml-2 ${svc.connected ? "border-border text-muted-foreground hover:text-red-500 hover:border-red-200" : "border-primary text-primary hover:bg-primary hover:text-primary-foreground"}`}>
                 {svc.connected ? "연결 해제" : "연결"}
               </button>
             </div>
@@ -730,7 +790,7 @@ function SettingsScreen() {
 
 export default function App() {
   const [activePage, setActivePage] = useState("dashboard");
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   const screens: Record<string, React.ReactNode> = {
     dashboard: <DashboardScreen />,
@@ -740,21 +800,43 @@ export default function App() {
     settings: <SettingsScreen />,
   };
 
+  const currentNav = navItems.find((n) => n.id === activePage);
+
+  function handleNav(id: string) {
+    setActivePage(id);
+    setDrawerOpen(false);
+  }
+
   return (
     <div className="flex h-screen bg-background overflow-hidden" style={{ fontFamily: "'Inter', sans-serif" }}>
-      {/* Sidebar */}
-      <aside className={`${sidebarOpen ? "w-52" : "w-14"} shrink-0 bg-card border-r border-border flex flex-col transition-all duration-200`}>
+
+      {/* Mobile drawer overlay */}
+      {drawerOpen && (
+        <div
+          className="fixed inset-0 z-30 bg-black/40 md:hidden"
+          onClick={() => setDrawerOpen(false)}
+        />
+      )}
+
+      {/* Sidebar — always visible on md+, drawer on mobile */}
+      <aside
+        className={`
+          fixed md:static inset-y-0 left-0 z-40
+          w-52 shrink-0 bg-card border-r border-border flex flex-col
+          transition-transform duration-200
+          ${drawerOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
+        `}
+      >
         <div className="flex items-center gap-2.5 px-4 py-4 border-b border-border h-12">
-          {sidebarOpen && (
-            <div className="flex items-center gap-2 flex-1 min-w-0">
-              <div className="w-5 h-5 bg-primary rounded flex items-center justify-center shrink-0">
-                <Package size={10} className="text-primary-foreground" />
-              </div>
-              <span className="text-xs font-semibold tracking-wide truncate">ADMIN</span>
-            </div>
-          )}
-          <button onClick={() => setSidebarOpen((v) => !v)} className="text-muted-foreground hover:text-foreground transition-colors shrink-0 ml-auto">
-            {sidebarOpen ? <X size={14} /> : <Menu size={14} />}
+          <div className="w-5 h-5 bg-primary rounded flex items-center justify-center shrink-0">
+            <Package size={10} className="text-primary-foreground" />
+          </div>
+          <span className="text-xs font-semibold tracking-wide flex-1">ADMIN</span>
+          <button
+            onClick={() => setDrawerOpen(false)}
+            className="md:hidden text-muted-foreground hover:text-foreground"
+          >
+            <X size={14} />
           </button>
         </div>
 
@@ -764,18 +846,15 @@ export default function App() {
             return (
               <button
                 key={item.id}
-                onClick={() => setActivePage(item.id)}
-                className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded text-xs transition-colors relative ${active ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground hover:bg-secondary"}`}
+                onClick={() => handleNav(item.id)}
+                className={`w-full flex items-center gap-2.5 px-2.5 py-2.5 md:py-2 rounded text-xs transition-colors relative ${active ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground hover:bg-secondary"}`}
               >
                 <item.icon size={14} className="shrink-0" />
-                {sidebarOpen && <span className="truncate">{item.label}</span>}
-                {item.badge && sidebarOpen && (
+                <span>{item.label}</span>
+                {item.badge && (
                   <span className={`ml-auto text-xs font-mono px-1.5 py-0.5 rounded-full ${active ? "bg-primary-foreground/20 text-primary-foreground" : "bg-accent text-foreground"}`}>
                     {item.badge}
                   </span>
-                )}
-                {item.badge && !sidebarOpen && (
-                  <span className="absolute top-1 right-1 w-2 h-2 bg-accent rounded-full" />
                 )}
               </button>
             );
@@ -783,9 +862,9 @@ export default function App() {
         </nav>
 
         <div className="p-2 border-t border-border">
-          <button className={`w-full flex items-center gap-2.5 px-2.5 py-2 rounded text-xs text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors`}>
+          <button className="w-full flex items-center gap-2.5 px-2.5 py-2.5 md:py-2 rounded text-xs text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors">
             <LogOut size={13} className="shrink-0" />
-            {sidebarOpen && <span>로그아웃</span>}
+            <span>로그아웃</span>
           </button>
         </div>
       </aside>
@@ -793,23 +872,35 @@ export default function App() {
       {/* Main */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Top bar */}
-        <header className="h-12 bg-card border-b border-border flex items-center px-5 gap-4 shrink-0">
-          <div className="relative flex-1 max-w-xs">
+        <header className="h-12 bg-card border-b border-border flex items-center px-4 gap-3 shrink-0">
+          {/* Hamburger — mobile only */}
+          <button
+            onClick={() => setDrawerOpen(true)}
+            className="md:hidden text-muted-foreground hover:text-foreground transition-colors shrink-0"
+          >
+            <Menu size={16} />
+          </button>
+
+          {/* Current page label — mobile */}
+          <span className="text-xs font-medium md:hidden">{currentNav?.label}</span>
+
+          {/* Search — hidden on mobile, visible on sm+ */}
+          <div className="relative hidden sm:block flex-1 max-w-xs">
             <Search size={12} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <input
               placeholder="검색..."
               className="w-full pl-7 pr-3 py-1 text-xs bg-secondary border border-border rounded focus:outline-none focus:ring-1 focus:ring-ring"
             />
           </div>
-          <div className="ml-auto flex items-center gap-3">
+
+          <div className="ml-auto flex items-center gap-2 md:gap-3">
             <button className="relative text-muted-foreground hover:text-foreground transition-colors">
               <Bell size={15} />
               <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-accent rounded-full" />
             </button>
-            <div className="flex items-center gap-2 border-l border-border pl-3">
+            <div className="flex items-center gap-2 border-l border-border pl-2 md:pl-3">
               <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-xs font-medium text-primary-foreground">K</div>
               <span className="text-xs font-medium hidden sm:block">김관리자</span>
-              <ChevronDown size={11} className="text-muted-foreground" />
             </div>
           </div>
         </header>
@@ -818,6 +909,26 @@ export default function App() {
         <main className="flex-1 overflow-y-auto">
           {screens[activePage]}
         </main>
+
+        {/* Mobile bottom nav */}
+        <nav className="md:hidden flex border-t border-border bg-card shrink-0">
+          {navItems.map((item) => {
+            const active = activePage === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => handleNav(item.id)}
+                className={`flex-1 flex flex-col items-center gap-0.5 py-2.5 relative transition-colors ${active ? "text-foreground" : "text-muted-foreground"}`}
+              >
+                <item.icon size={18} />
+                <span className="text-[10px]">{item.label.split(" ")[0]}</span>
+                {item.badge && (
+                  <span className="absolute top-1.5 right-1/4 w-1.5 h-1.5 bg-accent rounded-full" />
+                )}
+              </button>
+            );
+          })}
+        </nav>
       </div>
     </div>
   );
