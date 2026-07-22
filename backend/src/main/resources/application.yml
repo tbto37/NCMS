@@ -1,0 +1,44 @@
+spring:
+  application:
+    name: ncms-backend
+
+  # H2 Database Configuration (Development)
+  datasource:
+    url: jdbc:h2:mem:ncms
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+  # JPA Configuration
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.H2Dialect
+
+  # Security - Temporarily disable for initial setup
+  security:
+    user:
+      name: admin
+      password: admin123
+
+# Server Configuration
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+# Logging
+logging:
+  level:
+    com.logcom.ncms: DEBUG
+    org.springframework.web: INFO
+    org.hibernate.SQL: DEBUG
