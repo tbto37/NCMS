@@ -1,11 +1,11 @@
-package com.logcom.ncms.domain.health.dto;
+package kr.co.tobetheone.ncms.health.api.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Getter
 @Builder
@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class HealthResponse {
     private String status;
-    private LocalDateTime timestamp;
+    private Instant timestamp;
     private String application;
     private String version;
 }

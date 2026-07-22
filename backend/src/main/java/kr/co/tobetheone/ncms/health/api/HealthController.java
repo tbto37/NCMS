@@ -1,13 +1,13 @@
-package com.logcom.ncms.domain.health.controller;
+package kr.co.tobetheone.ncms.health.api;
 
-import com.logcom.ncms.common.dto.ApiResponse;
-import com.logcom.ncms.domain.health.dto.HealthResponse;
+import kr.co.tobetheone.ncms.global.response.ApiResponse;
+import kr.co.tobetheone.ncms.health.api.dto.HealthResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @RestController
 @RequestMapping("/v1/health")
@@ -17,7 +17,7 @@ public class HealthController {
     public ResponseEntity<ApiResponse<HealthResponse>> health() {
         HealthResponse healthResponse = HealthResponse.builder()
                 .status("UP")
-                .timestamp(LocalDateTime.now())
+                .timestamp(Instant.now())
                 .application("NCMS Backend")
                 .version("0.0.1-SNAPSHOT")
                 .build();

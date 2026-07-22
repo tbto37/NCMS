@@ -1,6 +1,6 @@
-package com.logcom.ncms.common.exception;
+package kr.co.tobetheone.ncms.global.exception;
 
-import com.logcom.ncms.common.dto.ApiResponse;
+import kr.co.tobetheone.ncms.global.response.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

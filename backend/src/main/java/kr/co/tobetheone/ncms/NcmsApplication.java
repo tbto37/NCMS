@@ -1,4 +1,4 @@
-package com.logcom.ncms;
+package kr.co.tobetheone.ncms;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

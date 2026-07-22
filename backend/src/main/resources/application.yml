@@ -17,12 +17,20 @@ spring:
   # JPA Configuration
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: validate
     show-sql: true
     properties:
       hibernate:
         format_sql: true
         dialect: org.hibernate.dialect.H2Dialect
+        jdbc:
+          time_zone: UTC
+
+  # Flyway Configuration
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    clean-disabled: true
 
   # Security - Temporarily disable for initial setup
   security:
@@ -39,6 +47,7 @@ server:
 # Logging
 logging:
   level:
-    com.logcom.ncms: DEBUG
+    kr.co.tobetheone.ncms: DEBUG
     org.springframework.web: INFO
     org.hibernate.SQL: DEBUG
+    org.flywaydb: DEBUG

@@ -1,4 +1,4 @@
-package com.logcom.ncms.common.dto;
+package kr.co.tobetheone.ncms.global.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
