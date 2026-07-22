@@ -1,15 +1,9 @@
--- 애플리케이션이 동작하기 위해 필요한 최소 기준데이터
--- Flyway repeatable migration: 내용 변경 시 재실행된다.
+-- NCMS Reference Data (Repeatable Migration)
 
-INSERT INTO roles (code, name, description, sort_order, is_system)
-VALUES
-    ('EMPLOYEE', '일반 임직원', '본인 명함 편집·주문·조회·재주문', 10, true),
-    ('COMPANY_ADMIN', '기업 관리자', '소속 고객사 주문 승인·반려 및 회원·부서 관리', 20, true),
-    ('OPERATOR', '로그컴 운영자', '고객사 주문 제작·인쇄·배송 처리', 30, true),
-    ('SYSTEM_ADMIN', '시스템 관리자', '고객사·템플릿·상품·권한·운영 정책 관리', 40, true)
-ON CONFLICT (code) DO UPDATE
-SET
-    name = EXCLUDED.name,
-    description = EXCLUDED.description,
-    sort_order = EXCLUDED.sort_order,
-    is_system = EXCLUDED.is_system;
+MERGE INTO roles (code, name, description, sort_order)
+KEY (code)
+VALUES 
+    ('EMPLOYEE', '일반 임직원', '템플릿 선택, 본인 명함 편집·주문, 본인 주문 조회, 반려 주문 수정, 재주문', 1),
+    ('COMPANY_ADMIN', '기업 관리자', '소속 고객사의 주문 조회, 승인·반려, 회원·부서 관리, 엑셀 다운로드', 2),
+    ('OPERATOR', '로그컴 운영자', '전체 또는 배정 고객사 주문 조회, 인쇄 파일 처리, 제작 상태 변경, 송장 등록, 발송 처리', 3),
+    ('SYSTEM_ADMIN', '시스템 관리자', '고객사·부서·회원·권한·템플릿·상품 옵션·운영계정·정책 관리', 4);
