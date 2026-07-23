@@ -159,7 +159,7 @@ shared -> 다른 상위 폴더 의존 금지
 | 폴더 | 대상 |
 |---|---|
 | `pages/employee` | 일반 임직원의 편집·교정·주문·재주문 |
-| `pages/company-admin` | 고객사 회원·부서·승인 관리 |
+| `pages/company-admin` | 고객사 회원(등록·수정·중지)·부서 관리 및 주문 조회 |
 | `pages/operator` | 로그컴 인쇄·발송 운영 |
 | `pages/system-admin` | 고객사·템플릿·상품·운영계정 관리 |
 
