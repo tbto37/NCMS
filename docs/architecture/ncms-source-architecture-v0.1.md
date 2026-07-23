@@ -4,7 +4,7 @@
 |---|---|
 | 시스템명 | NCMS (NameCard Management System) |
 | 저장소명 | `NCMS` |
-| 버전 | v0.1 |
+| 버전 | v0.2 |
 | 작성일 | 2026-07-22 |
 | 구성 | Spring Boot + React + PostgreSQL 모노레포 |
 
@@ -102,7 +102,7 @@ domain -> 외부 기술 의존 없음
 | `template` | 명함 템플릿, 버전, 편집 필드 |
 | `product` | 재질, 수량, 고객사별 상품·가격 정책 |
 | `order` | 주문, 명함 스냅샷, 교정 확인, 재주문 |
-| `approval` | 승인·반려·재상신과 승인 이력 |
+| `approval` | 로그컴 운영자의 명함 검수(승인·반려)와 검수 이력 |
 | `production` | 인쇄 작업과 인쇄용 PDF 버전 |
 | `shipment` | 배송, 택배사, 송장, 배송 이력 |
 | `notification` | 이메일 템플릿, 발송 큐, 재시도 |
@@ -114,7 +114,7 @@ domain -> 외부 기술 의존 없음
 
 - `config`: Spring 및 애플리케이션 설정
 - `security`: Spring Security 공통 구성과 인증 컨텍스트
-- `tenant`: `company_id` 접근 범위와 멀티테넌트 검증
+- `tenant`: 고객사 코드→`company_id` 해석, `company_id` 접근 범위와 멀티테넌트 검증
 - `exception`: 공통 예외와 예외 처리기
 - `response`: 공통 API 응답 형식
 - `storage`: 파일 저장소 공통 인터페이스와 구현
@@ -164,6 +164,15 @@ shared -> 다른 상위 폴더 의존 금지
 | `pages/system-admin` | 고객사·템플릿·상품·운영계정 관리 |
 
 페이지는 비즈니스 로직을 직접 소유하지 않고 `features`를 조합한다. 특정 기능에서만 쓰는 컴포넌트와 타입은 해당 feature 안에 두며, 재사용이 확인되기 전에는 `shared`로 올리지 않는다.
+
+### 4.2 경로 기반 고객사 라우팅
+
+고객사 대상 화면은 로그컴 도메인 하위 경로 `/{companyCode}`로 접속한다. 예: `/samsung/login`, `/samsung/templates`. 레거시 시스템의 URL 제공 방식을 그대로 승계하며, Vercel 단일 배포본 하나가 경로의 고객사 코드로 대상 고객사를 식별한다.
+
+- `app` 라우터는 최상위에 `/:companyCode` 세그먼트를 두고 그 하위에 임직원·기업 관리자 라우트를 배치한다.
+- 진입 시 고객사 코드로 브랜딩(로고·대표색)과 로그인 화면을 구성하되, 데이터 접근 권한은 로그인 사용자의 `company_id`와 역할로 백엔드가 다시 판정한다.
+- 로그컴 운영자·시스템 관리자 화면은 `/operator`, `/admin` 등 고객사 코드 없는 경로에 둔다.
+- 백엔드는 경로 또는 헤더로 전달된 고객사 코드를 `company_id`로 해석하되 이를 신뢰 경계로 삼지 않고 인증 주체의 소속과 반드시 대조한다.
 
 ## 5. 테스트 구조
 
