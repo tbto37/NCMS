@@ -108,21 +108,21 @@ export default function UsersPage() {
         </div>
 
         {paged.length === 0 ? (
-          <div className="flex h-[344px] flex-col items-center justify-center text-muted-foreground">
+          <div className="flex h-[520px] flex-col items-center justify-center text-muted-foreground">
             <Users size={32} className="mb-3 opacity-30" />
             <p className="text-xs">검색 결과가 없습니다.</p>
           </div>
         ) : (
           <>
             {/* Desktop table */}
-            <div className="hidden h-[344px] overflow-auto md:block">
-              <table className="w-full">
+            <div className="hidden h-[520px] overflow-auto md:block">
+              <table className="w-full min-w-[1040px] table-fixed">
                 <thead>
                 <tr className="border-b border-border bg-secondary/40">
                   <th className="px-4 py-2.5 w-8">
                     <input type="checkbox" checked={allSelected} onChange={toggleAll} className="rounded border-border accent-primary" />
                   </th>
-                  {["이름 / 이메일", "부서", "역할", "상태", "회사", "가입일", "주문 수"].map((h) => (
+                  {["이름", "부서", "역할", "상태", "회사", "가입일", "주문 수"].map((h) => (
                     <th key={h} className="px-4 py-2.5 text-left text-xs font-medium text-muted-foreground tracking-wider">{h}</th>
                   ))}
                 </tr>
@@ -138,10 +138,10 @@ export default function UsersPage() {
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2.5">
-                          <div className="w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-medium shrink-0">{user.name[0]}</div>
+                          {/*<div className="w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-medium shrink-0">{user.name[0]}</div>*/}
                           <div>
                             <div className="text-xs font-medium text-foreground">{user.name}</div>
-                            <div className="text-xs text-muted-foreground">{user.email}</div>
+                            {/*<div className="text-xs text-muted-foreground">{user.email}</div>*/}
                           </div>
                         </div>
                       </td>
@@ -159,7 +159,7 @@ export default function UsersPage() {
             </div>
 
             {/* Mobile card list */}
-            <div className="h-[344px] divide-y divide-border overflow-y-auto md:hidden">
+            <div className="h-[540px] divide-y divide-border overflow-y-auto md:hidden">
               <div className="flex items-center gap-3 px-4 py-2.5 bg-secondary/40">
                 <input type="checkbox" checked={allSelected} onChange={toggleAll} className="rounded border-border accent-primary" />
                 <span className="text-xs text-muted-foreground">전체 선택 ({paged.length}건)</span>
@@ -176,7 +176,7 @@ export default function UsersPage() {
                         <span className="text-xs font-medium text-foreground">{user.name}</span>
                         <StatusBadge status={user.status} />
                       </div>
-                      <div className="text-xs text-muted-foreground truncate">{user.email}</div>
+                      {/*<div className="text-xs text-muted-foreground truncate">{user.email}</div>*/}
                       <div className="text-xs text-muted-foreground mt-0.5">{user.dept} · {user.company} · {user.joined}</div>
                     </div>
                   </div>

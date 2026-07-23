@@ -28,4 +28,6 @@ export const extUsers = [
   { id: 7, name: "조현서", email: "hyunseo.jo@email.com", role: "뷰어", status: "활성", dept: "디자인팀", company: "테크코리아", joined: "2025-01-12", orders: 34 },
   { id: 8, name: "한도윤", email: "doyun.han@email.com", role: "편집자", status: "활성", dept: "마케팅팀", company: "디지털솔루션", joined: "2025-02-20", orders: 19 },
   { id: 9, name: "오지민", email: "jimin.oh@email.com", role: "뷰어", status: "활성", dept: "영업팀", company: "한국IT", joined: "2025-03-05", orders: 7 },
+  { id: 10, name: "조현원", email: "jimin.oh@email.com", role: "뷰어", status: "활성", dept: "영업팀", company: "한국IT", joined: "2025-03-05", orders: 0 },
+  { id: 11, name: "이가영", email: "jimin.oh@email.com", role: "뷰어", status: "활성", dept: "영업팀", company: "한국IT", joined: "2025-03-05", orders: 0 },
 ];

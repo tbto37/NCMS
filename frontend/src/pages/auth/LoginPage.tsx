@@ -64,6 +64,17 @@ export default function LoginPage() {
             </div>
           </div>
 
+          <label className="flex w-fit cursor-pointer items-center gap-2 select-none">
+            <input
+              type="checkbox"
+              className="h-3.5 w-3.5 cursor-pointer rounded border-border accent-primary"
+            />
+
+            <span className="text-xs text-muted-foreground">
+              로그인 유지
+            </span>
+          </label>
+
           {error && (
             <p className="text-xs text-red-500">{error}</p>
           )}
