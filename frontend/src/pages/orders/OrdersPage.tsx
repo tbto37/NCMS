@@ -5,6 +5,9 @@ import { Pagination } from "@/components/common/Pagination";
 import { StatusBadge } from "@/components/common/StatusBadge";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import OrderDetailModal, {
+  type OrderDetailData,
+} from "./components/OrderDetailModal";
 import { PAGE_SIZE } from "@/shared/constants/pagination";
 import {
   ORDER_TABS,
@@ -88,7 +91,12 @@ function BusinessCardPreview({ order }: { order: Order }) {
   );
 }
 
-function OrderActions({ order }: { order: Order }) {
+interface OrderActionsProps {
+  order: Order;
+  onOpenDetail: (order: Order) => void;
+}
+
+function OrderActions({ order, onOpenDetail }: OrderActionsProps) {
   const handleAction = (action: string) => {
     // 실제 상세 페이지 이동, PDF 다운로드, 배송 API 연결 시 이 부분을 교체하면 됩니다.
     console.info(`[${action}]`, order.id);
@@ -96,7 +104,7 @@ function OrderActions({ order }: { order: Order }) {
 
   return (
     <div className="flex items-center justify-end gap-1.5">
-      <ActionIconButton label="주문 상세" onClick={() => handleAction("주문 상세")}>
+      <ActionIconButton label="주문 상세" onClick={() => onOpenDetail(order)}>
         <ReceiptText size={13} />
       </ActionIconButton>
 
@@ -170,6 +178,27 @@ export default function OrdersPage() {
   const paged = searched.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
   const allSelected = paged.length > 0 && paged.every((o) => selectedIds.has(o.id));
   const selectedCount = paged.filter((o) => selectedIds.has(o.id)).length;
+
+  const [selectedOrder, setSelectedOrder] = useState<OrderDetailData | null>(null);
+
+  function handleOpenOrderDetail(order: Order) {
+    setSelectedOrder({
+      id: order.id,
+      orderNumber: order.id,
+      department: "제일엔지니어링",
+      product: order.product,
+      material: "휘라레 216g",
+      quantity: 2000,
+      memo: "",
+      customerName: order.customer,
+      phone: "02-3498-2600",
+      email: "youremail@email.com",
+      address: "06779 서울시 서초구 방배천로 22-6",
+      detailAddress: "9층",
+      status: order.status,
+      createdAt: order.date,
+    });
+  }
 
   function toggleAll() {
     setSelectedIds((prev) => {
@@ -270,7 +299,7 @@ export default function OrdersPage() {
                       <td className="px-4 py-3"><StatusBadge status={order.status} /></td>
                       <td className="px-4 py-3 text-xs text-muted-foreground font-mono">{order.date}</td>
                       <td className="px-4 py-2" onClick={(event) => event.stopPropagation()}>
-                        <OrderActions order={order} />
+                        <OrderActions order={order} onOpenDetail={handleOpenOrderDetail} />
                       </td>
                     </tr>
                   );
@@ -302,7 +331,7 @@ export default function OrdersPage() {
                         <span className="text-xs font-medium font-mono">₩{order.amount.toLocaleString()}</span>
                       </div>
                       <div className="mt-2 border-t border-border pt-2" onClick={(event) => event.stopPropagation()}>
-                        <OrderActions order={order} />
+                        <OrderActions order={order} onOpenDetail={handleOpenOrderDetail} />
                       </div>
                     </div>
                   </div>
@@ -333,6 +362,12 @@ export default function OrdersPage() {
           </>
         )}
       </div>
+
+      <OrderDetailModal
+        open={selectedOrder !== null}
+        order={selectedOrder}
+        onClose={() => setSelectedOrder(null)}
+      />
     </div>
   );
 }
