@@ -1,3 +1,5 @@
+import { useState } from "react";
+import { useNavigate } from "react-router";
 import {
   Copy,
   FileText,
@@ -7,6 +9,9 @@ import {
   Search,
   SquarePen,
 } from "lucide-react";
+
+import TemplateEditModal from "./components/TemplateEditModal";
+import ProofCheckModal from "./components/ProofCheckModal";
 
 const templates = [
   {
@@ -52,6 +57,11 @@ const templates = [
 ];
 
 export default function TemplatesPage() {
+  const navigate = useNavigate();
+
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [proofModalOpen, setProofModalOpen] = useState(false);
+
   return (
     <div className="p-4 md:p-6 space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -65,30 +75,6 @@ export default function TemplatesPage() {
           <Plus size={12} />
           템플릿 추가
         </button>
-      </div>
-
-      <div className="flex flex-col gap-2 rounded-lg border border-border bg-card p-3 sm:flex-row sm:items-center sm:justify-between">
-        <div className="relative flex-1">
-          <Search size={13} className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
-          <input
-            className="h-8 w-full rounded border border-border bg-background pl-8 pr-3 text-xs outline-none transition-colors placeholder:text-muted-foreground focus:border-primary"
-            placeholder="템플릿명, 카테고리 검색"
-          />
-        </div>
-        <div className="flex gap-2">
-          {["전체", "사용중", "검토중", "초안"].map((filter, index) => (
-            <button
-              key={filter}
-              className={`h-8 rounded border px-3 text-xs transition-colors ${
-                index === 0
-                  ? "border-primary bg-primary text-primary-foreground"
-                  : "border-border text-muted-foreground hover:bg-secondary hover:text-foreground"
-              }`}
-            >
-              {filter}
-            </button>
-          ))}
-        </div>
       </div>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -151,7 +137,11 @@ export default function TemplatesPage() {
               </div>
 
               <div className="flex gap-2">
-                <button className="flex flex-1 items-center justify-center gap-1.5 rounded border border-border px-2 py-1.5 text-xs text-foreground transition-colors hover:bg-secondary">
+                <button
+                  type="button"
+                  onClick={() => setEditModalOpen(true)}
+                  className="flex flex-1 items-center justify-center gap-1.5 rounded border border-border px-2 py-1.5 text-xs text-foreground transition-colors hover:bg-secondary"
+                >
                   <SquarePen size={12} />
                   편집
                 </button>
@@ -171,6 +161,27 @@ export default function TemplatesPage() {
         <FileText size={14} className="shrink-0" />
         템플릿 카드는 실제 API 연결 전까지 화면 검토용 목업 데이터를 사용합니다.
       </div>
+
+      <TemplateEditModal
+        open={editModalOpen}
+        onClose={() => setEditModalOpen(false)}
+        onNext={() => {
+          setProofModalOpen(true);
+        }}
+      />
+
+      <ProofCheckModal
+        open={proofModalOpen}
+        onClose={() => setProofModalOpen(false)}
+        onBack={() => {
+          setProofModalOpen(false);
+        }}
+        onConfirm={() => {
+          setProofModalOpen(false);
+          setEditModalOpen(false);
+          navigate("/orders/form");
+        }}
+      />
     </div>
   );
 }

@@ -8,6 +8,7 @@ const LoginPage = lazy(() => import("@/pages/auth/LoginPage"));
 const DashboardPage = lazy(() => import("@/pages/dashboard/DashboardPage"));
 const UsersPage = lazy(() => import("@/pages/users/UsersPage"));
 const OrdersPage = lazy(() => import("@/pages/orders/OrdersPage"));
+const OrderFormPage = lazy(() => import("@/pages/orders/OrderFormPage"));
 const TemplatesPage = lazy(() => import("@/pages/templates/TemplatesPage"));
 const AnalyticsPage = lazy(() => import("@/pages/analytics/AnalyticsPage"));
 const SettingsPage = lazy(() => import("@/pages/settings/SettingsPage"));
@@ -34,6 +35,7 @@ export default function App() {
                 <Route path="/dashboard" element={<DashboardPage />} />
                 <Route path="/users" element={<UsersPage />} />
                 <Route path="/orders" element={<OrdersPage />} />
+                <Route path="/orders/form" element={<OrderFormPage />} />
                 <Route path="/templates" element={<TemplatesPage />} />
                 <Route path="/analytics" element={<AnalyticsPage />} />
                 <Route path="/settings" element={<SettingsPage />} />

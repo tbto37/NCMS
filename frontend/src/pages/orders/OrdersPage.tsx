@@ -105,13 +105,13 @@ export default function OrdersPage() {
         </div>
 
         {paged.length === 0 ? (
-          <div className="flex h-[520px] flex-col items-center justify-center text-muted-foreground">
+          <div className="flex h-[510px] flex-col items-center justify-center text-muted-foreground">
             <Package size={32} className="mb-3 opacity-30" />
             <p className="text-xs">해당 조건의 주문이 없습니다.</p>
           </div>
         ) : (
           <>
-            <div className="hidden h-[520px] overflow-auto md:block">
+            <div className="hidden h-[510px] overflow-auto md:block">
               <table className="w-full min-w-[1040px] table-fixed">
                 <thead>
                 <tr className="border-b border-border bg-secondary/40">
@@ -146,7 +146,7 @@ export default function OrdersPage() {
               </table>
             </div>
 
-            <div className="h-[520px] divide-y divide-border overflow-y-auto md:hidden">
+            <div className="h-[510px] divide-y divide-border overflow-y-auto md:hidden">
               <div className="flex items-center gap-3 px-4 py-2.5 bg-secondary/40">
                 <input type="checkbox" checked={allSelected} onChange={toggleAll} className="rounded border-border accent-primary" />
                 <span className="text-xs text-muted-foreground">전체 선택 ({paged.length}건)</span>
