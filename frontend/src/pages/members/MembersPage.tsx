@@ -6,13 +6,13 @@ import { StatusBadge } from "@/components/common/StatusBadge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { PAGE_SIZE } from "@/shared/constants/pagination";
 import {
-  USER_TABS,
-  type UserTab,
-  USER_TAB_ACTIONS,
-  USER_FILTER_FIELDS,
-  USER_COMPANIES,
-  extUsers,
-} from "@/shared/constants/users";
+  MEMBER_TABS,
+  type MemberTab,
+  MEMBER_TAB_ACTIONS,
+  MEMBER_FILTER_FIELDS,
+  MEMBER_COMPANIES,
+  extMembers,
+} from "@/shared/constants/members";
 
 import MemberEditModal, {
   type MemberEditData,
@@ -22,16 +22,16 @@ import MemberDeleteConfirmModal, {
   type MemberDeleteData,
 } from "./components/MemberDeleteConfirmModal";
 
-type User = (typeof extUsers)[number];
+type Member = (typeof extMembers)[number];
 
-interface UserActionButtonProps {
+interface MemberActionButtonProps {
   label: string;
   danger?: boolean;
   onClick: () => void;
   children: React.ReactNode;
 }
 
-function UserActionButton({ label, danger = false, onClick, children }: UserActionButtonProps) {
+function MemberActionButton({ label, danger = false, onClick, children }: MemberActionButtonProps) {
   return (
     <Tooltip>
       <TooltipTrigger asChild>
@@ -56,35 +56,35 @@ function UserActionButton({ label, danger = false, onClick, children }: UserActi
   );
 }
 
-interface UserActionsProps {
-  user: User;
-  onEdit: (user: User) => void;
-  onDelete: (user: User) => void;
+interface MemberActionsProps {
+  member: Member;
+  onEdit: (member: Member) => void;
+  onDelete: (member: Member) => void;
 }
 
-function UserActions({ user, onEdit, onDelete }: UserActionsProps) {
+function MemberActions({ member, onEdit, onDelete }: MemberActionsProps) {
   return (
     <div className="flex items-center justify-end gap-1.5">
-      <UserActionButton
+      <MemberActionButton
         label="회원 수정"
-        onClick={() => onEdit(user)}
+        onClick={() => onEdit(member)}
       >
         <Pencil size={13} />
-      </UserActionButton>
+      </MemberActionButton>
 
-      <UserActionButton
+      <MemberActionButton
         label="회원 삭제"
         danger
-        onClick={() => onDelete(user)}
+        onClick={() => onDelete(member)}
       >
         <Trash2 size={13} />
-      </UserActionButton>
+      </MemberActionButton>
     </div>
   );
 }
 
-export default function UsersPage() {
-  const [activeTab, setActiveTab] = useState<UserTab>("전체");
+export default function MembersPage() {
+  const [activeTab, setActiveTab] = useState<MemberTab>("전체");
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const [page, setPage] = useState(1);
 
@@ -101,20 +101,20 @@ export default function UsersPage() {
   const [deleteMember, setDeleteMember] =
     useState<MemberDeleteData | null>(null);
 
-  function handleEditMember(user: User) {
+  function handleEditMember(member: Member) {
     setSelectedMember({
-      id: String(user.id),
+      id: String(member.id),
       password: "",
-      department: user.dept,
+      department: member.dept,
     });
   }
 
-  function handleDeleteMember(user: User) {
+  function handleDeleteMember(member: Member) {
     setDeleteMember({
-      id: user.id,
-      name: user.name,
-      department: user.dept,
-      company: user.company,
+      id: member.id,
+      name: member.name,
+      department: member.dept,
+      company: member.company,
     });
   }
 
@@ -129,49 +129,49 @@ export default function UsersPage() {
     setPage(1); setSelectedIds(new Set());
   }
 
-  const tabFiltered = activeTab === "전체" ? extUsers : extUsers.filter((u) => u.dept === activeTab);
-  const searched = tabFiltered.filter((u) => {
-    if (applied.company && u.company !== applied.company) return false;
+  const tabFiltered = activeTab === "전체" ? extMembers : extMembers.filter((member) => member.dept === activeTab);
+  const searched = tabFiltered.filter((member) => {
+    if (applied.company && member.company !== applied.company) return false;
     if (applied.filterValue) {
       const val = applied.filterValue.toLowerCase();
       const field = applied.filterField as keyof typeof u;
-      if (!String(u[field]).toLowerCase().includes(val)) return false;
+      if (!String(member[field]).toLowerCase().includes(val)) return false;
     }
-    if (applied.dateFrom && u.joined < applied.dateFrom) return false;
-    if (applied.dateTo && u.joined > applied.dateTo) return false;
+    if (applied.dateFrom && member.joined < applied.dateFrom) return false;
+    if (applied.dateTo && member.joined > applied.dateTo) return false;
     return true;
   });
 
   const totalPages = Math.max(1, Math.ceil(searched.length / PAGE_SIZE));
   const paged = searched.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
-  const allSelected = paged.length > 0 && paged.every((u) => selectedIds.has(u.id));
-  const selectedCount = paged.filter((u) => selectedIds.has(u.id)).length;
+  const allSelected = paged.length > 0 && paged.every((member) => selectedIds.has(member.id));
+  const selectedCount = paged.filter((member) => selectedIds.has(member.id)).length;
 
   function toggleAll() {
     setSelectedIds((prev) => {
       const next = new Set(prev);
-      if (allSelected) paged.forEach((u) => next.delete(u.id));
-      else paged.forEach((u) => next.add(u.id));
+      if (allSelected) paged.forEach((member) => next.delete(member.id));
+      else paged.forEach((member) => next.add(member.id));
       return next;
     });
   }
   function toggleOne(id: number) {
     setSelectedIds((prev) => { const next = new Set(prev); next.has(id) ? next.delete(id) : next.add(id); return next; });
   }
-  function handleTabChange(tab: UserTab) { setActiveTab(tab); setPage(1); setSelectedIds(new Set()); }
+  function handleTabChange(tab: MemberTab) { setActiveTab(tab); setPage(1); setSelectedIds(new Set()); }
 
-  const actions = USER_TAB_ACTIONS[activeTab];
+  const actions = MEMBER_TAB_ACTIONS[activeTab];
 
   return (
     <div className="p-4 md:p-6 space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-lg md:text-xl font-semibold text-foreground" style={{ fontFamily: "'Instrument Serif', serif" }}>사용자 관리</h1>
-          <p className="text-xs text-muted-foreground mt-0.5">총 {extUsers.length}명</p>
+          <h1 className="text-lg md:text-xl font-semibold text-foreground" style={{ fontFamily: "'Instrument Serif', serif" }}>회원 관리</h1>
+          <p className="text-xs text-muted-foreground mt-0.5">총 {extMembers.length}명</p>
         </div>
         <button className="flex items-center gap-1.5 px-3 py-1.5 bg-primary text-primary-foreground text-xs font-medium rounded hover:opacity-90 transition-opacity">
           <Plus size={11} />
-          사용자 추가
+          회원 추가
         </button>
       </div>
 
@@ -181,14 +181,14 @@ export default function UsersPage() {
         onDateFrom={setDateFrom} onDateTo={setDateTo} onCompany={setCompany}
         onFilterField={setFilterField} onFilterValue={setFilterValue}
         onSearch={handleSearch} onReset={handleReset}
-        filterFields={USER_FILTER_FIELDS} companies={USER_COMPANIES}
+        filterFields={MEMBER_FILTER_FIELDS} companies={MEMBER_COMPANIES}
       />
 
       <div className="bg-card border border-border rounded-lg overflow-hidden">
         {/* Tabs */}
         <div className="flex overflow-x-auto border-b border-border">
-          {USER_TABS.map((tab) => {
-            const count = tab === "전체" ? extUsers.length : extUsers.filter((u) => u.dept === tab).length;
+          {MEMBER_TABS.map((tab) => {
+            const count = tab === "전체" ? extMembers.length : extMembers.filter((member) => member.dept === tab).length;
             const active = activeTab === tab;
             return (
               <button key={tab} onClick={() => handleTabChange(tab)}
@@ -232,31 +232,31 @@ export default function UsersPage() {
                 </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
-                {paged.map((user) => {
-                  const checked = selectedIds.has(user.id);
+                {paged.map((member) => {
+                  const checked = selectedIds.has(member.id);
                   return (
-                    <tr key={user.id} onClick={() => toggleOne(user.id)}
+                    <tr key={member.id} onClick={() => toggleOne(member.id)}
                         className={`hover:bg-secondary/40 transition-colors cursor-pointer ${checked ? "bg-secondary/60" : ""}`}>
                       <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
-                        <input type="checkbox" checked={checked} onChange={() => toggleOne(user.id)} className="rounded border-border accent-primary" />
+                        <input type="checkbox" checked={checked} onChange={() => toggleOne(member.id)} className="rounded border-border accent-primary" />
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2.5">
-                          {/*<div className="w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-medium shrink-0">{user.name[0]}</div>*/}
+                          {/*<div className="w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-medium shrink-0">{member.name[0]}</div>*/}
                           <div>
-                            <div className="text-xs font-medium text-foreground">{user.name}</div>
-                            {/*<div className="text-xs text-muted-foreground">{user.email}</div>*/}
+                            <div className="text-xs font-medium text-foreground">{member.name}</div>
+                            {/*<div className="text-xs text-muted-foreground">{member.email}</div>*/}
                           </div>
                         </div>
                       </td>
-                      <td className="px-4 py-3 text-xs text-muted-foreground">{user.dept}</td>
-                      <td className="px-4 py-3"><span className="text-xs bg-secondary px-2 py-0.5 rounded">{user.role}</span></td>
-                      <td className="px-4 py-3"><StatusBadge status={user.status} /></td>
-                      <td className="px-4 py-3 text-xs text-muted-foreground">{user.company}</td>
-                      <td className="px-4 py-3 text-xs text-muted-foreground font-mono">{user.joined}</td>
-                      <td className="px-4 py-3 text-xs font-mono font-medium">{user.orders}</td>
+                      <td className="px-4 py-3 text-xs text-muted-foreground">{member.dept}</td>
+                      <td className="px-4 py-3"><span className="text-xs bg-secondary px-2 py-0.5 rounded">{member.role}</span></td>
+                      <td className="px-4 py-3"><StatusBadge status={member.status} /></td>
+                      <td className="px-4 py-3 text-xs text-muted-foreground">{member.company}</td>
+                      <td className="px-4 py-3 text-xs text-muted-foreground font-mono">{member.joined}</td>
+                      <td className="px-4 py-3 text-xs font-mono font-medium">{member.orders}</td>
                       <td className="px-4 py-2" onClick={(event) => event.stopPropagation()}>
-                        <UserActions user={user} onEdit={handleEditMember} onDelete={handleDeleteMember} />
+                        <MemberActions member={member} onEdit={handleEditMember} onDelete={handleDeleteMember} />
                       </td>
                     </tr>
                   );
@@ -271,22 +271,22 @@ export default function UsersPage() {
                 <input type="checkbox" checked={allSelected} onChange={toggleAll} className="rounded border-border accent-primary" />
                 <span className="text-xs text-muted-foreground">전체 선택 ({paged.length}건)</span>
               </div>
-              {paged.map((user) => {
-                const checked = selectedIds.has(user.id);
+              {paged.map((member) => {
+                const checked = selectedIds.has(member.id);
                 return (
-                  <div key={user.id} onClick={() => toggleOne(user.id)}
+                  <div key={member.id} onClick={() => toggleOne(member.id)}
                        className={`flex items-start gap-3 px-4 py-3 transition-colors ${checked ? "bg-secondary/60" : ""}`}>
-                    <input type="checkbox" checked={checked} onChange={() => toggleOne(user.id)}
+                    <input type="checkbox" checked={checked} onChange={() => toggleOne(member.id)}
                            className="mt-0.5 rounded border-border accent-primary shrink-0" onClick={(e) => e.stopPropagation()} />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-2 mb-0.5">
-                        <span className="text-xs font-medium text-foreground">{user.name}</span>
-                        <StatusBadge status={user.status} />
+                        <span className="text-xs font-medium text-foreground">{member.name}</span>
+                        <StatusBadge status={member.status} />
                       </div>
-                      {/*<div className="text-xs text-muted-foreground truncate">{user.email}</div>*/}
-                      <div className="text-xs text-muted-foreground mt-0.5">{user.dept} · {user.company} · {user.joined}</div>
+                      {/*<div className="text-xs text-muted-foreground truncate">{member.email}</div>*/}
+                      <div className="text-xs text-muted-foreground mt-0.5">{member.dept} · {member.company} · {member.joined}</div>
                       <div className="mt-2 border-t border-border pt-2" onClick={(event) => event.stopPropagation()}>
-                        <UserActions user={user} onEdit={handleEditMember} onDelete={handleDeleteMember} />
+                        <MemberActions member={member} onEdit={handleEditMember} onDelete={handleDeleteMember} />
                       </div>
                     </div>
                   </div>

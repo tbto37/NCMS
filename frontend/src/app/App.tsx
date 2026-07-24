@@ -8,10 +8,10 @@ import { TenantLayout } from "@/components/layout/TenantLayout";
 
 const LoginPage = lazy(() => import("@/pages/auth/LoginPage"));
 const DashboardPage = lazy(() => import("@/pages/dashboard/DashboardPage"));
-const UsersPage = lazy(() => import("@/pages/users/UsersPage"));
+const TemplatesPage = lazy(() => import("@/pages/templates/TemplatesPage"));
+const MembersPage = lazy(() => import("@/pages/members/MembersPage"));
 const OrdersPage = lazy(() => import("@/pages/orders/OrdersPage"));
 const OrderFormPage = lazy(() => import("@/pages/orders/OrderFormPage"));
-const TemplatesPage = lazy(() => import("@/pages/templates/TemplatesPage"));
 const AnalyticsPage = lazy(() => import("@/pages/analytics/AnalyticsPage"));
 const SettingsPage = lazy(() => import("@/pages/settings/SettingsPage"));
 const ErrorPage = lazy(() => import("@/pages/error/ErrorPage"));
@@ -45,9 +45,8 @@ export default function App() {
               <Route element={<TenantLayout />}>
                 <Route path="templates" element={<TemplatesPage />} />
                 <Route path="orders" element={<OrdersPage />} />
-                <Route path="orders/new" element={<OrderFormPage />} />
-                <Route path="company/members" element={<UsersPage />} />
-                <Route path="company/departments" element={<DashboardPage />} />
+                <Route path="orders/form" element={<OrderFormPage />} />
+                <Route path="members" element={<MembersPage />} />
               </Route>
             </Route>
 
@@ -56,8 +55,7 @@ export default function App() {
               <Route element={<AdminLayout />}>
                 <Route index element={<Navigate to="orders" replace />} />
                 <Route path="orders" element={<OrdersPage />} />
-                <Route path="production" element={<DashboardPage />} />
-                <Route path="shipments" element={<DashboardPage />} />
+                <Route path="members" element={<MembersPage />} />
               </Route>
             </Route>
 
@@ -65,11 +63,10 @@ export default function App() {
             <Route path="/admin" element={<RequireAuth />}>
               <Route element={<AdminLayout />}>
                 <Route index element={<Navigate to="companies" replace />} />
-                <Route path="companies" element={<DashboardPage />} />
-                <Route path="members" element={<UsersPage />} />
                 <Route path="templates" element={<TemplatesPage />} />
-                <Route path="products" element={<SettingsPage />} />
-                <Route path="audit-logs" element={<AnalyticsPage />} />
+                <Route path="orders" element={<OrdersPage />} />
+                <Route path="orders/form" element={<OrderFormPage />} />
+                <Route path="members" element={<MembersPage />} />
               </Route>
             </Route>
 

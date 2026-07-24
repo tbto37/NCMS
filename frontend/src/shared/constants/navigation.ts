@@ -10,9 +10,7 @@ export type NavItem = {
 };
 
 export const navItems: NavItem[] = [
-  { id: "companies", label: "고객사 관리", icon: LayoutDashboard, path: "/admin/companies" },
-  { id: "members", label: "회원 관리", icon: Users, path: "/admin/members", badge: 12 },
   { id: "templates", label: "템플릿 관리", icon: Layers, path: "/admin/templates" },
-  { id: "products", label: "상품 설정", icon: Settings, path: "/admin/products" },
-  { id: "audit-logs", label: "감사 로그", icon: BarChart3, path: "/admin/audit-logs" },
+  { id: "members", label: "회원 관리", icon: Users, path: "/admin/members", badge: 12 },
+  { id: "orders", label: "주문 관리", icon: ShoppingCart, path: "/admin/orders", badge: 5 },
 ];
