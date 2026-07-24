@@ -4,8 +4,8 @@
 |---|---|
 | 시스템명 | NCMS (NameCard Management System) |
 | 저장소명 | `NCMS` |
-| 버전 | v0.2 |
-| 작성일 | 2026-07-22 |
+| 버전 | v0.3 |
+| 작성일 | 2026-07-23 |
 | 구성 | Spring Boot + React + PostgreSQL 모노레포 |
 
 ## 1. 구조 결정
@@ -165,14 +165,28 @@ shared -> 다른 상위 폴더 의존 금지
 
 페이지는 비즈니스 로직을 직접 소유하지 않고 `features`를 조합한다. 특정 기능에서만 쓰는 컴포넌트와 타입은 해당 feature 안에 두며, 재사용이 확인되기 전에는 `shared`로 올리지 않는다.
 
-### 4.2 경로 기반 고객사 라우팅
+### 4.2 경로 기반 고객사 라우팅 및 동적 멀티테넌트
 
 고객사 대상 화면은 로그컴 도메인 하위 경로 `/{companyCode}`로 접속한다. 예: `/samsung/login`, `/samsung/templates`. 레거시 시스템의 URL 제공 방식을 그대로 승계하며, Vercel 단일 배포본 하나가 경로의 고객사 코드로 대상 고객사를 식별한다.
 
-- `app` 라우터는 최상위에 `/:companyCode` 세그먼트를 두고 그 하위에 임직원·기업 관리자 라우트를 배치한다.
-- 진입 시 고객사 코드로 브랜딩(로고·대표색)과 로그인 화면을 구성하되, 데이터 접근 권한은 로그인 사용자의 `company_id`와 역할로 백엔드가 다시 판정한다.
-- 로그컴 운영자·시스템 관리자 화면은 `/operator`, `/admin` 등 고객사 코드 없는 경로에 둔다.
-- 백엔드는 경로 또는 헤더로 전달된 고객사 코드를 `company_id`로 해석하되 이를 신뢰 경계로 삼지 않고 인증 주체의 소속과 반드시 대조한다.
+#### 4.2.1 동적 테넌트 처리 및 브랜딩 (Frontend)
+
+- `app` 라우터는 최상위에 `/:companyCode` 동적 세그먼트를 배치하고 하위에 임직원 및 기업 관리자 라우트를 둔다.
+- 진입 시 `TenantProvider` 및 `useTenant` 훅을 통해 `GET /api/v1/public/companies/{companyCode}` API를 호출하고 고객사 메타데이터(회사명, 로고 URL, 대표색 등)를 조회한다.
+- DB에 존재하지 않거나 비활성화(`is_active=false`)된 고객사 코드로 접속 시 커스텀 404 안내 페이지로 리다이렉트한다.
+- 조회된 대표 색상은 CSS Variable(`--brand-primary-color`)로 전역 주입되어 로고, 버튼, 포인트 컬러 등 화면의 테마 톤앤매너를 동적으로 반영한다.
+
+#### 4.2.2 백엔드 테넌트 해석 및 보안 격리 (Backend)
+
+- 백엔드 `global/tenant` 패키지의 `TenantResolverInterceptor`와 `TenantContext`를 통해 요청 경로 및 헤더의 `companyCode`를 `company_id`로 해석한다.
+- 클라이언트가 보낸 경로의 `companyCode`는 단순 진입/브랜딩 구별용일 뿐이며, 이를 보안 신뢰 경계로 삼지 않는다.
+- 인증 완료 후 Spring Security Filter 및 Service 계층에서 사용자 세션/토큰의 `user.company_id`와 요청 자원의 `company_id`를 대조하여 타 고객사 데이터 접근 시 `403 Forbidden`을 반환한다.
+- 로그컴 운영자(`OPERATOR`) 및 시스템 관리자(`SYSTEM_ADMIN`) 화면은 `/operator`, `/admin` 등 고객사 코드 없는 전역 경로로 접속한다.
+
+#### 4.2.3 Zero-Deployment 신규 고객사 온보딩 워크플로우
+
+- 신규 고객사 추가 시 프론트엔드/백엔드 소스 코드 수정 및 앱 재배포 작업이 일체 필요하지 않다.
+- 시스템 관리자가 `/admin/companies` 화면(또는 DB `companies` 테이블)에 신규 고객사 `code`, `name`, `logo_url`, `primary_color`를 등록하고 해당 소속의 기업 관리자(`COMPANY_ADMIN`) 계정을 생성하면 즉시 `https://logcom.co.kr/{companyCode}` 서비스 환경이 활성화된다.
 
 ## 5. 테스트 구조
 

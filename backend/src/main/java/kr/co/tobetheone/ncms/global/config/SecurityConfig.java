@@ -19,6 +19,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/h2-console/**").permitAll()
                 .requestMatchers("/api/v1/health").permitAll()
+                .requestMatchers("/api/v1/public/**").permitAll()
                 .anyRequest().authenticated()
             )
             .headers(headers -> headers
