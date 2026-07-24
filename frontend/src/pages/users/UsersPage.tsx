@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { Users, Plus } from "lucide-react";
+import { Pencil, Plus, Trash2, Users } from "lucide-react";
 import { SearchBar } from "@/components/common/SearchBar";
 import { Pagination } from "@/components/common/Pagination";
 import { StatusBadge } from "@/components/common/StatusBadge";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { PAGE_SIZE } from "@/shared/constants/pagination";
 import {
   USER_TABS,
@@ -12,6 +13,59 @@ import {
   USER_COMPANIES,
   extUsers,
 } from "@/shared/constants/users";
+
+
+type User = (typeof extUsers)[number];
+
+interface UserActionButtonProps {
+  label: string;
+  danger?: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}
+
+function UserActionButton({ label, danger = false, onClick, children }: UserActionButtonProps) {
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <button
+          type="button"
+          aria-label={label}
+          onClick={(event) => {
+            event.stopPropagation();
+            onClick();
+          }}
+          className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-md border bg-background transition-colors ${
+            danger
+              ? "border-red-200 text-red-500 hover:border-red-300 hover:bg-red-50 hover:text-red-600"
+              : "border-border text-muted-foreground hover:border-primary/30 hover:bg-secondary hover:text-foreground"
+          }`}
+        >
+          {children}
+        </button>
+      </TooltipTrigger>
+      <TooltipContent side="top" sideOffset={6}>{label}</TooltipContent>
+    </Tooltip>
+  );
+}
+
+function UserActions({ user }: { user: User }) {
+  const handleAction = (action: string) => {
+    // 실제 수정 모달과 삭제 확인 모달을 연결할 때 이 부분을 교체하면 됩니다.
+    console.info(`[${action}]`, user.id);
+  };
+
+  return (
+    <div className="flex items-center justify-end gap-1.5">
+      <UserActionButton label="회원 수정" onClick={() => handleAction("회원 수정")}>
+        <Pencil size={13} />
+      </UserActionButton>
+      <UserActionButton label="회원 삭제" danger onClick={() => handleAction("회원 삭제")}>
+        <Trash2 size={13} />
+      </UserActionButton>
+    </div>
+  );
+}
 
 export default function UsersPage() {
   const [activeTab, setActiveTab] = useState<UserTab>("전체");
@@ -116,14 +170,25 @@ export default function UsersPage() {
           <>
             {/* Desktop table */}
             <div className="hidden h-[510px] overflow-auto md:block">
-              <table className="w-full min-w-[1040px] table-fixed">
+              <table className="w-full min-w-[1080px] table-fixed">
+                <colgroup>
+                  <col style={{ width: "4%" }} />
+                  <col style={{ width: "16%" }} />
+                  <col style={{ width: "11%" }} />
+                  <col style={{ width: "10%" }} />
+                  <col style={{ width: "10%" }} />
+                  <col style={{ width: "17%" }} />
+                  <col style={{ width: "13%" }} />
+                  <col style={{ width: "7%" }} />
+                  <col style={{ width: "12%" }} />
+                </colgroup>
                 <thead>
                 <tr className="border-b border-border bg-secondary/40">
                   <th className="px-4 py-2.5 w-8">
                     <input type="checkbox" checked={allSelected} onChange={toggleAll} className="rounded border-border accent-primary" />
                   </th>
-                  {["이름", "부서", "역할", "상태", "회사", "가입일", "주문 수"].map((h) => (
-                    <th key={h} className="px-4 py-2.5 text-left text-xs font-medium text-muted-foreground tracking-wider">{h}</th>
+                  {["이름", "부서", "역할", "상태", "회사", "가입일", "주문 수", "액션"].map((h) => (
+                    <th key={h} className={`px-4 py-2.5 text-xs font-medium text-muted-foreground tracking-wider ${h === "액션" ? "text-right" : "text-left"}`}>{h}</th>
                   ))}
                 </tr>
                 </thead>
@@ -151,6 +216,9 @@ export default function UsersPage() {
                       <td className="px-4 py-3 text-xs text-muted-foreground">{user.company}</td>
                       <td className="px-4 py-3 text-xs text-muted-foreground font-mono">{user.joined}</td>
                       <td className="px-4 py-3 text-xs font-mono font-medium">{user.orders}</td>
+                      <td className="px-4 py-2" onClick={(event) => event.stopPropagation()}>
+                        <UserActions user={user} />
+                      </td>
                     </tr>
                   );
                 })}
@@ -178,6 +246,9 @@ export default function UsersPage() {
                       </div>
                       {/*<div className="text-xs text-muted-foreground truncate">{user.email}</div>*/}
                       <div className="text-xs text-muted-foreground mt-0.5">{user.dept} · {user.company} · {user.joined}</div>
+                      <div className="mt-2 border-t border-border pt-2" onClick={(event) => event.stopPropagation()}>
+                        <UserActions user={user} />
+                      </div>
                     </div>
                   </div>
                 );

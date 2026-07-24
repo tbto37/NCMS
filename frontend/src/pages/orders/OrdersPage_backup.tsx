@@ -1,10 +1,8 @@
 import { useState } from "react";
-import { Download, Eye, FileDown, Package, ReceiptText, Truck } from "lucide-react";
+import { Package, Download } from "lucide-react";
 import { SearchBar } from "@/components/common/SearchBar";
 import { Pagination } from "@/components/common/Pagination";
 import { StatusBadge } from "@/components/common/StatusBadge";
-import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { PAGE_SIZE } from "@/shared/constants/pagination";
 import {
   ORDER_TABS,
@@ -15,124 +13,7 @@ import {
   allOrders,
 } from "@/shared/constants/orders";
 
-
-type Order = (typeof allOrders)[number];
-
-interface ActionIconButtonProps {
-  label: string;
-  onClick: () => void;
-  children: React.ReactNode;
-}
-
-function ActionIconButton({ label, onClick, children }: ActionIconButtonProps) {
-  return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <button
-          type="button"
-          aria-label={label}
-          onClick={(event) => {
-            event.stopPropagation();
-            onClick();
-          }}
-          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-border bg-background text-muted-foreground transition-colors hover:border-primary/30 hover:bg-secondary hover:text-foreground"
-        >
-          {children}
-        </button>
-      </TooltipTrigger>
-      <TooltipContent side="top" sideOffset={6}>
-        {label}
-      </TooltipContent>
-    </Tooltip>
-  );
-}
-
-function BusinessCardPreview({ order }: { order: Order }) {
-  return (
-    <div className="space-y-2">
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-xs font-semibold text-foreground">명함 미리보기</p>
-          <p className="mt-0.5 text-[11px] text-muted-foreground">{order.customer} · {order.id}</p>
-        </div>
-        <span className="rounded bg-secondary px-2 py-0.5 text-[10px] text-muted-foreground">앞면</span>
-      </div>
-
-      <div className="aspect-[1.75/1] overflow-hidden rounded border border-border bg-white shadow-sm">
-        <div className="grid h-[calc(100%-5px)] grid-cols-[35%_65%]">
-          <div className="flex flex-col justify-between border-r border-slate-200 p-3">
-            <div className="flex items-end gap-0.5">
-              <span className="text-lg font-black tracking-[-0.08em] text-[#06418f]">CHEIL</span>
-              <span className="mb-0.5 h-3 w-1 bg-[#55b936]" />
-            </div>
-            <span className="text-[6px] italic text-slate-500">“Smiling Technology”</span>
-          </div>
-
-          <div className="p-3 text-slate-600">
-            <p className="text-[9px] font-semibold text-slate-900">{order.customer}</p>
-            <p className="mt-0.5 text-[5.5px]">Highway Eng. Business Div. / Director</p>
-            <p className="mt-3 text-[5.5px] font-semibold">CHEIL ENGINEERING CO., LTD.</p>
-            <div className="mt-1 space-y-0.5 text-[5px] leading-tight">
-              <p>22-6, Bangbaemae-ro 16gil, Seocho-gu</p>
-              <p>TEL. 02-3498-2600 / FAX. 02-572-8970</p>
-              <p>youremail@email.com</p>
-            </div>
-          </div>
-        </div>
-        <div className="flex h-[5px]">
-          <div className="w-[13%] bg-[#55b936]" />
-          <div className="flex-1 bg-[#06418f]" />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function OrderActions({ order }: { order: Order }) {
-  const handleAction = (action: string) => {
-    // 실제 상세 페이지 이동, PDF 다운로드, 배송 API 연결 시 이 부분을 교체하면 됩니다.
-    console.info(`[${action}]`, order.id);
-  };
-
-  return (
-    <div className="flex items-center justify-end gap-1.5">
-      <ActionIconButton label="주문 상세" onClick={() => handleAction("주문 상세")}>
-        <ReceiptText size={13} />
-      </ActionIconButton>
-
-      <ActionIconButton label="PDF 저장" onClick={() => handleAction("PDF 저장")}>
-        <FileDown size={13} />
-      </ActionIconButton>
-
-      <HoverCard openDelay={150} closeDelay={80}>
-        <HoverCardTrigger asChild>
-          <button
-            type="button"
-            aria-label="명함 미리보기"
-            title="명함 미리보기"
-            onClick={(event) => {
-              event.stopPropagation();
-              handleAction("명함 미리보기");
-            }}
-            className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-border bg-background text-muted-foreground transition-colors hover:border-primary/30 hover:bg-secondary hover:text-foreground"
-          >
-            <Eye size={13} />
-          </button>
-        </HoverCardTrigger>
-
-        <HoverCardContent align="end" side="left" sideOffset={10} className="w-72 p-3">
-          <BusinessCardPreview order={order} />
-        </HoverCardContent>
-      </HoverCard>
-
-      <ActionIconButton label="배송 추적" onClick={() => handleAction("배송 추적")}>
-        <Truck size={13} />
-      </ActionIconButton>
-    </div>
-  );
-}
-
-export default function OrdersPage() {
+export default function OrdersPage_backup() {
   const [activeTab, setActiveTab] = useState<OrderTab>("전체");
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [page, setPage] = useState(1);
@@ -231,25 +112,14 @@ export default function OrdersPage() {
         ) : (
           <>
             <div className="hidden h-[510px] overflow-auto md:block">
-              <table className="w-full min-w-[1180px] table-fixed">
-                <colgroup>
-                  <col style={{ width: "4%" }} />
-                  <col style={{ width: "10%" }} />
-                  <col style={{ width: "10%" }} />
-                  <col style={{ width: "17%" }} />
-                  <col style={{ width: "10%" }} />
-                  <col style={{ width: "10%" }} />
-                  <col style={{ width: "10%" }} />
-                  <col style={{ width: "11%" }} />
-                  <col style={{ width: "18%" }} />
-                </colgroup>
+              <table className="w-full min-w-[1040px] table-fixed">
                 <thead>
                 <tr className="border-b border-border bg-secondary/40">
                   <th className="px-4 py-2.5 w-8">
                     <input type="checkbox" checked={allSelected} onChange={toggleAll} className="rounded border-border accent-primary" />
                   </th>
-                  {["주문번호", "고객", "상품", "카테고리", "금액", "상태", "주문일", "액션"].map((h) => (
-                    <th key={h} className={`px-4 py-2.5 text-xs font-medium text-muted-foreground tracking-wider ${h === "액션" ? "text-right" : "text-left"}`}>{h}</th>
+                  {["주문번호", "고객", "상품", "카테고리", "금액", "상태", "주문일"].map((h) => (
+                    <th key={h} className="px-4 py-2.5 text-left text-xs font-medium text-muted-foreground tracking-wider">{h}</th>
                   ))}
                 </tr>
                 </thead>
@@ -269,9 +139,6 @@ export default function OrdersPage() {
                       <td className="px-4 py-3 text-xs font-medium font-mono">₩{order.amount.toLocaleString()}</td>
                       <td className="px-4 py-3"><StatusBadge status={order.status} /></td>
                       <td className="px-4 py-3 text-xs text-muted-foreground font-mono">{order.date}</td>
-                      <td className="px-4 py-2" onClick={(event) => event.stopPropagation()}>
-                        <OrderActions order={order} />
-                      </td>
                     </tr>
                   );
                 })}
@@ -300,9 +167,6 @@ export default function OrdersPage() {
                       <div className="flex items-center justify-between mt-1">
                         <span className="text-xs text-muted-foreground">{order.customer} · {order.date}</span>
                         <span className="text-xs font-medium font-mono">₩{order.amount.toLocaleString()}</span>
-                      </div>
-                      <div className="mt-2 border-t border-border pt-2" onClick={(event) => event.stopPropagation()}>
-                        <OrderActions order={order} />
                       </div>
                     </div>
                   </div>
