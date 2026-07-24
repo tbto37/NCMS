@@ -35,7 +35,7 @@ export default function LoginPage() {
     if (isTenantLogin) {
       navigate(`/${companyCode}/templates`, { replace: true });
     } else {
-      navigate("/admin/companies", { replace: true });
+      navigate("/admin/templates", { replace: true });
     }
   }
 
