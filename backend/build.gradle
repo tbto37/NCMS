@@ -38,9 +38,10 @@ dependencies {
 	implementation 'org.flywaydb:flyway-core'
 	runtimeOnly 'org.flywaydb:flyway-database-postgresql'
 
-	// Lombok
+	// Lombok & Annotations
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
+	compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
 
 	// Test
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
