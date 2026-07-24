@@ -8,6 +8,9 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip
 import OrderDetailModal, {
   type OrderDetailData,
 } from "./components/OrderDetailModal";
+import OrderStatusChangeConfirmModal, {
+  type OrderStatusChangeRequest,
+} from "./components/OrderStatusChangeConfirmModal";
 import { PAGE_SIZE } from "@/shared/constants/pagination";
 import {
   ORDER_TABS,
@@ -180,6 +183,8 @@ export default function OrdersPage() {
   const selectedCount = paged.filter((o) => selectedIds.has(o.id)).length;
 
   const [selectedOrder, setSelectedOrder] = useState<OrderDetailData | null>(null);
+  const [statusChangeRequest, setStatusChangeRequest] =
+    useState<OrderStatusChangeRequest | null>(null);
 
   function handleOpenOrderDetail(order: Order) {
     setSelectedOrder({
@@ -197,6 +202,24 @@ export default function OrdersPage() {
       detailAddress: "9층",
       status: order.status,
       createdAt: order.date,
+    });
+  }
+
+  function handleOpenStatusChange(action: {
+    label: string;
+    variant?: string;
+  }) {
+    const orderIds = paged
+      .filter((order) => selectedIds.has(order.id))
+      .map((order) => order.id);
+
+    if (orderIds.length === 0) return;
+
+    setStatusChangeRequest({
+      actionLabel: action.label,
+      orderIds,
+      currentStatus: activeTab,
+      variant: action.variant,
     });
   }
 
@@ -346,11 +369,19 @@ export default function OrdersPage() {
                 </span>
                 <div className="flex items-center gap-2">
                   {actions.map((action) => (
-                    <button key={action.label} disabled={selectedCount === 0}
-                            className={`px-3 py-1.5 text-xs font-medium rounded transition-all disabled:opacity-40 disabled:cursor-not-allowed ${
-                              action.variant === "primary" ? "bg-primary text-primary-foreground hover:opacity-90"
-                                : action.variant === "danger" ? "bg-red-500 text-white hover:bg-red-600"
-                                  : "border border-border text-foreground hover:bg-secondary"}`}>
+                    <button
+                      key={action.label}
+                      type="button"
+                      disabled={selectedCount === 0}
+                      onClick={() => handleOpenStatusChange(action)}
+                      className={`px-3 py-1.5 text-xs font-medium rounded transition-all disabled:opacity-40 disabled:cursor-not-allowed ${
+                        action.variant === "primary"
+                          ? "bg-primary text-primary-foreground hover:opacity-90"
+                          : action.variant === "danger"
+                            ? "bg-red-500 text-white hover:bg-red-600"
+                            : "border border-border text-foreground hover:bg-secondary"
+                      }`}
+                    >
                       {action.label}
                     </button>
                   ))}
@@ -367,6 +398,18 @@ export default function OrdersPage() {
         open={selectedOrder !== null}
         order={selectedOrder}
         onClose={() => setSelectedOrder(null)}
+      />
+
+      <OrderStatusChangeConfirmModal
+        open={statusChangeRequest !== null}
+        request={statusChangeRequest}
+        onClose={() => setStatusChangeRequest(null)}
+        onConfirm={(request) => {
+          console.log("주문 상태 변경:", request);
+
+          setStatusChangeRequest(null);
+          setSelectedIds(new Set());
+        }}
       />
     </div>
   );

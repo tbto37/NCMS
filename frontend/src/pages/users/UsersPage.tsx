@@ -14,6 +14,13 @@ import {
   extUsers,
 } from "@/shared/constants/users";
 
+import MemberEditModal, {
+  type MemberEditData,
+} from "./components/MemberEditModal";
+
+import MemberDeleteConfirmModal, {
+  type MemberDeleteData,
+} from "./components/MemberDeleteConfirmModal";
 
 type User = (typeof extUsers)[number];
 
@@ -49,18 +56,27 @@ function UserActionButton({ label, danger = false, onClick, children }: UserActi
   );
 }
 
-function UserActions({ user }: { user: User }) {
-  const handleAction = (action: string) => {
-    // 실제 수정 모달과 삭제 확인 모달을 연결할 때 이 부분을 교체하면 됩니다.
-    console.info(`[${action}]`, user.id);
-  };
+interface UserActionsProps {
+  user: User;
+  onEdit: (user: User) => void;
+  onDelete: (user: User) => void;
+}
 
+function UserActions({ user, onEdit, onDelete }: UserActionsProps) {
   return (
     <div className="flex items-center justify-end gap-1.5">
-      <UserActionButton label="회원 수정" onClick={() => handleAction("회원 수정")}>
+      <UserActionButton
+        label="회원 수정"
+        onClick={() => onEdit(user)}
+      >
         <Pencil size={13} />
       </UserActionButton>
-      <UserActionButton label="회원 삭제" danger onClick={() => handleAction("회원 삭제")}>
+
+      <UserActionButton
+        label="회원 삭제"
+        danger
+        onClick={() => onDelete(user)}
+      >
         <Trash2 size={13} />
       </UserActionButton>
     </div>
@@ -78,6 +94,29 @@ export default function UsersPage() {
   const [filterField, setFilterField] = useState("name");
   const [filterValue, setFilterValue] = useState("");
   const [applied, setApplied] = useState({ company: "", filterField: "name", filterValue: "", dateFrom: "", dateTo: "" });
+
+  const [selectedMember, setSelectedMember] =
+    useState<MemberEditData | null>(null);
+
+  const [deleteMember, setDeleteMember] =
+    useState<MemberDeleteData | null>(null);
+
+  function handleEditMember(user: User) {
+    setSelectedMember({
+      id: String(user.id),
+      password: "",
+      department: user.dept,
+    });
+  }
+
+  function handleDeleteMember(user: User) {
+    setDeleteMember({
+      id: user.id,
+      name: user.name,
+      department: user.dept,
+      company: user.company,
+    });
+  }
 
   function handleSearch() {
     setApplied({ company, filterField, filterValue, dateFrom, dateTo });
@@ -217,7 +256,7 @@ export default function UsersPage() {
                       <td className="px-4 py-3 text-xs text-muted-foreground font-mono">{user.joined}</td>
                       <td className="px-4 py-3 text-xs font-mono font-medium">{user.orders}</td>
                       <td className="px-4 py-2" onClick={(event) => event.stopPropagation()}>
-                        <UserActions user={user} />
+                        <UserActions user={user} onEdit={handleEditMember} onDelete={handleDeleteMember} />
                       </td>
                     </tr>
                   );
@@ -247,7 +286,7 @@ export default function UsersPage() {
                       {/*<div className="text-xs text-muted-foreground truncate">{user.email}</div>*/}
                       <div className="text-xs text-muted-foreground mt-0.5">{user.dept} · {user.company} · {user.joined}</div>
                       <div className="mt-2 border-t border-border pt-2" onClick={(event) => event.stopPropagation()}>
-                        <UserActions user={user} />
+                        <UserActions user={user} onEdit={handleEditMember} onDelete={handleDeleteMember} />
                       </div>
                     </div>
                   </div>
@@ -279,6 +318,26 @@ export default function UsersPage() {
           </>
         )}
       </div>
+
+      <MemberEditModal
+        open={selectedMember !== null}
+        member={selectedMember}
+        onClose={() => setSelectedMember(null)}
+        onSubmit={(updatedMember) => {
+          console.log("수정할 회원:", updatedMember);
+          setSelectedMember(null);
+        }}
+      />
+
+      <MemberDeleteConfirmModal
+        open={deleteMember !== null}
+        member={deleteMember}
+        onClose={() => setDeleteMember(null)}
+        onConfirm={(member) => {
+          console.log("삭제할 회원:", member);
+          setDeleteMember(null);
+        }}
+      />
     </div>
   );
 }
