@@ -1,9 +1,12 @@
 import { useState } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import { Package, Eye, EyeOff } from "lucide-react";
 import { useAuth } from "@/app/providers/AuthProvider";
 
 export default function LoginPage() {
+  const { companyCode } = useParams<{ companyCode?: string }>();
+  const isTenantLogin = Boolean(companyCode);
+
   const [id, setId] = useState("");
   const [pw, setPw] = useState("");
   const [showPw, setShowPw] = useState(false);
@@ -13,13 +16,27 @@ export default function LoginPage() {
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!id || !pw) {
-      setError("아이디와 비밀번호를 입력해주세요.");
-      return;
+
+    if (isTenantLogin) {
+      if (!id || !pw) {
+        setError("아이디와 비밀번호를 입력해주세요.");
+        return;
+      }
+    } else {
+      if (!pw) {
+        setError("비밀번호를 입력해주세요.");
+        return;
+      }
     }
+
     setError("");
     login();
-    navigate("/dashboard", { replace: true });
+
+    if (isTenantLogin) {
+      navigate(`/${companyCode}/templates`, { replace: true });
+    } else {
+      navigate("/admin/companies", { replace: true });
+    }
   }
 
   return (
@@ -29,18 +46,24 @@ export default function LoginPage() {
           <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center mb-4">
             <Package size={18} className="text-primary-foreground" />
           </div>
-          <h1 className="text-2xl font-semibold text-foreground" style={{ fontFamily: "'Instrument Serif', serif" }}>관리자 로그인</h1>
-          <p className="text-xs text-muted-foreground mt-1">백오피스 관리 시스템</p>
+          <h1 className="text-2xl font-semibold text-foreground" style={{ fontFamily: "'Instrument Serif', serif" }}>
+            {isTenantLogin ? `${companyCode?.toUpperCase()} 로그인` : "로그컴 관리자 로그인"}
+          </h1>
+          <p className="text-xs text-muted-foreground mt-1">
+            {isTenantLogin ? "고객사 명함 관리 시스템" : "로그컴 백오피스 시스템"}
+          </p>
         </div>
 
         <form onSubmit={handleSubmit} className="bg-card border border-border rounded-lg p-6 space-y-4">
           <div>
-            <label className="block text-xs font-medium text-muted-foreground mb-1.5">아이디</label>
+            <label className="block text-xs font-medium text-muted-foreground mb-1.5">
+              {isTenantLogin ? "아이디" : "아이디 (선택)"}
+            </label>
             <input
               type="text"
               value={id}
               onChange={(e) => setId(e.target.value)}
-              placeholder="관리자 아이디 입력"
+              placeholder={isTenantLogin ? "아이디 입력" : "아이디 입력 (로그컴 어드민 접속 시 미입력 가능)"}
               className="w-full px-3 py-2.5 text-xs bg-secondary border border-border rounded focus:outline-none focus:ring-1 focus:ring-ring transition-shadow"
             />
           </div>

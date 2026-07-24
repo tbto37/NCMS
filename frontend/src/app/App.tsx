@@ -54,6 +54,7 @@ export default function App() {
             {/* Logcom Internal Operator Routes: /operator */}
             <Route path="/operator" element={<RequireAuth />}>
               <Route element={<AdminLayout />}>
+                <Route index element={<Navigate to="orders" replace />} />
                 <Route path="orders" element={<OrdersPage />} />
                 <Route path="production" element={<DashboardPage />} />
                 <Route path="shipments" element={<DashboardPage />} />
@@ -63,6 +64,7 @@ export default function App() {
             {/* Logcom System Admin Routes: /admin */}
             <Route path="/admin" element={<RequireAuth />}>
               <Route element={<AdminLayout />}>
+                <Route index element={<Navigate to="companies" replace />} />
                 <Route path="companies" element={<DashboardPage />} />
                 <Route path="members" element={<UsersPage />} />
                 <Route path="templates" element={<TemplatesPage />} />
@@ -73,6 +75,7 @@ export default function App() {
 
             {/* Default & Fallback Routes */}
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/admin/login" element={<LoginPage />} />
             <Route path="/error/company-not-found" element={<CompanyNotFoundPage />} />
             <Route path="/error" element={<ErrorPage />} />
             <Route path="*" element={<Navigate to="/login" replace />} />

@@ -26,8 +26,9 @@ export function TenantProvider({ children }: TenantProviderProps) {
 
     fetch(`/api/v1/public/companies/${companyCode}`)
       .then(async (res) => {
-        if (!res.ok) {
-          throw new Error(`Invalid or inactive company: ${companyCode}`);
+        const contentType = res.headers.get("content-type");
+        if (!res.ok || !contentType || !contentType.includes("application/json")) {
+          throw new Error(`Invalid response or non-JSON content for company: ${companyCode}`);
         }
         return res.json();
       })

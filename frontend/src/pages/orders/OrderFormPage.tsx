@@ -1,6 +1,6 @@
 import type { FormEvent } from "react";
 import { ArrowLeft, Check, RotateCcw, ShoppingCart } from "lucide-react";
-import { useNavigate } from "react-router";
+import { useNavigate, useParams } from "react-router";
 
 function BusinessCardPreview({ english = false }: { english?: boolean }) {
   return (
@@ -61,6 +61,7 @@ const inputClassName =
 
 export default function OrderFormPage() {
   const navigate = useNavigate();
+  const { companyCode } = useParams<{ companyCode?: string }>();
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -109,7 +110,7 @@ export default function OrderFormPage() {
 
             <button
               type="button"
-              onClick={() => navigate("/templates")}
+              onClick={() => navigate(companyCode ? `/${companyCode}/templates` : "/templates")}
               className="flex h-9 items-center justify-center gap-1.5 rounded-md border border-border bg-background px-3 text-xs font-medium text-foreground transition hover:bg-secondary"
             >
               <RotateCcw size={13} />

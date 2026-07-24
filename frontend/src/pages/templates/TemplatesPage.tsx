@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import {
   Copy,
   FileText,
@@ -58,6 +58,7 @@ const templates = [
 
 export default function TemplatesPage() {
   const navigate = useNavigate();
+  const { companyCode } = useParams<{ companyCode?: string }>();
 
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [proofModalOpen, setProofModalOpen] = useState(false);
@@ -179,7 +180,7 @@ export default function TemplatesPage() {
         onConfirm={() => {
           setProofModalOpen(false);
           setEditModalOpen(false);
-          navigate("/orders/form");
+          navigate(companyCode ? `/${companyCode}/orders/new` : "/orders/new");
         }}
       />
     </div>
