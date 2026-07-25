@@ -2,13 +2,11 @@ package kr.co.tobetheone.ncms.order.domain;
 
 import jakarta.persistence.*;
 import kr.co.tobetheone.ncms.company.domain.Company;
-import kr.co.tobetheone.ncms.department.domain.Department;
 import kr.co.tobetheone.ncms.global.domain.BaseEntity;
 import kr.co.tobetheone.ncms.member.domain.Member;
+import kr.co.tobetheone.ncms.template.domain.Template;
 import lombok.*;
 
-import java.math.BigDecimal;
-import java.time.Instant;
 import java.util.UUID;
 
 @Entity
@@ -23,76 +21,54 @@ public class Order extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @Column(name = "order_no", nullable = false, unique = true, length = 50)
+    private String orderNo;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "company_id", nullable = false)
     private Company company;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "requester_member_id", nullable = false)
-    private Member requesterMember;
+    @JoinColumn(name = "member_id", nullable = false)
+    private Member member;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "requester_department_id")
-    private Department requesterDepartment;
+    @JoinColumn(name = "template_id", nullable = false)
+    private Template template;
 
-    @Column(name = "order_number", unique = true, nullable = false, length = 50)
-    private String orderNumber;
+    @Column(nullable = false, length = 30)
+    @Builder.Default
+    private String status = "PENDING";
 
-    @Column(name = "idempotency_key", length = 100)
-    private String idempotencyKey;
+    @Column(name = "recipient_name", nullable = false, length = 50)
+    private String recipientName;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "approval_status", nullable = false, length = 20)
-    private ApprovalStatus approvalStatus;
+    @Column(name = "recipient_phone", nullable = false, length = 30)
+    private String recipientPhone;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "production_status", nullable = false, length = 20)
-    private ProductionStatus productionStatus;
+    @Column(length = 10)
+    private String zipcode;
 
-    @Column(name = "submitted_at")
-    private Instant submittedAt;
+    @Column(nullable = false, length = 255)
+    private String address;
 
-    @Column(name = "approved_at")
-    private Instant approvedAt;
+    @Column(name = "address_detail", length = 255)
+    private String addressDetail;
 
-    @Column(name = "rejected_at")
-    private Instant rejectedAt;
+    @Column(name = "reject_reason", columnDefinition = "TEXT")
+    private String rejectReason;
 
-    @Column(name = "shipping_recipient", length = 100)
-    private String shippingRecipient;
-
-    @Column(name = "shipping_phone", length = 20)
-    private String shippingPhone;
-
-    @Column(name = "shipping_postal_code", length = 10)
-    private String shippingPostalCode;
-
-    @Column(name = "shipping_address", length = 500)
-    private String shippingAddress;
-
-    @Column(name = "shipping_address_detail", length = 500)
-    private String shippingAddressDetail;
-
-    @Column(name = "order_memo", columnDefinition = "TEXT")
-    private String orderMemo;
-
-    @Column(name = "total_amount", precision = 12, scale = 2)
-    private BigDecimal totalAmount;
-
-    @Column(name = "tax_amount", precision = 12, scale = 2)
-    private BigDecimal taxAmount;
-
-    @Column(name = "grand_total", precision = 12, scale = 2)
-    private BigDecimal grandTotal;
-
-    @Version
-    private Long version;
-
-    public enum ApprovalStatus {
-        NOT_REQUIRED, PENDING, APPROVED, REJECTED
+    public void approve() {
+        this.status = "APPROVED";
+        this.rejectReason = null;
     }
 
-    public enum ProductionStatus {
-        DRAFT, RECEIVED, PRINTING, SHIPPED, DELIVERED, CANCELLED
+    public void reject(String reason) {
+        this.status = "REJECTED";
+        this.rejectReason = reason;
+    }
+
+    public void updateStatus(String newStatus) {
+        this.status = newStatus;
     }
 }

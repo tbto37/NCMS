@@ -7,25 +7,22 @@ import lombok.*;
 import java.util.UUID;
 
 @Entity
-@Table(name = "templates")
+@Table(name = "product_options")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
-public class Template extends BaseEntity {
+public class ProductOption extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(nullable = false, length = 100)
-    private String name;
+    @Column(name = "material_name", nullable = false, length = 100)
+    private String materialName;
 
-    @Column(name = "preview_front_url", length = 500)
-    private String previewFrontUrl;
-
-    @Column(name = "preview_back_url", length = 500)
-    private String previewBackUrl;
+    @Column(nullable = false)
+    private Integer quantity;
 
     @Column(nullable = false, length = 20)
     @Builder.Default

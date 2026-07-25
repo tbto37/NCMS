@@ -5,7 +5,6 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import kr.co.tobetheone.ncms.global.tenant.TenantContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -48,17 +47,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 UUID companyId = companyIdStr != null ? UUID.fromString(companyIdStr) : null;
 
                 var authorities = roles != null
-                        ? roles.stream().map(r -> new SimpleGrantedAuthority("ROLE_" + r)).collect(Collectors.toList())
+                        ? roles.stream().map(r -> r.startsWith("ROLE_") ? r : "ROLE_" + r)
+                                .map(SimpleGrantedAuthority::new).collect(Collectors.toList())
                         : List.<SimpleGrantedAuthority>of();
 
                 NcmsUserDetails userDetails = new NcmsUserDetails(memberId, username, "", companyId, authorities);
 
                 var authentication = new UsernamePasswordAuthenticationToken(userDetails, null, authorities);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
-
-                if (companyId != null) {
-                    TenantContext.setCompanyId(companyId);
-                }
             }
         }
 

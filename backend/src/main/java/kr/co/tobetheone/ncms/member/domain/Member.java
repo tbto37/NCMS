@@ -6,7 +6,6 @@ import kr.co.tobetheone.ncms.department.domain.Department;
 import kr.co.tobetheone.ncms.global.domain.BaseEntity;
 import lombok.*;
 
-import java.time.Instant;
 import java.util.UUID;
 
 @Entity
@@ -32,44 +31,31 @@ public class Member extends BaseEntity {
     @Column(unique = true, nullable = false, length = 50)
     private String username;
 
-    @Column(name = "password_hash", nullable = false, length = 255)
-    private String passwordHash;
+    @Column(nullable = false, length = 255)
+    private String password;
 
-    @Column(name = "korean_name", nullable = false, length = 100)
-    private String koreanName;
-
-    @Column(name = "english_name", length = 100)
-    private String englishName;
-
-    @Column(nullable = false, length = 100)
-    private String email;
-
-    @Column(length = 20)
-    private String mobile;
-
-    @Column(name = "office_phone", length = 20)
-    private String officePhone;
+    @Column(nullable = false, length = 50)
+    private String name;
 
     @Column(length = 100)
-    private String position;
+    private String email;
 
-    @Enumerated(EnumType.STRING)
+    @Column(length = 30)
+    private String phone;
+
     @Column(nullable = false, length = 20)
-    private MemberStatus status;
+    @Builder.Default
+    private String status = "ACTIVE";
 
-    @Column(name = "failed_login_attempts")
-    private Integer failedLoginAttempts;
+    public void updateInfo(String name, String email, String phone, Department department, String status) {
+        if (name != null) this.name = name;
+        if (email != null) this.email = email;
+        if (phone != null) this.phone = phone;
+        if (department != null) this.department = department;
+        if (status != null) this.status = status;
+    }
 
-    @Column(name = "locked_until")
-    private Instant lockedUntil;
-
-    @Column(name = "last_password_changed_at")
-    private Instant lastPasswordChangedAt;
-
-    @Column(name = "deleted_at")
-    private Instant deletedAt;
-
-    public enum MemberStatus {
-        ACTIVE, INACTIVE, LOCKED
+    public void updatePassword(String encodedPassword) {
+        this.password = encodedPassword;
     }
 }

@@ -3,53 +3,51 @@ package kr.co.tobetheone.ncms.company.application;
 import kr.co.tobetheone.ncms.company.api.dto.CreateCompanyRequest;
 import kr.co.tobetheone.ncms.company.api.dto.PublicCompanyResponse;
 import kr.co.tobetheone.ncms.company.domain.Company;
-import kr.co.tobetheone.ncms.company.domain.CompanyRepository;
+import kr.co.tobetheone.ncms.company.infrastructure.CompanyRepository;
+import kr.co.tobetheone.ncms.global.exception.CustomException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class CompanyService {
 
     private final CompanyRepository companyRepository;
 
-    @Transactional(readOnly = true)
-    public List<PublicCompanyResponse> getAllCompanies() {
-        return companyRepository.findBySiteCodeAndStatus("", Company.CompanyStatus.ACTIVE)
-                .stream()
-                .map(PublicCompanyResponse::from)
-                .collect(Collectors.toList());
+    public PublicCompanyResponse getPublicCompanyInfo(String siteCode) {
+        Company company = companyRepository.findBySiteCode(siteCode)
+                .orElseThrow(() -> new CustomException("고객사를 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
+        return PublicCompanyResponse.builder()
+                .id(company.getId())
+                .siteCode(company.getSiteCode())
+                .name(company.getName())
+                .logoUrl(company.getLogoUrl())
+                .primaryColor(company.getPrimaryColor())
+                .build();
+    }
+
+    public Company getCompanyById(UUID id) {
+        return companyRepository.findById(id)
+                .orElseThrow(() -> new CustomException("고객사를 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
     }
 
     @Transactional
-    public PublicCompanyResponse createCompany(CreateCompanyRequest request) {
+    public Company createCompany(CreateCompanyRequest request) {
         if (companyRepository.findBySiteCode(request.getSiteCode()).isPresent()) {
-            throw new IllegalArgumentException("이미 존재하는 사이트 코드입니다: " + request.getSiteCode());
+            throw new CustomException("이미 존재하는 사이트 코드입니다.", HttpStatus.BAD_REQUEST);
         }
-
         Company company = Company.builder()
                 .siteCode(request.getSiteCode())
                 .name(request.getName())
-                .logoFileKey(request.getLogoFileKey())
-                .primaryColor(request.getPrimaryColor() != null ? request.getPrimaryColor() : "#0052CC")
-                .approvalPolicy(request.getApprovalPolicy() != null ? request.getApprovalPolicy() : Company.ApprovalPolicy.NOT_REQUIRED)
-                .shippingAddressPolicy(request.getShippingAddressPolicy() != null ? request.getShippingAddressPolicy() : Company.ShippingAddressPolicy.BOTH)
-                .priceVisibility(request.getPriceVisibility() != null ? request.getPriceVisibility() : Company.PriceVisibility.HIDDEN)
-                .status(Company.CompanyStatus.ACTIVE)
+                .logoUrl(request.getLogoUrl())
+                .primaryColor(request.getPrimaryColor() != null ? request.getPrimaryColor() : "#000000")
+                .status("ACTIVE")
                 .build();
-
-        return PublicCompanyResponse.from(companyRepository.save(company));
-    }
-
-    @Transactional(readOnly = true)
-    public PublicCompanyResponse getCompanyById(UUID id) {
-        Company company = companyRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("고객사를 찾을 수 없습니다."));
-        return PublicCompanyResponse.from(company);
+        return companyRepository.save(company);
     }
 }

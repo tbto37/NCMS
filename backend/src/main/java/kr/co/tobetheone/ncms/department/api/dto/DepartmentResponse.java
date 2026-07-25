@@ -11,9 +11,7 @@ import java.util.UUID;
 public class DepartmentResponse {
     private UUID id;
     private UUID companyId;
-    private UUID parentDepartmentId;
     private String name;
-    private String fullPath;
     private Integer sortOrder;
     private String status;
 
@@ -21,11 +19,9 @@ public class DepartmentResponse {
         return DepartmentResponse.builder()
                 .id(department.getId())
                 .companyId(department.getCompany() != null ? department.getCompany().getId() : null)
-                .parentDepartmentId(department.getParentDepartment() != null ? department.getParentDepartment().getId() : null)
                 .name(department.getName())
-                .fullPath(department.getFullPath())
                 .sortOrder(department.getSortOrder())
-                .status(department.getStatus() != null ? department.getStatus().name() : "ACTIVE")
+                .status(department.getStatus())
                 .build();
     }
 }
