@@ -23,7 +23,7 @@ public class TemplateService {
 
     public List<TemplateResponse> getTemplatesForCompany(UUID companyId) {
         List<CompanyTemplate> mappings = companyTemplateRepository.findByCompanyId(companyId);
-        List<UUID> templateIds = mappings.stream().map(CompanyTemplate::getTemplateId).collect(Collectors.toList());
+        List<UUID> templateIds = mappings.stream().map(ct -> ct.getTemplateId()).collect(Collectors.toList());
 
         List<Template> templates = templateRepository.findAllById(templateIds);
         return templates.stream()

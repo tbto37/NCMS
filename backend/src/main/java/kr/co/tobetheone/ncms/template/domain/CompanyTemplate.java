@@ -27,6 +27,8 @@ public class CompanyTemplate {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class CompanyTemplateId implements Serializable {
+        private static final long serialVersionUID = 1L;
+
         private UUID companyId;
         private UUID templateId;
     }

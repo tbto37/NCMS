@@ -7,7 +7,6 @@ import kr.co.tobetheone.ncms.global.exception.CustomException;
 import kr.co.tobetheone.ncms.global.security.JwtTokenProvider;
 import kr.co.tobetheone.ncms.member.domain.Member;
 import kr.co.tobetheone.ncms.member.domain.MemberRole;
-import kr.co.tobetheone.ncms.member.domain.Role;
 import kr.co.tobetheone.ncms.member.infrastructure.MemberRepository;
 import kr.co.tobetheone.ncms.member.infrastructure.MemberRoleRepository;
 import kr.co.tobetheone.ncms.member.infrastructure.RoleRepository;
@@ -46,7 +45,7 @@ public class AuthService {
 
         List<MemberRole> memberRoles = memberRoleRepository.findByMemberId(member.getId());
         List<String> roles = memberRoles.stream()
-                .map(mr -> roleRepository.findById(mr.getRoleId()).map(Role::getCode).orElse("ROLE_EMPLOYEE"))
+                .map(mr -> roleRepository.findById(mr.getRoleId()).map(role -> role.getCode()).orElse("ROLE_EMPLOYEE"))
                 .collect(Collectors.toList());
 
         if (roles.isEmpty()) {

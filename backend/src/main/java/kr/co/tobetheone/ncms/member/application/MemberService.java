@@ -101,7 +101,7 @@ public class MemberService {
     private MemberResponse toResponse(Member member) {
         List<MemberRole> memberRoles = memberRoleRepository.findByMemberId(member.getId());
         List<String> roles = memberRoles.stream()
-                .map(mr -> roleRepository.findById(mr.getRoleId()).map(Role::getCode).orElse(""))
+                .map(mr -> roleRepository.findById(mr.getRoleId()).map(role -> role.getCode()).orElse(""))
                 .collect(Collectors.toList());
 
         return MemberResponse.builder()

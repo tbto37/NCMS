@@ -7,7 +7,6 @@ import kr.co.tobetheone.ncms.member.api.dto.MemberResponse;
 import kr.co.tobetheone.ncms.member.api.dto.UpdateMemberRequest;
 import kr.co.tobetheone.ncms.member.application.MemberService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,10 +30,11 @@ public class MemberController {
             @AuthenticationPrincipal NcmsUserDetails userDetails,
             @RequestBody CreateMemberRequest request) {
         String primaryRole = userDetails.getAuthorities().stream()
-                .map(GrantedAuthority::getAuthority)
+                .map(auth -> auth.getAuthority())
                 .findFirst().orElse("");
 
-        return ApiResponse.success(memberService.createMemberByCompanyAdmin(userDetails.getCompanyId(), primaryRole, request));
+        return ApiResponse
+                .success(memberService.createMemberByCompanyAdmin(userDetails.getCompanyId(), primaryRole, request));
     }
 
     @PutMapping("/{id}")

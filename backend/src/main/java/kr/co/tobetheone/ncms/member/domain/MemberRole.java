@@ -27,6 +27,8 @@ public class MemberRole {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class MemberRoleId implements Serializable {
+        private static final long serialVersionUID = 1L;
+
         private UUID memberId;
         private UUID roleId;
     }

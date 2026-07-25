@@ -10,6 +10,8 @@ import java.util.UUID;
 @Getter
 public class NcmsUserDetails implements UserDetails {
 
+    private static final long serialVersionUID = 1L;
+
     private final UUID memberId;
     private final String username;
     private final String password;
