@@ -1,6 +1,7 @@
-import type { FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import { ArrowLeft, Check, RotateCcw, ShoppingCart } from "lucide-react";
-import { useNavigate, useParams } from "react-router";
+import { useLocation, useNavigate, useParams } from "react-router";
+import OrderCompleteModal from "./components/OrderCompleteModal";
 
 function BusinessCardPreview({ english = false }: { english?: boolean }) {
   return (
@@ -61,11 +62,28 @@ const inputClassName =
 
 export default function OrderFormPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { companyCode } = useParams<{ companyCode?: string }>();
+  const [isOrderCompleteOpen, setIsOrderCompleteOpen] = useState(false);
+
+  const mainPath = companyCode
+    ? `/${companyCode}/templates`
+    : location.pathname.startsWith("/admin")
+      ? "/admin/templates"
+      : "/templates";
+
+  const ordersPath = companyCode
+    ? `/${companyCode}/orders`
+    : location.pathname.startsWith("/admin")
+      ? "/admin/orders"
+      : "/orders";
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+
+    // TODO: 주문 등록 API 성공 후 모달을 열도록 연결합니다.
     console.log("주문하기");
+    setIsOrderCompleteOpen(true);
   }
 
   return (
@@ -110,7 +128,7 @@ export default function OrderFormPage() {
 
             <button
               type="button"
-              onClick={() => navigate(companyCode ? `/${companyCode}/templates` : "/templates")}
+              onClick={() => navigate(mainPath)}
               className="flex h-9 items-center justify-center gap-1.5 rounded-md border border-border bg-background px-3 text-xs font-medium text-foreground transition hover:bg-secondary"
             >
               <RotateCcw size={13} />
@@ -264,6 +282,11 @@ export default function OrderFormPage() {
           </div>
         </div>
       </div>
+      <OrderCompleteModal
+        open={isOrderCompleteOpen}
+        onGoMain={() => navigate(mainPath)}
+        onGoOrders={() => navigate(ordersPath)}
+      />
     </form>
   );
 }
