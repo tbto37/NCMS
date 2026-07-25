@@ -1,15 +1,15 @@
 package kr.co.tobetheone.ncms.global.config;
 
+import kr.co.tobetheone.ncms.global.security.JwtAuthenticationFilter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-
-import kr.co.tobetheone.ncms.global.security.JwtAuthenticationFilter;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
@@ -24,18 +24,25 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/h2-console/**").permitAll()
+                // 1. Public Endpoints
                 .requestMatchers("/api/v1/health").permitAll()
                 .requestMatchers("/api/v1/public/**").permitAll()
                 .requestMatchers("/api/v1/auth/login").permitAll()
-                .requestMatchers("/api/v1/auth/refresh").permitAll()
+
+                // 2. Company & Department & Member Details (Fine-grained Role Access)
+                .requestMatchers(HttpMethod.GET, "/api/v1/company/templates").hasAnyRole("EMPLOYEE", "COMPANY_ADMIN", "SYSTEM_ADMIN")
+                .requestMatchers(HttpMethod.GET, "/api/v1/company/departments").hasAnyRole("EMPLOYEE", "COMPANY_ADMIN", "SYSTEM_ADMIN")
+                .requestMatchers(HttpMethod.POST, "/api/v1/company/departments").hasAnyRole("COMPANY_ADMIN", "SYSTEM_ADMIN")
+                .requestMatchers(HttpMethod.POST, "/api/v1/company/members").hasRole("COMPANY_ADMIN")
+                .requestMatchers(HttpMethod.GET, "/api/v1/company/members").hasAnyRole("COMPANY_ADMIN", "SYSTEM_ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/api/v1/company/members/**").hasAnyRole("COMPANY_ADMIN", "SYSTEM_ADMIN")
+
+                // 3. Admin & Operator & Orders
                 .requestMatchers("/api/v1/admin/**").hasRole("SYSTEM_ADMIN")
                 .requestMatchers("/api/v1/operator/**").hasAnyRole("OPERATOR", "SYSTEM_ADMIN")
-                .requestMatchers("/api/v1/company/**").hasAnyRole("COMPANY_ADMIN", "SYSTEM_ADMIN")
+                .requestMatchers("/api/v1/orders/**").hasAnyRole("EMPLOYEE", "COMPANY_ADMIN", "SYSTEM_ADMIN", "OPERATOR")
+
                 .anyRequest().authenticated()
-            )
-            .headers(headers -> headers
-                .frameOptions(frame -> frame.sameOrigin())
             )
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
