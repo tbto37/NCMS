@@ -180,7 +180,7 @@ export default function TemplatesPage() {
         onConfirm={() => {
           setProofModalOpen(false);
           setEditModalOpen(false);
-          navigate(companyCode ? `/${companyCode}/orders/new` : "/orders/new");
+          navigate(companyCode ? `/${companyCode}/orders/form` : "/admin/orders/form");
         }}
       />
     </div>
