@@ -4,7 +4,7 @@
 
 ---
 
-## 🛠️ 기술 스택 (Tech Stack)
+## 기술 스택 (Tech Stack)
 
 | 영역 | 구성 | 배포 |
 |---|---|---|
@@ -14,7 +14,7 @@
 
 ---
 
-## 📁 저장소 구조
+## 저장소 구조
 
 ```text
 NCMS/
@@ -27,7 +27,7 @@ NCMS/
 
 ---
 
-## 📜 주요 기준 문서 (Documentation)
+## 주요 기준 문서 (Documentation)
 
 - [기능정의서](docs/requirements/functional-spec.md)
 - [PostgreSQL 설계서](docs/database/database-design.md)
@@ -39,7 +39,7 @@ NCMS/
 
 ---
 
-## 💻 개발 및 실행 명령어 (Commands)
+## 개발 및 실행 명령어 (Commands)
 
 - **Backend 빌드 및 테스트**: `cd backend && ./gradlew test`
 - **Backend 서버 실행**: `cd backend && ./gradlew bootRun`
@@ -48,7 +48,7 @@ NCMS/
 
 ---
 
-## 🚀 배포 루트 (Deployment Configuration)
+## 배포 루트 (Deployment Configuration)
 
 - **Vercel Root Directory**: `frontend`
 - **Railway Backend Root Directory**: `backend`
@@ -56,7 +56,7 @@ NCMS/
 
 ---
 
-## 📐 코드 컨벤션 (Code Conventions)
+## 코드 컨벤션 (Code Conventions)
 
 ### Backend (Spring Boot)
 1. Controller-Service-Repository 레이어드 아키텍처를 준수합니다.
