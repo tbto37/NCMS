@@ -59,7 +59,7 @@ function BusinessCardPreview({ order }: { order: Order }) {
       <div className="flex items-center justify-between">
         <div>
           <p className="text-xs font-semibold text-foreground">명함 미리보기</p>
-          <p className="mt-0.5 text-[11px] text-muted-foreground">{order.customer} · {order.id}</p>
+          <p className="mt-0.5 text-[11px] text-muted-foreground">{order.name} · {order.id}</p>
         </div>
         <span className="rounded bg-secondary px-2 py-0.5 text-[10px] text-muted-foreground">앞면</span>
       </div>
@@ -75,7 +75,7 @@ function BusinessCardPreview({ order }: { order: Order }) {
           </div>
 
           <div className="p-3 text-slate-600">
-            <p className="text-[9px] font-semibold text-slate-900">{order.customer}</p>
+            <p className="text-[9px] font-semibold text-slate-900">{order.name}</p>
             <p className="mt-0.5 text-[5.5px]">Highway Eng. Business Div. / Director</p>
             <p className="mt-3 text-[5.5px] font-semibold">CHEIL ENGINEERING CO., LTD.</p>
             <div className="mt-1 space-y-0.5 text-[5px] leading-tight">
@@ -172,8 +172,9 @@ export default function OrdersPage() {
       const field = applied.filterField as keyof typeof o;
       if (!String(o[field]).toLowerCase().includes(val)) return false;
     }
-    if (applied.dateFrom && o.date < applied.dateFrom) return false;
-    if (applied.dateTo && o.date > applied.dateTo) return false;
+    if (applied.company && o.site !== applied.company) return false;
+    if (applied.dateFrom && o.receivedAt < applied.dateFrom) return false;
+    if (applied.dateTo && o.receivedAt > applied.dateTo) return false;
     return true;
   });
 
@@ -190,18 +191,18 @@ export default function OrdersPage() {
     setSelectedOrder({
       id: order.id,
       orderNumber: order.id,
-      department: "제일엔지니어링",
-      product: order.product,
-      material: "휘라레 216g",
-      quantity: 2000,
+      department: order.site,
+      product: "명함",
+      material: order.material,
+      quantity: order.quantity,
       memo: "",
-      customerName: order.customer,
-      phone: "02-3498-2600",
+      customerName: order.name,
+      phone: order.phone,
       email: "youremail@email.com",
       address: "06779 서울시 서초구 방배천로 22-6",
       detailAddress: "9층",
       status: order.status,
-      createdAt: order.date,
+      createdAt: order.receivedAt,
     });
   }
 
@@ -258,6 +259,7 @@ export default function OrdersPage() {
         onFilterField={setFilterField} onFilterValue={setFilterValue}
         onSearch={handleSearch} onReset={handleReset}
         filterFields={ORDER_FILTER_FIELDS} companies={ORDER_COMPANIES}
+        companyLabel="사이트"
       />
 
       <div className="bg-card border border-border rounded-lg overflow-hidden">
@@ -283,24 +285,25 @@ export default function OrdersPage() {
         ) : (
           <>
             <div className="hidden h-[510px] overflow-auto md:block">
-              <table className="w-full min-w-[1180px] table-fixed">
+              <table className="w-full min-w-[1280px] table-fixed">
                 <colgroup>
                   <col style={{ width: "4%" }} />
                   <col style={{ width: "10%" }} />
-                  <col style={{ width: "10%" }} />
-                  <col style={{ width: "17%" }} />
-                  <col style={{ width: "10%" }} />
-                  <col style={{ width: "10%" }} />
-                  <col style={{ width: "10%" }} />
                   <col style={{ width: "11%" }} />
-                  <col style={{ width: "18%" }} />
+                  <col style={{ width: "12%" }} />
+                  <col style={{ width: "11%" }} />
+                  <col style={{ width: "7%" }} />
+                  <col style={{ width: "13%" }} />
+                  <col style={{ width: "9%" }} />
+                  <col style={{ width: "10%" }} />
+                  <col style={{ width: "13%" }} />
                 </colgroup>
                 <thead>
                 <tr className="border-b border-border bg-secondary/40">
                   <th className="px-4 py-2.5 w-8">
                     <input type="checkbox" checked={allSelected} onChange={toggleAll} className="rounded border-border accent-primary" />
                   </th>
-                  {["주문번호", "고객", "상품", "카테고리", "금액", "상태", "주문일", "액션"].map((h) => (
+                  {["접수일자", "사이트", "주문번호", "재질", "수량", "전화번호", "이름", "주문상태", "액션"].map((h) => (
                     <th key={h} className={`px-4 py-2.5 text-xs font-medium text-muted-foreground tracking-wider ${h === "액션" ? "text-right" : "text-left"}`}>{h}</th>
                   ))}
                 </tr>
@@ -314,13 +317,14 @@ export default function OrdersPage() {
                       <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                         <input type="checkbox" checked={checked} onChange={() => toggleOne(order.id)} className="rounded border-border accent-primary" />
                       </td>
+                      <td className="px-4 py-3 text-xs font-mono text-muted-foreground">{order.receivedAt}</td>
+                      <td className="px-4 py-3 text-xs text-muted-foreground truncate">{order.site}</td>
                       <td className="px-4 py-3 text-xs font-mono text-muted-foreground">{order.id}</td>
-                      <td className="px-4 py-3 text-xs font-medium text-foreground">{order.customer}</td>
-                      <td className="px-4 py-3 text-xs text-muted-foreground max-w-[160px] truncate">{order.product}</td>
-                      <td className="px-4 py-3"><span className="text-xs bg-secondary px-2 py-0.5 rounded">{order.category}</span></td>
-                      <td className="px-4 py-3 text-xs font-medium font-mono">₩{order.amount.toLocaleString()}</td>
+                      <td className="px-4 py-3 text-xs text-muted-foreground truncate">{order.material}</td>
+                      <td className="px-4 py-3 text-xs font-medium font-mono">{order.quantity.toLocaleString()}</td>
+                      <td className="px-4 py-3 text-xs text-muted-foreground font-mono">{order.phone}</td>
+                      <td className="px-4 py-3 text-xs font-medium text-foreground">{order.name}</td>
                       <td className="px-4 py-3"><StatusBadge status={order.status} /></td>
-                      <td className="px-4 py-3 text-xs text-muted-foreground font-mono">{order.date}</td>
                       <td className="px-4 py-2" onClick={(event) => event.stopPropagation()}>
                         <OrderActions order={order} onOpenDetail={handleOpenOrderDetail} />
                       </td>
@@ -348,10 +352,16 @@ export default function OrdersPage() {
                         <span className="text-xs font-mono text-muted-foreground">{order.id}</span>
                         <StatusBadge status={order.status} />
                       </div>
-                      <div className="text-xs font-medium text-foreground truncate">{order.product}</div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-medium text-foreground truncate">{order.name}</span>
+                        <span className="shrink-0 rounded bg-secondary px-1.5 py-0.5 text-[10px] text-muted-foreground">{order.site}</span>
+                      </div>
+                      <div className="mt-1 text-xs text-muted-foreground">
+                        {order.material} · {order.quantity.toLocaleString()}개
+                      </div>
                       <div className="flex items-center justify-between mt-1">
-                        <span className="text-xs text-muted-foreground">{order.customer} · {order.date}</span>
-                        <span className="text-xs font-medium font-mono">₩{order.amount.toLocaleString()}</span>
+                        <span className="text-xs text-muted-foreground font-mono">{order.phone}</span>
+                        <span className="text-xs text-muted-foreground font-mono">{order.receivedAt}</span>
                       </div>
                       <div className="mt-2 border-t border-border pt-2" onClick={(event) => event.stopPropagation()}>
                         <OrderActions order={order} onOpenDetail={handleOpenOrderDetail} />

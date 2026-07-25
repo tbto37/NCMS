@@ -15,12 +15,13 @@ export type SearchBarProps = {
   onReset: () => void;
   filterFields: { value: string; label: string }[];
   companies: string[];
+  companyLabel?: string;
 };
 
 export function SearchBar({
                             dateFrom, dateTo, company, filterField, filterValue,
                             onDateFrom, onDateTo, onCompany, onFilterField, onFilterValue,
-                            onSearch, onReset, filterFields, companies,
+                            onSearch, onReset, filterFields, companies, companyLabel = "회사명",
                           }: SearchBarProps) {
   return (
     <div className="bg-card border border-border rounded-lg p-4 space-y-3">
@@ -47,7 +48,7 @@ export function SearchBar({
         </div>
         {/* 회사명 */}
         <div>
-          <label className="block text-xs font-medium text-muted-foreground mb-1">회사명</label>
+          <label className="block text-xs font-medium text-muted-foreground mb-1">{companyLabel}</label>
           <select
             value={company}
             onChange={(e) => onCompany(e.target.value)}
