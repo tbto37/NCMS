@@ -11,31 +11,38 @@ export default function LoginPage() {
   const [pw, setPw] = useState("");
   const [showPw, setShowPw] = useState(false);
   const [error, setError] = useState("");
+  const [remember, setRemember] = useState(false);
+  const [loading, setLoading] = useState(false);
   const { login } = useAuth();
   const navigate = useNavigate();
 
-  function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
-    if (isTenantLogin) {
-      if (!id || !pw) {
-        setError("아이디와 비밀번호를 입력해주세요.");
-        return;
-      }
-    } else {
-      if (!pw) {
-        setError("비밀번호를 입력해주세요.");
-        return;
-      }
+    if (!id.trim() || !pw) {
+      setError("아이디와 비밀번호를 입력해주세요.");
+      return;
     }
 
-    setError("");
-    login();
+    try {
+      setLoading(true);
+      setError("");
 
-    if (isTenantLogin) {
-      navigate(`/${companyCode}/templates`, { replace: true });
-    } else {
-      navigate("/admin/templates", { replace: true });
+      await login(id.trim(), pw, remember);
+
+      if (isTenantLogin) {
+        navigate(`/${companyCode}/templates`, { replace: true });
+      } else {
+        navigate("/admin/templates", { replace: true });
+      }
+    } catch (error) {
+      setError(
+        error instanceof Error
+          ? error.message
+          : "로그인 중 오류가 발생했습니다.",
+      );
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -57,13 +64,13 @@ export default function LoginPage() {
         <form onSubmit={handleSubmit} className="bg-card border border-border rounded-lg p-6 space-y-4">
           <div>
             <label className="block text-xs font-medium text-muted-foreground mb-1.5">
-              {isTenantLogin ? "아이디" : "아이디 (선택)"}
+              아이디
             </label>
             <input
               type="text"
               value={id}
               onChange={(e) => setId(e.target.value)}
-              placeholder={isTenantLogin ? "아이디 입력" : "아이디 입력 (로그컴 어드민 접속 시 미입력 가능)"}
+              placeholder="아이디 입력"
               className="w-full px-3 py-2.5 text-xs bg-secondary border border-border rounded focus:outline-none focus:ring-1 focus:ring-ring transition-shadow"
             />
           </div>
@@ -90,6 +97,8 @@ export default function LoginPage() {
           <label className="flex w-fit cursor-pointer items-center gap-2 select-none">
             <input
               type="checkbox"
+              checked={remember}
+              onChange={(e) => setRemember(e.target.checked)}
               className="h-3.5 w-3.5 cursor-pointer rounded border-border accent-primary"
             />
 
@@ -104,9 +113,10 @@ export default function LoginPage() {
 
           <button
             type="submit"
-            className="w-full py-2.5 bg-primary text-primary-foreground text-xs font-medium rounded hover:opacity-90 transition-opacity mt-1"
+            disabled={loading}
+            className="w-full py-2.5 bg-primary text-primary-foreground text-xs font-medium rounded hover:opacity-90 transition-opacity mt-1 disabled:cursor-not-allowed disabled:opacity-60"
           >
-            로그인
+            {loading ? "로그인 중..." : "로그인"}
           </button>
         </form>
 
