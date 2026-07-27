@@ -1,6 +1,7 @@
 export interface MemberApiResponse {
   id: string;
   companyId: string | null;
+  companyName: string | null;
   departmentId: string | null;
   departmentName: string | null;
   username: string;
@@ -9,13 +10,6 @@ export interface MemberApiResponse {
   phone: string | null;
   status: string;
   roles: string[];
-
-  /*
-   * 현재 backend MemberResponse에는 companyName이 없습니다.
-   * 추후 backend 응답에 추가되더라도 프론트를 다시 고치지 않도록
-   * 선택 필드로만 열어둡니다.
-   */
-  companyName?: string | null;
 }
 
 export interface Member {
@@ -72,16 +66,7 @@ export function mapMemberResponse(member: MemberApiResponse): Member {
   return {
     id: member.id,
     companyId: member.companyId ?? "",
-
-    /*
-     * 현재 API에는 회사명이 없으므로 companyId를 표시합니다.
-     * backend에 companyName이 추가되면 자동으로 회사명이 우선 표시됩니다.
-     */
-    company:
-      member.companyName?.trim() ||
-      member.companyId ||
-      "회사 미지정",
-
+    company: member.companyName?.trim() || "회사 미지정",
     departmentId: member.departmentId ?? "",
     dept: member.departmentName?.trim() || "부서 미지정",
     loginId: member.username,

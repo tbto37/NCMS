@@ -106,7 +106,8 @@ function MemberActions({
 }
 
 export default function MembersPage() {
-  const { accessToken } = useAuth();
+  const { accessToken, user } = useAuth();
+  const isOperator = user?.roles?.includes("ROLE_OPERATOR") ?? false;
 
   const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
@@ -206,12 +207,18 @@ export default function MembersPage() {
   }, [accessToken, reloadKey]);
 
   const memberTabs = useMemo(() => {
-    const departments = Array.from(
-      new Set(members.map((member) => member.dept)),
+    const tabNames = Array.from(
+      new Set(
+        members.map((member) =>
+          isOperator
+            ? member.company
+            : member.dept,
+        ),
+      ),
     ).sort((a, b) => a.localeCompare(b, "ko"));
 
-    return ["전체", ...departments];
-  }, [members]);
+    return ["전체", ...tabNames];
+  }, [members, isOperator]);
 
   const memberCompanies = useMemo(() => {
     return Array.from(
@@ -280,7 +287,11 @@ export default function MembersPage() {
   const tabFiltered =
     activeTab === "전체"
       ? members
-      : members.filter((member) => member.dept === activeTab);
+      : members.filter((member) =>
+        isOperator
+          ? member.company === activeTab
+          : member.dept === activeTab,
+      );
 
   const searched = tabFiltered.filter((member) => {
     if (
@@ -429,8 +440,10 @@ export default function MembersPage() {
             const count =
               tab === "전체"
                 ? members.length
-                : members.filter(
-                  (member) => member.dept === tab,
+                : members.filter((member) =>
+                  isOperator
+                    ? member.company === tab
+                    : member.dept === tab,
                 ).length;
 
             const active = activeTab === tab;
@@ -511,21 +524,21 @@ export default function MembersPage() {
             <div className="hidden h-[510px] overflow-auto md:block">
               <table className="w-full min-w-[760px] table-fixed">
                 <colgroup>
-                  <col style={{ width: "6%" }} />
-                  <col style={{ width: "32%" }} />
+                  <col style={{ width: "48px" }} />
                   <col style={{ width: "24%" }} />
-                  <col style={{ width: "24%" }} />
-                  <col style={{ width: "14%" }} />
+                  <col style={{ width: "31%" }} />
+                  <col style={{ width: "31%" }} />
+                  <col style={{ width: "96px" }} />
                 </colgroup>
 
                 <thead>
                 <tr className="border-b border-border bg-secondary/40">
-                  <th className="w-8 px-4 py-2.5">
+                  <th className="px-0 py-2.5 text-center">
                     <input
                       type="checkbox"
                       checked={allSelected}
                       onChange={toggleAll}
-                      className="rounded border-border accent-primary"
+                      className="mx-auto block rounded border-border accent-primary"
                     />
                   </th>
 
@@ -568,7 +581,7 @@ export default function MembersPage() {
                       }`}
                     >
                       <td
-                        className="px-4 py-3"
+                        className="px-0 py-3 text-center"
                         onClick={(event) =>
                           event.stopPropagation()
                         }
@@ -579,7 +592,7 @@ export default function MembersPage() {
                           onChange={() =>
                             toggleOne(member.id)
                           }
-                          className="rounded border-border accent-primary"
+                          className="mx-auto block rounded border-border accent-primary"
                         />
                       </td>
 
