@@ -1,79 +1,47 @@
-export const MEMBER_TABS = [
-  "전체",
-  "개발팀",
-  "디자인팀",
-  "마케팅팀",
-  "영업팀",
-  "운영팀",
-] as const;
+export interface MemberApiResponse {
+  id: string;
+  companyId: string | null;
+  departmentId: string | null;
+  departmentName: string | null;
+  username: string;
+  name: string;
+  email: string | null;
+  phone: string | null;
+  status: string;
+  roles: string[];
 
-export type MemberTab =
-  (typeof MEMBER_TABS)[number];
+  /*
+   * 현재 backend MemberResponse에는 companyName이 없습니다.
+   * 추후 backend 응답에 추가되더라도 프론트를 다시 고치지 않도록
+   * 선택 필드로만 열어둡니다.
+   */
+  companyName?: string | null;
+}
 
-export const MEMBER_TAB_ACTIONS: Record<
-  MemberTab,
-  {
-    label: string;
-    variant: "primary" | "danger" | "ghost";
-  }[]
-> = {
-  전체: [],
+export interface Member {
+  id: string;
+  companyId: string;
+  company: string;
+  departmentId: string;
+  dept: string;
+  loginId: string;
+  password: string;
+  name: string;
+  email: string;
+  phone: string;
+  status: string;
+  roles: string[];
+}
 
-  개발팀: [
-    {
-      label: "권한 변경",
-      variant: "primary",
-    },
-    {
-      label: "계정 비활성화",
-      variant: "danger",
-    },
-  ],
+export interface ApiResponse<T> {
+  data?: T;
+  message?: string;
+  error?: {
+    message?: string;
+  };
+}
 
-  디자인팀: [
-    {
-      label: "권한 변경",
-      variant: "primary",
-    },
-    {
-      label: "계정 비활성화",
-      variant: "danger",
-    },
-  ],
-
-  마케팅팀: [
-    {
-      label: "권한 변경",
-      variant: "primary",
-    },
-    {
-      label: "계정 비활성화",
-      variant: "danger",
-    },
-  ],
-
-  영업팀: [
-    {
-      label: "권한 변경",
-      variant: "primary",
-    },
-    {
-      label: "계정 비활성화",
-      variant: "danger",
-    },
-  ],
-
-  운영팀: [
-    {
-      label: "권한 변경",
-      variant: "primary",
-    },
-    {
-      label: "계정 비활성화",
-      variant: "danger",
-    },
-  ],
-};
+export const MEMBER_DISPLAY_PASSWORD = "test";
 
 export const MEMBER_FILTER_FIELDS = [
   {
@@ -84,157 +52,44 @@ export const MEMBER_FILTER_FIELDS = [
     value: "password",
     label: "패스워드",
   },
+] as const;
+
+export const MEMBER_TAB_ACTIONS: {
+  label: string;
+  variant: "primary" | "danger" | "ghost";
+}[] = [
+  {
+    label: "권한 변경",
+    variant: "primary",
+  },
+  {
+    label: "계정 비활성화",
+    variant: "danger",
+  },
 ];
 
-export const MEMBER_COMPANIES = [
-  "주식회사 예시",
-  "테크코리아",
-  "디지털솔루션",
-  "한국IT",
-];
+export function mapMemberResponse(member: MemberApiResponse): Member {
+  return {
+    id: member.id,
+    companyId: member.companyId ?? "",
 
-export const extMembers = [
-  {
-    id: 1,
-    loginId: "example_admin",
-    password: "example1234!",
-    name: "김민준",
-    email: "minjun.kim@email.com",
-    role: "관리자",
-    status: "활성",
-    dept: "개발팀",
-    company: "주식회사 예시",
-    joined: "2024-03-15",
-    orders: 142,
-  },
-  {
-    id: 2,
-    loginId: "techkorea01",
-    password: "tech1234!",
-    name: "이서연",
-    email: "seoyeon.lee@email.com",
-    role: "편집자",
-    status: "활성",
-    dept: "디자인팀",
-    company: "테크코리아",
-    joined: "2024-05-22",
-    orders: 87,
-  },
-  {
-    id: 3,
-    loginId: "example_user",
-    password: "user1234!",
-    name: "박지훈",
-    email: "jihun.park@email.com",
-    role: "뷰어",
-    status: "비활성",
-    dept: "마케팅팀",
-    company: "주식회사 예시",
-    joined: "2024-01-08",
-    orders: 23,
-  },
-  {
-    id: 4,
-    loginId: "digital01",
-    password: "digital1234!",
-    name: "최수아",
-    email: "sua.choi@email.com",
-    role: "편집자",
-    status: "활성",
-    dept: "영업팀",
-    company: "디지털솔루션",
-    joined: "2024-07-01",
-    orders: 56,
-  },
-  {
-    id: 5,
-    loginId: "koreait01",
-    password: "korea1234!",
-    name: "정우진",
-    email: "woojin.jung@email.com",
-    role: "뷰어",
-    status: "보류",
-    dept: "운영팀",
-    company: "한국IT",
-    joined: "2024-06-14",
-    orders: 12,
-  },
-  {
-    id: 6,
-    loginId: "example_dev",
-    password: "dev1234!",
-    name: "강예은",
-    email: "yeeun.kang@email.com",
-    role: "관리자",
-    status: "활성",
-    dept: "개발팀",
-    company: "주식회사 예시",
-    joined: "2023-11-30",
-    orders: 204,
-  },
-  {
-    id: 7,
-    loginId: "techkorea02",
-    password: "tech5678!",
-    name: "조현서",
-    email: "hyunseo.jo@email.com",
-    role: "뷰어",
-    status: "활성",
-    dept: "디자인팀",
-    company: "테크코리아",
-    joined: "2025-01-12",
-    orders: 34,
-  },
-  {
-    id: 8,
-    loginId: "digital02",
-    password: "digital5678!",
-    name: "한도윤",
-    email: "doyun.han@email.com",
-    role: "편집자",
-    status: "활성",
-    dept: "마케팅팀",
-    company: "디지털솔루션",
-    joined: "2025-02-20",
-    orders: 19,
-  },
-  {
-    id: 9,
-    loginId: "koreait02",
-    password: "korea5678!",
-    name: "오지민",
-    email: "jimin.oh@email.com",
-    role: "뷰어",
-    status: "활성",
-    dept: "영업팀",
-    company: "한국IT",
-    joined: "2025-03-05",
-    orders: 7,
-  },
-  {
-    id: 10,
-    loginId: "koreait03",
-    password: "korea9012!",
-    name: "조현원",
-    email: "hyunwon.jo@email.com",
-    role: "뷰어",
-    status: "활성",
-    dept: "영업팀",
-    company: "한국IT",
-    joined: "2025-03-05",
-    orders: 0,
-  },
-  {
-    id: 11,
-    loginId: "example_ops",
-    password: "ops1234!",
-    name: "이가영",
-    email: "gayoung.lee@email.com",
-    role: "뷰어",
-    status: "활성",
-    dept: "운영팀",
-    company: "주식회사 예시",
-    joined: "2025-03-05",
-    orders: 0,
-  },
-];
+    /*
+     * 현재 API에는 회사명이 없으므로 companyId를 표시합니다.
+     * backend에 companyName이 추가되면 자동으로 회사명이 우선 표시됩니다.
+     */
+    company:
+      member.companyName?.trim() ||
+      member.companyId ||
+      "회사 미지정",
+
+    departmentId: member.departmentId ?? "",
+    dept: member.departmentName?.trim() || "부서 미지정",
+    loginId: member.username,
+    password: MEMBER_DISPLAY_PASSWORD,
+    name: member.name,
+    email: member.email ?? "",
+    phone: member.phone ?? "",
+    status: member.status,
+    roles: member.roles ?? [],
+  };
+}

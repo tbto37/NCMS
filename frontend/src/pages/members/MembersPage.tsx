@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Pencil, Plus, Trash2, Users } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Pencil, Plus, RefreshCw, Trash2, Users } from "lucide-react";
 import { SearchBar } from "@/components/common/SearchBar";
 import { Pagination } from "@/components/common/Pagination";
 import {
@@ -7,14 +7,15 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useAuth } from "@/app/providers/AuthProvider";
 import { PAGE_SIZE } from "@/shared/constants/pagination";
 import {
-  MEMBER_TABS,
-  type MemberTab,
-  MEMBER_TAB_ACTIONS,
   MEMBER_FILTER_FIELDS,
-  MEMBER_COMPANIES,
-  extMembers,
+  MEMBER_TAB_ACTIONS,
+  mapMemberResponse,
+  type ApiResponse,
+  type Member,
+  type MemberApiResponse,
 } from "@/shared/constants/members";
 import MemberEditModal, {
   type MemberEditData,
@@ -23,7 +24,15 @@ import MemberDeleteConfirmModal, {
   type MemberDeleteData,
 } from "./components/MemberDeleteConfirmModal";
 
-type Member = (typeof extMembers)[number];
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "";
+
+function getErrorMessage(body: ApiResponse<unknown> | null): string {
+  return (
+    body?.message ??
+    body?.error?.message ??
+    "회원 목록을 불러오지 못했습니다."
+  );
+}
 
 interface MemberActionButtonProps {
   label: string;
@@ -97,8 +106,15 @@ function MemberActions({
 }
 
 export default function MembersPage() {
-  const [activeTab, setActiveTab] = useState<MemberTab>("전체");
-  const [selectedIds, setSelectedIds] = useState<Set<number>>(
+  const { accessToken } = useAuth();
+
+  const [members, setMembers] = useState<Member[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
+  const [reloadKey, setReloadKey] = useState(0);
+
+  const [activeTab, setActiveTab] = useState("전체");
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(
     new Set(),
   );
   const [page, setPage] = useState(1);
@@ -108,13 +124,12 @@ export default function MembersPage() {
   const [company, setCompany] = useState("");
   const [filterField, setFilterField] = useState("loginId");
   const [filterValue, setFilterValue] = useState("");
+  const [searchNotice, setSearchNotice] = useState("");
 
   const [applied, setApplied] = useState({
     company: "",
     filterField: "loginId",
     filterValue: "",
-    dateFrom: "",
-    dateTo: "",
   });
 
   const [selectedMember, setSelectedMember] =
@@ -122,6 +137,93 @@ export default function MembersPage() {
 
   const [deleteMember, setDeleteMember] =
     useState<MemberDeleteData | null>(null);
+
+  useEffect(() => {
+    if (!accessToken) {
+      setMembers([]);
+      setLoading(false);
+      setLoadError("로그인 정보가 없습니다.");
+      return;
+    }
+
+    const abortController = new AbortController();
+
+    async function fetchMembers() {
+      try {
+        setLoading(true);
+        setLoadError("");
+
+        const response = await fetch(
+          `${API_BASE_URL}/api/v1/company/members`,
+          {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+            signal: abortController.signal,
+          },
+        );
+
+        const body = (await response
+          .json()
+          .catch(() => null)) as ApiResponse<MemberApiResponse[]> | null;
+
+        if (!response.ok) {
+          throw new Error(getErrorMessage(body));
+        }
+
+        const responseMembers = body?.data;
+
+        if (!Array.isArray(responseMembers)) {
+          throw new Error("회원 목록 응답 형식이 올바르지 않습니다.");
+        }
+
+        setMembers(responseMembers.map(mapMemberResponse));
+      } catch (error) {
+        if (
+          error instanceof DOMException &&
+          error.name === "AbortError"
+        ) {
+          return;
+        }
+
+        setMembers([]);
+        setLoadError(
+          error instanceof Error
+            ? error.message
+            : "회원 목록을 불러오지 못했습니다.",
+        );
+      } finally {
+        if (!abortController.signal.aborted) {
+          setLoading(false);
+        }
+      }
+    }
+
+    void fetchMembers();
+
+    return () => abortController.abort();
+  }, [accessToken, reloadKey]);
+
+  const memberTabs = useMemo(() => {
+    const departments = Array.from(
+      new Set(members.map((member) => member.dept)),
+    ).sort((a, b) => a.localeCompare(b, "ko"));
+
+    return ["전체", ...departments];
+  }, [members]);
+
+  const memberCompanies = useMemo(() => {
+    return Array.from(
+      new Set(members.map((member) => member.company)),
+    ).sort((a, b) => a.localeCompare(b, "ko"));
+  }, [members]);
+
+  useEffect(() => {
+    if (!memberTabs.includes(activeTab)) {
+      setActiveTab("전체");
+    }
+  }, [activeTab, memberTabs]);
 
   function handleEditMember(member: Member) {
     setSelectedMember({
@@ -145,9 +247,13 @@ export default function MembersPage() {
       company,
       filterField,
       filterValue,
-      dateFrom,
-      dateTo,
     });
+
+    setSearchNotice(
+      dateFrom || dateTo
+        ? "현재 회원 조회 API에는 가입일이 없어 날짜 조건은 적용되지 않습니다."
+        : "",
+    );
 
     setPage(1);
     setSelectedIds(new Set());
@@ -159,13 +265,12 @@ export default function MembersPage() {
     setCompany("");
     setFilterField("loginId");
     setFilterValue("");
+    setSearchNotice("");
 
     setApplied({
       company: "",
       filterField: "loginId",
       filterValue: "",
-      dateFrom: "",
-      dateTo: "",
     });
 
     setPage(1);
@@ -174,10 +279,8 @@ export default function MembersPage() {
 
   const tabFiltered =
     activeTab === "전체"
-      ? extMembers
-      : extMembers.filter(
-        (member) => member.dept === activeTab,
-      );
+      ? members
+      : members.filter((member) => member.dept === activeTab);
 
   const searched = tabFiltered.filter((member) => {
     if (
@@ -189,7 +292,7 @@ export default function MembersPage() {
 
     if (applied.filterValue) {
       const value = applied.filterValue.toLowerCase();
-      const field = applied.filterField as keyof Member;
+      const field = applied.filterField as "loginId" | "password";
 
       if (
         !String(member[field])
@@ -200,20 +303,6 @@ export default function MembersPage() {
       }
     }
 
-    if (
-      applied.dateFrom &&
-      member.joined < applied.dateFrom
-    ) {
-      return false;
-    }
-
-    if (
-      applied.dateTo &&
-      member.joined > applied.dateTo
-    ) {
-      return false;
-    }
-
     return true;
   });
 
@@ -221,6 +310,12 @@ export default function MembersPage() {
     1,
     Math.ceil(searched.length / PAGE_SIZE),
   );
+
+  useEffect(() => {
+    if (page > totalPages) {
+      setPage(totalPages);
+    }
+  }, [page, totalPages]);
 
   const paged = searched.slice(
     (page - 1) * PAGE_SIZE,
@@ -255,7 +350,7 @@ export default function MembersPage() {
     });
   }
 
-  function toggleOne(id: number) {
+  function toggleOne(id: string) {
     setSelectedIds((previous) => {
       const next = new Set(previous);
 
@@ -267,13 +362,16 @@ export default function MembersPage() {
     });
   }
 
-  function handleTabChange(tab: MemberTab) {
+  function handleTabChange(tab: string) {
     setActiveTab(tab);
     setPage(1);
     setSelectedIds(new Set());
   }
 
-  const actions = MEMBER_TAB_ACTIONS[activeTab];
+  const actions =
+    activeTab === "전체"
+      ? []
+      : MEMBER_TAB_ACTIONS;
 
   return (
     <div className="space-y-4 p-4 md:p-6">
@@ -289,11 +387,14 @@ export default function MembersPage() {
           </h1>
 
           <p className="mt-0.5 text-xs text-muted-foreground">
-            총 {extMembers.length}명
+            총 {members.length}명
           </p>
         </div>
 
-        <button className="flex items-center gap-1.5 rounded bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition-opacity hover:opacity-90">
+        <button
+          type="button"
+          className="flex items-center gap-1.5 rounded bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition-opacity hover:opacity-90"
+        >
           <Plus size={11} />
           회원 추가
         </button>
@@ -313,17 +414,22 @@ export default function MembersPage() {
         onSearch={handleSearch}
         onReset={handleReset}
         filterFields={MEMBER_FILTER_FIELDS}
-        companies={MEMBER_COMPANIES}
+        companies={memberCompanies}
       />
 
+      {searchNotice && (
+        <p className="text-xs text-amber-600">
+          {searchNotice}
+        </p>
+      )}
+
       <div className="overflow-hidden rounded-lg border border-border bg-card">
-        {/* 부서 탭 */}
         <div className="flex overflow-x-auto border-b border-border">
-          {MEMBER_TABS.map((tab) => {
+          {memberTabs.map((tab) => {
             const count =
               tab === "전체"
-                ? extMembers.length
-                : extMembers.filter(
+                ? members.length
+                : members.filter(
                   (member) => member.dept === tab,
                 ).length;
 
@@ -332,6 +438,7 @@ export default function MembersPage() {
             return (
               <button
                 key={tab}
+                type="button"
                 onClick={() => handleTabChange(tab)}
                 className={`-mb-px flex items-center gap-1.5 whitespace-nowrap border-b-2 px-3 py-3 text-xs font-medium transition-colors md:px-4 ${
                   active
@@ -355,7 +462,40 @@ export default function MembersPage() {
           })}
         </div>
 
-        {paged.length === 0 ? (
+        {loading ? (
+          <div className="flex h-[510px] flex-col items-center justify-center text-muted-foreground">
+            <RefreshCw
+              size={28}
+              className="mb-3 animate-spin opacity-50"
+            />
+
+            <p className="text-xs">
+              회원 목록을 불러오는 중입니다.
+            </p>
+          </div>
+        ) : loadError ? (
+          <div className="flex h-[510px] flex-col items-center justify-center px-4 text-center text-muted-foreground">
+            <Users
+              size={32}
+              className="mb-3 opacity-30"
+            />
+
+            <p className="text-xs text-red-500">
+              {loadError}
+            </p>
+
+            <button
+              type="button"
+              onClick={() =>
+                setReloadKey((value) => value + 1)
+              }
+              className="mt-3 flex items-center gap-1.5 rounded border border-border px-3 py-1.5 text-xs text-foreground hover:bg-secondary"
+            >
+              <RefreshCw size={12} />
+              다시 불러오기
+            </button>
+          </div>
+        ) : paged.length === 0 ? (
           <div className="flex h-[510px] flex-col items-center justify-center text-muted-foreground">
             <Users
               size={32}
@@ -368,7 +508,6 @@ export default function MembersPage() {
           </div>
         ) : (
           <>
-            {/* 데스크톱 테이블 */}
             <div className="hidden h-[510px] overflow-auto md:block">
               <table className="w-full min-w-[760px] table-fixed">
                 <colgroup>
@@ -477,7 +616,6 @@ export default function MembersPage() {
               </table>
             </div>
 
-            {/* 모바일 카드 */}
             <div className="h-[510px] divide-y divide-border overflow-y-auto md:hidden">
               <div className="flex items-center gap-3 bg-secondary/40 px-4 py-2.5">
                 <input
@@ -556,7 +694,6 @@ export default function MembersPage() {
               })}
             </div>
 
-            {/* 하단 일괄 액션 */}
             {actions.length > 0 && (
               <div className="flex items-center justify-between border-t border-border bg-secondary/30 px-4 py-3">
                 <span className="text-xs text-muted-foreground">
@@ -569,6 +706,7 @@ export default function MembersPage() {
                   {actions.map((action) => (
                     <button
                       key={action.label}
+                      type="button"
                       disabled={selectedCount === 0}
                       className={`rounded px-3 py-1.5 text-xs font-medium transition-all disabled:cursor-not-allowed disabled:opacity-40 ${
                         action.variant === "primary"

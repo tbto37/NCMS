@@ -22,7 +22,11 @@ public class MemberController {
 
     @GetMapping
     public ApiResponse<List<MemberResponse>> getMembers(@AuthenticationPrincipal NcmsUserDetails userDetails) {
-        return ApiResponse.success(memberService.getMembersByCompany(userDetails.getCompanyId()));
+        String primaryRole = userDetails.getAuthorities().stream()
+            .map(auth -> auth.getAuthority())
+            .findFirst().orElse("");
+
+        return ApiResponse.success(memberService.getMembersByCompany(userDetails.getCompanyId(), primaryRole));
     }
 
     @PostMapping

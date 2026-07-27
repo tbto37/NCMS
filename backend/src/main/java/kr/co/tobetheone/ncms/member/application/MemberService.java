@@ -36,15 +36,22 @@ public class MemberService {
     private final DepartmentRepository departmentRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public List<MemberResponse> getMembersByCompany(UUID companyId) {
-        List<Member> members = memberRepository.findByCompanyId(companyId);
+    public List<MemberResponse> getMembersByCompany(UUID companyId, String currentUserRole) {
+        List<Member> members = null;
+
+        if ("ROLE_OPERATOR".equals(currentUserRole)) {
+            members = memberRepository.findAll();
+        } else {
+            members = memberRepository.findByCompanyId(companyId);
+        }
+
         return members.stream().map(this::toResponse).collect(Collectors.toList());
     }
 
     @Transactional
     public MemberResponse createMemberByCompanyAdmin(UUID companyId, String currentUserRole, CreateMemberRequest request) {
-        if ("ROLE_SYSTEM_ADMIN".equals(currentUserRole)) {
-            throw new CustomException("SYSTEM_ADMIN은 신규 임직원을 직접 등록할 수 없습니다. (403 Forbidden)", HttpStatus.FORBIDDEN);
+        if ("ROLE_OPERATOR".equals(currentUserRole)) {
+            throw new CustomException("ROLE_OPERATOR은 신규 임직원을 직접 등록할 수 없습니다. (403 Forbidden)", HttpStatus.FORBIDDEN);
         }
 
         Company company = companyRepository.findById(companyId)
@@ -107,6 +114,7 @@ public class MemberService {
         return MemberResponse.builder()
                 .id(member.getId())
                 .companyId(member.getCompany() != null ? member.getCompany().getId() : null)
+                .companyName(member.getCompany() != null ? member.getCompany().getName() : null)
                 .departmentId(member.getDepartment() != null ? member.getDepartment().getId() : null)
                 .departmentName(member.getDepartment() != null ? member.getDepartment().getName() : null)
                 .username(member.getUsername())

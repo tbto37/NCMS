@@ -11,6 +11,7 @@ import java.util.UUID;
 public class MemberResponse {
     private UUID id;
     private UUID companyId;
+    private String companyName;
     private UUID departmentId;
     private String departmentName;
     private String username;
