@@ -41,17 +41,17 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/auth/login").permitAll()
 
                 // 2. Company & Department & Member Details (Fine-grained Role Access)
-                .requestMatchers(HttpMethod.GET, "/api/v1/company/templates").hasAnyRole("EMPLOYEE", "COMPANY_ADMIN", "SYSTEM_ADMIN")
-                .requestMatchers(HttpMethod.GET, "/api/v1/company/departments").hasAnyRole("EMPLOYEE", "COMPANY_ADMIN", "SYSTEM_ADMIN")
-                .requestMatchers(HttpMethod.POST, "/api/v1/company/departments").hasAnyRole("COMPANY_ADMIN", "SYSTEM_ADMIN")
+                .requestMatchers(HttpMethod.GET, "/api/v1/company/templates").hasAnyRole("EMPLOYEE", "COMPANY_ADMIN", "OPERATOR")
+                .requestMatchers(HttpMethod.GET, "/api/v1/company/departments").hasAnyRole("EMPLOYEE", "COMPANY_ADMIN", "OPERATOR")
+                .requestMatchers(HttpMethod.POST, "/api/v1/company/departments").hasAnyRole("COMPANY_ADMIN", "OPERATOR")
                 .requestMatchers(HttpMethod.POST, "/api/v1/company/members").hasRole("COMPANY_ADMIN")
-                .requestMatchers(HttpMethod.GET, "/api/v1/company/members").hasAnyRole("COMPANY_ADMIN", "SYSTEM_ADMIN")
-                .requestMatchers(HttpMethod.PUT, "/api/v1/company/members/**").hasAnyRole("COMPANY_ADMIN", "SYSTEM_ADMIN")
+                .requestMatchers(HttpMethod.GET, "/api/v1/company/members").hasAnyRole("COMPANY_ADMIN", "OPERATOR")
+                .requestMatchers(HttpMethod.PUT, "/api/v1/company/members/**").hasAnyRole("COMPANY_ADMIN", "OPERATOR")
 
                 // 3. Admin & Operator & Orders
                 .requestMatchers("/api/v1/admin/**").hasRole("SYSTEM_ADMIN")
-                .requestMatchers("/api/v1/operator/**").hasAnyRole("OPERATOR", "SYSTEM_ADMIN")
-                .requestMatchers("/api/v1/orders/**").hasAnyRole("EMPLOYEE", "COMPANY_ADMIN", "SYSTEM_ADMIN", "OPERATOR")
+                .requestMatchers("/api/v1/operator/**").hasAnyRole("OPERATOR")
+                .requestMatchers("/api/v1/orders/**").hasAnyRole("EMPLOYEE", "COMPANY_ADMIN", "OPERATOR")
 
                 .anyRequest().authenticated()
             )
