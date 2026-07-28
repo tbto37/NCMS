@@ -14,6 +14,10 @@ import {
 
 import { useAuth } from "@/app/providers/AuthProvider";
 import { API_BASE_URL } from "@/shared/constants/api";
+import type {
+  BusinessCardInputData,
+  OrderFormLocationState,
+} from "@/shared/types/businessCard";
 import TemplateEditModal from "./components/TemplateEditModal";
 import ProofCheckModal from "./components/ProofCheckModal";
 
@@ -175,6 +179,8 @@ export default function TemplatesPage() {
 
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [proofModalOpen, setProofModalOpen] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState<TemplateCardData | null>(null);
+  const [pendingCardData, setPendingCardData] = useState<BusinessCardInputData | null>(null);
 
   useEffect(() => {
     if (!accessToken) {
@@ -346,7 +352,11 @@ export default function TemplatesPage() {
                 <div className="flex gap-2">
                   <button
                     type="button"
-                    onClick={() => setEditModalOpen(true)}
+                    onClick={() => {
+                      setSelectedTemplate(template);
+                      setPendingCardData(null);
+                      setEditModalOpen(true);
+                    }}
                     className="flex flex-1 items-center justify-center gap-1.5 rounded border border-border px-2 py-1.5 text-xs text-foreground transition-colors hover:bg-secondary"
                   >
                     <SquarePen size={12} />
@@ -377,9 +387,16 @@ export default function TemplatesPage() {
       </div>
 
       <TemplateEditModal
+        key={selectedTemplate?.id ?? "template-edit"}
         open={editModalOpen}
-        onClose={() => setEditModalOpen(false)}
-        onNext={() => {
+        onClose={() => {
+          setEditModalOpen(false);
+          setProofModalOpen(false);
+          setSelectedTemplate(null);
+          setPendingCardData(null);
+        }}
+        onNext={(cardData) => {
+          setPendingCardData(cardData);
           setProofModalOpen(true);
         }}
       />
@@ -391,11 +408,28 @@ export default function TemplatesPage() {
           setProofModalOpen(false);
         }}
         onConfirm={() => {
+          if (!companyCode || !selectedTemplate || !pendingCardData) {
+            return;
+          }
+
+          const locationState: OrderFormLocationState = {
+            orderDraft: {
+              template: {
+                id: selectedTemplate.id,
+                name: selectedTemplate.name,
+                previewFrontUrl: selectedTemplate.previewFrontUrl,
+                previewBackUrl: selectedTemplate.previewBackUrl,
+              },
+              front: pendingCardData.front,
+              back: pendingCardData.back,
+            },
+          };
+
           setProofModalOpen(false);
           setEditModalOpen(false);
-          if (companyCode) {
-            navigate(`/${companyCode}/orders/form`);
-          }
+          navigate(`/${companyCode}/orders/form`, {
+            state: locationState,
+          });
         }}
       />
     </div>

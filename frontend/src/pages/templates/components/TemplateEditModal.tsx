@@ -7,44 +7,77 @@ import {
   Save,
   X,
 } from "lucide-react";
+import type { FormEvent } from "react";
+
+import type {
+  BackBusinessCardData,
+  BusinessCardInputData,
+  FrontBusinessCardData,
+} from "@/shared/types/businessCard";
 
 interface TemplateEditModalProps {
   open: boolean;
   onClose: () => void;
   onSave?: () => void;
-  onNext?: () => void;
+  onNext?: (cardData: BusinessCardInputData) => void;
 }
 
-const frontFields = [
-  { label: "이름", value: "홍길동" },
-  { label: "부서 선택", value: "직접입력", type: "select" },
-  { label: "부서", value: "도로사업부" },
-  { label: "직급 1 선택", value: "직접입력", type: "select" },
-  { label: "직급 1", value: "이사" },
-  { label: "직급 2 선택", value: "직접입력", type: "select" },
-  { label: "직급 2", value: "도로 및 공항 기술사" },
-  { label: "주소", value: "06779 서울시 서초구 방배천로 22-6" },
-  { label: "전화번호", value: "02-3498-2600" },
-  { label: "팩스", value: "02-572-8970" },
-  { label: "직통번호", value: "02-3498-2662" },
-  { label: "핸드폰", value: "010-1234-5678" },
-  { label: "이메일", value: "youremail@email.com" },
-  { label: "웹사이트", value: "www.cheileng.com" },
+type FieldDefinition<T extends object> = {
+  name: keyof T;
+  label: string;
+  value: string;
+  type?: "select";
+};
+
+const frontFields: Array<FieldDefinition<FrontBusinessCardData>> = [
+  { name: "name", label: "이름", value: "홍길동" },
+  {
+    name: "departmentOption",
+    label: "부서 선택",
+    value: "직접입력",
+    type: "select",
+  },
+  { name: "department", label: "부서", value: "도로사업부" },
+  {
+    name: "position1Option",
+    label: "직급 1 선택",
+    value: "직접입력",
+    type: "select",
+  },
+  { name: "position1", label: "직급 1", value: "이사" },
+  {
+    name: "position2Option",
+    label: "직급 2 선택",
+    value: "직접입력",
+    type: "select",
+  },
+  { name: "position2", label: "직급 2", value: "도로 및 공항 기술사" },
+  { name: "address", label: "주소", value: "06779 서울시 서초구 방배천로 22-6" },
+  { name: "telephone", label: "전화번호", value: "02-3498-2600" },
+  { name: "fax", label: "팩스", value: "02-572-8970" },
+  { name: "directTelephone", label: "직통번호", value: "02-3498-2662" },
+  { name: "mobile", label: "핸드폰", value: "010-1234-5678" },
+  { name: "email", label: "이메일", value: "youremail@email.com" },
+  { name: "website", label: "웹사이트", value: "www.cheileng.com" },
 ];
 
-const backFields = [
-  { label: "이름", value: "Hong Gil Dong" },
-  { label: "부서", value: "Highway Eng. Business Div." },
-  { label: "직급 1", value: "Director" },
-  { label: "직급 2", value: "P.E." },
-  { label: "주소 1", value: "22-6, Bangbaemae-ro 16gil, Seocho-gu," },
-  { label: "주소 2", value: "Seoul, Korea (06779)" },
-  { label: "전화번호", value: "82-2-3498-2600" },
-  { label: "팩스", value: "82-2-572-8970" },
-  { label: "직통번호", value: "82-2-3498-2745" },
-  { label: "핸드폰", value: "82-10-1234-5678" },
-  { label: "이메일", value: "youremail@email.com" },
-  { label: "웹사이트", value: "www.cheileng.com" },
+const backFields: Array<FieldDefinition<BackBusinessCardData>> = [
+  { name: "name", label: "이름", value: "Hong Gil Dong" },
+  { name: "department", label: "부서", value: "Highway Eng. Business Div." },
+  { name: "position1", label: "직급 1", value: "Director" },
+  { name: "position2", label: "직급 2", value: "P.E." },
+  {
+    name: "address1",
+    label: "주소 1",
+    value: "22-6, Bangbaemae-ro 16gil, Seocho-gu,",
+  },
+  { name: "address2", label: "주소 2", value: "Seoul, Korea (06779)" },
+  { name: "telephone", label: "전화번호", value: "82-2-3498-2600" },
+  { name: "fax", label: "팩스", value: "82-2-572-8970" },
+  { name: "directTelephone", label: "직통번호", value: "82-2-3498-2745" },
+  { name: "mobile", label: "핸드폰", value: "82-10-1234-5678" },
+  { name: "email", label: "이메일", value: "youremail@email.com" },
+  { name: "website", label: "웹사이트", value: "www.cheileng.com" },
 ];
 
 function BusinessCardPreview({ english = false }: { english?: boolean }) {
@@ -89,14 +122,16 @@ function BusinessCardPreview({ english = false }: { english?: boolean }) {
   );
 }
 
-function FieldList({
+function FieldList<T extends object>({
   title,
   description,
+  fieldPrefix,
   fields,
 }: {
   title: string;
   description: string;
-  fields: Array<{ label: string; value: string; type?: string }>;
+  fieldPrefix: "front" | "back";
+  fields: Array<FieldDefinition<T>>;
 }) {
   return (
     <section className="overflow-hidden rounded-xl border border-border bg-card">
@@ -106,30 +141,79 @@ function FieldList({
       </div>
 
       <div className="space-y-3 px-5 py-5">
-        {fields.map((field) => (
-          <div key={field.label} className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
-            <label className="text-xs font-medium text-muted-foreground">{field.label}</label>
-            {field.type === "select" ? (
-              <select
-                defaultValue={field.value}
-                className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
-              >
-                <option value="직접입력">직접입력</option>
-                <option value="대표이사">대표이사</option>
-                <option value="이사">이사</option>
-                <option value="부장">부장</option>
-              </select>
-            ) : (
-              <input
-                defaultValue={field.value}
-                className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
-              />
-            )}
-          </div>
-        ))}
+        {fields.map((field) => {
+          const fieldName = `${fieldPrefix}.${String(field.name)}`;
+
+          return (
+            <div key={fieldName} className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
+              <label htmlFor={fieldName} className="text-xs font-medium text-muted-foreground">
+                {field.label}
+              </label>
+              {field.type === "select" ? (
+                <select
+                  id={fieldName}
+                  name={fieldName}
+                  defaultValue={field.value}
+                  className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
+                >
+                  <option value="직접입력">직접입력</option>
+                  <option value="대표이사">대표이사</option>
+                  <option value="이사">이사</option>
+                  <option value="부장">부장</option>
+                </select>
+              ) : (
+                <input
+                  id={fieldName}
+                  name={fieldName}
+                  defaultValue={field.value}
+                  className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
+                />
+              )}
+            </div>
+          );
+        })}
       </div>
     </section>
   );
+}
+
+function getFormValue(formData: FormData, key: string): string {
+  return String(formData.get(key) ?? "");
+}
+
+function createCardData(formData: FormData): BusinessCardInputData {
+  return {
+    front: {
+      name: getFormValue(formData, "front.name"),
+      departmentOption: getFormValue(formData, "front.departmentOption"),
+      department: getFormValue(formData, "front.department"),
+      position1Option: getFormValue(formData, "front.position1Option"),
+      position1: getFormValue(formData, "front.position1"),
+      position2Option: getFormValue(formData, "front.position2Option"),
+      position2: getFormValue(formData, "front.position2"),
+      address: getFormValue(formData, "front.address"),
+      telephone: getFormValue(formData, "front.telephone"),
+      fax: getFormValue(formData, "front.fax"),
+      directTelephone: getFormValue(formData, "front.directTelephone"),
+      mobile: getFormValue(formData, "front.mobile"),
+      email: getFormValue(formData, "front.email"),
+      website: getFormValue(formData, "front.website"),
+    },
+    back: {
+      name: getFormValue(formData, "back.name"),
+      department: getFormValue(formData, "back.department"),
+      position1: getFormValue(formData, "back.position1"),
+      position2: getFormValue(formData, "back.position2"),
+      address1: getFormValue(formData, "back.address1"),
+      address2: getFormValue(formData, "back.address2"),
+      telephone: getFormValue(formData, "back.telephone"),
+      fax: getFormValue(formData, "back.fax"),
+      directTelephone: getFormValue(formData, "back.directTelephone"),
+      mobile: getFormValue(formData, "back.mobile"),
+      email: getFormValue(formData, "back.email"),
+      website: getFormValue(formData, "back.website"),
+    },
+  };
 }
 
 export default function TemplateEditModal({
@@ -140,9 +224,17 @@ export default function TemplateEditModal({
 }: TemplateEditModalProps) {
   if (!open) return null;
 
+  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    onNext?.(createCardData(new FormData(event.currentTarget)));
+  };
+
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/45 p-4 backdrop-blur-[2px]">
-      <div className="flex h-[calc(100vh-32px)] w-full max-w-[1280px] flex-col overflow-hidden rounded-2xl border border-border bg-background shadow-2xl">
+      <form
+        onSubmit={handleSubmit}
+        className="flex h-[calc(100vh-32px)] w-full max-w-[1280px] flex-col overflow-hidden rounded-2xl border border-border bg-background shadow-2xl"
+      >
         <header className="flex h-16 shrink-0 items-center justify-between border-b border-border bg-card px-6">
           <div className="flex items-center gap-3">
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10 text-primary">
@@ -206,8 +298,18 @@ export default function TemplateEditModal({
             </section>
 
             <div className="grid items-start gap-5 xl:grid-cols-2">
-              <FieldList title="앞면 정보" description="한글 명함에 표시할 정보를 입력합니다." fields={frontFields} />
-              <FieldList title="뒷면 정보" description="영문 명함에 표시할 정보를 입력합니다." fields={backFields} />
+              <FieldList
+                title="앞면 정보"
+                description="한글 명함에 표시할 정보를 입력합니다."
+                fieldPrefix="front"
+                fields={frontFields}
+              />
+              <FieldList
+                title="뒷면 정보"
+                description="영문 명함에 표시할 정보를 입력합니다."
+                fieldPrefix="back"
+                fields={backFields}
+              />
             </div>
           </div>
         </main>
@@ -230,15 +332,14 @@ export default function TemplateEditModal({
               <Save size={14} /> 임시저장
             </button>
             <button
-              type="button"
-              onClick={onNext}
+              type="submit"
               className="flex h-10 items-center gap-2 rounded-md bg-primary px-5 text-xs font-medium text-primary-foreground transition hover:opacity-90"
             >
               다음 <ArrowRight size={14} />
             </button>
           </div>
         </footer>
-      </div>
+      </form>
     </div>
   );
 }

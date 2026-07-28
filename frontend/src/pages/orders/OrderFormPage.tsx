@@ -3,6 +3,7 @@ import { ArrowLeft, Check, RotateCcw, ShoppingCart } from "lucide-react";
 import {Navigate, useLocation, useNavigate, useParams} from "react-router";
 import OrderCompleteModal from "./components/OrderCompleteModal";
 import { API_BASE_URL } from "@/shared/constants/api";
+import type { OrderFormLocationState } from "@/shared/types/businessCard";
 
 function BusinessCardPreview({ english = false }: { english?: boolean }) {
   return (
@@ -73,6 +74,25 @@ export default function OrderFormPage() {
   const location = useLocation();
   const { companyCode } = useParams<{ companyCode?: string }>();
   const [isOrderCompleteOpen, setIsOrderCompleteOpen] = useState(false);
+
+  const locationState = location.state as OrderFormLocationState | null;
+  const orderDraft = locationState?.orderDraft;
+
+  useEffect(() => {
+    console.group("📇 주문서 페이지 전달 데이터");
+
+    console.log("전체 location.state:", location.state);
+    console.log("전체 orderDraft:", orderDraft);
+    console.log("선택한 템플릿:", orderDraft?.template);
+
+    console.log("명함 앞면 정보");
+    console.table(orderDraft?.front);
+
+    console.log("명함 뒷면 정보");
+    console.table(orderDraft?.back);
+
+    console.groupEnd();
+  }, [location.state, orderDraft]);
 
   const [paperOptions, setPaperOptions] = useState<ProductOptionItem[]>([
     { id: "OPT_P1", category: "PAPER", name: "휘라레 216g", sortOrder: 1 },
@@ -171,7 +191,10 @@ export default function OrderFormPage() {
                 선택한 명함 디자인
               </h2>
               <p className="mt-1 text-xs text-muted-foreground">
-                CHEIL 기본형 · TPL-001
+                {orderDraft?.template.name ?? ""}
+                {orderDraft?.template.id
+                  ? ` · ${orderDraft.template.id}`
+                  : ""}
               </p>
             </div>
 
@@ -221,14 +244,20 @@ export default function OrderFormPage() {
               <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
                 이름
               </label>
-              <input className={inputClassName} defaultValue="홍길동" />
+              <input
+                className={inputClassName}
+                placeholder="이름을 입력해 주세요."
+              />
             </div>
 
             <div>
               <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
                 전화번호
               </label>
-              <input className={inputClassName} defaultValue="02-3498-2600" />
+              <input
+                className={inputClassName}
+                placeholder="전화번호를 입력해 주세요."
+              />
             </div>
 
             <div>
@@ -237,7 +266,7 @@ export default function OrderFormPage() {
               </label>
               <input
                 className={inputClassName}
-                defaultValue="06779 서울시 서초구 방배천로 22-6"
+                placeholder="주소를 입력해 주세요."
               />
             </div>
 
@@ -269,7 +298,7 @@ export default function OrderFormPage() {
                 </label>
                 <input
                   className={inputClassName}
-                  defaultValue="제일엔지니어링 기본 명함"
+                  value={orderDraft?.template.name ?? ""}
                   readOnly
                 />
               </div>
