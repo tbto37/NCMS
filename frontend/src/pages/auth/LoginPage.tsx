@@ -28,12 +28,14 @@ export default function LoginPage() {
       setLoading(true);
       setError("");
 
-      await login(id.trim(), pw, remember);
+      const loginResult = await login(id.trim(), pw, remember);
 
       if (isTenantLogin) {
         navigate(`/${companyCode}/templates`, { replace: true });
+      } else if (loginResult.roles?.includes("ROLE_OPERATOR")) {
+        navigate("/operator/orders", { replace: true });
       } else {
-        navigate("/admin/templates", { replace: true });
+        navigate("/admin/orders", { replace: true });
       }
     } catch (error) {
       setError(

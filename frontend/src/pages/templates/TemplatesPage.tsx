@@ -62,37 +62,6 @@ const MOCK_CARD_DETAILS = [
   },
 ] as const;
 
-const ADMIN_MOCK_TEMPLATES: TemplateApiResponse[] = [
-  {
-    id: "TPL-001",
-    name: "기본 회원 카드",
-    previewFrontUrl: null,
-    previewBackUrl: null,
-    status: "ACTIVE",
-  },
-  {
-    id: "TPL-002",
-    name: "임직원 출입증",
-    previewFrontUrl: null,
-    previewBackUrl: null,
-    status: "ACTIVE",
-  },
-  {
-    id: "TPL-003",
-    name: "이벤트 초대권",
-    previewFrontUrl: null,
-    previewBackUrl: null,
-    status: "REVIEW",
-  },
-  {
-    id: "TPL-004",
-    name: "파트너 인증 카드",
-    previewFrontUrl: null,
-    previewBackUrl: null,
-    status: "DRAFT",
-  },
-];
-
 function getStatusLabel(status?: string | null): string {
   switch (status?.toUpperCase()) {
     case "ACTIVE":
@@ -199,10 +168,8 @@ export default function TemplatesPage() {
   const { companyCode } = useParams<{ companyCode?: string }>();
   const { accessToken } = useAuth();
 
-  const isCustomerSite = Boolean(companyCode);
-
   const [apiTemplates, setApiTemplates] = useState<TemplateApiResponse[]>([]);
-  const [loading, setLoading] = useState(isCustomerSite);
+  const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState("");
   const [reloadKey, setReloadKey] = useState(0);
 
@@ -210,13 +177,6 @@ export default function TemplatesPage() {
   const [proofModalOpen, setProofModalOpen] = useState(false);
 
   useEffect(() => {
-    if (!isCustomerSite) {
-      setApiTemplates(ADMIN_MOCK_TEMPLATES);
-      setLoading(false);
-      setLoadError("");
-      return;
-    }
-
     if (!accessToken) {
       setApiTemplates([]);
       setLoading(false);
@@ -281,7 +241,7 @@ export default function TemplatesPage() {
     void fetchTemplates();
 
     return () => abortController.abort();
-  }, [accessToken, isCustomerSite, reloadKey]);
+  }, [accessToken, reloadKey]);
 
   const templates = useMemo(
     () => apiTemplates.map(mapTemplateResponse),
@@ -413,9 +373,7 @@ export default function TemplatesPage() {
 
       <div className="flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-3 text-xs text-muted-foreground">
         <FileText size={14} className="shrink-0" />
-        {isCustomerSite
-          ? "템플릿 ID, 이름, 상태, 미리보기 이미지는 실제 API 데이터이며 카테고리, 필드, 수정일, 사용량은 임시 목업 데이터입니다."
-          : "관리자 전체 템플릿 조회 API가 아직 없어 관리자 화면은 임시 목업 데이터를 사용합니다."}
+        템플릿 ID, 이름, 상태, 미리보기 이미지는 실제 API 데이터이며 카테고리, 필드, 수정일, 사용량은 임시 목업 데이터입니다.
       </div>
 
       <TemplateEditModal
@@ -435,11 +393,9 @@ export default function TemplatesPage() {
         onConfirm={() => {
           setProofModalOpen(false);
           setEditModalOpen(false);
-          navigate(
-            companyCode
-              ? `/${companyCode}/orders/form`
-              : "/admin/orders/form",
-          );
+          if (companyCode) {
+            navigate(`/${companyCode}/orders/form`);
+          }
         }}
       />
     </div>

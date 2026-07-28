@@ -61,8 +61,7 @@ export default function App() {
             {/* Logcom System Admin Routes: /admin */}
             <Route path="/admin" element={<RequireAuth />}>
               <Route element={<AdminLayout />}>
-                <Route index element={<Navigate to="companies" replace />} />
-                <Route path="templates" element={<TemplatesPage />} />
+                <Route index element={<Navigate to="orders" replace />} />
                 <Route path="orders" element={<OrdersPage />} />
                 <Route path="orders/form" element={<OrderFormPage />} />
                 <Route path="members" element={<MembersPage />} />

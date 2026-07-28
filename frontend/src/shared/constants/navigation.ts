@@ -52,10 +52,10 @@ export function getLayoutBasePath(
 }
 
 export function getNavItems(basePath: string): NavItem[] {
-  const definitions =
-    basePath === "/operator"
-      ? navItemDefinitions.filter((item) => item.id !== "templates")
-      : navItemDefinitions;
+  const isCustomerSite = basePath !== "/admin" && basePath !== "/operator";
+  const definitions = isCustomerSite
+    ? navItemDefinitions
+    : navItemDefinitions.filter((item) => item.id !== "templates");
 
   return definitions.map(({ route, ...item }) => ({
     ...item,

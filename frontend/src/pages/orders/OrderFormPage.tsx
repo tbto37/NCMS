@@ -1,6 +1,6 @@
 import { useState, useEffect, type FormEvent } from "react";
 import { ArrowLeft, Check, RotateCcw, ShoppingCart } from "lucide-react";
-import { useLocation, useNavigate, useParams } from "react-router";
+import {Navigate, useLocation, useNavigate, useParams} from "react-router";
 import OrderCompleteModal from "./components/OrderCompleteModal";
 import { API_BASE_URL } from "@/shared/constants/api";
 
@@ -121,17 +121,12 @@ export default function OrderFormPage() {
     loadOptions();
   }, []);
 
-  const mainPath = companyCode
-    ? `/${companyCode}/templates`
-    : location.pathname.startsWith("/admin")
-      ? "/admin/templates"
-      : "/templates";
+  if (!companyCode) {
+    return <Navigate to="/orders" replace />;
+  }
 
-  const ordersPath = companyCode
-    ? `/${companyCode}/orders`
-    : location.pathname.startsWith("/admin")
-      ? "/admin/orders"
-      : "/orders";
+  const mainPath = `/${companyCode}/templates`;
+  const ordersPath = `/${companyCode}/orders`;
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
