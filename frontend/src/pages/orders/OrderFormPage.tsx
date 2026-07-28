@@ -1,7 +1,8 @@
-import { useState, type FormEvent } from "react";
+import { useState, useEffect, type FormEvent } from "react";
 import { ArrowLeft, Check, RotateCcw, ShoppingCart } from "lucide-react";
 import { useLocation, useNavigate, useParams } from "react-router";
 import OrderCompleteModal from "./components/OrderCompleteModal";
+import { API_BASE_URL } from "@/shared/constants/api";
 
 function BusinessCardPreview({ english = false }: { english?: boolean }) {
   return (
@@ -60,11 +61,65 @@ function BusinessCardPreview({ english = false }: { english?: boolean }) {
 const inputClassName =
   "h-10 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition placeholder:text-muted-foreground focus:border-ring focus:ring-2 focus:ring-ring/15";
 
+interface ProductOptionItem {
+  id: string;
+  category: string;
+  name: string;
+  sortOrder: number;
+}
+
 export default function OrderFormPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { companyCode } = useParams<{ companyCode?: string }>();
   const [isOrderCompleteOpen, setIsOrderCompleteOpen] = useState(false);
+
+  const [paperOptions, setPaperOptions] = useState<ProductOptionItem[]>([
+    { id: "OPT_P1", category: "PAPER", name: "휘라레 216g", sortOrder: 1 },
+    { id: "OPT_P2", category: "PAPER", name: "스노우지 250g", sortOrder: 2 },
+    { id: "OPT_P3", category: "PAPER", name: "랑데뷰 240g", sortOrder: 3 },
+    { id: "OPT_P4", category: "PAPER", name: "띤또레또 250g", sortOrder: 4 },
+  ]);
+
+  const [qtyOptions, setQtyOptions] = useState<ProductOptionItem[]>([
+    { id: "OPT_Q1", category: "QTY", name: "100매", sortOrder: 1 },
+    { id: "OPT_Q2", category: "QTY", name: "200매", sortOrder: 2 },
+    { id: "OPT_Q3", category: "QTY", name: "300매", sortOrder: 3 },
+    { id: "OPT_Q4", category: "QTY", name: "500매", sortOrder: 4 },
+    { id: "OPT_Q5", category: "QTY", name: "1000매", sortOrder: 5 },
+  ]);
+
+  const [selectedPaper, setSelectedPaper] = useState("휘라레 216g");
+  const [selectedQty, setSelectedQty] = useState("200매");
+
+  useEffect(() => {
+    async function loadOptions() {
+      try {
+        const [paperRes, qtyRes] = await Promise.all([
+          fetch(`${API_BASE_URL}/api/v1/product-options?category=PAPER`),
+          fetch(`${API_BASE_URL}/api/v1/product-options?category=QTY`),
+        ]);
+        if (paperRes.ok) {
+          const json = await paperRes.json();
+          if (json.data && json.data.length > 0) {
+            setPaperOptions(json.data);
+            setSelectedPaper(json.data[0].name);
+          }
+        }
+        if (qtyRes.ok) {
+          const json = await qtyRes.json();
+          if (json.data && json.data.length > 0) {
+            setQtyOptions(json.data);
+            const default200 = json.data.find((q: ProductOptionItem) => q.name === "200매");
+            setSelectedQty(default200 ? default200.name : json.data[0].name);
+          }
+        }
+      } catch (e) {
+        console.warn("Failed to fetch product options, using fallbacks:", e);
+      }
+    }
+    loadOptions();
+  }, []);
 
   const mainPath = companyCode
     ? `/${companyCode}/templates`
@@ -80,9 +135,8 @@ export default function OrderFormPage() {
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-
-    // TODO: 주문 등록 API 성공 후 모달을 열도록 연결합니다.
-    console.log("주문하기");
+    const summary = `${selectedPaper} / ${selectedQty}`;
+    console.log("주문하기 - 선택 옵션:", summary);
     setIsOrderCompleteOpen(true);
   }
 
@@ -229,10 +283,16 @@ export default function OrderFormPage() {
                 <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
                   사양(재질)
                 </label>
-                <select className={inputClassName} defaultValue="휘라레 216g">
-                  <option value="휘라레 216g">휘라레 216g</option>
-                  <option value="스노우 250g">스노우 250g</option>
-                  <option value="랑데뷰 240g">랑데뷰 240g</option>
+                <select
+                  className={inputClassName}
+                  value={selectedPaper}
+                  onChange={(e) => setSelectedPaper(e.target.value)}
+                >
+                  {paperOptions.map((opt) => (
+                    <option key={opt.id} value={opt.name}>
+                      {opt.name}
+                    </option>
+                  ))}
                 </select>
               </div>
 
@@ -240,10 +300,16 @@ export default function OrderFormPage() {
                 <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
                   수량
                 </label>
-                <select className={inputClassName} defaultValue="200매">
-                  <option value="100매">100매</option>
-                  <option value="200매">200매</option>
-                  <option value="500매">500매</option>
+                <select
+                  className={inputClassName}
+                  value={selectedQty}
+                  onChange={(e) => setSelectedQty(e.target.value)}
+                >
+                  {qtyOptions.map((opt) => (
+                    <option key={opt.id} value={opt.name}>
+                      {opt.name}
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>

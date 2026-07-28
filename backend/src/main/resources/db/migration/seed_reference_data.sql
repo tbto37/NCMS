@@ -16,10 +16,17 @@ INSERT INTO companies (id, site_code, name, logo_url, primary_color, status) VAL
     ('C_2', 'cheil', '제일엔지니어링', 'https://cdn.logcom.co.kr/logos/cheil.png', '#06418F', 'ACTIVE')
 ON CONFLICT (site_code) DO NOTHING;
 
--- 3. 기본 명함 상품 옵션 (OPT_1, OPT_2)
-INSERT INTO product_options (id, material_name, quantity, status) VALUES
-    ('OPT_1', '스노우지 250g', 200, 'ACTIVE'),
-    ('OPT_2', '띤또레또 250g', 200, 'ACTIVE')
+-- 3. 기본 명함 상품 옵션 (용지 사양 & 수량)
+INSERT INTO product_options (id, category, name, sort_order, status) VALUES
+    ('OPT_P1', 'PAPER', '휘라레 216g', 1, 'ACTIVE'),
+    ('OPT_P2', 'PAPER', '스노우지 250g', 2, 'ACTIVE'),
+    ('OPT_P3', 'PAPER', '랑데뷰 240g', 3, 'ACTIVE'),
+    ('OPT_P4', 'PAPER', '띤또레또 250g', 4, 'ACTIVE'),
+    ('OPT_Q1', 'QTY', '100매', 1, 'ACTIVE'),
+    ('OPT_Q2', 'QTY', '200매', 2, 'ACTIVE'),
+    ('OPT_Q3', 'QTY', '300매', 3, 'ACTIVE'),
+    ('OPT_Q4', 'QTY', '500매', 4, 'ACTIVE'),
+    ('OPT_Q5', 'QTY', '1000매', 5, 'ACTIVE')
 ON CONFLICT (id) DO NOTHING;
 
 -- 4. 기본 템플릿 등록 (T_1)

@@ -45,6 +45,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/health").permitAll()
                 .requestMatchers("/api/v1/public/**").permitAll()
                 .requestMatchers("/api/v1/auth/login").permitAll()
+                .requestMatchers("/api/v1/product-options/**").permitAll()
 
                 // 2. Company & Department & Member Details (Fine-grained Role Access)
                 .requestMatchers(HttpMethod.GET, "/api/v1/company/templates").hasAnyRole("EMPLOYEE", "COMPANY_ADMIN", "OPERATOR")

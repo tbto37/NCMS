@@ -15,11 +15,15 @@ public class ProductOption extends BaseEntity {
     @Id
     private String id;
 
-    @Column(name = "material_name", nullable = false, length = 100)
-    private String materialName;
+    @Column(nullable = false, length = 20)
+    private String category;
 
-    @Column(nullable = false)
-    private Integer quantity;
+    @Column(nullable = false, length = 100)
+    private String name;
+
+    @Column(name = "sort_order", nullable = false)
+    @Builder.Default
+    private Integer sortOrder = 0;
 
     @Column(nullable = false, length = 20)
     @Builder.Default

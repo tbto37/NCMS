@@ -107,6 +107,14 @@ erDiagram
 - `tracking_number` (VARCHAR) - 송장번호
 - `shipped_at` (TIMESTAMPTZ) - 발송일시
 
+### 3.6 `product_options` (명함 상품 옵션)
+- `id` (VARCHAR(50), PK, 예: `OPT_P1`, `OPT_Q1`)
+- `category` (VARCHAR(20)) - 옵션 카테고리 (`PAPER`: 사양/재질, `QTY`: 수량)
+- `name` (VARCHAR(100)) - 옵션 표기명 (예: `휘라레 216g`, `200매`)
+- `sort_order` (INT) - 노출 순서
+- `status` (VARCHAR(20)) - 활성 상태 (`ACTIVE`, `INACTIVE`)
+- `created_at`, `updated_at` (TIMESTAMPTZ)
+
 ---
 
 ## 4. 데이터 모델링 특징

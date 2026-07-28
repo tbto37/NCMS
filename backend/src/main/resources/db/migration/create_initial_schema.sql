@@ -133,17 +133,19 @@ COMMENT ON COLUMN company_templates.template_id IS '템플릿 ID';
 -- 7. 명함 상품 옵션 (product_options)
 CREATE TABLE product_options (
     id VARCHAR(50) PRIMARY KEY,
-    material_name VARCHAR(100) NOT NULL,
-    quantity INT NOT NULL,
+    category VARCHAR(20) NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    sort_order INT NOT NULL DEFAULT 0,
     status VARCHAR(20) NOT NULL DEFAULT 'ACTIVE',
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 COMMENT ON TABLE product_options IS '명함 상품 옵션 (용지 재질 및 주문 수량)';
-COMMENT ON COLUMN product_options.id IS '상품 옵션 고유 식별자 (VARCHAR(50), 예: OPT_1, OPT_2)';
-COMMENT ON COLUMN product_options.material_name IS '명함 용지 재질명 (예: 스노우지 250g, 띤또레또 250g)';
-COMMENT ON COLUMN product_options.quantity IS '주문 수량 (매)';
+COMMENT ON COLUMN product_options.id IS '상품 옵션 고유 식별자 (VARCHAR(50), 예: OPT_P1, OPT_Q1)';
+COMMENT ON COLUMN product_options.category IS '옵션 카테고리 (PAPER: 용지 사양, QTY: 수량)';
+COMMENT ON COLUMN product_options.name IS '옵션 표기명 (예: 휘라레 216g, 200매)';
+COMMENT ON COLUMN product_options.sort_order IS '셀렉트박스 노출 순서';
 COMMENT ON COLUMN product_options.status IS '옵션 상태 (ACTIVE: 활성, INACTIVE: 비활성)';
 COMMENT ON COLUMN product_options.created_at IS '레코드 생성일시';
 COMMENT ON COLUMN product_options.updated_at IS '레코드 수정일시';
