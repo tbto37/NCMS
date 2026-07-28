@@ -16,6 +16,14 @@ INSERT INTO companies (id, site_code, name, logo_url, primary_color, status) VAL
     ('C_2', 'cheil', '제일엔지니어링', 'https://cdn.logcom.co.kr/logos/cheil.png', '#06418F', 'ACTIVE')
 ON CONFLICT (site_code) DO NOTHING;
 
+-- 2.1 기본 부서 등록 (DEP_1 ~ DEP_4)
+INSERT INTO departments (id, company_id, name, sort_order, status) VALUES
+    ('DEP_1', 'C_1', '플랫폼기획팀', 1, 'ACTIVE'),
+    ('DEP_2', 'C_1', '브랜드디자인팀', 2, 'ACTIVE'),
+    ('DEP_3', 'C_2', '도로사업부', 1, 'ACTIVE'),
+    ('DEP_4', 'C_2', '경영지원팀', 2, 'ACTIVE')
+ON CONFLICT (id) DO NOTHING;
+
 -- 3. 기본 명함 상품 옵션 (용지 사양 & 수량)
 INSERT INTO product_options (id, category, name, sort_order, status) VALUES
     ('OPT_P1', 'PAPER', '휘라레 216g', 1, 'ACTIVE'),

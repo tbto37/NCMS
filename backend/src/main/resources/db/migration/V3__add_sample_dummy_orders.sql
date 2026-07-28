@@ -8,16 +8,23 @@ INSERT INTO companies (id, site_code, name, logo_url, primary_color, status) VAL
     ('C_2', 'cheil', '제일엔지니어링', 'https://cdn.logcom.co.kr/logos/cheil.png', '#06418F', 'ACTIVE')
 ON CONFLICT (site_code) DO NOTHING;
 
+INSERT INTO departments (id, company_id, name, sort_order, status) VALUES
+    ('DEP_1', 'C_1', '플랫폼기획팀', 1, 'ACTIVE'),
+    ('DEP_2', 'C_1', '브랜드디자인팀', 2, 'ACTIVE'),
+    ('DEP_3', 'C_2', '도로사업부', 1, 'ACTIVE'),
+    ('DEP_4', 'C_2', '경영지원팀', 2, 'ACTIVE')
+ON CONFLICT (id) DO NOTHING;
+
 INSERT INTO templates (id, name, preview_front_url, preview_back_url, status) VALUES
     ('T_1', '기본 스탠다드 템플릿', 'https://cdn.logcom.co.kr/templates/std_front.png', 'https://cdn.logcom.co.kr/templates/std_back.png', 'ACTIVE')
 ON CONFLICT (id) DO NOTHING;
 
-INSERT INTO members (id, company_id, username, password, name, email, phone, status) VALUES
-    ('M_1', 'C_2', 'kim_minjun', 'MTIzNA==', '김민준', 'minjun@cheil.co.kr', '010-2451-8821', 'ACTIVE'),
-    ('M_2', 'C_1', 'lee_seoyeon', 'MTIzNA==', '이서연', 'seoyeon@tobetheone.com', '010-7392-1048', 'ACTIVE'),
-    ('M_3', 'C_2', 'park_jihoon', 'MTIzNA==', '박지훈', 'jihoon@cheil.co.kr', '010-5631-9074', 'ACTIVE'),
-    ('M_4', 'C_1', 'choi_sua', 'MTIzNA==', '최수아', 'sua@tobetheone.com', '010-8164-3320', 'ACTIVE'),
-    ('M_5', 'C_2', 'jung_woojin', 'MTIzNA==', '정우진', 'woojin@cheil.co.kr', '010-4072-6651', 'ACTIVE')
+INSERT INTO members (id, company_id, department_id, username, password, name, email, phone, status) VALUES
+    ('M_1', 'C_2', 'DEP_3', 'kim_minjun', 'MTIzNA==', '김민준', 'minjun@cheil.co.kr', '010-2451-8821', 'ACTIVE'),
+    ('M_2', 'C_1', 'DEP_1', 'lee_seoyeon', 'MTIzNA==', '이서연', 'seoyeon@tobetheone.com', '010-7392-1048', 'ACTIVE'),
+    ('M_3', 'C_2', 'DEP_4', 'park_jihoon', 'MTIzNA==', '박지훈', 'jihoon@cheil.co.kr', '010-5631-9074', 'ACTIVE'),
+    ('M_4', 'C_1', 'DEP_2', 'choi_sua', 'MTIzNA==', '최수아', 'sua@tobetheone.com', '010-8164-3320', 'ACTIVE'),
+    ('M_5', 'C_2', 'DEP_3', 'jung_woojin', 'MTIzNA==', '정우진', 'woojin@cheil.co.kr', '010-4072-6651', 'ACTIVE')
 ON CONFLICT (username) DO NOTHING;
 
 
