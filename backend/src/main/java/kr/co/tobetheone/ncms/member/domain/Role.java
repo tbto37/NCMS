@@ -3,8 +3,6 @@ package kr.co.tobetheone.ncms.member.domain;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.util.UUID;
-
 @Entity
 @Table(name = "roles")
 @Getter
@@ -14,12 +12,12 @@ import java.util.UUID;
 public class Role {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
-
-    @Column(unique = true, nullable = false, length = 50)
-    private String code;
+    @Column(length = 50)
+    private String id;
 
     @Column(nullable = false, length = 50)
     private String name;
+
+    @Column(length = 255)
+    private String description;
 }

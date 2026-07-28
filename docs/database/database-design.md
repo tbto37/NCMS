@@ -18,7 +18,7 @@
 1. **`companies`**: 고객사 정보, 사이트 코드(`site_code`), 브랜딩(로고, 색상)
 2. **`departments`**: 고객사별 부서
 3. **`members`**: 사용자(임직원, 기업관리자, 로그컴운영자, 시스템관리자)
-4. **`roles` / `member_roles`**: 사용자 역할 권한
+4. **`roles` / `member_roles`**: 사용자 역할 권한 (문자열 역할 코드 PK 및 역할 상세 설명 `description` 포함)
 5. **`templates`**: 명함 템플릿 기본 정보 (앞/뒷면 배경, 기본 필드 설정)
 6. **`company_templates`**: 고객사별 배정된 템플릿
 7. **`product_options`**: 명함 재질 및 주문 수량 옵션
@@ -70,6 +70,15 @@ erDiagram
 - `email`, `phone` (VARCHAR)
 - `status` (VARCHAR) - `ACTIVE`, `INACTIVE`
 - `created_at`, `updated_at` (TIMESTAMPTZ)
+
+### 3.2.1 `roles` (역할 기준 정보) & `member_roles` (회원-역할 매핑)
+- **`roles`**:
+  - `id` (VARCHAR(50), PK) - 역할 고유 코드 (`ROLE_SYSTEM_ADMIN`, `ROLE_COMPANY_ADMIN`, `ROLE_EMPLOYEE`, `ROLE_OPERATOR`)
+  - `name` (VARCHAR(50)) - 역할명 (예: `시스템 관리자`)
+  - `description` (VARCHAR(255)) - 역할 상세 설명 및 권한 범위
+- **`member_roles`**:
+  - `member_id` (UUID, FK, PK) - 회원 ID
+  - `role_id` (VARCHAR(50), FK, PK) - 역할 ID (`roles.id`)
 
 ### 3.3 `orders` (주문)
 - `id` (UUID, PK)

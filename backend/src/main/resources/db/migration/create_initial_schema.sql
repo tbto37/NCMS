@@ -77,26 +77,26 @@ COMMENT ON COLUMN members.updated_at IS '레코드 수정일시';
 
 -- 4. 역할 (roles) & 회원 역할 (member_roles)
 CREATE TABLE roles (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    code VARCHAR(50) NOT NULL UNIQUE,
-    name VARCHAR(50) NOT NULL
+    id VARCHAR(50) PRIMARY KEY,
+    name VARCHAR(50) NOT NULL,
+    description VARCHAR(255)
 );
 
 COMMENT ON TABLE roles IS '시스템 역할 기준 정보';
-COMMENT ON COLUMN roles.id IS '역할 고유 식별자 (UUID)';
-COMMENT ON COLUMN roles.code IS '역할 코드 (ROLE_SYSTEM_ADMIN, ROLE_COMPANY_ADMIN, ROLE_EMPLOYEE, ROLE_OPERATOR)';
+COMMENT ON COLUMN roles.id IS '역할 고유 식별자 (ROLE_SYSTEM_ADMIN, ROLE_COMPANY_ADMIN, ROLE_EMPLOYEE, ROLE_OPERATOR)';
 COMMENT ON COLUMN roles.name IS '역할 명칭';
+COMMENT ON COLUMN roles.description IS '역할 상세 설명 및 권한 범위';
 
 
 CREATE TABLE member_roles (
     member_id UUID NOT NULL REFERENCES members(id) ON DELETE CASCADE,
-    role_id UUID NOT NULL REFERENCES roles(id) ON DELETE CASCADE,
+    role_id VARCHAR(50) NOT NULL REFERENCES roles(id) ON DELETE CASCADE,
     PRIMARY KEY (member_id, role_id)
 );
 
 COMMENT ON TABLE member_roles IS '회원-역할 매핑 정보';
 COMMENT ON COLUMN member_roles.member_id IS '회원 ID';
-COMMENT ON COLUMN member_roles.role_id IS '역할 ID';
+COMMENT ON COLUMN member_roles.role_id IS '역할 ID (ROLE_SYSTEM_ADMIN, ROLE_COMPANY_ADMIN, ROLE_EMPLOYEE, ROLE_OPERATOR)';
 
 
 -- 5. 명함 템플릿 (templates)

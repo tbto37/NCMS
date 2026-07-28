@@ -20,16 +20,17 @@ public class MemberRole {
     private UUID memberId;
 
     @Id
-    @Column(name = "role_id")
-    private UUID roleId;
+    @Column(name = "role_id", length = 50)
+    private String roleId;
 
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
+    @EqualsAndHashCode
     public static class MemberRoleId implements Serializable {
         private static final long serialVersionUID = 1L;
 
         private UUID memberId;
-        private UUID roleId;
+        private String roleId;
     }
 }

@@ -10,10 +10,8 @@ import kr.co.tobetheone.ncms.member.api.dto.MemberResponse;
 import kr.co.tobetheone.ncms.member.api.dto.UpdateMemberRequest;
 import kr.co.tobetheone.ncms.member.domain.Member;
 import kr.co.tobetheone.ncms.member.domain.MemberRole;
-import kr.co.tobetheone.ncms.member.domain.Role;
 import kr.co.tobetheone.ncms.member.infrastructure.MemberRepository;
 import kr.co.tobetheone.ncms.member.infrastructure.MemberRoleRepository;
-import kr.co.tobetheone.ncms.member.infrastructure.RoleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -30,22 +27,17 @@ import java.util.stream.Collectors;
 public class MemberService {
 
     private final MemberRepository memberRepository;
-    private final RoleRepository roleRepository;
     private final MemberRoleRepository memberRoleRepository;
     private final CompanyRepository companyRepository;
     private final DepartmentRepository departmentRepository;
     private final PasswordEncoder passwordEncoder;
 
     public List<MemberResponse> getMembersByCompany(UUID companyId, String currentUserRole) {
-        List<Member> members = null;
+        List<Member> members = "ROLE_OPERATOR".equals(currentUserRole)
+                ? memberRepository.findAll()
+                : memberRepository.findByCompanyId(companyId);
 
-        if ("ROLE_OPERATOR".equals(currentUserRole)) {
-            members = memberRepository.findAll();
-        } else {
-            members = memberRepository.findByCompanyId(companyId);
-        }
-
-        return members.stream().map(this::toResponse).collect(Collectors.toList());
+        return members.stream().map(this::toResponse).toList();
     }
 
     @Transactional
@@ -79,13 +71,10 @@ public class MemberService {
         member = memberRepository.save(member);
 
         String roleCode = request.getRoleCode() != null ? request.getRoleCode() : "ROLE_EMPLOYEE";
-        Role role = roleRepository.findByCode(roleCode)
-                .orElseGet(() -> roleRepository.findByCode("ROLE_EMPLOYEE")
-                        .orElseThrow(() -> new CustomException("기본 역할을 찾을 수 없습니다.", HttpStatus.INTERNAL_SERVER_ERROR)));
 
         memberRoleRepository.save(MemberRole.builder()
                 .memberId(member.getId())
-                .roleId(role.getId())
+                .roleId(roleCode)
                 .build());
 
         return toResponse(member);
@@ -108,8 +97,8 @@ public class MemberService {
     private MemberResponse toResponse(Member member) {
         List<MemberRole> memberRoles = memberRoleRepository.findByMemberId(member.getId());
         List<String> roles = memberRoles.stream()
-                .map(mr -> roleRepository.findById(mr.getRoleId()).map(role -> role.getCode()).orElse(""))
-                .collect(Collectors.toList());
+                .map(MemberRole::getRoleId)
+                .toList();
 
         return MemberResponse.builder()
                 .id(member.getId())

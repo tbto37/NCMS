@@ -9,7 +9,6 @@ import kr.co.tobetheone.ncms.member.domain.Member;
 import kr.co.tobetheone.ncms.member.domain.MemberRole;
 import kr.co.tobetheone.ncms.member.infrastructure.MemberRepository;
 import kr.co.tobetheone.ncms.member.infrastructure.MemberRoleRepository;
-import kr.co.tobetheone.ncms.member.infrastructure.RoleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -18,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -26,7 +24,6 @@ public class AuthService {
 
     private final MemberRepository memberRepository;
     private final MemberRoleRepository memberRoleRepository;
-    private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
 
@@ -45,8 +42,8 @@ public class AuthService {
 
         List<MemberRole> memberRoles = memberRoleRepository.findByMemberId(member.getId());
         List<String> roles = memberRoles.stream()
-                .map(mr -> roleRepository.findById(mr.getRoleId()).map(role -> role.getCode()).orElse("ROLE_EMPLOYEE"))
-                .collect(Collectors.toList());
+                .map(MemberRole::getRoleId)
+                .toList();
 
         if (roles.isEmpty()) {
             roles = List.of("ROLE_EMPLOYEE");
