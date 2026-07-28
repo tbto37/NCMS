@@ -12,6 +12,7 @@ type AuthUser = {
   username: string;
   name: string;
   companyId: string | null;
+  companyName: string | null;
   roles: string[];
 };
 
@@ -102,6 +103,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       username: loginResult.username,
       name: loginResult.name,
       companyId: loginResult.companyId,
+      companyName: loginResult.companyName ?? null,
       roles: loginResult.roles ?? [],
     };
 

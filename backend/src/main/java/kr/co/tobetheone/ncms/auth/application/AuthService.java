@@ -49,6 +49,7 @@ public class AuthService {
         }
 
         String companyId = member.getCompany() != null ? member.getCompany().getId() : null;
+        String companyName = member.getCompany() != null ? member.getCompany().getName() : null;
         String accessToken = jwtTokenProvider.createAccessToken(member.getId(), member.getUsername(), companyId, roles);
 
         return TokenResponse.builder()
@@ -58,6 +59,7 @@ public class AuthService {
                 .username(member.getUsername())
                 .name(member.getName())
                 .companyId(companyId)
+                .companyName(companyName)
                 .roles(roles)
                 .build();
     }

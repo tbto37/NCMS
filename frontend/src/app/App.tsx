@@ -4,7 +4,6 @@ import { AuthProvider } from "./providers/AuthProvider";
 import { TenantProvider } from "./providers/TenantProvider";
 import { RequireAuth } from "./guards/RequireAuth";
 import { AdminLayout } from "@/components/layout/AdminLayout";
-import { TenantLayout } from "@/components/layout/TenantLayout";
 
 const LoginPage = lazy(() => import("@/pages/auth/LoginPage"));
 const DashboardPage = lazy(() => import("@/pages/dashboard/DashboardPage"));
@@ -42,7 +41,7 @@ export default function App() {
             {/* Dynamic Customer Path Routes: /:companyCode */}
             <Route path="/:companyCode" element={<TenantWrapper />}>
               <Route path="login" element={<LoginPage />} />
-              <Route element={<TenantLayout />}>
+              <Route element={<AdminLayout />}>
                 <Route path="templates" element={<TemplatesPage />} />
                 <Route path="orders" element={<OrdersPage />} />
                 <Route path="orders/form" element={<OrderFormPage />} />

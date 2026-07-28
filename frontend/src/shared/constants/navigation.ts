@@ -1,5 +1,5 @@
 import type { ElementType } from "react";
-import { LayoutDashboard, Users, ShoppingCart, BarChart3, Settings, Layers } from "lucide-react";
+import { Users, ShoppingCart, Layers } from "lucide-react";
 
 export type NavItem = {
   id: string;
@@ -9,8 +9,56 @@ export type NavItem = {
   badge?: number;
 };
 
-export const navItems: NavItem[] = [
-  { id: "templates", label: "템플릿 관리", icon: Layers, path: "/admin/templates" },
-  { id: "members", label: "회원 관리", icon: Users, path: "/admin/members", badge: 12 },
-  { id: "orders", label: "주문 관리", icon: ShoppingCart, path: "/admin/orders", badge: 5 },
+type NavItemDefinition = Omit<NavItem, "path"> & {
+  route: string;
+};
+
+const navItemDefinitions: NavItemDefinition[] = [
+  {
+    id: "templates",
+    label: "템플릿 관리",
+    icon: Layers,
+    route: "templates",
+  },
+  {
+    id: "members",
+    label: "회원 관리",
+    icon: Users,
+    route: "members",
+    badge: 12,
+  },
+  {
+    id: "orders",
+    label: "주문 관리",
+    icon: ShoppingCart,
+    route: "orders",
+    badge: 5,
+  },
 ];
+
+export function getLayoutBasePath(
+  pathname: string,
+  companyCode?: string,
+): string {
+  if (companyCode) {
+    return `/${companyCode}`;
+  }
+
+  if (pathname === "/operator" || pathname.startsWith("/operator/")) {
+    return "/operator";
+  }
+
+  return "/admin";
+}
+
+export function getNavItems(basePath: string): NavItem[] {
+  const definitions =
+    basePath === "/operator"
+      ? navItemDefinitions.filter((item) => item.id !== "templates")
+      : navItemDefinitions;
+
+  return definitions.map(({ route, ...item }) => ({
+    ...item,
+    path: `${basePath}/${route}`,
+  }));
+}
