@@ -41,7 +41,8 @@ public class MemberService {
     }
 
     @Transactional
-    public MemberResponse createMemberByCompanyAdmin(UUID companyId, String currentUserRole, CreateMemberRequest request) {
+    public MemberResponse createMemberByCompanyAdmin(UUID companyId, String currentUserRole,
+            CreateMemberRequest request) {
         if ("ROLE_OPERATOR".equals(currentUserRole)) {
             throw new CustomException("ROLE_OPERATOR은 신규 임직원을 직접 등록할 수 없습니다. (403 Forbidden)", HttpStatus.FORBIDDEN);
         }
@@ -97,7 +98,7 @@ public class MemberService {
     private MemberResponse toResponse(Member member) {
         List<MemberRole> memberRoles = memberRoleRepository.findByMemberId(member.getId());
         List<String> roles = memberRoles.stream()
-                .map(MemberRole::getRoleId)
+                .map(role -> role.getRoleId())
                 .toList();
 
         return MemberResponse.builder()

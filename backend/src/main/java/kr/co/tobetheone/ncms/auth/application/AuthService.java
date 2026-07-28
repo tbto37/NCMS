@@ -42,7 +42,7 @@ public class AuthService {
 
         List<MemberRole> memberRoles = memberRoleRepository.findByMemberId(member.getId());
         List<String> roles = memberRoles.stream()
-                .map(MemberRole::getRoleId)
+                .map(role -> role.getRoleId())
                 .toList();
 
         if (roles.isEmpty()) {
