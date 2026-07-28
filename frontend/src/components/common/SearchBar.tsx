@@ -13,7 +13,7 @@ export type SearchBarProps = {
   onFilterValue: (v: string) => void;
   onSearch: () => void;
   onReset: () => void;
-  filterFields: { value: string; label: string }[];
+  filterFields: ReadonlyArray<{ value: string; label: string }>;
   companies: string[];
   companyLabel?: string;
 };

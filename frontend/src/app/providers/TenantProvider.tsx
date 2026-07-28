@@ -1,13 +1,11 @@
 import { useEffect, useState, ReactNode } from "react";
 import { useParams, useNavigate } from "react-router";
 import { TenantContext, TenantInfo } from "./TenantContext";
+import { API_BASE_URL } from "@/shared/constants/api";
 
 interface TenantProviderProps {
   children: ReactNode;
 }
-
-const RAW_API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "";
-const API_BASE_URL = RAW_API_BASE_URL.replace(/\/api\/?$/, "");
 
 export function TenantProvider({ children }: TenantProviderProps) {
   const { companyCode } = useParams<{ companyCode: string }>();

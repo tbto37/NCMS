@@ -5,6 +5,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { API_BASE_URL } from "@/shared/constants/api";
 
 type AuthUser = {
   memberId: string;
@@ -37,10 +38,6 @@ type AuthContextValue = {
 };
 
 const AUTH_STORAGE_KEY = "ncms-auth";
-
-// 백엔드가 같은 주소이거나 Vite proxy를 사용한다면 빈 문자열로 동작
-const RAW_API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "";
-const API_BASE_URL = RAW_API_BASE_URL.replace(/\/api\/?$/, "");
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
