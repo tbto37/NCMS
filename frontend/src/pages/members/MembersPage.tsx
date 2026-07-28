@@ -24,7 +24,8 @@ import MemberDeleteConfirmModal, {
   type MemberDeleteData,
 } from "./components/MemberDeleteConfirmModal";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "";
+const RAW_API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "";
+const API_BASE_URL = RAW_API_BASE_URL.replace(/\/api\/?$/, "");
 
 function getErrorMessage(body: ApiResponse<unknown> | null): string {
   return (

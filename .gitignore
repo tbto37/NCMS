@@ -3,6 +3,8 @@
 .env.*
 !.env.example
 
+
+
 # Java / Gradle
 .gradle/
 build/

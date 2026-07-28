@@ -6,6 +6,9 @@ interface TenantProviderProps {
   children: ReactNode;
 }
 
+const RAW_API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "";
+const API_BASE_URL = RAW_API_BASE_URL.replace(/\/api\/?$/, "");
+
 export function TenantProvider({ children }: TenantProviderProps) {
   const { companyCode } = useParams<{ companyCode: string }>();
   const navigate = useNavigate();
@@ -24,7 +27,7 @@ export function TenantProvider({ children }: TenantProviderProps) {
     setIsLoading(true);
     setError(null);
 
-    fetch(`/api/v1/public/companies/${companyCode}`)
+    fetch(`${API_BASE_URL}/api/v1/public/companies/${companyCode}`)
       .then(async (res) => {
         const contentType = res.headers.get("content-type");
         if (!res.ok || !contentType || !contentType.includes("application/json")) {
