@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { RefreshCw, TriangleAlert, X } from "lucide-react";
 
@@ -7,6 +7,7 @@ export interface OrderStatusChangeRequest {
   orderIds: string[];
   currentStatus?: string;
   variant?: string;
+  reason?: string;
 }
 
 interface OrderStatusChangeConfirmModalProps {
@@ -22,9 +23,12 @@ export default function OrderStatusChangeConfirmModal({
                                                         onClose,
                                                         onConfirm,
                                                       }: OrderStatusChangeConfirmModalProps) {
+  const [reason, setReason] = useState("");
+
   useEffect(() => {
     if (!open) return;
 
+    setReason("");
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         onClose();
@@ -41,6 +45,7 @@ export default function OrderStatusChangeConfirmModal({
   if (!open || !request) return null;
 
   const isDanger = request.variant === "danger";
+  const isReject = request.actionLabel === "주문 반려";
   const orderCount = request.orderIds.length;
 
   return createPortal(
@@ -123,6 +128,22 @@ export default function OrderStatusChangeConfirmModal({
             </div>
           </div>
 
+          {isReject && (
+            <div className="mt-4 space-y-1.5">
+              <label htmlFor="reject-reason" className="text-xs font-medium text-foreground">
+                반려 사유 입력
+              </label>
+              <textarea
+                id="reject-reason"
+                rows={3}
+                value={reason}
+                onChange={(e) => setReason(e.target.value)}
+                placeholder="명함 오타, 이미지 화질 저하 등 반려 사유를 입력하세요."
+                className="w-full rounded-md border border-input bg-background p-2.5 text-xs text-foreground outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
+              />
+            </div>
+          )}
+
           <div
             className={`mt-5 flex items-start gap-3 rounded-lg border px-4 py-4 ${
               isDanger
@@ -165,7 +186,7 @@ export default function OrderStatusChangeConfirmModal({
 
           <button
             type="button"
-            onClick={() => onConfirm?.(request)}
+            onClick={() => onConfirm?.({ ...request, reason: reason.trim() })}
             className={`h-10 rounded-md px-4 text-xs font-medium text-white transition ${
               isDanger
                 ? "bg-red-500 hover:bg-red-600"

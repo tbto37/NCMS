@@ -56,8 +56,8 @@ public class SecurityConfig {
 
                 // 3. Admin & Operator & Orders
                 .requestMatchers("/api/v1/admin/**").hasRole("SYSTEM_ADMIN")
-                .requestMatchers("/api/v1/operator/**").hasAnyRole("OPERATOR")
-                .requestMatchers("/api/v1/orders/**").hasAnyRole("EMPLOYEE", "COMPANY_ADMIN", "OPERATOR")
+                .requestMatchers("/api/v1/operator/**").hasAnyRole("OPERATOR", "SYSTEM_ADMIN")
+                .requestMatchers("/api/v1/orders/**").hasAnyRole("EMPLOYEE", "COMPANY_ADMIN", "OPERATOR", "SYSTEM_ADMIN")
 
                 .anyRequest().authenticated()
             )

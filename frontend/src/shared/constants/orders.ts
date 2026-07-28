@@ -16,9 +16,114 @@ export const ORDER_FILTER_FIELDS = [
   { value: "name", label: "이름" },
   { value: "phone", label: "전화번호" },
   { value: "site", label: "사이트" },
-];
+] as const;
 
 export const ORDER_COMPANIES = ["제일엔지니어링", "테크코리아", "디지털솔루션", "한국IT"];
+
+export interface BackendOrderResponse {
+  id: string;
+  orderNo: string;
+  companyId: string;
+  companyName: string;
+  memberId: string;
+  memberName: string;
+  templateId: string;
+  status: string;
+  recipientName: string;
+  recipientPhone: string;
+  zipcode: string | null;
+  address: string | null;
+  addressDetail: string | null;
+  rejectReason: string | null;
+  cardDataJson: string | null;
+  productOptionSummary: string | null;
+  carrierCode: string | null;
+  trackingNumber: string | null;
+  createdAt: string;
+}
+
+export interface MappedOrder {
+  rawId: string;
+  id: string;
+  receivedAt: string;
+  site: string;
+  material: string;
+  quantity: number;
+  phone: string;
+  name: string;
+  status: OrderTab;
+  recipientName: string;
+  recipientPhone: string;
+  zipcode: string;
+  address: string;
+  addressDetail: string;
+  rejectReason: string;
+  cardDataJson: string;
+  productOptionSummary: string;
+  carrierCode: string;
+  trackingNumber: string;
+}
+
+export function mapBackendStatusToTab(status: string): OrderTab {
+  switch (status?.toUpperCase()) {
+    case "PENDING":
+      return "승인대기";
+    case "APPROVED":
+      return "승인완료";
+    case "PRINTING":
+      return "인쇄중";
+    case "SHIPPED":
+    case "DELIVERED":
+      return "발송완료";
+    case "REJECTED":
+      return "승인반려";
+    case "CANCELLED":
+      return "주문취소";
+    default:
+      return "승인대기";
+  }
+}
+
+export function mapOrderResponse(dto: BackendOrderResponse): MappedOrder {
+  let material = "일반용지 200g";
+  let quantity = 200;
+
+  if (dto.productOptionSummary) {
+    const parts = dto.productOptionSummary.split("/").map((s) => s.trim());
+    if (parts[0]) material = parts[0];
+    if (parts[1]) {
+      const parsed = parseInt(parts[1].replace(/[^0-9]/g, ""), 10);
+      if (!isNaN(parsed)) quantity = parsed;
+    }
+  }
+
+  let receivedAt = "";
+  if (dto.createdAt) {
+    receivedAt = dto.createdAt.substring(0, 10);
+  }
+
+  return {
+    rawId: dto.id,
+    id: dto.orderNo || dto.id,
+    receivedAt: receivedAt || new Date().toISOString().substring(0, 10),
+    site: dto.companyName || "고객사 미지정",
+    material,
+    quantity,
+    phone: dto.recipientPhone || "010-0000-0000",
+    name: dto.memberName || dto.recipientName || "주문자 미지정",
+    status: mapBackendStatusToTab(dto.status),
+    recipientName: dto.recipientName || "",
+    recipientPhone: dto.recipientPhone || "",
+    zipcode: dto.zipcode || "",
+    address: dto.address || "",
+    addressDetail: dto.addressDetail || "",
+    rejectReason: dto.rejectReason || "",
+    cardDataJson: dto.cardDataJson || "{}",
+    productOptionSummary: dto.productOptionSummary || "",
+    carrierCode: dto.carrierCode || "",
+    trackingNumber: dto.trackingNumber || "",
+  };
+}
 
 export const allOrders = [
   { id: "ORD-8821", receivedAt: "2026-07-21", site: "제일엔지니어링", material: "휘라레 216g", quantity: 2000, phone: "010-2451-8821", name: "김민준", status: "승인대기" },

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Download,
   Eye,
@@ -16,6 +16,8 @@ import {
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { useAuth } from "@/app/providers/AuthProvider";
+import { API_BASE_URL } from "@/shared/constants/api";
 import OrderDetailModal, {
   type OrderDetailData,
 } from "./components/OrderDetailModal";
@@ -32,15 +34,18 @@ import {
   type OrderTab,
   TAB_ACTIONS,
   ORDER_FILTER_FIELDS,
-  ORDER_COMPANIES,
-  allOrders,
+  type BackendOrderResponse,
+  type MappedOrder as Order,
+  mapOrderResponse,
 } from "@/shared/constants/orders";
 
-type BaseOrder = (typeof allOrders)[number];
-type Order = BaseOrder & {
-  shippingMethod?: string;
-  trackingNumber?: string;
-};
+interface ApiResponse<T> {
+  data?: T;
+  message?: string;
+  error?: {
+    message?: string;
+  };
+}
 
 interface ActionIconButtonProps {
   label: string;
@@ -53,15 +58,6 @@ interface OrderActionsProps {
   onOpenDetail: (order: Order) => void;
   onOpenShipmentTracking: (order: Order) => void;
 }
-
-const ACTION_TO_STATUS_MAP: Partial<Record<string, OrderTab>> = {
-  "주문 승인": "승인완료",
-  "주문 반려": "승인반려",
-  "인쇄 시작": "인쇄중",
-  "발송 처리": "발송완료",
-  "재승인 요청": "승인대기",
-  "주문 취소": "주문취소",
-};
 
 function ActionIconButton({ label, onClick, children }: ActionIconButtonProps) {
   return (
@@ -106,7 +102,7 @@ function BusinessCardPreview({ order }: { order: Order }) {
           <div className="flex flex-col justify-between border-r border-slate-200 p-3">
             <div className="flex items-end gap-0.5">
               <span className="text-lg font-black tracking-[-0.08em] text-[#06418f]">
-                CHEIL
+                {order.site}
               </span>
               <span className="mb-0.5 h-3 w-1 bg-[#55b936]" />
             </div>
@@ -117,12 +113,12 @@ function BusinessCardPreview({ order }: { order: Order }) {
 
           <div className="p-3 text-slate-600">
             <p className="text-[9px] font-semibold text-slate-900">{order.name}</p>
-            <p className="mt-0.5 text-[5.5px]">Highway Eng. Business Div. / Director</p>
-            <p className="mt-3 text-[5.5px] font-semibold">CHEIL ENGINEERING CO., LTD.</p>
+            <p className="mt-0.5 text-[5.5px]">Business Div. / Director</p>
+            <p className="mt-3 text-[5.5px] font-semibold">{order.site}</p>
             <div className="mt-1 space-y-0.5 text-[5px] leading-tight">
-              <p>22-6, Bangbaemae-ro 16gil, Seocho-gu</p>
-              <p>TEL. 02-3498-2600 / FAX. 02-572-8970</p>
-              <p>youremail@email.com</p>
+              <p>{order.address || "22-6, Bangbaemae-ro 16gil, Seocho-gu"}</p>
+              <p>TEL. {order.phone} / FAX. 02-572-8970</p>
+              <p>contact@{order.site.toLowerCase().replace(/[^a-z0-9]/g, "") || "company"}.com</p>
             </div>
           </div>
         </div>
@@ -136,10 +132,10 @@ function BusinessCardPreview({ order }: { order: Order }) {
 }
 
 function OrderActions({
-                        order,
-                        onOpenDetail,
-                        onOpenShipmentTracking,
-                      }: OrderActionsProps) {
+  order,
+  onOpenDetail,
+  onOpenShipmentTracking,
+}: OrderActionsProps) {
   const handleAction = (action: string) => {
     console.info(`[${action}]`, order.id);
   };
@@ -186,7 +182,12 @@ function OrderActions({
 }
 
 export default function OrdersPage() {
-  const [orders, setOrders] = useState<Order[]>(allOrders);
+  const { accessToken, user } = useAuth();
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
+  const [reloadKey, setReloadKey] = useState(0);
+
   const [activeTab, setActiveTab] = useState<OrderTab>("전체");
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [page, setPage] = useState(1);
@@ -209,6 +210,86 @@ export default function OrdersPage() {
     useState<OrderStatusChangeRequest | null>(null);
   const [shipmentTrackingOrder, setShipmentTrackingOrder] =
     useState<ShipmentTrackingOrder | null>(null);
+
+  const isOperator = useMemo(() => {
+    return user?.roles?.some(
+      (r) => r === "ROLE_OPERATOR" || r === "ROLE_SYSTEM_ADMIN",
+    ) ?? false;
+  }, [user]);
+
+  // Fetch live orders from backend DB API
+  useEffect(() => {
+    if (!accessToken) {
+      setOrders([]);
+      setLoading(false);
+      return;
+    }
+
+    const abortController = new AbortController();
+
+    async function fetchOrders() {
+      try {
+        setLoading(true);
+        setLoadError("");
+
+        const endpoint = isOperator
+          ? `${API_BASE_URL}/api/v1/operator/orders`
+          : `${API_BASE_URL}/api/v1/orders`;
+
+        const response = await fetch(endpoint, {
+          method: "GET",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+          signal: abortController.signal,
+        });
+
+        const body = (await response
+          .json()
+          .catch(() => null)) as ApiResponse<BackendOrderResponse[]> | null;
+
+        if (!response.ok) {
+          const msg =
+            body?.message ??
+            body?.error?.message ??
+            "주문 목록을 불러오지 못했습니다.";
+          throw new Error(msg);
+        }
+
+        const data = body?.data;
+        if (!Array.isArray(data)) {
+          throw new Error("주문 목록 응답 형식이 올바르지 않습니다.");
+        }
+
+        setOrders(data.map(mapOrderResponse));
+      } catch (error) {
+        if (error instanceof DOMException && error.name === "AbortError") {
+          return;
+        }
+
+        setOrders([]);
+        setLoadError(
+          error instanceof Error
+            ? error.message
+            : "주문 목록을 불러오지 못했습니다.",
+        );
+      } finally {
+        if (!abortController.signal.aborted) {
+          setLoading(false);
+        }
+      }
+    }
+
+    void fetchOrders();
+
+    return () => abortController.abort();
+  }, [accessToken, isOperator, reloadKey]);
+
+  const orderCompanies = useMemo(() => {
+    return Array.from(new Set(orders.map((o) => o.site))).sort((a, b) =>
+      a.localeCompare(b, "ko"),
+    );
+  }, [orders]);
 
   function handleSearch() {
     setApplied({ company, filterField, filterValue, dateFrom, dateTo });
@@ -262,20 +343,22 @@ export default function OrdersPage() {
 
   function handleOpenOrderDetail(order: Order) {
     setSelectedOrder({
-      id: order.id,
+      id: order.rawId,
       orderNumber: order.id,
       department: order.site,
       product: "명함",
       material: order.material,
       quantity: order.quantity,
-      memo: order.trackingNumber
-        ? `배송방법: ${order.shippingMethod || "택배"} / 송장번호: ${order.trackingNumber}`
+      memo: order.rejectReason
+        ? `반려 사유: ${order.rejectReason}`
+        : order.trackingNumber
+        ? `배송방법: ${order.carrierCode || "택배"} / 송장번호: ${order.trackingNumber}`
         : "",
       customerName: order.name,
-      phone: order.phone,
-      email: "youremail@email.com",
-      address: "06779 서울시 서초구 방배천로 22-6",
-      detailAddress: "9층",
+      phone: order.recipientPhone || order.phone,
+      email: "contact@company.com",
+      address: order.address || "06779 서울시 서초구 방배천로 22-6",
+      detailAddress: order.addressDetail || "9층",
       status: order.status,
       createdAt: order.receivedAt,
     });
@@ -299,36 +382,112 @@ export default function OrdersPage() {
     });
   }
 
+  async function handleConfirmStatusChange(request: OrderStatusChangeRequest) {
+    if (!accessToken) return;
+
+    try {
+      const selectedOrders = orders.filter((o) => request.orderIds.includes(o.id));
+
+      for (const order of selectedOrders) {
+        const rawId = order.rawId;
+
+        if (request.actionLabel === "주문 승인") {
+          await fetch(`${API_BASE_URL}/api/v1/operator/orders/${rawId}/approve`, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          });
+        } else if (request.actionLabel === "주문 반려") {
+          await fetch(`${API_BASE_URL}/api/v1/operator/orders/${rawId}/reject`, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ reason: request.reason || "검수 반려" }),
+          });
+        } else if (request.actionLabel === "인쇄 시작") {
+          await fetch(`${API_BASE_URL}/api/v1/operator/orders/${rawId}/status`, {
+            method: "PATCH",
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ status: "PRINTING" }),
+          });
+        } else if (request.actionLabel === "주문 취소") {
+          await fetch(`${API_BASE_URL}/api/v1/operator/orders/${rawId}/status`, {
+            method: "PATCH",
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ status: "CANCELLED" }),
+          });
+        } else if (request.actionLabel === "재승인 요청") {
+          await fetch(`${API_BASE_URL}/api/v1/operator/orders/${rawId}/status`, {
+            method: "PATCH",
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ status: "PENDING" }),
+          });
+        }
+      }
+    } catch (err) {
+      console.error("Status change error:", err);
+    } finally {
+      setStatusChangeRequest(null);
+      setSelectedIds(new Set());
+      setReloadKey((k) => k + 1);
+    }
+  }
+
   function handleOpenShipmentTracking(order: Order) {
     setShipmentTrackingOrder({
       id: order.id,
       name: order.name,
       site: order.site,
-      shippingMethod: order.shippingMethod,
-      trackingNumber: order.trackingNumber,
+      shippingMethod: order.carrierCode || "택배",
+      trackingNumber: order.trackingNumber || "",
     });
   }
 
-  function handleConfirmShipmentTracking({
-                                           orderId,
-                                           shippingMethod,
-                                           trackingNumber,
-                                         }: ShipmentTrackingSubmitPayload) {
-    setOrders((prev) =>
-      prev.map((order) =>
-        order.id === orderId
-          ? {
-            ...order,
-            status: "발송완료",
-            shippingMethod,
-            trackingNumber,
-          }
-          : order,
-      ),
-    );
+  async function handleConfirmShipmentTracking({
+    orderId,
+    shippingMethod,
+    trackingNumber,
+  }: ShipmentTrackingSubmitPayload) {
+    if (!accessToken) return;
 
-    setShipmentTrackingOrder(null);
-    setSelectedIds(new Set());
+    const targetOrder = orders.find((o) => o.id === orderId || o.rawId === orderId);
+    if (!targetOrder) return;
+
+    try {
+      await fetch(
+        `${API_BASE_URL}/api/v1/operator/orders/${targetOrder.rawId}/status`,
+        {
+          method: "PATCH",
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            status: "SHIPPED",
+            carrierCode: shippingMethod,
+            trackingNumber,
+          }),
+        },
+      );
+    } catch (err) {
+      console.error("Shipment tracking error:", err);
+    } finally {
+      setShipmentTrackingOrder(null);
+      setSelectedIds(new Set());
+      setReloadKey((k) => k + 1);
+    }
   }
 
   function toggleAll() {
@@ -390,9 +549,15 @@ export default function OrdersPage() {
         onSearch={handleSearch}
         onReset={handleReset}
         filterFields={ORDER_FILTER_FIELDS}
-        companies={ORDER_COMPANIES}
+        companies={orderCompanies}
         companyLabel="사이트"
       />
+
+      {loadError && (
+        <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-xs text-red-600">
+          {loadError}
+        </div>
+      )}
 
       <div className="overflow-hidden rounded-lg border border-border bg-card">
         <div className="flex overflow-x-auto border-b border-border">
@@ -401,11 +566,13 @@ export default function OrdersPage() {
               tab === "전체"
                 ? orders.length
                 : orders.filter((order) => order.status === tab).length;
+
             const active = activeTab === tab;
 
             return (
               <button
                 key={tab}
+                type="button"
                 onClick={() => handleTabChange(tab)}
                 className={`-mb-px flex items-center gap-1.5 whitespace-nowrap border-b-2 px-3 py-3 text-xs font-medium transition-colors md:px-4 ${
                   active
@@ -415,9 +582,9 @@ export default function OrdersPage() {
               >
                 {tab}
                 <span
-                  className={`rounded-full px-1.5 py-0.5 font-mono text-xs ${
+                  className={`rounded-full px-1.5 py-0.5 text-[10px] ${
                     active
-                      ? "bg-primary text-primary-foreground"
+                      ? "bg-primary/10 text-primary font-semibold"
                       : "bg-secondary text-muted-foreground"
                   }`}
                 >
@@ -428,104 +595,110 @@ export default function OrdersPage() {
           })}
         </div>
 
-        {paged.length === 0 ? (
-          <div className="flex h-[510px] flex-col items-center justify-center text-muted-foreground">
-            <Package size={32} className="mb-3 opacity-30" />
-            <p className="text-xs">해당 조건의 주문이 없습니다.</p>
+        {actions.length > 0 && (
+          <div className="flex items-center justify-between border-b border-border bg-secondary/30 px-4 py-2 text-xs">
+            <span className="text-muted-foreground">
+              {selectedCount > 0
+                ? `${selectedCount}개 선택됨`
+                : "처리할 항목을 선택하세요"}
+            </span>
+
+            <div className="flex gap-1.5">
+              {actions.map((action) => (
+                <button
+                  key={action.label}
+                  disabled={selectedCount === 0}
+                  onClick={() => handleOpenStatusChange(action)}
+                  className={`rounded px-2.5 py-1 text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
+                    action.variant === "danger"
+                      ? "border border-red-200 bg-red-50 text-red-600 hover:bg-red-100"
+                      : action.variant === "primary"
+                      ? "bg-primary text-primary-foreground hover:opacity-90"
+                      : "border border-border bg-background text-foreground hover:bg-secondary"
+                  }`}
+                >
+                  {action.label}
+                </button>
+              ))}
+            </div>
           </div>
-        ) : (
-          <>
-            <div className="hidden h-[510px] overflow-auto md:block">
-              <table className="w-full min-w-[1280px] table-fixed">
-                <colgroup>
-                  <col style={{ width: "4%" }} />
-                  <col style={{ width: "10%" }} />
-                  <col style={{ width: "11%" }} />
-                  <col style={{ width: "12%" }} />
-                  <col style={{ width: "11%" }} />
-                  <col style={{ width: "7%" }} />
-                  <col style={{ width: "13%" }} />
-                  <col style={{ width: "9%" }} />
-                  <col style={{ width: "10%" }} />
-                  <col style={{ width: "13%" }} />
-                </colgroup>
-                <thead>
-                <tr className="border-b border-border bg-secondary/40">
-                  <th className="w-8 px-4 py-2.5">
-                    <input
-                      type="checkbox"
-                      checked={allSelected}
-                      onChange={toggleAll}
-                      className="rounded border-border accent-primary"
-                    />
-                  </th>
-                  {[
-                    "접수일자",
-                    "사이트",
-                    "주문번호",
-                    "재질",
-                    "수량",
-                    "전화번호",
-                    "이름",
-                    "주문상태",
-                    "액션",
-                  ].map((header) => (
-                    <th
-                      key={header}
-                      className={`px-4 py-2.5 text-xs font-medium tracking-wider text-muted-foreground ${
-                        header === "액션" ? "text-right" : "text-left"
-                      }`}
-                    >
-                      {header}
-                    </th>
-                  ))}
+        )}
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs">
+            <thead>
+              <tr className="border-b border-border bg-secondary/50 font-medium text-muted-foreground">
+                <th className="w-10 px-3 py-2.5 text-center">
+                  <input
+                    type="checkbox"
+                    checked={allSelected}
+                    onChange={toggleAll}
+                    className="rounded border-border"
+                  />
+                </th>
+                <th className="px-3 py-2.5">주문번호</th>
+                <th className="px-3 py-2.5">접수일시</th>
+                <th className="px-3 py-2.5">고객사</th>
+                <th className="px-3 py-2.5">주문자</th>
+                <th className="px-3 py-2.5">전화번호</th>
+                <th className="px-3 py-2.5">재질/수량</th>
+                <th className="px-3 py-2.5">상태</th>
+                <th className="px-3 py-2.5 text-right">작업</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {loading ? (
+                <tr>
+                  <td colSpan={9} className="py-12 text-center text-muted-foreground">
+                    주문 데이터를 불러오는 중입니다...
+                  </td>
                 </tr>
-                </thead>
-                <tbody className="divide-y divide-border">
-                {paged.map((order) => {
-                  const checked = selectedIds.has(order.id);
+              ) : paged.length === 0 ? (
+                <tr>
+                  <td colSpan={9} className="py-12 text-center text-muted-foreground">
+                    <Package size={28} className="mx-auto mb-2 opacity-40" />
+                    조건에 해당하는 주문 내역이 없습니다.
+                  </td>
+                </tr>
+              ) : (
+                paged.map((order) => {
+                  const isSelected = selectedIds.has(order.id);
 
                   return (
                     <tr
                       key={order.id}
-                      onClick={() => toggleOne(order.id)}
-                      className={`cursor-pointer transition-colors hover:bg-secondary/40 ${
-                        checked ? "bg-secondary/60" : ""
+                      className={`transition-colors hover:bg-secondary/30 ${
+                        isSelected ? "bg-secondary/40" : ""
                       }`}
                     >
-                      <td className="px-4 py-3" onClick={(event) => event.stopPropagation()}>
+                      <td className="px-3 py-3 text-center">
                         <input
                           type="checkbox"
-                          checked={checked}
+                          checked={isSelected}
                           onChange={() => toggleOne(order.id)}
-                          className="rounded border-border accent-primary"
+                          className="rounded border-border"
                         />
                       </td>
-                      <td className="px-4 py-3 font-mono text-xs text-muted-foreground">
-                        {order.receivedAt}
-                      </td>
-                      <td className="truncate px-4 py-3 text-xs text-muted-foreground">
-                        {order.site}
-                      </td>
-                      <td className="px-4 py-3 font-mono text-xs text-muted-foreground">
+                      <td className="px-3 py-3 font-mono font-medium text-foreground">
                         {order.id}
                       </td>
-                      <td className="truncate px-4 py-3 text-xs text-muted-foreground">
-                        {order.material}
+                      <td className="px-3 py-3 text-muted-foreground">
+                        {order.receivedAt}
                       </td>
-                      <td className="px-4 py-3 font-mono text-xs font-medium">
-                        {order.quantity.toLocaleString()}
+                      <td className="px-3 py-3 font-medium text-foreground">
+                        {order.site}
                       </td>
-                      <td className="px-4 py-3 font-mono text-xs text-muted-foreground">
+                      <td className="px-3 py-3 text-foreground">{order.name}</td>
+                      <td className="px-3 py-3 font-mono text-muted-foreground">
                         {order.phone}
                       </td>
-                      <td className="px-4 py-3 text-xs font-medium text-foreground">
-                        {order.name}
+                      <td className="px-3 py-3 text-muted-foreground">
+                        {order.material} · {order.quantity.toLocaleString()}매
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="px-3 py-3">
                         <StatusBadge status={order.status} />
                       </td>
-                      <td className="px-4 py-2" onClick={(event) => event.stopPropagation()}>
+                      <td className="px-3 py-3 text-right">
                         <OrderActions
                           order={order}
                           onOpenDetail={handleOpenOrderDetail}
@@ -534,157 +707,37 @@ export default function OrdersPage() {
                       </td>
                     </tr>
                   );
-                })}
-                </tbody>
-              </table>
-            </div>
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
 
-            <div className="h-[510px] divide-y divide-border overflow-y-auto md:hidden">
-              <div className="flex items-center gap-3 bg-secondary/40 px-4 py-2.5">
-                <input
-                  type="checkbox"
-                  checked={allSelected}
-                  onChange={toggleAll}
-                  className="rounded border-border accent-primary"
-                />
-                <span className="text-xs text-muted-foreground">
-                  전체 선택 ({paged.length}건)
-                </span>
-              </div>
-              {paged.map((order) => {
-                const checked = selectedIds.has(order.id);
-
-                return (
-                  <div
-                    key={order.id}
-                    onClick={() => toggleOne(order.id)}
-                    className={`flex cursor-pointer items-start gap-3 px-4 py-3 transition-colors ${
-                      checked ? "bg-secondary/60" : ""
-                    }`}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={checked}
-                      onChange={() => toggleOne(order.id)}
-                      className="mt-0.5 shrink-0 rounded border-border accent-primary"
-                      onClick={(event) => event.stopPropagation()}
-                    />
-                    <div className="min-w-0 flex-1">
-                      <div className="mb-0.5 flex items-center justify-between gap-2">
-                        <span className="font-mono text-xs text-muted-foreground">
-                          {order.id}
-                        </span>
-                        <StatusBadge status={order.status} />
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="truncate text-xs font-medium text-foreground">
-                          {order.name}
-                        </span>
-                        <span className="shrink-0 rounded bg-secondary px-1.5 py-0.5 text-[10px] text-muted-foreground">
-                          {order.site}
-                        </span>
-                      </div>
-                      <div className="mt-1 text-xs text-muted-foreground">
-                        {order.material} · {order.quantity.toLocaleString()}개
-                      </div>
-                      <div className="mt-1 flex items-center justify-between">
-                        <span className="font-mono text-xs text-muted-foreground">
-                          {order.phone}
-                        </span>
-                        <span className="font-mono text-xs text-muted-foreground">
-                          {order.receivedAt}
-                        </span>
-                      </div>
-                      <div
-                        className="mt-2 border-t border-border pt-2"
-                        onClick={(event) => event.stopPropagation()}
-                      >
-                        <OrderActions
-                          order={order}
-                          onOpenDetail={handleOpenOrderDetail}
-                          onOpenShipmentTracking={handleOpenShipmentTracking}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            {actions.length > 0 && (
-              <div className="flex items-center justify-between border-t border-border bg-secondary/30 px-4 py-3">
-                <span className="text-xs text-muted-foreground">
-                  {selectedCount > 0 ? `${selectedCount}건 선택됨` : "항목을 선택하세요"}
-                </span>
-                <div className="flex items-center gap-2">
-                  {actions.map((action) => (
-                    <button
-                      key={action.label}
-                      type="button"
-                      disabled={selectedCount === 0}
-                      onClick={() => handleOpenStatusChange(action)}
-                      className={`rounded px-3 py-1.5 text-xs font-medium transition-all disabled:cursor-not-allowed disabled:opacity-40 ${
-                        action.variant === "primary"
-                          ? "bg-primary text-primary-foreground hover:opacity-90"
-                          : action.variant === "danger"
-                            ? "bg-red-500 text-white hover:bg-red-600"
-                            : "border border-border text-foreground hover:bg-secondary"
-                      }`}
-                    >
-                      {action.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <Pagination
-              page={page}
-              totalPages={totalPages}
-              onPage={(nextPage) => {
-                setPage(nextPage);
-                setSelectedIds(new Set());
-              }}
-            />
-          </>
-        )}
+        <Pagination
+          page={page}
+          totalPages={totalPages}
+          onPage={setPage}
+        />
       </div>
 
       <OrderDetailModal
-        open={selectedOrder !== null}
+        open={Boolean(selectedOrder)}
         order={selectedOrder}
         onClose={() => setSelectedOrder(null)}
       />
 
+      <OrderStatusChangeConfirmModal
+        open={Boolean(statusChangeRequest)}
+        request={statusChangeRequest}
+        onClose={() => setStatusChangeRequest(null)}
+        onConfirm={handleConfirmStatusChange}
+      />
+
       <ShipmentTrackingModal
-        open={shipmentTrackingOrder !== null}
+        open={Boolean(shipmentTrackingOrder)}
         order={shipmentTrackingOrder}
         onClose={() => setShipmentTrackingOrder(null)}
         onConfirm={handleConfirmShipmentTracking}
-      />
-
-      <OrderStatusChangeConfirmModal
-        open={statusChangeRequest !== null}
-        request={statusChangeRequest}
-        onClose={() => setStatusChangeRequest(null)}
-        onConfirm={(request) => {
-          console.log("주문 상태 변경:", request);
-
-          const nextStatus = ACTION_TO_STATUS_MAP[request.actionLabel];
-
-          if (nextStatus) {
-            setOrders((prev) =>
-              prev.map((order) =>
-                request.orderIds.includes(order.id)
-                  ? { ...order, status: nextStatus }
-                  : order,
-              ),
-            );
-          }
-
-          setStatusChangeRequest(null);
-          setSelectedIds(new Set());
-        }}
       />
     </div>
   );
