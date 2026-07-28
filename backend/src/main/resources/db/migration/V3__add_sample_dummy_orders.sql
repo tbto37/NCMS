@@ -13,11 +13,11 @@ INSERT INTO templates (id, name, preview_front_url, preview_back_url, status) VA
 ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO members (id, company_id, username, password, name, email, phone, status) VALUES
-    ('M_1', 'C_2', 'kim_minjun', '$2a$10$abcdefghijklmnopqrstuu', '김민준', 'minjun@cheil.co.kr', '010-2451-8821', 'ACTIVE'),
-    ('M_2', 'C_1', 'lee_seoyeon', '$2a$10$abcdefghijklmnopqrstuu', '이서연', 'seoyeon@tobetheone.com', '010-7392-1048', 'ACTIVE'),
-    ('M_3', 'C_2', 'park_jihoon', '$2a$10$abcdefghijklmnopqrstuu', '박지훈', 'jihoon@cheil.co.kr', '010-5631-9074', 'ACTIVE'),
-    ('M_4', 'C_1', 'choi_sua', '$2a$10$abcdefghijklmnopqrstuu', '최수아', 'sua@tobetheone.com', '010-8164-3320', 'ACTIVE'),
-    ('M_5', 'C_2', 'jung_woojin', '$2a$10$abcdefghijklmnopqrstuu', '정우진', 'woojin@cheil.co.kr', '010-4072-6651', 'ACTIVE')
+    ('M_1', 'C_2', 'kim_minjun', 'MTIzNA==', '김민준', 'minjun@cheil.co.kr', '010-2451-8821', 'ACTIVE'),
+    ('M_2', 'C_1', 'lee_seoyeon', 'MTIzNA==', '이서연', 'seoyeon@tobetheone.com', '010-7392-1048', 'ACTIVE'),
+    ('M_3', 'C_2', 'park_jihoon', 'MTIzNA==', '박지훈', 'jihoon@cheil.co.kr', '010-5631-9074', 'ACTIVE'),
+    ('M_4', 'C_1', 'choi_sua', 'MTIzNA==', '최수아', 'sua@tobetheone.com', '010-8164-3320', 'ACTIVE'),
+    ('M_5', 'C_2', 'jung_woojin', 'MTIzNA==', '정우진', 'woojin@cheil.co.kr', '010-4072-6651', 'ACTIVE')
 ON CONFLICT (username) DO NOTHING;
 
 

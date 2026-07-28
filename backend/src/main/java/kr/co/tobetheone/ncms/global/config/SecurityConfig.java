@@ -8,7 +8,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -32,37 +31,41 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(
-        HttpSecurity http,
-        CorsConfigurationSource corsConfigurationSource
-    ) throws Exception {
+            HttpSecurity http,
+            CorsConfigurationSource corsConfigurationSource) throws Exception {
         http
-            .cors(cors -> cors.configurationSource(corsConfigurationSource))
-            .csrf(csrf -> csrf.disable())
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                .cors(cors -> cors.configurationSource(corsConfigurationSource))
+                .csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
 
-                // 1. Public Endpoints
-                .requestMatchers("/api/v1/health").permitAll()
-                .requestMatchers("/api/v1/public/**").permitAll()
-                .requestMatchers("/api/v1/auth/login").permitAll()
-                .requestMatchers("/api/v1/product-options/**").permitAll()
+                        // 1. Public Endpoints
+                        .requestMatchers("/api/v1/health").permitAll()
+                        .requestMatchers("/api/v1/public/**").permitAll()
+                        .requestMatchers("/api/v1/auth/login").permitAll()
+                        .requestMatchers("/api/v1/product-options/**").permitAll()
 
-                // 2. Company & Department & Member Details (Fine-grained Role Access)
-                .requestMatchers(HttpMethod.GET, "/api/v1/company/templates").hasAnyRole("EMPLOYEE", "COMPANY_ADMIN", "OPERATOR")
-                .requestMatchers(HttpMethod.GET, "/api/v1/company/departments").hasAnyRole("EMPLOYEE", "COMPANY_ADMIN", "OPERATOR")
-                .requestMatchers(HttpMethod.POST, "/api/v1/company/departments").hasAnyRole("COMPANY_ADMIN", "OPERATOR")
-                .requestMatchers(HttpMethod.POST, "/api/v1/company/members").hasRole("COMPANY_ADMIN")
-                .requestMatchers(HttpMethod.GET, "/api/v1/company/members").hasAnyRole("COMPANY_ADMIN", "OPERATOR")
-                .requestMatchers(HttpMethod.PUT, "/api/v1/company/members/**").hasAnyRole("COMPANY_ADMIN", "OPERATOR")
+                        // 2. Company & Department & Member Details (Fine-grained Role Access)
+                        .requestMatchers(HttpMethod.GET, "/api/v1/company/templates")
+                        .hasAnyRole("EMPLOYEE", "COMPANY_ADMIN", "OPERATOR")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/company/departments")
+                        .hasAnyRole("EMPLOYEE", "COMPANY_ADMIN", "OPERATOR")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/company/departments")
+                        .hasAnyRole("COMPANY_ADMIN", "OPERATOR")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/company/members").hasRole("COMPANY_ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/v1/company/members")
+                        .hasAnyRole("COMPANY_ADMIN", "OPERATOR")
+                        .requestMatchers(HttpMethod.PUT, "/api/v1/company/members/**")
+                        .hasAnyRole("COMPANY_ADMIN", "OPERATOR")
 
-                // 3. Admin & Operator & Orders
-                .requestMatchers("/api/v1/admin/**").hasRole("SYSTEM_ADMIN")
-                .requestMatchers("/api/v1/operator/**").hasAnyRole("OPERATOR", "SYSTEM_ADMIN")
-                .requestMatchers("/api/v1/orders/**").hasAnyRole("EMPLOYEE", "COMPANY_ADMIN", "OPERATOR", "SYSTEM_ADMIN")
+                        // 3. Admin & Operator & Orders
+                        .requestMatchers("/api/v1/admin/**").hasRole("SYSTEM_ADMIN")
+                        .requestMatchers("/api/v1/operator/**").hasAnyRole("OPERATOR", "SYSTEM_ADMIN")
+                        .requestMatchers("/api/v1/orders/**")
+                        .hasAnyRole("EMPLOYEE", "COMPANY_ADMIN", "OPERATOR", "SYSTEM_ADMIN")
 
-                .anyRequest().authenticated()
-            )
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                        .anyRequest().authenticated())
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
@@ -89,6 +92,6 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+        return new kr.co.tobetheone.ncms.global.security.Base64PasswordEncoder();
     }
 }
