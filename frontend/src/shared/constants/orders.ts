@@ -1,14 +1,35 @@
 export const ORDER_TABS = ["전체", "승인대기", "승인완료", "인쇄중", "발송완료", "승인반려", "주문취소"] as const;
 export type OrderTab = typeof ORDER_TABS[number];
 
-export const TAB_ACTIONS: Record<OrderTab, { label: string; variant: "primary" | "danger" | "ghost" }[]> = {
+export interface TabActionItem {
+  label: string;
+  variant: "primary" | "danger" | "ghost";
+  targetTab?: OrderTab | null;
+  targetStatus?: string;
+}
+
+export const TAB_ACTIONS: Record<OrderTab, TabActionItem[]> = {
   전체:     [],
-  승인대기: [{ label: "주문 승인", variant: "primary" }, { label: "주문 반려", variant: "danger" }],
-  승인완료: [{ label: "인쇄 시작", variant: "primary" }],
-  인쇄중:   [{ label: "발송 처리", variant: "primary" }],
-  발송완료: [{ label: "상세 보기", variant: "ghost" }],
-  승인반려: [{ label: "재승인 요청", variant: "primary" }, { label: "주문 취소", variant: "danger" }],
-  주문취소: [{ label: "상세 보기", variant: "ghost" }],
+  승인대기: [
+    { label: "주문 승인", variant: "primary", targetTab: "승인완료", targetStatus: "APPROVED" },
+    { label: "주문 취소", variant: "danger", targetTab: "주문취소", targetStatus: "CANCELLED" },
+    { label: "주문 반려", variant: "danger", targetTab: "승인반려", targetStatus: "REJECTED" },
+  ],
+  승인완료: [
+    { label: "인쇄 시작", variant: "primary", targetTab: "인쇄중", targetStatus: "PRINTING" },
+    { label: "주문 취소", variant: "danger", targetTab: "주문취소", targetStatus: "CANCELLED" },
+  ],
+  인쇄중:   [
+    { label: "발송 처리", variant: "primary", targetTab: "발송완료", targetStatus: "SHIPPED" },
+  ],
+  발송완료: [],
+  승인반려: [
+    { label: "재승인 요청", variant: "primary", targetTab: "승인대기", targetStatus: "PENDING" },
+    { label: "주문 취소", variant: "danger", targetTab: "주문취소", targetStatus: "CANCELLED" },
+  ],
+  주문취소: [
+    { label: "영구 삭제", variant: "danger", targetTab: null, targetStatus: "DELETE" },
+  ],
 };
 
 export const ORDER_FILTER_FIELDS = [

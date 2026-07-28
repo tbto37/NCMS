@@ -367,6 +367,8 @@ export default function OrdersPage() {
   function handleOpenStatusChange(action: {
     label: string;
     variant?: string;
+    targetTab?: OrderTab | null;
+    targetStatus?: string;
   }) {
     const orderIds = paged
       .filter((order) => selectedIds.has(order.id))
@@ -379,6 +381,8 @@ export default function OrdersPage() {
       orderIds,
       currentStatus: activeTab,
       variant: action.variant,
+      targetTab: action.targetTab,
+      targetStatus: action.targetStatus,
     });
   }
 
@@ -391,14 +395,21 @@ export default function OrdersPage() {
       for (const order of selectedOrders) {
         const rawId = order.rawId;
 
-        if (request.actionLabel === "주문 승인") {
+        if (request.actionLabel === "영구 삭제" || request.targetStatus === "DELETE") {
+          await fetch(`${API_BASE_URL}/api/v1/operator/orders/${rawId}`, {
+            method: "DELETE",
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          });
+        } else if (request.actionLabel === "주문 승인" || request.targetStatus === "APPROVED") {
           await fetch(`${API_BASE_URL}/api/v1/operator/orders/${rawId}/approve`, {
             method: "POST",
             headers: {
               Authorization: `Bearer ${accessToken}`,
             },
           });
-        } else if (request.actionLabel === "주문 반려") {
+        } else if (request.actionLabel === "주문 반려" || request.targetStatus === "REJECTED") {
           await fetch(`${API_BASE_URL}/api/v1/operator/orders/${rawId}/reject`, {
             method: "POST",
             headers: {
@@ -406,6 +417,15 @@ export default function OrdersPage() {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({ reason: request.reason || "검수 반려" }),
+          });
+        } else if (request.targetStatus) {
+          await fetch(`${API_BASE_URL}/api/v1/operator/orders/${rawId}/status`, {
+            method: "PATCH",
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ status: request.targetStatus }),
           });
         } else if (request.actionLabel === "인쇄 시작") {
           await fetch(`${API_BASE_URL}/api/v1/operator/orders/${rawId}/status`, {
@@ -435,6 +455,12 @@ export default function OrdersPage() {
             body: JSON.stringify({ status: "PENDING" }),
           });
         }
+      }
+
+      // Automatically switch to targetTab if specified (Image 1 specification)
+      if (request.targetTab) {
+        setActiveTab(request.targetTab as OrderTab);
+        setPage(1);
       }
     } catch (err) {
       console.error("Status change error:", err);

@@ -41,4 +41,10 @@ public class OperatorOrderController {
         return ApiResponse.success(orderService.updateOrderStatus(id, request.getStatus(), request.getCarrierCode(),
                 request.getTrackingNumber()));
     }
+
+    @DeleteMapping("/{id}")
+    public ApiResponse<Void> deleteOrder(@PathVariable String id) {
+        orderService.deleteOrder(id);
+        return ApiResponse.success(null);
+    }
 }

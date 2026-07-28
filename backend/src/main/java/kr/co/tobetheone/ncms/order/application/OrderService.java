@@ -138,6 +138,16 @@ public class OrderService {
         return toResponse(order);
     }
 
+    @Transactional
+    public void deleteOrder(String orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(() -> new CustomException("주문을 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
+
+        orderSnapshotRepository.findByOrderId(orderId).ifPresent(orderSnapshotRepository::delete);
+        shipmentRepository.findByOrderId(orderId).ifPresent(shipmentRepository::delete);
+        orderRepository.delete(order);
+    }
+
     private OrderResponse toResponse(Order order) {
         OrderSnapshot snapshot = orderSnapshotRepository.findByOrderId(order.getId()).orElse(null);
         Shipment shipment = shipmentRepository.findByOrderId(order.getId()).orElse(null);

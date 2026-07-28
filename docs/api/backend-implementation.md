@@ -80,4 +80,5 @@
 | `GET` | `/api/v1/operator/orders` | `OPERATOR`, `SYSTEM_ADMIN` | 로그컴 운영자 전용 검수/제작 대기 주문 목록 조회 |
 | `POST` | `/api/v1/operator/orders/{id}/approve` | `OPERATOR`, `SYSTEM_ADMIN` | 오타/오류 검수 승인 (`APPROVED`) |
 | `POST` | `/api/v1/operator/orders/{id}/reject` | `OPERATOR`, `SYSTEM_ADMIN` | 명함 검수 반려 및 반려 사유 기록 (`REJECTED`) |
-| `PATCH` | `/api/v1/operator/orders/{id}/status` | `OPERATOR`, `SYSTEM_ADMIN` | 제작/배송 상태 변경 (`PRINTING`, `SHIPPED`, `DELIVERED`) 및 송장 등록 |
+| `PATCH` | `/api/v1/operator/orders/{id}/status` | `OPERATOR`, `SYSTEM_ADMIN` | 제작/배송 상태 변경 (`PRINTING`, `SHIPPED`, `DELIVERED`, `CANCELLED`, `PENDING`) 및 송장 등록 |
+| `DELETE` | `/api/v1/operator/orders/{id}` | `OPERATOR`, `SYSTEM_ADMIN` | 주문 내역 영구 삭제 (스냅샷 및 배송 정보 연쇄 삭제) |
