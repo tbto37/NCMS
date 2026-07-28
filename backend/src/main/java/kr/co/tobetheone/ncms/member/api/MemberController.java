@@ -11,7 +11,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/company/members")
@@ -23,8 +22,8 @@ public class MemberController {
     @GetMapping
     public ApiResponse<List<MemberResponse>> getMembers(@AuthenticationPrincipal NcmsUserDetails userDetails) {
         String primaryRole = userDetails.getAuthorities().stream()
-            .map(auth -> auth.getAuthority())
-            .findFirst().orElse("");
+                .map(auth -> auth.getAuthority())
+                .findFirst().orElse("");
 
         return ApiResponse.success(memberService.getMembersByCompany(userDetails.getCompanyId(), primaryRole));
     }
@@ -43,7 +42,7 @@ public class MemberController {
 
     @PutMapping("/{id}")
     public ApiResponse<MemberResponse> updateMember(
-            @PathVariable UUID id,
+            @PathVariable String id,
             @RequestBody UpdateMemberRequest request) {
         return ApiResponse.success(memberService.updateMember(id, request));
     }

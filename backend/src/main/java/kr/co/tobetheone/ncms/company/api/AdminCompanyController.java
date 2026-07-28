@@ -7,8 +7,6 @@ import kr.co.tobetheone.ncms.global.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
-
 @RestController
 @RequestMapping("/api/v1/admin/companies")
 @RequiredArgsConstructor
@@ -17,7 +15,7 @@ public class AdminCompanyController {
     private final CompanyService companyService;
 
     @GetMapping("/{id}")
-    public ApiResponse<Company> getCompany(@PathVariable UUID id) {
+    public ApiResponse<Company> getCompany(@PathVariable String id) {
         return ApiResponse.success(companyService.getCompanyById(id));
     }
 

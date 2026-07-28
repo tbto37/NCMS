@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.io.Serializable;
-import java.util.UUID;
 
 @Entity
 @Table(name = "member_roles")
@@ -16,8 +15,8 @@ import java.util.UUID;
 public class MemberRole {
 
     @Id
-    @Column(name = "member_id")
-    private UUID memberId;
+    @Column(name = "member_id", length = 50)
+    private String memberId;
 
     @Id
     @Column(name = "role_id", length = 50)
@@ -30,7 +29,7 @@ public class MemberRole {
     public static class MemberRoleId implements Serializable {
         private static final long serialVersionUID = 1L;
 
-        private UUID memberId;
+        private String memberId;
         private String roleId;
     }
 }

@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -21,9 +20,9 @@ public class TemplateService {
     private final TemplateRepository templateRepository;
     private final CompanyTemplateRepository companyTemplateRepository;
 
-    public List<TemplateResponse> getTemplatesForCompany(UUID companyId) {
+    public List<TemplateResponse> getTemplatesForCompany(String companyId) {
         List<CompanyTemplate> mappings = companyTemplateRepository.findByCompanyId(companyId);
-        List<UUID> templateIds = mappings.stream().map(ct -> ct.getTemplateId()).collect(Collectors.toList());
+        List<String> templateIds = mappings.stream().map(ct -> ct.getTemplateId()).collect(Collectors.toList());
 
         List<Template> templates = templateRepository.findAllById(templateIds);
         return templates.stream()
@@ -40,7 +39,9 @@ public class TemplateService {
 
     @Transactional
     public Template createTemplate(String name, String previewFrontUrl, String previewBackUrl) {
+        String id = "T_" + System.currentTimeMillis();
         Template template = Template.builder()
+                .id(id)
                 .name(name)
                 .previewFrontUrl(previewFrontUrl)
                 .previewBackUrl(previewBackUrl)

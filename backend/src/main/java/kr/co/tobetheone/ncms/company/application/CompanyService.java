@@ -10,8 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.UUID;
-
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -31,7 +29,7 @@ public class CompanyService {
                 .build();
     }
 
-    public Company getCompanyById(UUID id) {
+    public Company getCompanyById(String id) {
         return companyRepository.findById(id)
                 .orElseThrow(() -> new CustomException("고객사를 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
     }
@@ -41,7 +39,9 @@ public class CompanyService {
         if (companyRepository.findBySiteCode(request.getSiteCode()).isPresent()) {
             throw new CustomException("이미 존재하는 사이트 코드입니다.", HttpStatus.BAD_REQUEST);
         }
+        String id = "C_" + System.currentTimeMillis();
         Company company = Company.builder()
+                .id(id)
                 .siteCode(request.getSiteCode())
                 .name(request.getName())
                 .logoUrl(request.getLogoUrl())

@@ -4,8 +4,6 @@ import jakarta.persistence.*;
 import kr.co.tobetheone.ncms.global.domain.BaseEntity;
 import lombok.*;
 
-import java.util.UUID;
-
 @Entity
 @Table(name = "product_options")
 @Getter
@@ -15,8 +13,7 @@ import java.util.UUID;
 public class ProductOption extends BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    private String id;
 
     @Column(name = "material_name", nullable = false, length = 100)
     private String materialName;

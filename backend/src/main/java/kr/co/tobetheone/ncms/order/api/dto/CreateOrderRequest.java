@@ -3,12 +3,10 @@ package kr.co.tobetheone.ncms.order.api.dto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.UUID;
-
 @Getter
 @NoArgsConstructor
 public class CreateOrderRequest {
-    private UUID templateId;
+    private String templateId;
     private String recipientName;
     private String recipientPhone;
     private String zipcode;

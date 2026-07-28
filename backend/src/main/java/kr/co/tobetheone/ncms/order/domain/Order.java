@@ -7,8 +7,6 @@ import kr.co.tobetheone.ncms.member.domain.Member;
 import kr.co.tobetheone.ncms.template.domain.Template;
 import lombok.*;
 
-import java.util.UUID;
-
 @Entity
 @Table(name = "orders")
 @Getter
@@ -18,8 +16,7 @@ import java.util.UUID;
 public class Order extends BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    private String id;
 
     @Column(name = "order_no", nullable = false, unique = true, length = 50)
     private String orderNo;

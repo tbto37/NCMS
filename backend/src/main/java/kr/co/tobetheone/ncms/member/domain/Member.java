@@ -6,8 +6,6 @@ import kr.co.tobetheone.ncms.department.domain.Department;
 import kr.co.tobetheone.ncms.global.domain.BaseEntity;
 import lombok.*;
 
-import java.util.UUID;
-
 @Entity
 @Table(name = "members")
 @Getter
@@ -17,8 +15,7 @@ import java.util.UUID;
 public class Member extends BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    private String id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "company_id")
@@ -48,11 +45,16 @@ public class Member extends BaseEntity {
     private String status = "ACTIVE";
 
     public void updateInfo(String name, String email, String phone, Department department, String status) {
-        if (name != null) this.name = name;
-        if (email != null) this.email = email;
-        if (phone != null) this.phone = phone;
-        if (department != null) this.department = department;
-        if (status != null) this.status = status;
+        if (name != null)
+            this.name = name;
+        if (email != null)
+            this.email = email;
+        if (phone != null)
+            this.phone = phone;
+        if (department != null)
+            this.department = department;
+        if (status != null)
+            this.status = status;
     }
 
     public void updatePassword(String encodedPassword) {

@@ -15,7 +15,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Component
@@ -28,8 +27,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(
             @NonNull HttpServletRequest request,
             @NonNull HttpServletResponse response,
-            @NonNull FilterChain filterChain
-    ) throws ServletException, IOException {
+            @NonNull FilterChain filterChain) throws ServletException, IOException {
         String authHeader = request.getHeader("Authorization");
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
@@ -43,8 +41,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 @SuppressWarnings("unchecked")
                 List<String> roles = claims.get("roles", List.class);
 
-                UUID memberId = memberIdStr != null ? UUID.fromString(memberIdStr) : null;
-                UUID companyId = companyIdStr != null ? UUID.fromString(companyIdStr) : null;
+                String memberId = memberIdStr;
+                String companyId = companyIdStr;
 
                 var authorities = roles != null
                         ? roles.stream().map(r -> r.startsWith("ROLE_") ? r : "ROLE_" + r)

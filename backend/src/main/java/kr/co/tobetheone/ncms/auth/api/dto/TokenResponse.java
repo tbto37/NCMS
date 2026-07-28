@@ -4,16 +4,15 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.util.List;
-import java.util.UUID;
 
 @Getter
 @Builder
 public class TokenResponse {
     private String accessToken;
     private String tokenType;
-    private UUID memberId;
+    private String memberId;
     private String username;
     private String name;
-    private UUID companyId;
+    private String companyId;
     private List<String> roles;
 }

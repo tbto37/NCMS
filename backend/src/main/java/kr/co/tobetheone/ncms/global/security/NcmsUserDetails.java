@@ -5,20 +5,20 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
-import java.util.UUID;
 
 @Getter
 public class NcmsUserDetails implements UserDetails {
 
     private static final long serialVersionUID = 1L;
 
-    private final UUID memberId;
+    private final String memberId;
     private final String username;
     private final String password;
-    private final UUID companyId;
-    private final Collection<? extends GrantedAuthority> authorities;
+    private final String companyId;
+    private final transient Collection<? extends GrantedAuthority> authorities;
 
-    public NcmsUserDetails(UUID memberId, String username, String password, UUID companyId, Collection<? extends GrantedAuthority> authorities) {
+    public NcmsUserDetails(String memberId, String username, String password, String companyId,
+            Collection<? extends GrantedAuthority> authorities) {
         this.memberId = memberId;
         this.username = username;
         this.password = password;

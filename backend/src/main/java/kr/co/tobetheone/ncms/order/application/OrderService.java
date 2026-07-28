@@ -37,7 +37,7 @@ public class OrderService {
     private final TemplateRepository templateRepository;
 
     @Transactional
-    public OrderResponse createOrder(UUID memberId, CreateOrderRequest request) {
+    public OrderResponse createOrder(String memberId, CreateOrderRequest request) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException("회원을 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
 
@@ -50,8 +50,10 @@ public class OrderService {
                 .orElseThrow(() -> new CustomException("템플릿을 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
 
         String orderNo = generateOrderNo();
+        String orderId = "O_" + System.currentTimeMillis();
 
         Order order = Order.builder()
+                .id(orderId)
                 .orderNo(orderNo)
                 .company(company)
                 .member(member)
@@ -66,7 +68,9 @@ public class OrderService {
 
         order = orderRepository.save(order);
 
+        String snapshotId = "S_" + System.currentTimeMillis();
         OrderSnapshot snapshot = OrderSnapshot.builder()
+                .id(snapshotId)
                 .order(order)
                 .cardData(request.getCardDataJson() != null ? request.getCardDataJson() : "{}")
                 .productOptionSummary(request.getProductOptionSummary())
@@ -79,12 +83,12 @@ public class OrderService {
         return toResponse(order);
     }
 
-    public List<OrderResponse> getOrdersByCompany(UUID companyId) {
+    public List<OrderResponse> getOrdersByCompany(String companyId) {
         return orderRepository.findByCompanyIdOrderByCreatedAtDesc(companyId)
                 .stream().map(this::toResponse).collect(Collectors.toList());
     }
 
-    public List<OrderResponse> getOrdersByMember(UUID memberId) {
+    public List<OrderResponse> getOrdersByMember(String memberId) {
         return orderRepository.findByMemberIdOrderByCreatedAtDesc(memberId)
                 .stream().map(this::toResponse).collect(Collectors.toList());
     }
@@ -94,14 +98,14 @@ public class OrderService {
                 .stream().map(this::toResponse).collect(Collectors.toList());
     }
 
-    public OrderResponse getOrderDetails(UUID orderId) {
+    public OrderResponse getOrderDetails(String orderId) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new CustomException("주문을 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
         return toResponse(order);
     }
 
     @Transactional
-    public OrderResponse approveOrder(UUID orderId) {
+    public OrderResponse approveOrder(String orderId) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new CustomException("주문을 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
         order.approve();
@@ -109,7 +113,7 @@ public class OrderService {
     }
 
     @Transactional
-    public OrderResponse rejectOrder(UUID orderId, String reason) {
+    public OrderResponse rejectOrder(String orderId, String reason) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new CustomException("주문을 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
         order.reject(reason);
@@ -117,15 +121,16 @@ public class OrderService {
     }
 
     @Transactional
-    public OrderResponse updateOrderStatus(UUID orderId, String status, String carrierCode, String trackingNumber) {
+    public OrderResponse updateOrderStatus(String orderId, String status, String carrierCode, String trackingNumber) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new CustomException("주문을 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
 
         order.updateStatus(status);
 
         if (carrierCode != null && trackingNumber != null) {
+            String shipmentId = "SHP_" + System.currentTimeMillis();
             Shipment shipment = shipmentRepository.findByOrderId(orderId)
-                    .orElseGet(() -> Shipment.builder().order(order).carrierCode(carrierCode)
+                    .orElseGet(() -> Shipment.builder().id(shipmentId).order(order).carrierCode(carrierCode)
                             .trackingNumber(trackingNumber).build());
             shipmentRepository.save(shipment);
         }

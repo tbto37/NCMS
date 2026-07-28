@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/operator/orders")
@@ -24,21 +23,22 @@ public class OperatorOrderController {
     }
 
     @PostMapping("/{id}/approve")
-    public ApiResponse<OrderResponse> approveOrder(@PathVariable UUID id) {
+    public ApiResponse<OrderResponse> approveOrder(@PathVariable String id) {
         return ApiResponse.success(orderService.approveOrder(id));
     }
 
     @PostMapping("/{id}/reject")
     public ApiResponse<OrderResponse> rejectOrder(
-            @PathVariable UUID id,
+            @PathVariable String id,
             @RequestBody RejectOrderRequest request) {
         return ApiResponse.success(orderService.rejectOrder(id, request.getReason()));
     }
 
     @PatchMapping("/{id}/status")
     public ApiResponse<OrderResponse> updateOrderStatus(
-            @PathVariable UUID id,
+            @PathVariable String id,
             @RequestBody UpdateOrderStatusRequest request) {
-        return ApiResponse.success(orderService.updateOrderStatus(id, request.getStatus(), request.getCarrierCode(), request.getTrackingNumber()));
+        return ApiResponse.success(orderService.updateOrderStatus(id, request.getStatus(), request.getCarrierCode(),
+                request.getTrackingNumber()));
     }
 }

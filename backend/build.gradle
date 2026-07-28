@@ -57,6 +57,6 @@ tasks.named('test') {
 }
 
 tasks.withType(JavaCompile) {
-	options.compilerArgs << "-Xlint:deprecation" << "-Xlint:unchecked"
+	options.compilerArgs << "-Xlint:all,-processing"
 }
 

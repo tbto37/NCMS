@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -49,7 +48,7 @@ public class AuthService {
             roles = List.of("ROLE_EMPLOYEE");
         }
 
-        UUID companyId = member.getCompany() != null ? member.getCompany().getId() : null;
+        String companyId = member.getCompany() != null ? member.getCompany().getId() : null;
         String accessToken = jwtTokenProvider.createAccessToken(member.getId(), member.getUsername(), companyId, roles);
 
         return TokenResponse.builder()
@@ -64,7 +63,7 @@ public class AuthService {
     }
 
     @Transactional
-    public void changePassword(UUID memberId, PasswordChangeRequest request) {
+    public void changePassword(String memberId, PasswordChangeRequest request) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException("회원을 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
 

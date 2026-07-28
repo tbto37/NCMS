@@ -5,8 +5,6 @@ import kr.co.tobetheone.ncms.company.domain.Company;
 import kr.co.tobetheone.ncms.global.domain.BaseEntity;
 import lombok.*;
 
-import java.util.UUID;
-
 @Entity
 @Table(name = "departments")
 @Getter
@@ -16,8 +14,7 @@ import java.util.UUID;
 public class Department extends BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    private String id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "company_id", nullable = false)

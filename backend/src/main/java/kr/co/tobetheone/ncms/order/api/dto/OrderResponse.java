@@ -4,18 +4,17 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.time.Instant;
-import java.util.UUID;
 
 @Getter
 @Builder
 public class OrderResponse {
-    private UUID id;
+    private String id;
     private String orderNo;
-    private UUID companyId;
+    private String companyId;
     private String companyName;
-    private UUID memberId;
+    private String memberId;
     private String memberName;
-    private UUID templateId;
+    private String templateId;
     private String status;
     private String recipientName;
     private String recipientPhone;

@@ -19,7 +19,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -32,7 +31,7 @@ public class MemberService {
     private final DepartmentRepository departmentRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public List<MemberResponse> getMembersByCompany(UUID companyId, String currentUserRole) {
+    public List<MemberResponse> getMembersByCompany(String companyId, String currentUserRole) {
         List<Member> members = "ROLE_OPERATOR".equals(currentUserRole)
                 ? memberRepository.findAll()
                 : memberRepository.findByCompanyId(companyId);
@@ -41,7 +40,7 @@ public class MemberService {
     }
 
     @Transactional
-    public MemberResponse createMemberByCompanyAdmin(UUID companyId, String currentUserRole,
+    public MemberResponse createMemberByCompanyAdmin(String companyId, String currentUserRole,
             CreateMemberRequest request) {
         if ("ROLE_OPERATOR".equals(currentUserRole)) {
             throw new CustomException("ROLE_OPERATOR은 신규 임직원을 직접 등록할 수 없습니다. (403 Forbidden)", HttpStatus.FORBIDDEN);
@@ -59,7 +58,9 @@ public class MemberService {
             throw new CustomException("이미 존재하는 아이디입니다.", HttpStatus.BAD_REQUEST);
         }
 
+        String id = "M_" + System.currentTimeMillis();
         Member member = Member.builder()
+                .id(id)
                 .company(company)
                 .department(department)
                 .username(request.getUsername())
@@ -82,7 +83,7 @@ public class MemberService {
     }
 
     @Transactional
-    public MemberResponse updateMember(UUID memberId, UpdateMemberRequest request) {
+    public MemberResponse updateMember(String memberId, UpdateMemberRequest request) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException("회원을 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
 

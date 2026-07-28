@@ -4,8 +4,6 @@ import jakarta.persistence.*;
 import kr.co.tobetheone.ncms.global.domain.BaseEntity;
 import lombok.*;
 
-import java.util.UUID;
-
 @Entity
 @Table(name = "companies")
 @Getter
@@ -15,8 +13,7 @@ import java.util.UUID;
 public class Company extends BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    private String id;
 
     @Column(name = "site_code", nullable = false, unique = true, length = 50)
     private String siteCode;

@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -22,16 +21,18 @@ public class DepartmentService {
     private final DepartmentRepository departmentRepository;
     private final CompanyRepository companyRepository;
 
-    public List<Department> getDepartmentsByCompany(UUID companyId) {
+    public List<Department> getDepartmentsByCompany(String companyId) {
         return departmentRepository.findByCompanyId(companyId);
     }
 
     @Transactional
-    public Department createDepartment(UUID companyId, CreateDepartmentRequest request) {
+    public Department createDepartment(String companyId, CreateDepartmentRequest request) {
         Company company = companyRepository.findById(companyId)
                 .orElseThrow(() -> new CustomException("고객사를 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
 
+        String id = "DEP_" + System.currentTimeMillis();
         Department department = Department.builder()
+                .id(id)
                 .company(company)
                 .name(request.getName())
                 .sortOrder(request.getSortOrder() != null ? request.getSortOrder() : 0)

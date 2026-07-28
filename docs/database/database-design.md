@@ -52,7 +52,7 @@ erDiagram
 ## 3. 주요 테이블 스키마 정의
 
 ### 3.1 `companies` (고객사)
-- `id` (UUID, PK)
+- `id` (VARCHAR(50), PK, 예: `C_1`, `C_2`)
 - `site_code` (VARCHAR, UNIQUE) - URL 세그먼트용 (예: `kakao`, `samsung`)
 - `name` (VARCHAR) - 회사명
 - `logo_url` (VARCHAR) - 로고 이미지 경로
@@ -61,9 +61,9 @@ erDiagram
 - `created_at`, `updated_at` (TIMESTAMPTZ)
 
 ### 3.2 `members` (회원)
-- `id` (UUID, PK)
-- `company_id` (UUID, FK, NULLable - 내부 운영자는 NULL 가능)
-- `department_id` (UUID, FK, NULLable)
+- `id` (VARCHAR(50), PK, 예: `M_1`, `M_2`)
+- `company_id` (VARCHAR(50), FK, NULLable - 내부 운영자는 NULL 가능)
+- `department_id` (VARCHAR(50), FK, NULLable)
 - `username` (VARCHAR, UNIQUE) - 로그인 아이디
 - `password` (VARCHAR) - Encoded 비밀번호
 - `name` (VARCHAR) - 이름
@@ -77,23 +77,23 @@ erDiagram
   - `name` (VARCHAR(50)) - 역할명 (예: `시스템 관리자`)
   - `description` (VARCHAR(255)) - 역할 상세 설명 및 권한 범위
 - **`member_roles`**:
-  - `member_id` (UUID, FK, PK) - 회원 ID
+  - `member_id` (VARCHAR(50), FK, PK) - 회원 ID
   - `role_id` (VARCHAR(50), FK, PK) - 역할 ID (`roles.id`)
 
 ### 3.3 `orders` (주문)
-- `id` (UUID, PK)
-- `order_no` (VARCHAR, UNIQUE) - 주문번호
-- `company_id` (UUID, FK) - 주문 고객사
-- `member_id` (UUID, FK) - 주문자
-- `template_id` (UUID, FK) - 선택 템플릿
+- `id` (VARCHAR(50), PK, 예: `O_1`, `O_2`)
+- `order_no` (VARCHAR, UNIQUE) - 주문번호 (예: `ORD-20260728-8821`)
+- `company_id` (VARCHAR(50), FK) - 주문 고객사 ID (`C_1`)
+- `member_id` (VARCHAR(50), FK) - 주문자 ID (`M_1`)
+- `template_id` (VARCHAR(50), FK) - 선택 템플릿 ID (`T_1`)
 - `status` (VARCHAR) - `PENDING`, `APPROVED`, `REJECTED`, `PRINTING`, `SHIPPED`, `DELIVERED`, `CANCELLED`
 - `recipient_name`, `recipient_phone`, `zipcode`, `address`, `address_detail` (VARCHAR) - 수령지 정보
 - `reject_reason` (TEXT) - 반려 시 사유
 - `created_at`, `updated_at` (TIMESTAMPTZ)
 
 ### 3.4 `order_snapshots` (주문 명함 데이터 스냅샷)
-- `id` (UUID, PK)
-- `order_id` (UUID, FK, UNIQUE)
+- `id` (VARCHAR(50), PK, 예: `S_1`, `S_2`)
+- `order_id` (VARCHAR(50), FK, UNIQUE) - 주문 ID (`O_1`)
 - `card_data` (JSONB) - 주문 시 입력한 명함 문구 (한글/영문 이름, 부서, 직급, 전화번호 등)
 - `product_option_summary` (VARCHAR) - 재질명, 주문 수량 등 옵션 요약
 - `preview_front_url`, `preview_back_url` (VARCHAR) - 미리보기 이미지 식별자
@@ -101,8 +101,8 @@ erDiagram
 - `created_at` (TIMESTAMPTZ)
 
 ### 3.5 `shipments` (배송 정보)
-- `id` (UUID, PK)
-- `order_id` (UUID, FK, UNIQUE)
+- `id` (VARCHAR(50), PK, 예: `SHP_1`, `SHP_2`)
+- `order_id` (VARCHAR(50), FK, UNIQUE) - 주문 ID (`O_1`)
 - `carrier_code` (VARCHAR) - 택배사 코드
 - `tracking_number` (VARCHAR) - 송장번호
 - `shipped_at` (TIMESTAMPTZ) - 발송일시
@@ -110,6 +110,6 @@ erDiagram
 ---
 
 ## 4. 데이터 모델링 특징
-- **PK**: 기본 식별자는 `UUID` (`gen_random_uuid()`) 사용.
+- **PK**: 식별자는 직관적이고 관리가 편리한 `VARCHAR(50)` (예: `C_1`, `T_1`, `M_1`, `O_1`) 사용.
 - **명함 데이터 저장**: 유동적인 명함 필드는 `order_snapshots.card_data` (`jsonb`)로 저장하여 유연성 확보.
 - **단순화된 이력 관리**: 별도 감사/타임라인 테이블 대신 `orders` 컬럼(`status`, `reject_reason`, `updated_at`)과 `shipments`로 핵심 흐름 관리.

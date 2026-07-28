@@ -11,7 +11,6 @@ import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.List;
-import java.util.UUID;
 
 @Component
 public class JwtTokenProvider {
@@ -23,39 +22,38 @@ public class JwtTokenProvider {
     public JwtTokenProvider(
             @Value("${jwt.secret:ncmsSecretKeyForJwtAuthenticationSystemMinimum32BytesLong}") String secret,
             @Value("${jwt.access-token-validity-in-seconds:86400}") long accessTokenValidityInSeconds,
-            @Value("${jwt.refresh-token-validity-in-seconds:604800}") long refreshTokenValidityInSeconds
-    ) {
+            @Value("${jwt.refresh-token-validity-in-seconds:604800}") long refreshTokenValidityInSeconds) {
         this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8));
         this.accessTokenValidityInMilliseconds = accessTokenValidityInSeconds * 1000;
         this.refreshTokenValidityInMilliseconds = refreshTokenValidityInSeconds * 1000;
     }
 
-    public String createAccessToken(UUID memberId, String username, UUID companyId, List<String> roles) {
+    public String createAccessToken(String memberId, String username, String companyId, List<String> roles) {
         Date now = new Date();
         Date validity = new Date(now.getTime() + accessTokenValidityInMilliseconds);
 
         var builder = Jwts.builder()
                 .subject(username)
-                .claim("memberId", memberId.toString())
+                .claim("memberId", memberId)
                 .claim("roles", roles)
                 .issuedAt(now)
                 .expiration(validity)
                 .signWith(secretKey);
 
         if (companyId != null) {
-            builder.claim("companyId", companyId.toString());
+            builder.claim("companyId", companyId);
         }
 
         return builder.compact();
     }
 
-    public String createRefreshToken(UUID memberId, String username) {
+    public String createRefreshToken(String memberId, String username) {
         Date now = new Date();
         Date validity = new Date(now.getTime() + refreshTokenValidityInMilliseconds);
 
         return Jwts.builder()
                 .subject(username)
-                .claim("memberId", memberId.toString())
+                .claim("memberId", memberId)
                 .claim("type", "REFRESH")
                 .issuedAt(now)
                 .expiration(validity)

@@ -5,7 +5,6 @@ import kr.co.tobetheone.ncms.order.domain.Order;
 import lombok.*;
 
 import java.time.Instant;
-import java.util.UUID;
 
 @Entity
 @Table(name = "shipments")
@@ -16,8 +15,7 @@ import java.util.UUID;
 public class Shipment {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    private String id;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", nullable = false, unique = true)

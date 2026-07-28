@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.io.Serializable;
-import java.util.UUID;
 
 @Entity
 @Table(name = "company_templates")
@@ -16,12 +15,12 @@ import java.util.UUID;
 public class CompanyTemplate {
 
     @Id
-    @Column(name = "company_id")
-    private UUID companyId;
+    @Column(name = "company_id", length = 50)
+    private String companyId;
 
     @Id
-    @Column(name = "template_id")
-    private UUID templateId;
+    @Column(name = "template_id", length = 50)
+    private String templateId;
 
     @Data
     @NoArgsConstructor
@@ -29,7 +28,7 @@ public class CompanyTemplate {
     public static class CompanyTemplateId implements Serializable {
         private static final long serialVersionUID = 1L;
 
-        private UUID companyId;
-        private UUID templateId;
+        private String companyId;
+        private String templateId;
     }
 }
