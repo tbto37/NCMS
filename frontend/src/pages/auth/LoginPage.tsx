@@ -78,13 +78,13 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center px-4" style={{ fontFamily: "'Inter', sans-serif" }}>
+    <div className="min-h-screen bg-background flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
         <div className="flex flex-col items-center mb-8">
           <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center mb-4">
             <Package size={18} className="text-primary-foreground" />
           </div>
-          <h1 className="text-2xl font-semibold text-foreground" style={{ fontFamily: "'Instrument Serif', serif" }}>
+          <h1 className="text-2xl font-semibold text-foreground">
             {isTenantLogin ? `${companyCode?.toUpperCase()} 로그인` : "로그컴 관리자 로그인"}
           </h1>
           <p className="text-xs text-muted-foreground mt-1">

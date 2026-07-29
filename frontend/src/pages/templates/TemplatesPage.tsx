@@ -258,10 +258,7 @@ export default function TemplatesPage() {
     <div className="space-y-4 p-4 md:p-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1
-            className="text-lg font-semibold text-foreground md:text-xl"
-            style={{ fontFamily: "'Instrument Serif', serif" }}
-          >
+          <h1 className="text-lg font-semibold text-foreground md:text-xl">
             템플릿 관리
           </h1>
           <p className="mt-0.5 text-xs text-muted-foreground">

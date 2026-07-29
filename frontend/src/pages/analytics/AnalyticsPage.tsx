@@ -17,7 +17,7 @@ export default function AnalyticsPage() {
     <div className="p-4 md:p-6 space-y-4 md:space-y-5">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-lg md:text-xl font-semibold text-foreground" style={{ fontFamily: "'Instrument Serif', serif" }}>분석</h1>
+          <h1 className="text-lg md:text-xl font-semibold text-foreground">분석</h1>
           <p className="text-xs text-muted-foreground mt-0.5">지난 30일 기준</p>
         </div>
         <div className="flex items-center gap-1 overflow-x-auto">
@@ -39,7 +39,7 @@ export default function AnalyticsPage() {
               <span className="text-xs text-muted-foreground tracking-wider uppercase">{item.label}</span>
               <item.icon size={12} className="text-muted-foreground" />
             </div>
-            <div className="text-xl font-semibold" style={{ fontFamily: "'Instrument Serif', serif" }}>{item.value}</div>
+            <div className="text-xl font-semibold">{item.value}</div>
             <span className={`flex items-center text-xs mt-1 ${item.trend >= 0 ? "text-emerald-600" : "text-red-500"}`}>
               {item.trend >= 0 ? <ArrowUpRight size={11} /> : <ArrowDownRight size={11} />}
               {Math.abs(item.trend)}%

@@ -8,7 +8,7 @@ export function AdminLayout() {
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   return (
-    <div className="flex h-screen bg-background overflow-hidden" style={{ fontFamily: "'Inter', sans-serif" }}>
+    <div className="flex h-screen bg-background overflow-hidden">
       {/* Mobile drawer overlay */}
       {drawerOpen && (
         <div

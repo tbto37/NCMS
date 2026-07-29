@@ -9,7 +9,7 @@ export default function SettingsPage() {
   return (
     <div className="p-4 md:p-6 space-y-4 md:space-y-5">
       <div>
-        <h1 className="text-lg md:text-xl font-semibold text-foreground" style={{ fontFamily: "'Instrument Serif', serif" }}>설정</h1>
+        <h1 className="text-lg md:text-xl font-semibold text-foreground">설정</h1>
         <p className="text-xs text-muted-foreground mt-0.5">계정 및 시스템 설정 관리</p>
       </div>
 

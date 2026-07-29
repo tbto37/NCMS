@@ -11,7 +11,7 @@ export function StatCard({ label, value, sub, trend, icon: Icon, accent }: { lab
         </div>
       </div>
       <div>
-        <div className={`text-2xl font-semibold tracking-tight ${accent ? "text-primary-foreground" : "text-foreground"}`} style={{ fontFamily: "'Instrument Serif', serif" }}>{value}</div>
+        <div className={`text-2xl font-semibold tracking-tight ${accent ? "text-primary-foreground" : "text-foreground"}`}>{value}</div>
         <div className="flex items-center gap-1.5 mt-1">
           {trend !== undefined && (
             <span className={`flex items-center text-xs font-medium ${trend >= 0 ? "text-emerald-600" : "text-red-500"}`}>

@@ -27,7 +27,7 @@ export default function DashboardPage() {
     <div className="p-4 md:p-6 space-y-4 md:space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-lg md:text-xl font-semibold text-foreground" style={{ fontFamily: "'Instrument Serif', serif" }}>대시보드</h1>
+          <h1 className="text-lg md:text-xl font-semibold text-foreground">대시보드</h1>
           <p className="text-xs text-muted-foreground mt-0.5">2026년 7월 21일 월요일</p>
         </div>
         <button className="flex items-center gap-1.5 px-3 py-1.5 bg-primary text-primary-foreground text-xs font-medium rounded hover:opacity-90 transition-opacity">

@@ -388,12 +388,7 @@ export default function MembersPage() {
     <div className="space-y-4 p-4 md:p-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1
-            className="text-lg font-semibold text-foreground md:text-xl"
-            style={{
-              fontFamily: "'Instrument Serif', serif",
-            }}
-          >
+          <h1 className="text-lg font-semibold text-foreground md:text-xl">
             회원 관리
           </h1>
 

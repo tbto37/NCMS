@@ -547,10 +547,7 @@ export default function OrdersPage() {
     <div className="space-y-4 p-4 md:p-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1
-            className="text-lg font-semibold text-foreground md:text-xl"
-            style={{ fontFamily: "'Instrument Serif', serif" }}
-          >
+          <h1 className="text-lg font-semibold text-foreground md:text-xl">
             주문 관리
           </h1>
           <p className="mt-0.5 text-xs text-muted-foreground">총 {orders.length}건</p>

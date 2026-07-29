@@ -12,7 +12,7 @@ export default function ErrorPage() {
         </div>
 
         <p className="mb-2 font-mono text-xs text-muted-foreground">ERROR</p>
-        <h1 className="text-xl font-semibold text-foreground" style={{ fontFamily: "'Instrument Serif', serif" }}>
+        <h1 className="text-xl font-semibold text-foreground">
           페이지를 표시할 수 없습니다
         </h1>
         <p className="mx-auto mt-2 max-w-sm text-xs leading-5 text-muted-foreground">

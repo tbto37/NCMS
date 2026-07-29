@@ -185,11 +185,8 @@ export default function OrderFormPage() {
       <div className="mx-auto w-full max-w-[1440px] space-y-5 p-4 md:p-6">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1
-              className="text-lg font-semibold text-foreground md:text-xl"
-              style={{ fontFamily: "'Instrument Serif', serif" }}
-            >
-              주문서
+            <h1 className="text-lg font-semibold text-foreground md:text-xl">
+              명함 주문서 작성
             </h1>
             <p className="mt-0.5 text-xs text-muted-foreground">
               선택한 명함과 배송 정보를 최종 확인해 주세요.

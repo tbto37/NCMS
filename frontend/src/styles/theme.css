@@ -79,6 +79,8 @@
 }
 
 @theme inline {
+  --font-sans: "President", "aPresident", "Instrument Serif", "Nanum Myeongjo", "Noto Serif KR", "Cinzel", serif;
+  --font-serif: "President", "aPresident", "Instrument Serif", "Nanum Myeongjo", "Noto Serif KR", "Cinzel", serif;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -122,11 +124,6 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
-  }
-
-  body {
-    @apply bg-background text-foreground;
-
     font-family:
       "President",
       "aPresident",
@@ -136,19 +133,18 @@
       "Cinzel",
       "Inter",
       "Pretendard",
-      serif;
+      serif !important;
   }
 
-  /**
-  * Default typography styles for HTML elements (h1-h4, p, label, button, input).
-  * These are in @layer base, so Tailwind utility classes (like text-sm, text-lg) automatically override them.
-  */
+  body {
+    @apply bg-background text-foreground;
+  }
 
   button,
   input,
   select,
   textarea {
-    font-family: inherit;
+    font-family: inherit !important;
   }
 
   html {
