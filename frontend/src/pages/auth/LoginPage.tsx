@@ -34,6 +34,12 @@ export default function LoginPage() {
         navigate(`/${companyCode}/templates`, { replace: true });
       } else if (loginResult.roles?.includes("ROLE_OPERATOR")) {
         navigate("/operator/orders", { replace: true });
+      } else if (loginResult.companyName?.includes("한미")) {
+        navigate("/hanmi/templates", { replace: true });
+      } else if (loginResult.companyName?.includes("제일")) {
+        navigate("/cheil/templates", { replace: true });
+      } else if (loginResult.companyName?.includes("투비더원")) {
+        navigate("/tobetheone/templates", { replace: true });
       } else {
         navigate("/admin/orders", { replace: true });
       }

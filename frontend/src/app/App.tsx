@@ -40,6 +40,7 @@ export default function App() {
           <Routes>
             {/* Dynamic Customer Path Routes: /:companyCode */}
             <Route path="/:companyCode" element={<TenantWrapper />}>
+              <Route index element={<Navigate to="templates" replace />} />
               <Route path="login" element={<LoginPage />} />
               <Route element={<AdminLayout />}>
                 <Route path="templates" element={<TemplatesPage />} />
