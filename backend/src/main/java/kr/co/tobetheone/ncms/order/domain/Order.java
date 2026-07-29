@@ -7,12 +7,15 @@ import kr.co.tobetheone.ncms.member.domain.Member;
 import kr.co.tobetheone.ncms.template.domain.Template;
 import lombok.*;
 
+import org.hibernate.annotations.DynamicInsert;
+
 @Entity
 @Table(name = "orders")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
+@DynamicInsert
 public class Order extends BaseEntity {
 
     @Id

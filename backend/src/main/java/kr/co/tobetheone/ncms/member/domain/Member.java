@@ -6,12 +6,15 @@ import kr.co.tobetheone.ncms.department.domain.Department;
 import kr.co.tobetheone.ncms.global.domain.BaseEntity;
 import lombok.*;
 
+import org.hibernate.annotations.DynamicInsert;
+
 @Entity
 @Table(name = "members")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
+@DynamicInsert
 public class Member extends BaseEntity {
 
     @Id

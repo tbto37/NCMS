@@ -7,12 +7,15 @@ import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
 
+import org.hibernate.annotations.DynamicInsert;
+
 @Entity
 @Table(name = "order_snapshots")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @Builder
+@DynamicInsert
 public class OrderSnapshot {
 
     @Id

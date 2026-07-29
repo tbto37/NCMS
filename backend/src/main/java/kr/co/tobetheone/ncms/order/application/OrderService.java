@@ -50,10 +50,8 @@ public class OrderService {
                 .orElseThrow(() -> new CustomException("템플릿을 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
 
         String orderNo = generateOrderNo();
-        String orderId = String.valueOf(System.currentTimeMillis());
 
         Order order = Order.builder()
-                .id(orderId)
                 .orderNo(orderNo)
                 .company(company)
                 .member(member)
@@ -68,9 +66,7 @@ public class OrderService {
 
         order = orderRepository.save(order);
 
-        String snapshotId = "S_" + System.currentTimeMillis();
         OrderSnapshot snapshot = OrderSnapshot.builder()
-                .id(snapshotId)
                 .order(order)
                 .cardData(request.getCardDataJson() != null ? request.getCardDataJson() : "{}")
                 .productOptionSummary(request.getProductOptionSummary())

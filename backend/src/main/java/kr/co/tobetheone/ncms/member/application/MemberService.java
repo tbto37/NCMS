@@ -58,9 +58,7 @@ public class MemberService {
             throw new CustomException("이미 존재하는 아이디입니다.", HttpStatus.BAD_REQUEST);
         }
 
-        String id = String.valueOf(System.currentTimeMillis());
         Member member = Member.builder()
-                .id(id)
                 .company(company)
                 .department(department)
                 .username(request.getUsername())
