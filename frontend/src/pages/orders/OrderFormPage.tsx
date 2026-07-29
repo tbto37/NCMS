@@ -94,23 +94,10 @@ export default function OrderFormPage() {
     console.groupEnd();
   }, [location.state, orderDraft]);
 
-  const [paperOptions, setPaperOptions] = useState<ProductOptionItem[]>([
-    { id: "OPT_P1", category: "PAPER", name: "휘라레 216g", sortOrder: 1 },
-    { id: "OPT_P2", category: "PAPER", name: "스노우지 250g", sortOrder: 2 },
-    { id: "OPT_P3", category: "PAPER", name: "랑데뷰 240g", sortOrder: 3 },
-    { id: "OPT_P4", category: "PAPER", name: "띤또레또 250g", sortOrder: 4 },
-  ]);
-
-  const [qtyOptions, setQtyOptions] = useState<ProductOptionItem[]>([
-    { id: "OPT_Q1", category: "QTY", name: "100매", sortOrder: 1 },
-    { id: "OPT_Q2", category: "QTY", name: "200매", sortOrder: 2 },
-    { id: "OPT_Q3", category: "QTY", name: "300매", sortOrder: 3 },
-    { id: "OPT_Q4", category: "QTY", name: "500매", sortOrder: 4 },
-    { id: "OPT_Q5", category: "QTY", name: "1000매", sortOrder: 5 },
-  ]);
-
-  const [selectedPaper, setSelectedPaper] = useState("휘라레 216g");
-  const [selectedQty, setSelectedQty] = useState("200매");
+  const [paperOptions, setPaperOptions] = useState<ProductOptionItem[]>([]);
+  const [qtyOptions, setQtyOptions] = useState<ProductOptionItem[]>([]);
+  const [selectedPaper, setSelectedPaper] = useState("");
+  const [selectedQty, setSelectedQty] = useState("");
 
   useEffect(() => {
     async function loadOptions() {
@@ -119,23 +106,61 @@ export default function OrderFormPage() {
           fetch(`${API_BASE_URL}/api/v1/product-options?category=PAPER`),
           fetch(`${API_BASE_URL}/api/v1/product-options?category=QTY`),
         ]);
+
         if (paperRes.ok) {
           const json = await paperRes.json();
-          if (json.data && json.data.length > 0) {
+          if (json.data && Array.isArray(json.data) && json.data.length > 0) {
             setPaperOptions(json.data);
             setSelectedPaper(json.data[0].name);
+          } else {
+            const fallbackPapers = [
+              { id: "OPT_P1", category: "PAPER", name: "휘라레 216g", sortOrder: 1 },
+              { id: "OPT_P2", category: "PAPER", name: "스노우지 250g", sortOrder: 2 },
+              { id: "OPT_P3", category: "PAPER", name: "랑데뷰 240g", sortOrder: 3 },
+              { id: "OPT_P4", category: "PAPER", name: "띤또레또 250g", sortOrder: 4 },
+            ];
+            setPaperOptions(fallbackPapers);
+            setSelectedPaper(fallbackPapers[0].name);
           }
         }
+
         if (qtyRes.ok) {
           const json = await qtyRes.json();
-          if (json.data && json.data.length > 0) {
+          if (json.data && Array.isArray(json.data) && json.data.length > 0) {
             setQtyOptions(json.data);
             const default200 = json.data.find((q: ProductOptionItem) => q.name === "200매");
             setSelectedQty(default200 ? default200.name : json.data[0].name);
+          } else {
+            const fallbackQtys = [
+              { id: "OPT_Q1", category: "QTY", name: "100매", sortOrder: 1 },
+              { id: "OPT_Q2", category: "QTY", name: "200매", sortOrder: 2 },
+              { id: "OPT_Q3", category: "QTY", name: "300매", sortOrder: 3 },
+              { id: "OPT_Q4", category: "QTY", name: "500매", sortOrder: 4 },
+              { id: "OPT_Q5", category: "QTY", name: "1000매", sortOrder: 5 },
+            ];
+            setQtyOptions(fallbackQtys);
+            setSelectedQty("200매");
           }
         }
       } catch (e) {
-        console.warn("Failed to fetch product options, using fallbacks:", e);
+        console.warn("ProductOption DB 조회 실패 - 가라데이터 표시:", e);
+        const fallbackPapers = [
+          { id: "OPT_P1", category: "PAPER", name: "휘라레 216g", sortOrder: 1 },
+          { id: "OPT_P2", category: "PAPER", name: "스노우지 250g", sortOrder: 2 },
+          { id: "OPT_P3", category: "PAPER", name: "랑데뷰 240g", sortOrder: 3 },
+          { id: "OPT_P4", category: "PAPER", name: "띤또레또 250g", sortOrder: 4 },
+        ];
+        const fallbackQtys = [
+          { id: "OPT_Q1", category: "QTY", name: "100매", sortOrder: 1 },
+          { id: "OPT_Q2", category: "QTY", name: "200매", sortOrder: 2 },
+          { id: "OPT_Q3", category: "QTY", name: "300매", sortOrder: 3 },
+          { id: "OPT_Q4", category: "QTY", name: "500매", sortOrder: 4 },
+          { id: "OPT_Q5", category: "QTY", name: "1000매", sortOrder: 5 },
+        ];
+        setPaperOptions(fallbackPapers);
+        setSelectedPaper(fallbackPapers[0].name);
+        setQtyOptions(fallbackQtys);
+        setSelectedQty("200매");
       }
     }
     loadOptions();
