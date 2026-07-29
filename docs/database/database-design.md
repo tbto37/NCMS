@@ -82,7 +82,7 @@ erDiagram
 
 ### 3.3 `orders` (주문)
 - `id` (VARCHAR(50), PK, 예: `O_1`, `O_2`)
-- `order_no` (VARCHAR, UNIQUE) - 주문번호 (예: `ORD-20260728-8821`)
+- `order_no` (VARCHAR, UNIQUE) - 주문번호 (당일 기준 4자리 순차 일련번호 패턴, 예: `ORD-20260729-0001`, `ORD-20260729-0002`)
 - `company_id` (VARCHAR(50), FK) - 주문 고객사 ID (`C_1`)
 - `member_id` (VARCHAR(50), FK) - 주문자 ID (`M_1`)
 - `template_id` (VARCHAR(50), FK) - 선택 템플릿 ID (`T_1`)
@@ -124,11 +124,10 @@ erDiagram
 
 ---
 
-## 5. 마이그레이션 변경 이력 (Flyway)
-
-- **`V1` ~ `V4`**: 기본 스키마 DDL, 역할 정밀화 및 더미 주문 데이터 구축.
-- **`V5__add_hanmiglobal_and_templates.sql`**:
-  - 신규 고객사 `한미글로벌 주식회사` (`C_3`, `site_code: hanmi`) 및 전용 부서(`DEP_5`~`DEP_9`) 추가.
-  - 전용 템플릿 `T_CHEIL` (제일엔지니어링 표준 명함) 및 `T_HANMI` (한미글로벌 표준 명함) 등록.
-  - 고객사별 템플릿 매핑 (`C_2` -> `T_CHEIL`, `C_3` -> `T_HANMI`) 및 데모 임직원/관리자 계정 구성.
-
+### 3.11 DB 마이그레이션 히스토리 (Flyway)
+- **`V1__create_initial_schema.sql`**: 10개 핵심 테이블 DDL 초기화.
+- **`V2__seed_reference_data.sql`**: 기초 데이터 및 참조 역할 코드 생성.
+- **`V3__add_sample_dummy_orders.sql`**: 샘플 주문 및 스냅샷 더미 데이터 추가.
+- **`V4__add_pending_dummy_orders.sql`**: 승인대기 샘플 주문 추가.
+- **`V5__add_hanmiglobal_and_templates.sql`**: 한미글로벌 및 제일엔지니어링 템플릿/계정 추가.
+- **`V6__add_auto_increment_sequences.sql`**: `members`, `orders`, `order_snapshots` 테이블의 `VARCHAR` PK를 유지하면서 숫자로만(`'1'`, `'2'`, `'3'`...) 자동 채번(Auto Increment)되는 DB 시퀀스(`members_id_seq`, `orders_id_seq`, `order_snapshots_id_seq`) 및 `DEFAULT` 생성.

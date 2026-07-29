@@ -20,9 +20,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -50,7 +50,7 @@ public class OrderService {
                 .orElseThrow(() -> new CustomException("템플릿을 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
 
         String orderNo = generateOrderNo();
-        String orderId = "O_" + System.currentTimeMillis();
+        String orderId = String.valueOf(System.currentTimeMillis());
 
         Order order = Order.builder()
                 .id(orderId)
@@ -175,9 +175,16 @@ public class OrderService {
                 .build();
     }
 
-    private String generateOrderNo() {
-        String datePrefix = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-        String randomSuffix = UUID.randomUUID().toString().substring(0, 6).toUpperCase();
-        return "ORD-" + datePrefix + "-" + randomSuffix;
+    private synchronized String generateOrderNo() {
+        LocalDateTime now = LocalDateTime.now();
+        String dateStr = now.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+
+        LocalDateTime startOfDay = now.toLocalDate().atStartOfDay();
+        LocalDateTime endOfDay = now.toLocalDate().atTime(LocalTime.MAX);
+
+        long todayCount = orderRepository.countByCreatedAtBetween(startOfDay, endOfDay);
+        long nextSeq = todayCount + 1;
+
+        return String.format("ORD-%s-%04d", dateStr, nextSeq);
     }
 }

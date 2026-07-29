@@ -39,7 +39,7 @@ public class CompanyService {
         if (companyRepository.findBySiteCode(request.getSiteCode()).isPresent()) {
             throw new CustomException("이미 존재하는 사이트 코드입니다.", HttpStatus.BAD_REQUEST);
         }
-        String id = "C_" + System.currentTimeMillis();
+        String id = String.valueOf(System.currentTimeMillis());
         Company company = Company.builder()
                 .id(id)
                 .siteCode(request.getSiteCode())
