@@ -5,8 +5,9 @@
 | 문서명 | NCMS Spring Boot 백엔드 구현 가이드 및 API 명세서 |
 | 프로덕션 도메인 | `https://ncms-production.up.railway.app` |
 | 버전 | v0.3 (MVP 간소화) |
-| 작성일 | 2026-07-25 |
+| 작성일 | 2026-07-29 |
 | 개발 스택 | Spring Boot 3.3+ / Spring Security / Spring Data JPA / PostgreSQL |
+| 날짜/시간 타입 | `java.time.LocalDateTime` 일관 적용 (KST 기준 직관적 시각 연산) |
 
 ---
 

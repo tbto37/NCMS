@@ -3,7 +3,7 @@ package kr.co.tobetheone.ncms.order.api.dto;
 import lombok.Builder;
 import lombok.Getter;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Getter
 @Builder
@@ -26,5 +26,5 @@ public class OrderResponse {
     private String productOptionSummary;
     private String carrierCode;
     private String trackingNumber;
-    private Instant createdAt;
+    private LocalDateTime createdAt;
 }

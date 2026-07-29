@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import kr.co.tobetheone.ncms.order.domain.Order;
 import lombok.*;
 
-import java.time.Instant;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "shipments")
@@ -29,5 +29,5 @@ public class Shipment {
 
     @Column(name = "shipped_at", nullable = false, updatable = false)
     @Builder.Default
-    private Instant shippedAt = Instant.now();
+    private LocalDateTime shippedAt = LocalDateTime.now();
 }
