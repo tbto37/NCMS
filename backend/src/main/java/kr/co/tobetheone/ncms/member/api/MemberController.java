@@ -42,7 +42,7 @@ public class MemberController {
 
     @PutMapping("/{id}")
     public ApiResponse<MemberResponse> updateMember(
-            @PathVariable String id,
+            @PathVariable Long id,
             @RequestBody UpdateMemberRequest request) {
         return ApiResponse.success(memberService.updateMember(id, request));
     }

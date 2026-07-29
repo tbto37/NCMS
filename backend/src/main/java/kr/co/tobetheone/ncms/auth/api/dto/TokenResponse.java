@@ -10,10 +10,10 @@ import java.util.List;
 public class TokenResponse {
     private String accessToken;
     private String tokenType;
-    private String memberId;
+    private Long memberId;
     private String username;
     private String name;
-    private String companyId;
+    private Long companyId;
     private String companyName;
     private String companySiteCode;
     private List<String> roles;

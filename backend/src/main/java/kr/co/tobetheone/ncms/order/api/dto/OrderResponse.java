@@ -8,13 +8,13 @@ import java.time.LocalDateTime;
 @Getter
 @Builder
 public class OrderResponse {
-    private String id;
+    private Long id;
     private String orderNo;
-    private String companyId;
+    private Long companyId;
     private String companyName;
-    private String memberId;
+    private Long memberId;
     private String memberName;
-    private String templateId;
+    private Long templateId;
     private String status;
     private String recipientName;
     private String recipientPhone;

@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import { Pencil, X } from "lucide-react";
 
 export interface MemberEditData {
-  id: string;
+  id: number | string;
   password?: string;
   department?: string;
 }

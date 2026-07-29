@@ -6,5 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface CompanyTemplateRepository extends JpaRepository<CompanyTemplate, CompanyTemplate.CompanyTemplateId> {
-    List<CompanyTemplate> findByCompanyId(String companyId);
+    List<CompanyTemplate> findByCompanyId(Long companyId);
 }

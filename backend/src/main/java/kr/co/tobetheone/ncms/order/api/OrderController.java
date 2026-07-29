@@ -34,7 +34,7 @@ public class OrderController {
     }
 
     @GetMapping("/{id}")
-    public ApiResponse<OrderResponse> getOrderDetails(@PathVariable String id) {
+    public ApiResponse<OrderResponse> getOrderDetails(@PathVariable Long id) {
         return ApiResponse.success(orderService.getOrderDetails(id));
     }
 }

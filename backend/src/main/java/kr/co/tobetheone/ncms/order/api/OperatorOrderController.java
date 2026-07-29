@@ -23,27 +23,27 @@ public class OperatorOrderController {
     }
 
     @PostMapping("/{id}/approve")
-    public ApiResponse<OrderResponse> approveOrder(@PathVariable String id) {
+    public ApiResponse<OrderResponse> approveOrder(@PathVariable Long id) {
         return ApiResponse.success(orderService.approveOrder(id));
     }
 
     @PostMapping("/{id}/reject")
     public ApiResponse<OrderResponse> rejectOrder(
-            @PathVariable String id,
+            @PathVariable Long id,
             @RequestBody RejectOrderRequest request) {
         return ApiResponse.success(orderService.rejectOrder(id, request.getReason()));
     }
 
     @PatchMapping("/{id}/status")
     public ApiResponse<OrderResponse> updateOrderStatus(
-            @PathVariable String id,
+            @PathVariable Long id,
             @RequestBody UpdateOrderStatusRequest request) {
         return ApiResponse.success(orderService.updateOrderStatus(id, request.getStatus(), request.getCarrierCode(),
                 request.getTrackingNumber()));
     }
 
     @DeleteMapping("/{id}")
-    public ApiResponse<Void> deleteOrder(@PathVariable String id) {
+    public ApiResponse<Void> deleteOrder(@PathVariable Long id) {
         orderService.deleteOrder(id);
         return ApiResponse.success(null);
     }

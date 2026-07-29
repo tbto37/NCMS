@@ -15,12 +15,12 @@ import java.io.Serializable;
 public class MemberRole {
 
     @Id
-    @Column(name = "member_id", length = 50)
-    private String memberId;
+    @Column(name = "member_id")
+    private Long memberId;
 
     @Id
-    @Column(name = "role_id", length = 50)
-    private String roleId;
+    @Column(name = "role_id")
+    private Long roleId;
 
     @Data
     @NoArgsConstructor
@@ -29,7 +29,7 @@ public class MemberRole {
     public static class MemberRoleId implements Serializable {
         private static final long serialVersionUID = 1L;
 
-        private String memberId;
-        private String roleId;
+        private Long memberId;
+        private Long roleId;
     }
 }

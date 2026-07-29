@@ -42,13 +42,13 @@ export const ORDER_FILTER_FIELDS = [
 export const ORDER_COMPANIES = ["제일엔지니어링", "테크코리아", "디지털솔루션", "한국IT"];
 
 export interface BackendOrderResponse {
-  id: string;
+  id: number | string;
   orderNo: string;
-  companyId: string;
+  companyId: number | string;
   companyName: string;
-  memberId: string;
+  memberId: number | string;
   memberName: string;
-  templateId: string;
+  templateId: number | string;
   status: string;
   recipientName: string;
   recipientPhone: string;
@@ -64,7 +64,7 @@ export interface BackendOrderResponse {
 }
 
 export interface MappedOrder {
-  rawId: string;
+  rawId: number | string;
   id: string;
   receivedAt: string;
   site: string;
@@ -125,7 +125,7 @@ export function mapOrderResponse(dto: BackendOrderResponse): MappedOrder {
 
   return {
     rawId: dto.id,
-    id: dto.orderNo || dto.id,
+    id: dto.orderNo || String(dto.id),
     receivedAt: receivedAt || new Date().toISOString().substring(0, 10),
     site: dto.companyName || "고객사 미지정",
     material,

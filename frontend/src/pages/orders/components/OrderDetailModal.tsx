@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 
 export interface OrderDetailData {
-  id?: string;
+  id?: number | string;
   orderNumber?: string;
   department?: string;
   product?: string;

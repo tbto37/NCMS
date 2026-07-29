@@ -23,6 +23,7 @@ public class AuthService {
 
     private final MemberRepository memberRepository;
     private final MemberRoleRepository memberRoleRepository;
+    private final kr.co.tobetheone.ncms.member.infrastructure.RoleRepository roleRepository;
     private final kr.co.tobetheone.ncms.company.infrastructure.CompanyRepository companyRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
@@ -42,7 +43,9 @@ public class AuthService {
 
         List<MemberRole> memberRoles = memberRoleRepository.findByMemberId(member.getId());
         List<String> roles = memberRoles.stream()
-                .map(role -> role.getRoleId())
+                .map(mr -> roleRepository.findById(mr.getRoleId())
+                        .map(r -> r.getCode())
+                        .orElse("ROLE_EMPLOYEE"))
                 .toList();
 
         if (roles.isEmpty()) {
@@ -67,7 +70,7 @@ public class AuthService {
             }
         }
 
-        String companyId = member.getCompany() != null ? member.getCompany().getId() : null;
+        Long companyId = member.getCompany() != null ? member.getCompany().getId() : null;
         String companyName = member.getCompany() != null ? member.getCompany().getName() : null;
         String companySiteCode = member.getCompany() != null ? member.getCompany().getSiteCode() : null;
         String accessToken = jwtTokenProvider.createAccessToken(member.getId(), member.getUsername(), companyId, roles);
@@ -86,7 +89,7 @@ public class AuthService {
     }
 
     @Transactional
-    public void changePassword(String memberId, PasswordChangeRequest request) {
+    public void changePassword(Long memberId, PasswordChangeRequest request) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException("회원을 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
 

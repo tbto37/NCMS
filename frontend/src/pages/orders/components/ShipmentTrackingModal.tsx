@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import { Truck, X } from "lucide-react";
 
 export interface ShipmentTrackingOrder {
-  id: string;
+  id: number | string;
   name: string;
   site: string;
   shippingMethod?: string;
@@ -11,7 +11,7 @@ export interface ShipmentTrackingOrder {
 }
 
 export interface ShipmentTrackingSubmitPayload {
-  orderId: string;
+  orderId: number | string;
   shippingMethod: string;
   trackingNumber: string;
 }

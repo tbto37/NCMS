@@ -5,6 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
-public interface OrderSnapshotRepository extends JpaRepository<OrderSnapshot, String> {
-    Optional<OrderSnapshot> findByOrderId(String orderId);
+public interface OrderSnapshotRepository extends JpaRepository<OrderSnapshot, Long> {
+    Optional<OrderSnapshot> findByOrderId(Long orderId);
 }

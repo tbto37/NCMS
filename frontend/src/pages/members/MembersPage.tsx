@@ -115,7 +115,7 @@ export default function MembersPage() {
   const [reloadKey, setReloadKey] = useState(0);
 
   const [activeTab, setActiveTab] = useState("전체");
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(
+  const [selectedIds, setSelectedIds] = useState<Set<number | string>>(
     new Set(),
   );
   const [page, setPage] = useState(1);
@@ -361,7 +361,7 @@ export default function MembersPage() {
     });
   }
 
-  function toggleOne(id: string) {
+  function toggleOne(id: number | string) {
     setSelectedIds((previous) => {
       const next = new Set(previous);
 

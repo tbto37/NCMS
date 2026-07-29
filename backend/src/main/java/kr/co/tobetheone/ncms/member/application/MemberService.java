@@ -10,8 +10,10 @@ import kr.co.tobetheone.ncms.member.api.dto.MemberResponse;
 import kr.co.tobetheone.ncms.member.api.dto.UpdateMemberRequest;
 import kr.co.tobetheone.ncms.member.domain.Member;
 import kr.co.tobetheone.ncms.member.domain.MemberRole;
+import kr.co.tobetheone.ncms.member.domain.Role;
 import kr.co.tobetheone.ncms.member.infrastructure.MemberRepository;
 import kr.co.tobetheone.ncms.member.infrastructure.MemberRoleRepository;
+import kr.co.tobetheone.ncms.member.infrastructure.RoleRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -27,11 +29,12 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
     private final MemberRoleRepository memberRoleRepository;
+    private final RoleRepository roleRepository;
     private final CompanyRepository companyRepository;
     private final DepartmentRepository departmentRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public List<MemberResponse> getMembersByCompany(String companyId, String currentUserRole) {
+    public List<MemberResponse> getMembersByCompany(Long companyId, String currentUserRole) {
         List<Member> members = "ROLE_OPERATOR".equals(currentUserRole)
                 ? memberRepository.findAll()
                 : memberRepository.findByCompanyId(companyId);
@@ -40,7 +43,7 @@ public class MemberService {
     }
 
     @Transactional
-    public MemberResponse createMemberByCompanyAdmin(String companyId, String currentUserRole,
+    public MemberResponse createMemberByCompanyAdmin(Long companyId, String currentUserRole,
             CreateMemberRequest request) {
         if ("ROLE_OPERATOR".equals(currentUserRole)) {
             throw new CustomException("ROLE_OPERATOR은 신규 임직원을 직접 등록할 수 없습니다. (403 Forbidden)", HttpStatus.FORBIDDEN);
@@ -71,17 +74,19 @@ public class MemberService {
         member = memberRepository.save(member);
 
         String roleCode = request.getRoleCode() != null ? request.getRoleCode() : "ROLE_EMPLOYEE";
+        Role role = roleRepository.findByCode(roleCode)
+                .orElseGet(() -> roleRepository.save(Role.builder().code(roleCode).name(roleCode).build()));
 
         memberRoleRepository.save(MemberRole.builder()
                 .memberId(member.getId())
-                .roleId(roleCode)
+                .roleId(role.getId())
                 .build());
 
         return toResponse(member);
     }
 
     @Transactional
-    public MemberResponse updateMember(String memberId, UpdateMemberRequest request) {
+    public MemberResponse updateMember(Long memberId, UpdateMemberRequest request) {
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new CustomException("회원을 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
 
@@ -97,7 +102,7 @@ public class MemberService {
     private MemberResponse toResponse(Member member) {
         List<MemberRole> memberRoles = memberRoleRepository.findByMemberId(member.getId());
         List<String> roles = memberRoles.stream()
-                .map(role -> role.getRoleId())
+                .map(mr -> roleRepository.findById(mr.getRoleId()).map(Role::getCode).orElse("ROLE_EMPLOYEE"))
                 .toList();
 
         return MemberResponse.builder()

@@ -8,7 +8,6 @@ import org.hibernate.type.SqlTypes;
 import java.time.LocalDateTime;
 
 import org.hibernate.annotations.DynamicInsert;
-import kr.co.tobetheone.ncms.global.domain.StringSequenceId;
 
 @Entity
 @Table(name = "order_snapshots")
@@ -20,8 +19,8 @@ import kr.co.tobetheone.ncms.global.domain.StringSequenceId;
 public class OrderSnapshot {
 
     @Id
-    @StringSequenceId
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", nullable = false, unique = true)

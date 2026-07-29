@@ -1,8 +1,8 @@
 export interface MemberApiResponse {
-  id: string;
-  companyId: string | null;
+  id: number | string;
+  companyId: number | string | null;
   companyName: string | null;
-  departmentId: string | null;
+  departmentId: number | string | null;
   departmentName: string | null;
   username: string;
   name: string;
@@ -13,10 +13,10 @@ export interface MemberApiResponse {
 }
 
 export interface Member {
-  id: string;
-  companyId: string;
+  id: number | string;
+  companyId: number | string;
   company: string;
-  departmentId: string;
+  departmentId: number | string;
   dept: string;
   loginId: string;
   password: string;

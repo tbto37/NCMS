@@ -29,7 +29,7 @@ public class CompanyService {
                 .build();
     }
 
-    public Company getCompanyById(String id) {
+    public Company getCompanyById(Long id) {
         return companyRepository.findById(id)
                 .orElseThrow(() -> new CustomException("고객사를 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
     }
@@ -39,9 +39,8 @@ public class CompanyService {
         if (companyRepository.findBySiteCode(request.getSiteCode()).isPresent()) {
             throw new CustomException("이미 존재하는 사이트 코드입니다.", HttpStatus.BAD_REQUEST);
         }
-        String id = String.valueOf(System.currentTimeMillis());
+
         Company company = Company.builder()
-                .id(id)
                 .siteCode(request.getSiteCode())
                 .name(request.getName())
                 .logoUrl(request.getLogoUrl())

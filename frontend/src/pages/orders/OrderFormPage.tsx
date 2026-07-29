@@ -14,7 +14,7 @@ const inputClassName =
   "h-10 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition placeholder:text-muted-foreground focus:border-ring focus:ring-2 focus:ring-ring/15";
 
 interface ProductOptionItem {
-  id: string;
+  id: number | string;
   category: string;
   name: string;
   sortOrder: number;

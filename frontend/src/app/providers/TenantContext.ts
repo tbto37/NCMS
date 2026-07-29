@@ -1,7 +1,7 @@
 import { createContext } from "react";
 
 export interface TenantInfo {
-  id: string;
+  id: number | string;
   siteCode: string;
   name: string;
   logoUrl?: string;

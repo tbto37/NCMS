@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class CreateOrderRequest {
-    private String templateId;
+    private Long templateId;
     private String recipientName;
     private String recipientPhone;
     private String zipcode;

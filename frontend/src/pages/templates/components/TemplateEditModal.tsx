@@ -17,7 +17,7 @@ import DynamicBusinessCardPreview from "@/components/card/DynamicBusinessCardPre
 
 interface TemplateEditModalProps {
   open: boolean;
-  templateId?: string;
+  templateId?: number | string;
   onClose: () => void;
   onSave?: () => void;
   onNext?: (cardData: BusinessCardInputData) => void;
@@ -99,7 +99,8 @@ export default function TemplateEditModal({
 
   useEffect(() => {
     // 템플릿에 따라 초기 렌더 데이터 조정 (실제 AI 원본 데이터 스펙)
-    if (templateId?.includes("CHEIL") || templateId?.includes("cheil")) {
+    const tidStr = String(templateId || "").toLowerCase();
+    if (tidStr.includes("cheil") || tidStr === "2") {
       setCardData({
         front: {
           name: "조우진",

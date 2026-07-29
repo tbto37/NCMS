@@ -12,8 +12,11 @@ import lombok.*;
 public class Role {
 
     @Id
-    @Column(length = 50)
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false, length = 50)
+    private String code;
 
     @Column(nullable = false, length = 50)
     private String name;

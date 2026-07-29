@@ -6,7 +6,7 @@ import lombok.Getter;
 @Getter
 @Builder
 public class PublicCompanyResponse {
-    private String id;
+    private Long id;
     private String siteCode;
     private String name;
     private String logoUrl;

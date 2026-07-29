@@ -21,18 +21,16 @@ public class DepartmentService {
     private final DepartmentRepository departmentRepository;
     private final CompanyRepository companyRepository;
 
-    public List<Department> getDepartmentsByCompany(String companyId) {
+    public List<Department> getDepartmentsByCompany(Long companyId) {
         return departmentRepository.findByCompanyId(companyId);
     }
 
     @Transactional
-    public Department createDepartment(String companyId, CreateDepartmentRequest request) {
+    public Department createDepartment(Long companyId, CreateDepartmentRequest request) {
         Company company = companyRepository.findById(companyId)
                 .orElseThrow(() -> new CustomException("고객사를 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
 
-        String id = "DEP_" + System.currentTimeMillis();
         Department department = Department.builder()
-                .id(id)
                 .company(company)
                 .name(request.getName())
                 .sortOrder(request.getSortOrder() != null ? request.getSortOrder() : 0)

@@ -28,7 +28,7 @@ public class JwtTokenProvider {
         this.refreshTokenValidityInMilliseconds = refreshTokenValidityInSeconds * 1000;
     }
 
-    public String createAccessToken(String memberId, String username, String companyId, List<String> roles) {
+    public String createAccessToken(Long memberId, String username, Long companyId, List<String> roles) {
         Date now = new Date();
         Date validity = new Date(now.getTime() + accessTokenValidityInMilliseconds);
 
@@ -47,7 +47,7 @@ public class JwtTokenProvider {
         return builder.compact();
     }
 
-    public String createRefreshToken(String memberId, String username) {
+    public String createRefreshToken(Long memberId, String username) {
         Date now = new Date();
         Date validity = new Date(now.getTime() + refreshTokenValidityInMilliseconds);
 

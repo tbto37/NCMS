@@ -13,7 +13,8 @@ import lombok.*;
 public class Company extends BaseEntity {
 
     @Id
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @Column(name = "site_code", nullable = false, unique = true, length = 50)
     private String siteCode;

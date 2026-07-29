@@ -2,7 +2,7 @@ import React from "react";
 import type { BusinessCardInputData } from "@/shared/types/businessCard";
 
 interface DynamicBusinessCardPreviewProps {
-  templateId?: string;
+  templateId?: number | string;
   cardData: BusinessCardInputData;
   isBack?: boolean;
   scale?: number;
@@ -30,7 +30,8 @@ export default function DynamicBusinessCardPreview({
   const front = cardData.front || {};
   const back = cardData.back || {};
 
-  const isHanmi = templateId?.includes("HANMI") || templateId?.includes("hanmi");
+  const tidStr = String(templateId || "").toLowerCase();
+  const isHanmi = tidStr.includes("hanmi") || tidStr === "3";
 
   // scale 조절용 랩핑 style
   const containerStyle: React.CSSProperties = {

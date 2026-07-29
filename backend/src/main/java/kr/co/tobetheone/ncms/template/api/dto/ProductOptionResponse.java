@@ -7,7 +7,7 @@ import lombok.Getter;
 @Getter
 @Builder
 public class ProductOptionResponse {
-    private String id;
+    private Long id;
     private String category;
     private String name;
     private Integer sortOrder;

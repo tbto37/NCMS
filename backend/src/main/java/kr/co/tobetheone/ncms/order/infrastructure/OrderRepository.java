@@ -6,10 +6,10 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public interface OrderRepository extends JpaRepository<Order, String> {
-    List<Order> findByCompanyIdOrderByCreatedAtDesc(String companyId);
+public interface OrderRepository extends JpaRepository<Order, Long> {
+    List<Order> findByCompanyIdOrderByCreatedAtDesc(Long companyId);
 
-    List<Order> findByMemberIdOrderByCreatedAtDesc(String memberId);
+    List<Order> findByMemberIdOrderByCreatedAtDesc(Long memberId);
 
     List<Order> findByStatusOrderByCreatedAtDesc(String status);
 

@@ -6,7 +6,7 @@ import lombok.Getter;
 @Getter
 @Builder
 public class TemplateResponse {
-    private String id;
+    private Long id;
     private String name;
     private String previewFrontUrl;
     private String previewBackUrl;

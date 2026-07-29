@@ -15,12 +15,12 @@ import java.io.Serializable;
 public class CompanyTemplate {
 
     @Id
-    @Column(name = "company_id", length = 50)
-    private String companyId;
+    @Column(name = "company_id")
+    private Long companyId;
 
     @Id
-    @Column(name = "template_id", length = 50)
-    private String templateId;
+    @Column(name = "template_id")
+    private Long templateId;
 
     @Data
     @NoArgsConstructor
@@ -28,7 +28,7 @@ public class CompanyTemplate {
     public static class CompanyTemplateId implements Serializable {
         private static final long serialVersionUID = 1L;
 
-        private String companyId;
-        private String templateId;
+        private Long companyId;
+        private Long templateId;
     }
 }

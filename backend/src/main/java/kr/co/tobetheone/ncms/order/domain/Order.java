@@ -8,7 +8,6 @@ import kr.co.tobetheone.ncms.template.domain.Template;
 import lombok.*;
 
 import org.hibernate.annotations.DynamicInsert;
-import kr.co.tobetheone.ncms.global.domain.StringSequenceId;
 
 @Entity
 @Table(name = "orders")
@@ -20,8 +19,8 @@ import kr.co.tobetheone.ncms.global.domain.StringSequenceId;
 public class Order extends BaseEntity {
 
     @Id
-    @StringSequenceId
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @Column(name = "order_no", nullable = false, unique = true, length = 50)
     private String orderNo;

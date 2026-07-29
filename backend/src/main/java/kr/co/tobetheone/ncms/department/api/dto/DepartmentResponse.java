@@ -7,8 +7,8 @@ import lombok.Getter;
 @Getter
 @Builder
 public class DepartmentResponse {
-    private String id;
-    private String companyId;
+    private Long id;
+    private Long companyId;
     private String name;
     private Integer sortOrder;
     private String status;

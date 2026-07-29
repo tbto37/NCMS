@@ -8,10 +8,10 @@ import java.util.List;
 @Getter
 @Builder
 public class MemberResponse {
-    private String id;
-    private String companyId;
+    private Long id;
+    private Long companyId;
     private String companyName;
-    private String departmentId;
+    private Long departmentId;
     private String departmentName;
     private String username;
     private String name;

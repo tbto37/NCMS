@@ -11,13 +11,13 @@ public class NcmsUserDetails implements UserDetails {
 
     private static final long serialVersionUID = 1L;
 
-    private final String memberId;
+    private final Long memberId;
     private final String username;
     private final String password;
-    private final String companyId;
+    private final Long companyId;
     private final transient Collection<? extends GrantedAuthority> authorities;
 
-    public NcmsUserDetails(String memberId, String username, String password, String companyId,
+    public NcmsUserDetails(Long memberId, String username, String password, Long companyId,
             Collection<? extends GrantedAuthority> authorities) {
         this.memberId = memberId;
         this.username = username;

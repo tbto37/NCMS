@@ -30,7 +30,7 @@ interface ApiResponse<T> {
 }
 
 interface TemplateApiResponse {
-  id: string;
+  id: number | string;
   name: string;
   previewFrontUrl?: string | null;
   previewBackUrl?: string | null;
@@ -38,7 +38,7 @@ interface TemplateApiResponse {
 }
 
 interface TemplateCardData {
-  id: string;
+  id: number | string;
   name: string;
   previewFrontUrl: string | null;
   previewBackUrl: string | null;

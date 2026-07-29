@@ -36,7 +36,7 @@ export interface BusinessCardInputData {
 }
 
 export interface SelectedTemplateData {
-  id: string;
+  id: number | string;
   name: string;
   previewFrontUrl: string | null;
   previewBackUrl: string | null;

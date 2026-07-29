@@ -6,5 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface MemberRoleRepository extends JpaRepository<MemberRole, MemberRole.MemberRoleId> {
-    List<MemberRole> findByMemberId(String memberId);
+    List<MemberRole> findByMemberId(Long memberId);
 }

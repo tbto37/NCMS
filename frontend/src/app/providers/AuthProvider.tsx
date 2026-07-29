@@ -8,10 +8,10 @@ import {
 import { API_BASE_URL } from "@/shared/constants/api";
 
 export type AuthUser = {
-  memberId: string;
+  memberId: number | string;
   username: string;
   name: string;
-  companyId: string | null;
+  companyId: number | string | null;
   companyName: string | null;
   companySiteCode: string | null;
   roles: string[];

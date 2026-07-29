@@ -15,7 +15,6 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
@@ -36,17 +35,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             if (jwtTokenProvider.validateToken(token)) {
                 Claims claims = jwtTokenProvider.getClaims(token);
                 String username = claims.getSubject();
-                String memberIdStr = claims.get("memberId", String.class);
-                String companyIdStr = claims.get("companyId", String.class);
+                Number memberIdClaim = claims.get("memberId", Number.class);
+                Number companyIdClaim = claims.get("companyId", Number.class);
+                Long memberId = memberIdClaim != null ? memberIdClaim.longValue() : null;
+                Long companyId = companyIdClaim != null ? companyIdClaim.longValue() : null;
+
                 @SuppressWarnings("unchecked")
                 List<String> roles = claims.get("roles", List.class);
 
-                String memberId = memberIdStr;
-                String companyId = companyIdStr;
-
                 var authorities = roles != null
                         ? roles.stream().map(r -> r.startsWith("ROLE_") ? r : "ROLE_" + r)
-                                .map(SimpleGrantedAuthority::new).collect(Collectors.toList())
+                                .map(SimpleGrantedAuthority::new).toList()
                         : List.<SimpleGrantedAuthority>of();
 
                 NcmsUserDetails userDetails = new NcmsUserDetails(memberId, username, "", companyId, authorities);

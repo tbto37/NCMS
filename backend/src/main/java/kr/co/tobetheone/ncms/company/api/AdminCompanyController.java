@@ -15,7 +15,7 @@ public class AdminCompanyController {
     private final CompanyService companyService;
 
     @GetMapping("/{id}")
-    public ApiResponse<Company> getCompany(@PathVariable String id) {
+    public ApiResponse<Company> getCompany(@PathVariable Long id) {
         return ApiResponse.success(companyService.getCompanyById(id));
     }
 
