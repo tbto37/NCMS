@@ -1,8 +1,9 @@
 import { useState, useEffect, type FormEvent } from "react";
-import { ArrowLeft, Check, RotateCcw, ShoppingCart } from "lucide-react";
+import { ArrowLeft, Check, RotateCcw, ShoppingCart, AlertCircle } from "lucide-react";
 import { Navigate, useLocation, useNavigate, useParams } from "react-router";
 import OrderCompleteModal from "./components/OrderCompleteModal";
 import { API_BASE_URL } from "@/shared/constants/api";
+import { useAuth } from "@/app/providers/AuthProvider";
 import type {
   OrderFormLocationState,
   BusinessCardInputData,
@@ -56,7 +57,10 @@ export default function OrderFormPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const { companyCode } = useParams<{ companyCode?: string }>();
+  const { accessToken } = useAuth();
   const [isOrderCompleteOpen, setIsOrderCompleteOpen] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
 
   const locationState = location.state as OrderFormLocationState | null;
   const orderDraft = locationState?.orderDraft;
@@ -172,17 +176,58 @@ export default function OrderFormPage() {
   const mainPath = `/${companyCode}/templates`;
   const ordersPath = `/${companyCode}/orders`;
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    const summary = `${selectedPaper} / ${selectedQty}`;
-    console.log("주문하기 - 선택 옵션:", summary, {
-      recipientName,
-      recipientPhone,
-      recipientAddress,
-      recipientDetailAddress,
-      cardData,
-    });
-    setIsOrderCompleteOpen(true);
+    setSubmitError("");
+    setIsSubmitting(true);
+
+    try {
+      const productOptionSummary = `${selectedPaper} / ${selectedQty}`;
+      const cardDataJson = JSON.stringify(cardData);
+
+      const requestBody = {
+        templateId: orderDraft?.template?.id || "T_1",
+        recipientName: recipientName || "홍길동",
+        recipientPhone: recipientPhone || "010-0000-0000",
+        zipcode: "",
+        address: recipientAddress || "기본 주소",
+        addressDetail: recipientDetailAddress || "",
+        cardDataJson,
+        productOptionSummary,
+      };
+
+      if (accessToken) {
+        const response = await fetch(`${API_BASE_URL}/api/v1/orders`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+          },
+          body: JSON.stringify(requestBody),
+        });
+
+        const json = await response.json().catch(() => null);
+
+        if (!response.ok) {
+          const errorMsg =
+            json?.message ||
+            json?.error?.message ||
+            "주문 접수에 실패했습니다. 다시 시도해 주세요.";
+          throw new Error(errorMsg);
+        }
+      } else {
+        console.warn("인증 토큰 없음: 개발/테스트 모드로 주문 완료 모달 표시");
+      }
+
+      setIsOrderCompleteOpen(true);
+    } catch (err: unknown) {
+      console.error("Order submission error:", err);
+      setSubmitError(
+        err instanceof Error ? err.message : "주문 접수 중 오류가 발생했습니다.",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -210,6 +255,13 @@ export default function OrderFormPage() {
             <span className="font-medium text-foreground">주문 정보</span>
           </div>
         </div>
+
+        {submitError && (
+          <div className="flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/10 p-3.5 text-xs text-destructive">
+            <AlertCircle size={15} className="shrink-0" />
+            <span>{submitError}</span>
+          </div>
+        )}
 
         {/* 명함 실시간 미리보기 섹션 */}
         <section className="overflow-hidden rounded-xl border border-border bg-card">
@@ -404,10 +456,11 @@ export default function OrderFormPage() {
 
             <button
               type="submit"
-              className="flex h-10 items-center justify-center gap-2 rounded-md bg-primary px-6 text-xs font-medium text-primary-foreground transition hover:opacity-90"
+              disabled={isSubmitting}
+              className="flex h-10 items-center justify-center gap-2 rounded-md bg-primary px-6 text-xs font-medium text-primary-foreground transition hover:opacity-90 disabled:opacity-50"
             >
               <ShoppingCart size={14} />
-              주문하기
+              {isSubmitting ? "주문 접수 중..." : "주문하기"}
             </button>
           </div>
         </div>
