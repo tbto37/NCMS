@@ -18,6 +18,12 @@ import org.hibernate.annotations.DynamicInsert;
 public class Member extends BaseEntity {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "members_id_seq_gen")
+    @SequenceGenerator(
+        name = "members_id_seq_gen",
+        sequenceName = "members_id_seq",
+        allocationSize = 1
+    )
     private String id;
 
     @ManyToOne(fetch = FetchType.LAZY)
