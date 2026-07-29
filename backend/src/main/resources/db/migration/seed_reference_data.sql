@@ -10,9 +10,9 @@ ON CONFLICT (id) DO UPDATE SET
     name = EXCLUDED.name,
     description = EXCLUDED.description;
 
--- 2. 샘플 고객사 등록 (투비더원: C_1, 제일엔지니어링: C_2)
+-- 2. 샘플 고객사 등록 (로그컴: C_1, 제일엔지니어링: C_2)
 INSERT INTO companies (id, site_code, name, logo_url, primary_color, status) VALUES
-    ('C_1', 'tobetheone', '(주)투비더원', 'https://cdn.logcom.co.kr/logos/tobetheone.png', '#FEE500', 'ACTIVE'),
+    ('C_1', 'logcom', '로그컴', 'https://cdn.logcom.co.kr/logos/logcom.png', '#0052CC', 'ACTIVE'),
     ('C_2', 'cheil', '제일엔지니어링', 'https://cdn.logcom.co.kr/logos/cheil.png', '#06418F', 'ACTIVE')
 ON CONFLICT (site_code) DO NOTHING;
 

@@ -35,7 +35,7 @@ INSERT INTO order_snapshots (
 ) ON CONFLICT (order_id) DO NOTHING;
 
 
--- 승인대기 주문 2: 강감찬 ((주)투비더원)
+-- 승인대기 주문 2: 강감찬 (로그컴)
 INSERT INTO orders (
     id, order_no, company_id, member_id, template_id, status,
     recipient_name, recipient_phone, zipcode, address, address_detail,
@@ -51,7 +51,7 @@ INSERT INTO orders (
     '010-9876-5432',
     '13494',
     '경기도 성남시 분당구 판교역로 166',
-    '투비더원 판교 아지트 7층',
+    '로그컴 판교 아지트 7층',
     NULL,
     CURRENT_TIMESTAMP - INTERVAL '10 minutes'
 ) ON CONFLICT (order_no) DO NOTHING;
@@ -61,7 +61,7 @@ INSERT INTO order_snapshots (
 ) VALUES (
     'S_PENDING_2',
     'O_PENDING_2',
-    '{"name": "강감찬", "department": "전략기획실", "title": "팀장", "phone": "010-9876-5432", "email": "gamchan.kang@tobetheone.com"}'::jsonb,
+    '{"name": "강감찬", "department": "전략기획실", "title": "팀장", "phone": "010-9876-5432", "email": "gamchan.kang@logcom.co.kr"}'::jsonb,
     '휘라레 216g / 200매',
     'https://cdn.logcom.co.kr/previews/902_front.png',
     'https://cdn.logcom.co.kr/previews/902_back.png'

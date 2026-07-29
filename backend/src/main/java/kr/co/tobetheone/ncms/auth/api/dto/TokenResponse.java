@@ -15,5 +15,6 @@ public class TokenResponse {
     private String name;
     private String companyId;
     private String companyName;
+    private String companySiteCode;
     private List<String> roles;
 }

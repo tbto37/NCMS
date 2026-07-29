@@ -4,7 +4,7 @@
 
 -- 1. 샘플 회사 및 회원이 없을 경우 대비한 데이터 보장
 INSERT INTO companies (id, site_code, name, logo_url, primary_color, status) VALUES
-    ('C_1', 'tobetheone', '(주)투비더원', 'https://cdn.logcom.co.kr/logos/tobetheone.png', '#FEE500', 'ACTIVE'),
+    ('C_1', 'logcom', '로그컴', 'https://cdn.logcom.co.kr/logos/logcom.png', '#0052CC', 'ACTIVE'),
     ('C_2', 'cheil', '제일엔지니어링', 'https://cdn.logcom.co.kr/logos/cheil.png', '#06418F', 'ACTIVE')
 ON CONFLICT (site_code) DO NOTHING;
 
@@ -21,9 +21,9 @@ ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO members (id, company_id, department_id, username, password, name, email, phone, status) VALUES
     ('M_1', 'C_2', 'DEP_3', 'kim_minjun', 'MTIzNA==', '김민준', 'minjun@cheil.co.kr', '010-2451-8821', 'ACTIVE'),
-    ('M_2', 'C_1', 'DEP_1', 'lee_seoyeon', 'MTIzNA==', '이서연', 'seoyeon@tobetheone.com', '010-7392-1048', 'ACTIVE'),
+    ('M_2', 'C_1', 'DEP_1', 'lee_seoyeon', 'MTIzNA==', '이서연', 'seoyeon@logcom.co.kr', '010-7392-1048', 'ACTIVE'),
     ('M_3', 'C_2', 'DEP_4', 'park_jihoon', 'MTIzNA==', '박지훈', 'jihoon@cheil.co.kr', '010-5631-9074', 'ACTIVE'),
-    ('M_4', 'C_1', 'DEP_2', 'choi_sua', 'MTIzNA==', '최수아', 'sua@tobetheone.com', '010-8164-3320', 'ACTIVE'),
+    ('M_4', 'C_1', 'DEP_2', 'choi_sua', 'MTIzNA==', '최수아', 'sua@logcom.co.kr', '010-8164-3320', 'ACTIVE'),
     ('M_5', 'C_2', 'DEP_3', 'jung_woojin', 'MTIzNA==', '정우진', 'woojin@cheil.co.kr', '010-4072-6651', 'ACTIVE')
 ON CONFLICT (username) DO NOTHING;
 
@@ -71,7 +71,7 @@ VALUES (
     '010-7392-1048',
     '13494',
     '경기도 성남시 분당구 판교역로 166',
-    '투비더원 판교 아지트 A동 5층',
+    '로그컴 판교 아지트 A동 5층',
     NULL,
     CURRENT_TIMESTAMP - INTERVAL '5 hours'
 ) ON CONFLICT (order_no) DO NOTHING;
@@ -80,7 +80,7 @@ INSERT INTO order_snapshots (id, order_id, card_data, product_option_summary, pr
 VALUES (
     'S_2',
     'O_2',
-    '{"name": "이서연", "department": "플랫폼기획팀", "title": "팀장", "phone": "010-7392-1048", "email": "seoyeon@tobetheone.com"}'::jsonb,
+    '{"name": "이서연", "department": "플랫폼기획팀", "title": "팀장", "phone": "010-7392-1048", "email": "seoyeon@logcom.co.kr"}'::jsonb,
     '스노우지 250g / 500매',
     'https://cdn.logcom.co.kr/previews/502_front.png',
     'https://cdn.logcom.co.kr/previews/502_back.png'
@@ -129,7 +129,7 @@ VALUES (
     '010-8164-3320',
     '13494',
     '경기도 성남시 분당구 판교역로 166',
-    '투비더원 판교 아지트 B동 10층',
+    '로그컴 판교 아지트 B동 10층',
     NULL,
     CURRENT_TIMESTAMP - INTERVAL '2 days'
 ) ON CONFLICT (order_no) DO NOTHING;
@@ -138,7 +138,7 @@ INSERT INTO order_snapshots (id, order_id, card_data, product_option_summary, pr
 VALUES (
     'S_4',
     'O_4',
-    '{"name": "최수아", "department": "브랜드디자인팀", "title": "책임", "phone": "010-8164-3320", "email": "sua@tobetheone.com"}'::jsonb,
+    '{"name": "최수아", "department": "브랜드디자인팀", "title": "책임", "phone": "010-8164-3320", "email": "sua@logcom.co.kr"}'::jsonb,
     '랑데뷰 240g / 1000매',
     'https://cdn.logcom.co.kr/previews/504_front.png',
     'https://cdn.logcom.co.kr/previews/504_back.png'

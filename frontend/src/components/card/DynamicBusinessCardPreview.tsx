@@ -166,7 +166,7 @@ export default function DynamicBusinessCardPreview({
                 </div>
 
                 <div className="mt-3 space-y-0.5 text-[8.5px] leading-tight text-slate-600">
-                  <p className="font-bold text-slate-900 text-[9.5px] mb-1">(주)제일엔지니어링종합건축사사무소</p>
+                  <p className="font-bold text-slate-900 text-[9.5px] mb-1">제일엔지니어링종합건축사사무소</p>
                   <p>{front.address || "06779 서울시 서초구 강남대로16길 22-6(양재동)"}</p>
                   <p>대표 : {front.telephone || "02-3498-2600"}  팩스 : {front.fax || "02-572-3112"}</p>
                   {front.directTelephone && <p>직통 : {front.directTelephone}</p>}

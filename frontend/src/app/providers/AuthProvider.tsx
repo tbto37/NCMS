@@ -7,16 +7,17 @@ import {
 } from "react";
 import { API_BASE_URL } from "@/shared/constants/api";
 
-type AuthUser = {
+export type AuthUser = {
   memberId: string;
   username: string;
   name: string;
   companyId: string | null;
   companyName: string | null;
+  companySiteCode: string | null;
   roles: string[];
 };
 
-type LoginResult = AuthUser & {
+export type LoginResult = AuthUser & {
   accessToken: string;
   tokenType: string;
 };
@@ -104,6 +105,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       name: loginResult.name,
       companyId: loginResult.companyId,
       companyName: loginResult.companyName ?? null,
+      companySiteCode: loginResult.companySiteCode ?? null,
       roles: loginResult.roles ?? [],
     };
 

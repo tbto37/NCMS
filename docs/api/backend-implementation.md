@@ -25,8 +25,17 @@
 
 | Method | Endpoint | 권한 제한 | 설명 |
 |---|---|---|---|
-| `POST` | `/api/v1/auth/login` | Anyone | 아이디/비밀번호 로그인 및 JWT 발급 |
+| `POST` | `/api/v1/auth/login` | Anyone | 아이디/비밀번호 로그인 및 JWT/토큰 응답 발급 (`companySiteCode` 포함) |
 | `POST` | `/api/v1/auth/password/change` | Authenticated | 본인 비밀번호 변경 |
+
+---
+
+### 2.1.1 멀티테넌트 세션 및 로그인 격리 규칙 (Security)
+- **로그인 시점 권한 검증 (`LoginPage`)**:
+  - `/hanmi/login`, `/cheil/login` 등 테넌트 전용 페이지에서 타 사이트 계정이나 로그컴 운영자 계정 로그인 시 **"접근 권한 없음"으로 차단**.
+  - `/login` 백오피스 페이지에서 고객사 임직원 계정 로그인 시 **"고객사 전용 주소로 접속" 차단**.
+- **세션 자동 만료 라우트 가드 (`RequireTenantAuth`, `RequireAdminAuth`)**:
+  - 새로고침이나 URL 직접 입력으로 타 테넌트 세션으로 접근 시 **즉시 세션 만료 (로그아웃) 후 해당 사이트 로그인으로 리다이렉트**.
 
 ---
 

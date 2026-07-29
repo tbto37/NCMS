@@ -13,7 +13,7 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [remember, setRemember] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
+  const { login, logout } = useAuth();
   const navigate = useNavigate();
 
   async function handleSubmit(e: React.FormEvent) {
@@ -29,19 +29,42 @@ export default function LoginPage() {
       setError("");
 
       const loginResult = await login(id.trim(), pw, remember);
+      const userSiteCode = loginResult.companySiteCode?.toLowerCase();
+      const targetSiteCode = companyCode?.toLowerCase();
+      const isOperator = loginResult.roles?.includes("ROLE_OPERATOR") || loginResult.roles?.includes("ROLE_SYSTEM_ADMIN");
 
       if (isTenantLogin) {
+        // 고객사 어드민/로그인 페이지 접속 시:
+        const isMatch =
+          !isOperator &&
+          userSiteCode &&
+          targetSiteCode &&
+          (userSiteCode === targetSiteCode ||
+            (targetSiteCode === "hanmi" && (userSiteCode.includes("hanmi") || loginResult.companyName?.includes("한미"))) ||
+            (targetSiteCode === "cheil" && (userSiteCode.includes("cheil") || loginResult.companyName?.includes("제일"))) ||
+            (targetSiteCode === "logcom" && (userSiteCode.includes("logcom") || loginResult.companyName?.includes("로그컴"))));
+
+        if (!isMatch) {
+          logout();
+          setError(`현재 페이지는 ${companyCode?.toUpperCase()} 전용 사이트입니다. 해당 계정은 접근 권한이 없습니다.`);
+          return;
+        }
+
         navigate(`/${companyCode}/templates`, { replace: true });
-      } else if (loginResult.roles?.includes("ROLE_OPERATOR")) {
-        navigate("/operator/orders", { replace: true });
-      } else if (loginResult.companyName?.includes("한미")) {
-        navigate("/hanmi/templates", { replace: true });
-      } else if (loginResult.companyName?.includes("제일")) {
-        navigate("/cheil/templates", { replace: true });
-      } else if (loginResult.companyName?.includes("투비더원")) {
-        navigate("/tobetheone/templates", { replace: true });
       } else {
-        navigate("/admin/orders", { replace: true });
+        // 백오피스(/admin, /operator) 로그인 페이지 접속 시:
+        if (!isOperator) {
+          logout();
+          const targetUrl = userSiteCode ? `/${userSiteCode}/login` : "/login";
+          setError(`로그컴 운영자 및 시스템 관리자 전용 로그인 페이지입니다. 소속 고객사 전용 주소(${targetUrl})로 접속해 주세요.`);
+          return;
+        }
+
+        if (loginResult.roles?.includes("ROLE_OPERATOR")) {
+          navigate("/operator/orders", { replace: true });
+        } else {
+          navigate("/admin/orders", { replace: true });
+        }
       }
     } catch (error) {
       setError(

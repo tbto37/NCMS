@@ -56,7 +56,7 @@ const POSITION_MAPPINGS: Record<string, string> = {
 
 const defaultCardData: BusinessCardInputData = {
   front: {
-    name: "투비더원",
+    name: "로그컴",
     departmentOption: "직접입력",
     department: "비즈니스개발실",
     position1Option: "직접입력",

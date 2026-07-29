@@ -16,6 +16,9 @@ const SettingsPage = lazy(() => import("@/pages/settings/SettingsPage"));
 const ErrorPage = lazy(() => import("@/pages/error/ErrorPage"));
 const CompanyNotFoundPage = lazy(() => import("@/pages/error/CompanyNotFoundPage"));
 
+import { RequireTenantAuth } from "./guards/RequireTenantAuth";
+import { RequireAdminAuth } from "./guards/RequireAdminAuth";
+
 function PageFallback() {
   return (
     <div className="flex items-center justify-center h-full min-h-[50vh] text-xs text-muted-foreground">
@@ -42,16 +45,18 @@ export default function App() {
             <Route path="/:companyCode" element={<TenantWrapper />}>
               <Route index element={<Navigate to="templates" replace />} />
               <Route path="login" element={<LoginPage />} />
-              <Route element={<AdminLayout />}>
-                <Route path="templates" element={<TemplatesPage />} />
-                <Route path="orders" element={<OrdersPage />} />
-                <Route path="orders/form" element={<OrderFormPage />} />
-                <Route path="members" element={<MembersPage />} />
+              <Route element={<RequireTenantAuth />}>
+                <Route element={<AdminLayout />}>
+                  <Route path="templates" element={<TemplatesPage />} />
+                  <Route path="orders" element={<OrdersPage />} />
+                  <Route path="orders/form" element={<OrderFormPage />} />
+                  <Route path="members" element={<MembersPage />} />
+                </Route>
               </Route>
             </Route>
 
             {/* Logcom Internal Operator Routes: /operator */}
-            <Route path="/operator" element={<RequireAuth />}>
+            <Route path="/operator" element={<RequireAdminAuth />}>
               <Route element={<AdminLayout />}>
                 <Route index element={<Navigate to="orders" replace />} />
                 <Route path="orders" element={<OrdersPage />} />
@@ -60,7 +65,7 @@ export default function App() {
             </Route>
 
             {/* Logcom System Admin Routes: /admin */}
-            <Route path="/admin" element={<RequireAuth />}>
+            <Route path="/admin" element={<RequireAdminAuth />}>
               <Route element={<AdminLayout />}>
                 <Route index element={<Navigate to="orders" replace />} />
                 <Route path="orders" element={<OrdersPage />} />
