@@ -1,63 +1,13 @@
 import { useState, useEffect, type FormEvent } from "react";
 import { ArrowLeft, Check, RotateCcw, ShoppingCart } from "lucide-react";
-import {Navigate, useLocation, useNavigate, useParams} from "react-router";
+import { Navigate, useLocation, useNavigate, useParams } from "react-router";
 import OrderCompleteModal from "./components/OrderCompleteModal";
 import { API_BASE_URL } from "@/shared/constants/api";
-import type { OrderFormLocationState } from "@/shared/types/businessCard";
-
-function BusinessCardPreview({ english = false }: { english?: boolean }) {
-  return (
-    <div className="aspect-[1.75/1] w-full max-w-[430px] overflow-hidden rounded-sm bg-white shadow-[0_10px_28px_rgba(15,23,42,0.12)]">
-      <div className="grid h-[calc(100%-8px)] grid-cols-[34%_66%]">
-        <div className="flex flex-col justify-between border-r border-slate-200 px-5 py-5">
-          <div className="flex items-end gap-1">
-            <span className="text-[27px] font-black tracking-[-0.08em] text-[#06418f]">
-              CHEIL
-            </span>
-            <span className="mb-1 h-4 w-1.5 bg-[#55b936]" />
-          </div>
-
-          <span className="text-[8px] italic text-slate-600">
-            “Smiling Technology”
-          </span>
-        </div>
-
-        <div className="px-5 py-4">
-          <p className="text-[13px] font-semibold text-slate-900">
-            {english ? "Hong Gil Dong" : "홍 길 동"}
-          </p>
-          <p className="mt-0.5 text-[7px] text-slate-500">
-            {english
-              ? "Highway Eng. Business Div. / Director / P.E."
-              : "도로사업부 / 이사 / 도로 및 공항 기술사"}
-          </p>
-
-          <p className="mb-2 mt-4 text-[7px] font-semibold text-slate-700">
-            CHEIL ENGINEERING CO., LTD.
-          </p>
-
-          <div className="space-y-0.5 text-[6.5px] leading-[1.35] text-slate-500">
-            <p>
-              {english
-                ? "22-6, Bangbaemae-ro 16gil, Seocho-gu,"
-                : "06779 서울시 서초구 방배천로 22-6"}
-            </p>
-            <p>{english ? "Seoul, Korea (06779)" : "서울특별시 서초구"}</p>
-            <p>TEL. 02-3498-2600 / FAX. 02-572-8970</p>
-            <p>MOBILE. 010-1234-5678</p>
-            <p>youremail@email.com</p>
-            <p>www.cheileng.com</p>
-          </div>
-        </div>
-      </div>
-
-      <div className="flex h-2">
-        <div className="w-[12%] bg-[#55b936]" />
-        <div className="flex-1 bg-[#06418f]" />
-      </div>
-    </div>
-  );
-}
+import type {
+  OrderFormLocationState,
+  BusinessCardInputData,
+} from "@/shared/types/businessCard";
+import DynamicBusinessCardPreview from "@/components/card/DynamicBusinessCardPreview";
 
 const inputClassName =
   "h-10 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition placeholder:text-muted-foreground focus:border-ring focus:ring-2 focus:ring-ring/15";
@@ -69,6 +19,39 @@ interface ProductOptionItem {
   sortOrder: number;
 }
 
+const defaultCardData: BusinessCardInputData = {
+  front: {
+    name: "조우진",
+    departmentOption: "직접입력",
+    department: "상하수도사업부",
+    position1Option: "직접입력",
+    position1: "부장",
+    position2Option: "직접입력",
+    position2: "",
+    address: "06779 서울시 서초구 강남대로16길 22-6(양재동)",
+    telephone: "02-3498-2600",
+    fax: "02-572-3112",
+    directTelephone: "02-3498-2441",
+    mobile: "010-9142-9719",
+    email: "a5273586@hanmail.net",
+    website: "www.cheileng.com",
+  },
+  back: {
+    name: "Woo-Jin Jo",
+    department: "Water Supply & Sewerage Eng. Div.",
+    position1: "General Manager",
+    position2: "",
+    address1: "22-6, Gangnamdaero 16gil, Seocho-gu,",
+    address2: "Seoul, Korea (06779)",
+    telephone: "82-2-3498-2600",
+    fax: "82-2-572-3112",
+    directTelephone: "82-2-3498-2441",
+    mobile: "82-10-9142-9719",
+    email: "a5273586@hanmail.net",
+    website: "www.cheileng.com",
+  },
+};
+
 export default function OrderFormPage() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -78,20 +61,36 @@ export default function OrderFormPage() {
   const locationState = location.state as OrderFormLocationState | null;
   const orderDraft = locationState?.orderDraft;
 
+  const cardData: BusinessCardInputData = orderDraft
+    ? { front: orderDraft.front, back: orderDraft.back }
+    : defaultCardData;
+
+  const [recipientName, setRecipientName] = useState(orderDraft?.front?.name || "");
+  const [recipientPhone, setRecipientPhone] = useState(
+    orderDraft?.front?.mobile || orderDraft?.front?.telephone || "",
+  );
+  const [recipientAddress, setRecipientAddress] = useState(
+    orderDraft?.front?.address || "",
+  );
+  const [recipientDetailAddress, setRecipientDetailAddress] = useState("");
+
   useEffect(() => {
     console.group("📇 주문서 페이지 전달 데이터");
-
     console.log("전체 location.state:", location.state);
     console.log("전체 orderDraft:", orderDraft);
     console.log("선택한 템플릿:", orderDraft?.template);
-
     console.log("명함 앞면 정보");
     console.table(orderDraft?.front);
-
     console.log("명함 뒷면 정보");
     console.table(orderDraft?.back);
-
     console.groupEnd();
+
+    if (orderDraft?.front) {
+      if (orderDraft.front.name) setRecipientName(orderDraft.front.name);
+      const phoneVal = orderDraft.front.mobile || orderDraft.front.telephone;
+      if (phoneVal) setRecipientPhone(phoneVal);
+      if (orderDraft.front.address) setRecipientAddress(orderDraft.front.address);
+    }
   }, [location.state, orderDraft]);
 
   const [paperOptions, setPaperOptions] = useState<ProductOptionItem[]>([]);
@@ -176,7 +175,13 @@ export default function OrderFormPage() {
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const summary = `${selectedPaper} / ${selectedQty}`;
-    console.log("주문하기 - 선택 옵션:", summary);
+    console.log("주문하기 - 선택 옵션:", summary, {
+      recipientName,
+      recipientPhone,
+      recipientAddress,
+      recipientDetailAddress,
+      cardData,
+    });
     setIsOrderCompleteOpen(true);
   }
 
@@ -206,6 +211,7 @@ export default function OrderFormPage() {
           </div>
         </div>
 
+        {/* 명함 실시간 미리보기 섹션 */}
         <section className="overflow-hidden rounded-xl border border-border bg-card">
           <div className="flex flex-col gap-3 border-b border-border px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
@@ -213,10 +219,8 @@ export default function OrderFormPage() {
                 선택한 명함 디자인
               </h2>
               <p className="mt-1 text-xs text-muted-foreground">
-                {orderDraft?.template.name ?? ""}
-                {orderDraft?.template.id
-                  ? ` · ${orderDraft.template.id}`
-                  : ""}
+                {orderDraft?.template.name ?? "기본 명함 템플릿"}
+                {orderDraft?.template.id ? ` · ${orderDraft.template.id}` : ""}
               </p>
             </div>
 
@@ -233,26 +237,31 @@ export default function OrderFormPage() {
           <div className="grid gap-4 p-4 lg:grid-cols-2">
             <div>
               <div className="mb-2 flex items-center justify-between">
-                <span className="text-xs font-semibold text-foreground">앞면</span>
+                <span className="text-xs font-semibold text-foreground">앞면 (한글)</span>
                 <span className="text-[11px] text-muted-foreground">Korean</span>
               </div>
-              <div className="flex min-h-[240px] items-center justify-center rounded-xl border border-border bg-secondary/40 p-6">
-                <BusinessCardPreview />
-              </div>
+              <DynamicBusinessCardPreview
+                templateId={orderDraft?.template?.id || "T_CHEIL"}
+                cardData={cardData}
+                isBack={false}
+              />
             </div>
 
             <div>
               <div className="mb-2 flex items-center justify-between">
-                <span className="text-xs font-semibold text-foreground">뒷면</span>
+                <span className="text-xs font-semibold text-foreground">뒷면 (영문)</span>
                 <span className="text-[11px] text-muted-foreground">English</span>
               </div>
-              <div className="flex min-h-[240px] items-center justify-center rounded-xl border border-border bg-secondary/40 p-6">
-                <BusinessCardPreview english />
-              </div>
+              <DynamicBusinessCardPreview
+                templateId={orderDraft?.template?.id || "T_CHEIL"}
+                cardData={cardData}
+                isBack={true}
+              />
             </div>
           </div>
         </section>
 
+        {/* 배송지 주소 섹션 */}
         <section className="overflow-hidden rounded-xl border border-border bg-card">
           <div className="border-b border-border px-5 py-4">
             <h2 className="text-sm font-semibold text-foreground">배송지 주소</h2>
@@ -268,6 +277,8 @@ export default function OrderFormPage() {
               </label>
               <input
                 className={inputClassName}
+                value={recipientName}
+                onChange={(e) => setRecipientName(e.target.value)}
                 placeholder="이름을 입력해 주세요."
               />
             </div>
@@ -278,6 +289,8 @@ export default function OrderFormPage() {
               </label>
               <input
                 className={inputClassName}
+                value={recipientPhone}
+                onChange={(e) => setRecipientPhone(e.target.value)}
                 placeholder="전화번호를 입력해 주세요."
               />
             </div>
@@ -288,6 +301,8 @@ export default function OrderFormPage() {
               </label>
               <input
                 className={inputClassName}
+                value={recipientAddress}
+                onChange={(e) => setRecipientAddress(e.target.value)}
                 placeholder="주소를 입력해 주세요."
               />
             </div>
@@ -298,12 +313,15 @@ export default function OrderFormPage() {
               </label>
               <input
                 className={inputClassName}
+                value={recipientDetailAddress}
+                onChange={(e) => setRecipientDetailAddress(e.target.value)}
                 placeholder="상세주소를 입력해 주세요."
               />
             </div>
           </div>
         </section>
 
+        {/* 제품 정보 섹션 */}
         <section className="overflow-hidden rounded-xl border border-border bg-card">
           <div className="border-b border-border px-5 py-4">
             <h2 className="text-sm font-semibold text-foreground">제품 정보</h2>
@@ -320,7 +338,7 @@ export default function OrderFormPage() {
                 </label>
                 <input
                   className={inputClassName}
-                  value={orderDraft?.template.name ?? ""}
+                  value={orderDraft?.template.name ?? "기본 명함 템플릿"}
                   readOnly
                 />
               </div>
