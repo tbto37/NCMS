@@ -1,9 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;800;900&family=Instrument+Serif:ital@0;1&family=Inter:wght@300;400;500;600;700&family=Nanum+Myeongjo:wght@400;700;800&family=Noto+Serif+KR:wght@300;400;500;600;700;900&display=swap');
+/* Pretendard Official Web Font CDN */
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css');
 
-/* Fallback & Alias for President font */
-@font-face {
-  font-family: 'President';
-  src: local('aPresident'), local('President'), local('NanumMyeongjo');
-  font-weight: normal;
-  font-style: normal;
-}
+/* Google Fonts Fallback */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap');

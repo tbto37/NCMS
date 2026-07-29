@@ -45,7 +45,7 @@ export default function DynamicBusinessCardPreview({
           {!isBack ? (
             /* ==================== 한미글로벌 앞면 (한글) ==================== */
             <div
-              style={{ fontFamily: "'President', 'aPresident', 'Instrument Serif', 'Nanum Myeongjo', 'Noto Serif KR', serif" }}
+              style={{ fontFamily: "'Pretendard Variable', Pretendard, -apple-system, sans-serif" }}
               className="relative w-[430px] h-[240px] bg-white rounded-sm shadow-md border border-slate-200 p-6 flex flex-col justify-between select-none text-slate-800"
             >
               {/* 상단: 로고 (좌) vs 이름/직급 (우) */}
@@ -93,7 +93,7 @@ export default function DynamicBusinessCardPreview({
           ) : (
             /* ==================== 한미글로벌 뒷면 (영문) ==================== */
             <div
-              style={{ fontFamily: "'President', 'aPresident', 'Instrument Serif', 'Nanum Myeongjo', 'Noto Serif KR', serif" }}
+              style={{ fontFamily: "'Pretendard Variable', Pretendard, -apple-system, sans-serif" }}
               className="relative w-[430px] h-[240px] bg-white rounded-sm shadow-md border border-slate-200 p-6 flex flex-col justify-between select-none text-slate-800"
             >
               {/* 상단: 영문 로고 & 영문 이름 */}
@@ -142,7 +142,7 @@ export default function DynamicBusinessCardPreview({
         {!isBack ? (
           /* 제일엔지니어링 앞면 */
           <div
-            style={{ fontFamily: "'President', 'aPresident', 'Instrument Serif', 'Nanum Myeongjo', 'Noto Serif KR', serif" }}
+            style={{ fontFamily: "'Pretendard Variable', Pretendard, -apple-system, sans-serif" }}
             className="relative w-[430px] h-[240px] bg-white rounded-sm shadow-md border border-slate-200 overflow-hidden flex flex-col justify-between select-none"
           >
             <div className="p-5 flex-1 flex justify-between items-start">
@@ -195,7 +195,7 @@ export default function DynamicBusinessCardPreview({
         ) : (
           /* 제일엔지니어링 뒷면 */
           <div
-            style={{ fontFamily: "'President', 'aPresident', 'Instrument Serif', 'Nanum Myeongjo', 'Noto Serif KR', serif" }}
+            style={{ fontFamily: "'Pretendard Variable', Pretendard, -apple-system, sans-serif" }}
             className="relative w-[430px] h-[240px] bg-white rounded-sm shadow-md border border-slate-200 overflow-hidden flex flex-col justify-between select-none"
           >
             <div className="p-5 flex-1 flex justify-between items-start">

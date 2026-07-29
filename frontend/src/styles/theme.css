@@ -79,8 +79,8 @@
 }
 
 @theme inline {
-  --font-sans: "President", "aPresident", "Instrument Serif", "Nanum Myeongjo", "Noto Serif KR", "Cinzel", serif;
-  --font-serif: "President", "aPresident", "Instrument Serif", "Nanum Myeongjo", "Noto Serif KR", "Cinzel", serif;
+  --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;
+  --font-serif: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -125,15 +125,18 @@
   * {
     @apply border-border outline-ring/50;
     font-family:
-      "President",
-      "aPresident",
-      "Instrument Serif",
-      "Nanum Myeongjo",
-      "Noto Serif KR",
-      "Cinzel",
-      "Inter",
-      "Pretendard",
-      serif !important;
+      "Pretendard Variable",
+      Pretendard,
+      -apple-system,
+      BlinkMacSystemFont,
+      system-ui,
+      Roboto,
+      "Helvetica Neue",
+      "Segoe UI",
+      "Apple SD Gothic Neo",
+      "Noto Sans KR",
+      "Malgun Gothic",
+      sans-serif !important;
   }
 
   body {
