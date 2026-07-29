@@ -121,3 +121,14 @@ erDiagram
 - **PK**: 식별자는 직관적이고 관리가 편리한 `VARCHAR(50)` (예: `C_1`, `T_1`, `M_1`, `O_1`) 사용.
 - **명함 데이터 저장**: 유동적인 명함 필드는 `order_snapshots.card_data` (`jsonb`)로 저장하여 유연성 확보.
 - **단순화된 이력 관리**: 별도 감사/타임라인 테이블 대신 `orders` 컬럼(`status`, `reject_reason`, `updated_at`)과 `shipments`로 핵심 흐름 관리.
+
+---
+
+## 5. 마이그레이션 변경 이력 (Flyway)
+
+- **`V1` ~ `V4`**: 기본 스키마 DDL, 역할 정밀화 및 더미 주문 데이터 구축.
+- **`V5__add_hanmiglobal_and_templates.sql`**:
+  - 신규 고객사 `한미글로벌 주식회사` (`C_3`, `site_code: hanmi`) 및 전용 부서(`DEP_5`~`DEP_9`) 추가.
+  - 전용 템플릿 `T_CHEIL` (제일엔지니어링 표준 명함) 및 `T_HANMI` (한미글로벌 표준 명함) 등록.
+  - 고객사별 템플릿 매핑 (`C_2` -> `T_CHEIL`, `C_3` -> `T_HANMI`) 및 데모 임직원/관리자 계정 구성.
+

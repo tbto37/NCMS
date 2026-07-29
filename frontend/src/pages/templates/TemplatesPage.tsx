@@ -389,6 +389,7 @@ export default function TemplatesPage() {
       <TemplateEditModal
         key={selectedTemplate?.id ?? "template-edit"}
         open={editModalOpen}
+        templateId={selectedTemplate?.id}
         onClose={() => {
           setEditModalOpen(false);
           setProofModalOpen(false);

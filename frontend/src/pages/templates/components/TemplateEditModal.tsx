@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import {
   ArrowRight,
   Building2,
@@ -7,226 +8,198 @@ import {
   Save,
   X,
 } from "lucide-react";
-import type { FormEvent } from "react";
+import type { FormEvent, ChangeEvent } from "react";
 
 import type {
-  BackBusinessCardData,
   BusinessCardInputData,
-  FrontBusinessCardData,
 } from "@/shared/types/businessCard";
+import DynamicBusinessCardPreview from "@/components/card/DynamicBusinessCardPreview";
 
 interface TemplateEditModalProps {
   open: boolean;
+  templateId?: string;
   onClose: () => void;
   onSave?: () => void;
   onNext?: (cardData: BusinessCardInputData) => void;
 }
 
-type FieldDefinition<T extends object> = {
-  name: keyof T;
-  label: string;
-  value: string;
-  type?: "select";
+// 부서 매핑 테이블 (한글 -> 영문)
+const DEPARTMENT_MAPPINGS: Record<string, string> = {
+  "경영지원팀": "Management Support Team",
+  "비즈니스개발실": "Business Development Division",
+  "국내사업부": "Domestic Division",
+  "하이테크사업부": "High-Tech Division",
+  "글로벌사업부": "Global Division",
+  "엔지니어링실": "Engineering Division",
+  "도로사업부": "Highway Eng. Business Div.",
 };
 
-const frontFields: Array<FieldDefinition<FrontBusinessCardData>> = [
-  { name: "name", label: "이름", value: "홍길동" },
-  {
-    name: "departmentOption",
-    label: "부서 선택",
-    value: "직접입력",
-    type: "select",
+// 직급 매핑 테이블 (한글 -> 영문)
+const POSITION_MAPPINGS: Record<string, string> = {
+  "사장": "President",
+  "부사장": "Senior Vice President",
+  "전무": "Vice President",
+  "이사": "Director",
+  "시니어 매니저": "Senior Manager",
+  "매니저": "Manager",
+  "프로": "Professional",
+  "국내사업부장": "Head of Domestic Division",
+  "하이테크사업부장": "Head of High-Tech Division",
+  "개발사업부장": "Head of Development Division",
+  "글로벌사업부장": "Head of Global Division",
+  "기술총괄": "Head of Engineering Division",
+  "엔지니어링실장": "Division Leader",
+  "실장": "Team Leader",
+  "팀장": "Team Leader",
+  "단장": "Project Manager",
+};
+
+const defaultCardData: BusinessCardInputData = {
+  front: {
+    name: "투비더원",
+    departmentOption: "직접입력",
+    department: "비즈니스개발실",
+    position1Option: "직접입력",
+    position1: "시니어 매니저",
+    position2Option: "직접입력",
+    position2: "",
+    address: "06164 서울시 강남구 테헤란로 87길 36 도심공항타워",
+    telephone: "+82 (0)70-0000-0000",
+    fax: "",
+    directTelephone: "",
+    mobile: "+82 (0)10-0000-0000",
+    email: "e@hanmiglobal.com",
+    website: "www.hanmiglobal.com",
   },
-  { name: "department", label: "부서", value: "도로사업부" },
-  {
-    name: "position1Option",
-    label: "직급 1 선택",
-    value: "직접입력",
-    type: "select",
+  back: {
+    name: "Brad Hong",
+    department: "Business Development Division",
+    position1: "Senior Manager",
+    position2: "",
+    address1: "City Air Tower Bldg., 36, Teheran-ro 87-gil,",
+    address2: "Gangnam-gu, Seoul, 06164, Korea",
+    telephone: "+82 (0)70-0000-0000",
+    fax: "",
+    directTelephone: "",
+    mobile: "+82 (0)10-0000-0000",
+    email: "e@hanmiglobal.com",
+    website: "www.hanmiglobal.com",
   },
-  { name: "position1", label: "직급 1", value: "이사" },
-  {
-    name: "position2Option",
-    label: "직급 2 선택",
-    value: "직접입력",
-    type: "select",
-  },
-  { name: "position2", label: "직급 2", value: "도로 및 공항 기술사" },
-  { name: "address", label: "주소", value: "06779 서울시 서초구 방배천로 22-6" },
-  { name: "telephone", label: "전화번호", value: "02-3498-2600" },
-  { name: "fax", label: "팩스", value: "02-572-8970" },
-  { name: "directTelephone", label: "직통번호", value: "02-3498-2662" },
-  { name: "mobile", label: "핸드폰", value: "010-1234-5678" },
-  { name: "email", label: "이메일", value: "youremail@email.com" },
-  { name: "website", label: "웹사이트", value: "www.cheileng.com" },
-];
-
-const backFields: Array<FieldDefinition<BackBusinessCardData>> = [
-  { name: "name", label: "이름", value: "Hong Gil Dong" },
-  { name: "department", label: "부서", value: "Highway Eng. Business Div." },
-  { name: "position1", label: "직급 1", value: "Director" },
-  { name: "position2", label: "직급 2", value: "P.E." },
-  {
-    name: "address1",
-    label: "주소 1",
-    value: "22-6, Bangbaemae-ro 16gil, Seocho-gu,",
-  },
-  { name: "address2", label: "주소 2", value: "Seoul, Korea (06779)" },
-  { name: "telephone", label: "전화번호", value: "82-2-3498-2600" },
-  { name: "fax", label: "팩스", value: "82-2-572-8970" },
-  { name: "directTelephone", label: "직통번호", value: "82-2-3498-2745" },
-  { name: "mobile", label: "핸드폰", value: "82-10-1234-5678" },
-  { name: "email", label: "이메일", value: "youremail@email.com" },
-  { name: "website", label: "웹사이트", value: "www.cheileng.com" },
-];
-
-function BusinessCardPreview({ english = false }: { english?: boolean }) {
-  return (
-    <div className="flex min-h-[210px] items-center justify-center rounded-xl border border-border bg-secondary/40 p-6">
-      <div className="aspect-[1.75/1] w-full max-w-[430px] overflow-hidden rounded-sm bg-white shadow-[0_12px_30px_rgba(15,23,42,0.14)]">
-        <div className="grid h-[calc(100%-8px)] grid-cols-[34%_66%]">
-          <div className="flex flex-col justify-between border-r border-slate-200 px-5 py-5">
-            <div className="flex items-end gap-1">
-              <span className="text-[27px] font-black tracking-[-0.08em] text-[#06418f]">CHEIL</span>
-              <span className="mb-1 h-4 w-1.5 bg-[#55b936]" />
-            </div>
-            <span className="text-[8px] italic text-slate-600">“Smiling Technology”</span>
-          </div>
-
-          <div className="px-5 py-4">
-            <p className="text-[13px] font-semibold text-slate-900">
-              {english ? "Hong Gil Dong" : "홍 길 동"}
-            </p>
-            <p className="mt-0.5 text-[7px] text-slate-500">
-              {english
-                ? "Highway Eng. Business Div. / Director / P.E."
-                : "도로사업부 / 이사 / 도로 및 공항 기술사"}
-            </p>
-            <p className="mb-2 mt-4 text-[7px] font-semibold text-slate-700">CHEIL ENGINEERING CO., LTD.</p>
-            <div className="space-y-0.5 text-[6.5px] leading-[1.35] text-slate-500">
-              <p>{english ? "22-6, Bangbaemae-ro 16gil, Seocho-gu," : "06779 서울시 서초구 방배천로 22-6"}</p>
-              <p>{english ? "Seoul, Korea (06779)" : "서울특별시 서초구"}</p>
-              <p>TEL. 02-3498-2600 / FAX. 02-572-8970</p>
-              <p>MOBILE. 010-1234-5678</p>
-              <p>youremail@email.com</p>
-              <p>www.cheileng.com</p>
-            </div>
-          </div>
-        </div>
-        <div className="flex h-2">
-          <div className="w-[12%] bg-[#55b936]" />
-          <div className="flex-1 bg-[#06418f]" />
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function FieldList<T extends object>({
-  title,
-  description,
-  fieldPrefix,
-  fields,
-}: {
-  title: string;
-  description: string;
-  fieldPrefix: "front" | "back";
-  fields: Array<FieldDefinition<T>>;
-}) {
-  return (
-    <section className="overflow-hidden rounded-xl border border-border bg-card">
-      <div className="border-b border-border px-5 py-4">
-        <h3 className="text-sm font-semibold text-foreground">{title}</h3>
-        <p className="mt-1 text-xs text-muted-foreground">{description}</p>
-      </div>
-
-      <div className="space-y-3 px-5 py-5">
-        {fields.map((field) => {
-          const fieldName = `${fieldPrefix}.${String(field.name)}`;
-
-          return (
-            <div key={fieldName} className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
-              <label htmlFor={fieldName} className="text-xs font-medium text-muted-foreground">
-                {field.label}
-              </label>
-              {field.type === "select" ? (
-                <select
-                  id={fieldName}
-                  name={fieldName}
-                  defaultValue={field.value}
-                  className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
-                >
-                  <option value="직접입력">직접입력</option>
-                  <option value="대표이사">대표이사</option>
-                  <option value="이사">이사</option>
-                  <option value="부장">부장</option>
-                </select>
-              ) : (
-                <input
-                  id={fieldName}
-                  name={fieldName}
-                  defaultValue={field.value}
-                  className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
-                />
-              )}
-            </div>
-          );
-        })}
-      </div>
-    </section>
-  );
-}
-
-function getFormValue(formData: FormData, key: string): string {
-  return String(formData.get(key) ?? "");
-}
-
-function createCardData(formData: FormData): BusinessCardInputData {
-  return {
-    front: {
-      name: getFormValue(formData, "front.name"),
-      departmentOption: getFormValue(formData, "front.departmentOption"),
-      department: getFormValue(formData, "front.department"),
-      position1Option: getFormValue(formData, "front.position1Option"),
-      position1: getFormValue(formData, "front.position1"),
-      position2Option: getFormValue(formData, "front.position2Option"),
-      position2: getFormValue(formData, "front.position2"),
-      address: getFormValue(formData, "front.address"),
-      telephone: getFormValue(formData, "front.telephone"),
-      fax: getFormValue(formData, "front.fax"),
-      directTelephone: getFormValue(formData, "front.directTelephone"),
-      mobile: getFormValue(formData, "front.mobile"),
-      email: getFormValue(formData, "front.email"),
-      website: getFormValue(formData, "front.website"),
-    },
-    back: {
-      name: getFormValue(formData, "back.name"),
-      department: getFormValue(formData, "back.department"),
-      position1: getFormValue(formData, "back.position1"),
-      position2: getFormValue(formData, "back.position2"),
-      address1: getFormValue(formData, "back.address1"),
-      address2: getFormValue(formData, "back.address2"),
-      telephone: getFormValue(formData, "back.telephone"),
-      fax: getFormValue(formData, "back.fax"),
-      directTelephone: getFormValue(formData, "back.directTelephone"),
-      mobile: getFormValue(formData, "back.mobile"),
-      email: getFormValue(formData, "back.email"),
-      website: getFormValue(formData, "back.website"),
-    },
-  };
-}
+};
 
 export default function TemplateEditModal({
   open,
+  templateId = "T_HANMI",
   onClose,
   onSave,
   onNext,
 }: TemplateEditModalProps) {
+  const [cardData, setCardData] = useState<BusinessCardInputData>(defaultCardData);
+  const [zoomScale, setZoomScale] = useState<number>(1.0);
+
+  useEffect(() => {
+    // 템플릿에 따라 초기 렌더 데이터 조정
+    if (templateId?.includes("CHEIL") || templateId?.includes("cheil")) {
+      setCardData({
+        front: {
+          name: "홍길동",
+          departmentOption: "직접입력",
+          department: "도로사업부",
+          position1Option: "직접입력",
+          position1: "이사",
+          position2Option: "직접입력",
+          position2: "도로 및 공항 기술사",
+          address: "06779 서울시 서초구 방배천로 22-6",
+          telephone: "02-3498-2600",
+          fax: "02-572-8970",
+          directTelephone: "02-3498-2662",
+          mobile: "010-1234-5678",
+          email: "youremail@email.com",
+          website: "www.cheileng.com",
+        },
+        back: {
+          name: "Hong Gil Dong",
+          department: "Highway Eng. Business Div.",
+          position1: "Director",
+          position2: "P.E.",
+          address1: "22-6, Bangbaemae-ro 16gil, Seocho-gu,",
+          address2: "Seoul, Korea (06779)",
+          telephone: "82-2-3498-2600",
+          fax: "82-2-572-8970",
+          directTelephone: "82-2-3498-2745",
+          mobile: "82-10-1234-5678",
+          email: "youremail@email.com",
+          website: "www.cheileng.com",
+        },
+      });
+    } else {
+      setCardData(defaultCardData);
+    }
+  }, [templateId, open]);
+
   if (!open) return null;
+
+  // 앞면 일반 필드 변경 시 실시간 반영
+  const handleFrontChange = (field: string, value: string) => {
+    setCardData((prev) => {
+      const nextFront = { ...prev.front, [field]: value };
+      const nextBack = { ...prev.back };
+
+      // 웹사이트 동기화
+      if (field === "website") {
+        nextBack.website = value;
+      }
+      return { front: nextFront, back: nextBack };
+    });
+  };
+
+  // 뒷면 일반 필드 변경 시 실시간 반영
+  const handleBackChange = (field: string, value: string) => {
+    setCardData((prev) => ({
+      ...prev,
+      back: { ...prev.back, [field]: value },
+    }));
+  };
+
+  // 부서 셀렉트 변경 시 레거시 동일 한/영 동시 매핑
+  const handleDeptSelectChange = (e: ChangeEvent<HTMLSelectElement>) => {
+    const selectedKor = e.target.value;
+    const mappedEng = DEPARTMENT_MAPPINGS[selectedKor] || "";
+
+    setCardData((prev) => ({
+      front: {
+        ...prev.front,
+        departmentOption: selectedKor,
+        department: selectedKor === "직접입력" ? prev.front.department : selectedKor,
+      },
+      back: {
+        ...prev.back,
+        department: selectedKor === "직접입력" ? prev.back.department : mappedEng,
+      },
+    }));
+  };
+
+  // 직급 셀렉트 변경 시 레거시 동일 한/영 동시 매핑
+  const handlePositionSelectChange = (e: ChangeEvent<HTMLSelectElement>) => {
+    const selectedKor = e.target.value;
+    const mappedEng = POSITION_MAPPINGS[selectedKor] || "";
+
+    setCardData((prev) => ({
+      front: {
+        ...prev.front,
+        position1Option: selectedKor,
+        position1: selectedKor === "직접입력" ? prev.front.position1 : selectedKor,
+      },
+      back: {
+        ...prev.back,
+        position1: selectedKor === "직접입력" ? prev.back.position1 : mappedEng,
+      },
+    }));
+  };
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    onNext?.(createCardData(new FormData(event.currentTarget)));
+    onNext?.(cardData);
   };
 
   return (
@@ -242,7 +215,7 @@ export default function TemplateEditModal({
             </div>
             <div>
               <h2 className="text-base font-semibold text-foreground">명함 템플릿 편집</h2>
-              <p className="mt-0.5 text-xs text-muted-foreground">앞면과 뒷면의 표시 정보를 입력하세요.</p>
+              <p className="mt-0.5 text-xs text-muted-foreground">하단 필드를 수정하면 미리보기 화면에 즉시 적용됩니다.</p>
             </div>
           </div>
 
@@ -258,22 +231,35 @@ export default function TemplateEditModal({
 
         <main className="min-h-0 flex-1 overflow-y-auto">
           <div className="space-y-6 p-6">
+            {/* 미리보기 세션 */}
             <section className="overflow-hidden rounded-xl border border-border bg-card">
               <div className="flex items-center justify-between border-b border-border px-5 py-4">
                 <div>
-                  <h3 className="text-sm font-semibold text-foreground">명함 미리보기</h3>
-                  <p className="mt-1 text-xs text-muted-foreground">실제 명함에 배치되는 모습을 확인합니다.</p>
+                  <h3 className="text-sm font-semibold text-foreground">실시간 명함 미리보기</h3>
+                  <p className="mt-1 text-xs text-muted-foreground">입력하시는 텍스트가 미리보기에 실시간으로 렌더링됩니다.</p>
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <button type="button" className="flex h-8 w-8 items-center justify-center rounded-md border border-border bg-background text-muted-foreground">
+                  <button
+                    type="button"
+                    onClick={() => setZoomScale((prev) => Math.max(0.7, prev - 0.1))}
+                    className="flex h-8 w-8 items-center justify-center rounded-md border border-border bg-background text-muted-foreground hover:text-foreground"
+                  >
                     <Minus size={14} />
                   </button>
-                  <span className="w-12 text-center text-xs font-medium">100%</span>
-                  <button type="button" className="flex h-8 w-8 items-center justify-center rounded-md border border-border bg-background text-muted-foreground">
+                  <span className="w-12 text-center text-xs font-medium">{Math.round(zoomScale * 100)}%</span>
+                  <button
+                    type="button"
+                    onClick={() => setZoomScale((prev) => Math.min(1.4, prev + 0.1))}
+                    className="flex h-8 w-8 items-center justify-center rounded-md border border-border bg-background text-muted-foreground hover:text-foreground"
+                  >
                     <Plus size={14} />
                   </button>
-                  <button type="button" className="ml-1 flex h-8 items-center gap-1.5 rounded-md border border-border bg-background px-2.5 text-xs text-muted-foreground">
+                  <button
+                    type="button"
+                    onClick={() => setZoomScale(1.0)}
+                    className="ml-1 flex h-8 items-center gap-1.5 rounded-md border border-border bg-background px-2.5 text-xs text-muted-foreground hover:text-foreground"
+                  >
                     <RotateCcw size={13} /> 초기화
                   </button>
                 </div>
@@ -282,34 +268,213 @@ export default function TemplateEditModal({
               <div className="grid gap-4 p-4 lg:grid-cols-2">
                 <div>
                   <div className="mb-2 flex items-center justify-between">
-                    <span className="text-xs font-semibold">앞면</span>
+                    <span className="text-xs font-semibold">앞면 (한글)</span>
                     <span className="text-[11px] text-muted-foreground">Korean</span>
                   </div>
-                  <BusinessCardPreview />
+                  <DynamicBusinessCardPreview
+                    templateId={templateId}
+                    cardData={cardData}
+                    isBack={false}
+                    scale={zoomScale}
+                  />
                 </div>
                 <div>
                   <div className="mb-2 flex items-center justify-between">
-                    <span className="text-xs font-semibold">뒷면</span>
+                    <span className="text-xs font-semibold">뒷면 (영문)</span>
                     <span className="text-[11px] text-muted-foreground">English</span>
                   </div>
-                  <BusinessCardPreview english />
+                  <DynamicBusinessCardPreview
+                    templateId={templateId}
+                    cardData={cardData}
+                    isBack={true}
+                    scale={zoomScale}
+                  />
                 </div>
               </div>
             </section>
 
+            {/* 입력 폼 섹션 */}
             <div className="grid items-start gap-5 xl:grid-cols-2">
-              <FieldList
-                title="앞면 정보"
-                description="한글 명함에 표시할 정보를 입력합니다."
-                fieldPrefix="front"
-                fields={frontFields}
-              />
-              <FieldList
-                title="뒷면 정보"
-                description="영문 명함에 표시할 정보를 입력합니다."
-                fieldPrefix="back"
-                fields={backFields}
-              />
+              {/* 앞면 입력 폼 */}
+              <section className="overflow-hidden rounded-xl border border-border bg-card">
+                <div className="border-b border-border px-5 py-4">
+                  <h3 className="text-sm font-semibold text-foreground">앞면 정보</h3>
+                  <p className="mt-1 text-xs text-muted-foreground">한글 명함에 표시할 정보를 입력합니다.</p>
+                </div>
+                <div className="space-y-3 px-5 py-5">
+                  <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
+                    <label className="text-xs font-medium text-muted-foreground">이름</label>
+                    <input
+                      value={cardData.front.name}
+                      onChange={(e) => handleFrontChange("name", e.target.value)}
+                      className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
+                    <label className="text-xs font-medium text-muted-foreground">부서 선택</label>
+                    <select
+                      value={cardData.front.departmentOption || "직접입력"}
+                      onChange={handleDeptSelectChange}
+                      className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
+                    >
+                      <option value="직접입력">직접입력</option>
+                      {Object.keys(DEPARTMENT_MAPPINGS).map((dept) => (
+                        <option key={dept} value={dept}>{dept}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
+                    <label className="text-xs font-medium text-muted-foreground">부서</label>
+                    <input
+                      value={cardData.front.department}
+                      onChange={(e) => handleFrontChange("department", e.target.value)}
+                      className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
+                    <label className="text-xs font-medium text-muted-foreground">직급 선택</label>
+                    <select
+                      value={cardData.front.position1Option || "직접입력"}
+                      onChange={handlePositionSelectChange}
+                      className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
+                    >
+                      <option value="직접입력">직접입력</option>
+                      {Object.keys(POSITION_MAPPINGS).map((pos) => (
+                        <option key={pos} value={pos}>{pos}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
+                    <label className="text-xs font-medium text-muted-foreground">직급</label>
+                    <input
+                      value={cardData.front.position1}
+                      onChange={(e) => handleFrontChange("position1", e.target.value)}
+                      className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
+                    <label className="text-xs font-medium text-muted-foreground">주소</label>
+                    <input
+                      value={cardData.front.address}
+                      onChange={(e) => handleFrontChange("address", e.target.value)}
+                      className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
+                    <label className="text-xs font-medium text-muted-foreground">전화번호</label>
+                    <input
+                      value={cardData.front.telephone}
+                      onChange={(e) => handleFrontChange("telephone", e.target.value)}
+                      className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
+                    <label className="text-xs font-medium text-muted-foreground">핸드폰</label>
+                    <input
+                      value={cardData.front.mobile}
+                      onChange={(e) => handleFrontChange("mobile", e.target.value)}
+                      className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
+                    <label className="text-xs font-medium text-muted-foreground">이메일</label>
+                    <input
+                      value={cardData.front.email}
+                      onChange={(e) => handleFrontChange("email", e.target.value)}
+                      className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
+                    />
+                  </div>
+                </div>
+              </section>
+
+              {/* 뒷면 입력 폼 */}
+              <section className="overflow-hidden rounded-xl border border-border bg-card">
+                <div className="border-b border-border px-5 py-4">
+                  <h3 className="text-sm font-semibold text-foreground">뒷면 정보</h3>
+                  <p className="mt-1 text-xs text-muted-foreground">영문 명함에 표시할 정보를 입력합니다.</p>
+                </div>
+                <div className="space-y-3 px-5 py-5">
+                  <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
+                    <label className="text-xs font-medium text-muted-foreground">이름 (영문)</label>
+                    <input
+                      value={cardData.back.name}
+                      onChange={(e) => handleBackChange("name", e.target.value)}
+                      className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
+                    <label className="text-xs font-medium text-muted-foreground">부서 (영문)</label>
+                    <input
+                      value={cardData.back.department}
+                      onChange={(e) => handleBackChange("department", e.target.value)}
+                      className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
+                    <label className="text-xs font-medium text-muted-foreground">직급 (영문)</label>
+                    <input
+                      value={cardData.back.position1}
+                      onChange={(e) => handleBackChange("position1", e.target.value)}
+                      className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
+                    <label className="text-xs font-medium text-muted-foreground">주소 1 (영문)</label>
+                    <input
+                      value={cardData.back.address1}
+                      onChange={(e) => handleBackChange("address1", e.target.value)}
+                      className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
+                    <label className="text-xs font-medium text-muted-foreground">주소 2 (영문)</label>
+                    <input
+                      value={cardData.back.address2}
+                      onChange={(e) => handleBackChange("address2", e.target.value)}
+                      className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
+                    <label className="text-xs font-medium text-muted-foreground">전화번호</label>
+                    <input
+                      value={cardData.back.telephone}
+                      onChange={(e) => handleBackChange("telephone", e.target.value)}
+                      className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
+                    <label className="text-xs font-medium text-muted-foreground">핸드폰</label>
+                    <input
+                      value={cardData.back.mobile}
+                      onChange={(e) => handleBackChange("mobile", e.target.value)}
+                      className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
+                    <label className="text-xs font-medium text-muted-foreground">웹사이트</label>
+                    <input
+                      value={cardData.back.website}
+                      onChange={(e) => handleBackChange("website", e.target.value)}
+                      className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
+                    />
+                  </div>
+                </div>
+              </section>
             </div>
           </div>
         </main>
