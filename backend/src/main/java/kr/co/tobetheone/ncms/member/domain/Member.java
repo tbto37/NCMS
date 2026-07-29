@@ -7,6 +7,7 @@ import kr.co.tobetheone.ncms.global.domain.BaseEntity;
 import lombok.*;
 
 import org.hibernate.annotations.DynamicInsert;
+import kr.co.tobetheone.ncms.global.domain.StringSequenceId;
 
 @Entity
 @Table(name = "members")
@@ -18,12 +19,7 @@ import org.hibernate.annotations.DynamicInsert;
 public class Member extends BaseEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "members_id_seq_gen")
-    @SequenceGenerator(
-        name = "members_id_seq_gen",
-        sequenceName = "members_id_seq",
-        allocationSize = 1
-    )
+    @StringSequenceId
     private String id;
 
     @ManyToOne(fetch = FetchType.LAZY)
