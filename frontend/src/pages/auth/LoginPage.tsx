@@ -39,10 +39,7 @@ export default function LoginPage() {
           !isOperator &&
           userSiteCode &&
           targetSiteCode &&
-          (userSiteCode === targetSiteCode ||
-            (targetSiteCode === "hanmi" && (userSiteCode.includes("hanmi") || loginResult.companyName?.includes("한미"))) ||
-            (targetSiteCode === "cheil" && (userSiteCode.includes("cheil") || loginResult.companyName?.includes("제일"))) ||
-            (targetSiteCode === "logcom" && (userSiteCode.includes("logcom") || loginResult.companyName?.includes("로그컴"))));
+          (userSiteCode === targetSiteCode || userSiteCode.includes(targetSiteCode) || targetSiteCode.includes(userSiteCode));
 
         if (!isMatch) {
           logout();

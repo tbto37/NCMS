@@ -25,15 +25,15 @@ export function TenantProvider({ children }: TenantProviderProps) {
     setIsLoading(true);
     setError(null);
 
-    // DB site_code 검증 API 호출
+    // 100% 백엔드 DB site_code 조회 및 검증 (프론트엔드 하드코딩 목록 없음)
     fetch(`${API_BASE_URL}/api/v1/public/companies/${companyCode}`)
       .then(async (res) => {
         if (!res.ok) {
-          throw new Error(`Company not found: ${companyCode}`);
+          throw new Error(`Company not found on backend: ${companyCode}`);
         }
         const contentType = res.headers.get("content-type");
         if (!contentType || !contentType.includes("application/json")) {
-          throw new Error(`Invalid response content for company: ${companyCode}`);
+          throw new Error(`Invalid response content type for company: ${companyCode}`);
         }
         return res.json();
       })
@@ -41,20 +41,19 @@ export function TenantProvider({ children }: TenantProviderProps) {
         if (!isMounted) return;
 
         if (!body.data || !body.data.siteCode) {
-          throw new Error(`Company data invalid: ${companyCode}`);
+          throw new Error(`Invalid tenant data received from backend: ${companyCode}`);
         }
 
         const tenantData: TenantInfo = {
-          id: body.data.id || companyCode,
+          id: body.data.id,
           siteCode: body.data.siteCode,
-          name: body.data.name || companyCode.toUpperCase(),
+          name: body.data.name,
           primaryColor: body.data.primaryColor || "#0052CC",
           status: body.data.status || "ACTIVE",
         };
 
         setTenant(tenantData);
 
-        // Dynamic CSS variable for brand color
         if (tenantData.primaryColor) {
           document.documentElement.style.setProperty(
             "--brand-primary-color",
@@ -62,16 +61,15 @@ export function TenantProvider({ children }: TenantProviderProps) {
           );
         }
 
-        // Set page title
         document.title = `${tenantData.name} - NCMS 명함 관리 시스템`;
         setIsLoading(false);
       })
       .catch((err) => {
         if (!isMounted) return;
-        console.error("[TenantProvider] Invalid site_code. Blocking entry:", companyCode, err);
-        setError("Invalid company site code");
+        console.error("[TenantProvider] Backend validation failed for companyCode:", companyCode, err);
+        setError("Company not found in database");
         setIsLoading(false);
-        // DB site_code와 일치하지 않는 경우 화면 진입을 아예 차단하고 에러 페이지로 강제 이동
+        // 백엔드 DB에 존재하지 않는 경우 차단 페이지로 강제 이동
         navigate("/error/company-not-found", { replace: true });
       });
 
@@ -85,7 +83,7 @@ export function TenantProvider({ children }: TenantProviderProps) {
       <div className="flex h-screen w-screen items-center justify-center bg-background">
         <div className="flex flex-col items-center gap-3">
           <div className="h-6 w-6 animate-spin rounded-full border-2 border-border border-t-primary" />
-          <span className="text-xs text-muted-foreground">고객사 사이트 정보를 확인하는 중입니다...</span>
+          <span className="text-xs text-muted-foreground">고객사 정보를 확인하는 중입니다...</span>
         </div>
       </div>
     );
