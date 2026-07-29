@@ -44,7 +44,10 @@ export default function DynamicBusinessCardPreview({
         <div style={containerStyle} className="transition-transform duration-150 ease-out">
           {!isBack ? (
             /* ==================== 한미글로벌 앞면 (한글) ==================== */
-            <div className="relative w-[430px] h-[240px] bg-white rounded-sm shadow-md border border-slate-200 p-6 flex flex-col justify-between select-none text-slate-800 font-sans">
+            <div
+              style={{ fontFamily: "'President', 'aPresident', 'Instrument Serif', 'Nanum Myeongjo', 'Noto Serif KR', serif" }}
+              className="relative w-[430px] h-[240px] bg-white rounded-sm shadow-md border border-slate-200 p-6 flex flex-col justify-between select-none text-slate-800"
+            >
               {/* 상단: 로고 (좌) vs 이름/직급 (우) */}
               <div className="flex items-start justify-between">
                 <div className="pt-1">
@@ -89,7 +92,10 @@ export default function DynamicBusinessCardPreview({
             </div>
           ) : (
             /* ==================== 한미글로벌 뒷면 (영문) ==================== */
-            <div className="relative w-[430px] h-[240px] bg-white rounded-sm shadow-md border border-slate-200 p-6 flex flex-col justify-between select-none text-slate-800 font-sans">
+            <div
+              style={{ fontFamily: "'President', 'aPresident', 'Instrument Serif', 'Nanum Myeongjo', 'Noto Serif KR', serif" }}
+              className="relative w-[430px] h-[240px] bg-white rounded-sm shadow-md border border-slate-200 p-6 flex flex-col justify-between select-none text-slate-800"
+            >
               {/* 상단: 영문 로고 & 영문 이름 */}
               <div className="flex items-start justify-between">
                 <div className="pt-1">
@@ -135,7 +141,10 @@ export default function DynamicBusinessCardPreview({
       <div style={containerStyle} className="transition-transform duration-150 ease-out">
         {!isBack ? (
           /* 제일엔지니어링 앞면 */
-          <div className="relative w-[430px] h-[240px] bg-white rounded-sm shadow-md border border-slate-200 overflow-hidden flex flex-col justify-between select-none font-sans">
+          <div
+            style={{ fontFamily: "'President', 'aPresident', 'Instrument Serif', 'Nanum Myeongjo', 'Noto Serif KR', serif" }}
+            className="relative w-[430px] h-[240px] bg-white rounded-sm shadow-md border border-slate-200 overflow-hidden flex flex-col justify-between select-none"
+          >
             <div className="p-5 flex-1 flex justify-between items-start">
               {/* 좌측: 로고 및 슬로건 */}
               <div className="h-full flex flex-col justify-between">
@@ -185,7 +194,10 @@ export default function DynamicBusinessCardPreview({
           </div>
         ) : (
           /* 제일엔지니어링 뒷면 */
-          <div className="relative w-[430px] h-[240px] bg-white rounded-sm shadow-md border border-slate-200 overflow-hidden flex flex-col justify-between select-none font-sans">
+          <div
+            style={{ fontFamily: "'President', 'aPresident', 'Instrument Serif', 'Nanum Myeongjo', 'Noto Serif KR', serif" }}
+            className="relative w-[430px] h-[240px] bg-white rounded-sm shadow-md border border-slate-200 overflow-hidden flex flex-col justify-between select-none"
+          >
             <div className="p-5 flex-1 flex justify-between items-start">
               {/* 좌측: 로고 및 슬로건 */}
               <div className="h-full flex flex-col justify-between">
