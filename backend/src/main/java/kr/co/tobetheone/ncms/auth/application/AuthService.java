@@ -23,6 +23,7 @@ public class AuthService {
 
     private final MemberRepository memberRepository;
     private final MemberRoleRepository memberRoleRepository;
+    private final kr.co.tobetheone.ncms.company.infrastructure.CompanyRepository companyRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
 
@@ -46,6 +47,24 @@ public class AuthService {
 
         if (roles.isEmpty()) {
             roles = List.of("ROLE_EMPLOYEE");
+        }
+
+        // 백엔드 차원의 siteCode DB 검증 및 권한 차단
+        if (request.getSiteCode() != null && !request.getSiteCode().isBlank()) {
+            kr.co.tobetheone.ncms.company.domain.Company requestCompany = companyRepository.findBySiteCode(request.getSiteCode())
+                    .orElseThrow(() -> new CustomException("존재하지 않는 고객사 사이트입니다.", HttpStatus.NOT_FOUND));
+
+            if (!"ACTIVE".equals(requestCompany.getStatus())) {
+                throw new CustomException("비활성화된 고객사 사이트입니다.", HttpStatus.FORBIDDEN);
+            }
+
+            boolean isOperator = roles.contains("ROLE_OPERATOR") || roles.contains("ROLE_SYSTEM_ADMIN");
+            if (!isOperator) {
+                String memberSiteCode = member.getCompany() != null ? member.getCompany().getSiteCode() : null;
+                if (memberSiteCode == null || !memberSiteCode.equalsIgnoreCase(request.getSiteCode())) {
+                    throw new CustomException("해당 고객사 사이트에 대한 접근 권한이 없습니다.", HttpStatus.FORBIDDEN);
+                }
+            }
         }
 
         String companyId = member.getCompany() != null ? member.getCompany().getId() : null;

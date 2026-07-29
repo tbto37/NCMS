@@ -71,7 +71,9 @@ frontend/src/
 └── types/           # TS 타입 정의
 ```
 
-### 3.1 경로 기반 동적 브랜딩
-- 임직원/기업관리자 화면: `/:companyCode/...` (예: `/samsung/login`, `/samsung/templates`)
-- 진입 시 공개 API(`GET /api/v1/public/companies/{companyCode}`)를 통해 고객사 브랜딩 정보(로고, 대표 색상 `--brand-primary`)를 적용합니다.
+### 3.1 경로 기반 동적 브랜딩 및 테넌트 진입 차단
+- 임직원/기업관리자 화면: `/:companyCode/...` (예: `/hanmi/login`, `/cheil/templates`)
+- 진입 시 공개 API(`GET /api/v1/public/companies/{companyCode}`)를 통해 DB `companies` 테이블의 `site_code` 존재 여부를 엄격 검증합니다.
+- **진입 차단 (`TenantProvider`)**: DB `companies` 테이블의 `site_code`와 일치하지 않는 유효하지 않은 고객사 코드로 접속 시 화면 렌더링을 완전히 차단하고 `CompanyNotFoundPage`로 강제 이동합니다.
+- **기본 라우팅 (`App.tsx`)**: URL 뒤에 `/고객사코드`가 없는 루트 접근(`/`, `/login` 등)은 **로그컴 어드민(`logcom`)**으로 자동 인지 및 라우팅됩니다.
 - 운영자/시스템관리자 화면: `/operator/...`, `/admin/...` 경로 접속.

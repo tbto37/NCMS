@@ -2,22 +2,23 @@ import { Link } from "react-router";
 
 export default function CompanyNotFoundPage() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-slate-50 px-4">
-      <div className="max-w-md w-full text-center bg-white p-8 rounded-xl shadow-sm border border-slate-200">
-        <div className="w-16 h-16 bg-red-50 text-red-500 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl font-bold">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-background px-4">
+      <div className="w-full max-w-md rounded-2xl border border-border bg-card p-8 text-center shadow-lg">
+        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-destructive/10 text-xl font-bold text-destructive">
           !
         </div>
-        <h1 className="text-xl font-bold text-slate-800 mb-2">
-          고객사 사이트를 찾을 수 없습니다
+        <h1 className="mb-2 text-xl font-bold text-foreground">
+          등록되지 않은 고객사 사이트입니다
         </h1>
-        <p className="text-sm text-slate-600 mb-6">
-          요청하신 고객사 코드의 사이트가 존재하지 않거나 현재 서비스가 비활성화되어 있습니다. URL 경로를 다시 확인해주세요.
+        <p className="mb-6 text-xs leading-relaxed text-muted-foreground">
+          입력하신 URL의 고객사 코드가 시스템 DB에 존재하지 않거나 접근할 수 없습니다.<br />
+          올바른 고객사 URL 전용 경로를 다시 확인해 주세요.
         </p>
         <Link
-          to="/"
-          className="inline-flex items-center justify-center px-4 py-2 bg-slate-900 text-white text-sm font-medium rounded-lg hover:bg-slate-800 transition-colors"
+          to="/logcom/login"
+          className="inline-flex items-center justify-center rounded-lg bg-primary px-5 py-2.5 text-xs font-medium text-primary-foreground transition-opacity hover:opacity-90"
         >
-          홈으로 이동
+          로그컴 관리자 사이트로 이동
         </Link>
       </div>
     </div>

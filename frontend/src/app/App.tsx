@@ -74,12 +74,13 @@ export default function App() {
               </Route>
             </Route>
 
-            {/* Default & Fallback Routes */}
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/admin/login" element={<LoginPage />} />
+            {/* Default & Fallback Routes (URL 뒤 고객사 코드가 없으면 로그컴으로 인식) */}
+            <Route path="/" element={<Navigate to="/logcom/login" replace />} />
+            <Route path="/login" element={<Navigate to="/logcom/login" replace />} />
+            <Route path="/admin/login" element={<Navigate to="/logcom/login" replace />} />
             <Route path="/error/company-not-found" element={<CompanyNotFoundPage />} />
             <Route path="/error" element={<ErrorPage />} />
-            <Route path="*" element={<Navigate to="/login" replace />} />
+            <Route path="*" element={<Navigate to="/logcom/login" replace />} />
           </Routes>
         </Suspense>
       </BrowserRouter>

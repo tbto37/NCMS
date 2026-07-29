@@ -31,9 +31,12 @@
 ---
 
 ### 2.1.1 멀티테넌트 세션 및 로그인 격리 규칙 (Security)
+- **백엔드 차원의 `siteCode` DB 검증 (`AuthService`)**:
+  - `POST /api/v1/auth/login` 요청 시 전달된 `siteCode`가 DB `companies` 테이블에 존재하는지 1차 DB 조회 수행 (`findBySiteCode`).
+  - DB에 `siteCode`가 존재하지 않을 경우 백엔드에서 `404 NOT_FOUND ("존재하지 않는 고객사 사이트입니다.")` 예외를 발생시켜 차단.
+  - 비활성화(`INACTIVE`) 고객사이거나, 운영자가 아닌 일반 사용자가 소속 회사가 아닌 타 테넌트 `siteCode`로 진입 시 `403 FORBIDDEN` 예외 차단.
 - **로그인 시점 권한 검증 (`LoginPage`)**:
   - `/hanmi/login`, `/cheil/login` 등 테넌트 전용 페이지에서 타 사이트 계정이나 로그컴 운영자 계정 로그인 시 **"접근 권한 없음"으로 차단**.
-  - `/login` 백오피스 페이지에서 고객사 임직원 계정 로그인 시 **"고객사 전용 주소로 접속" 차단**.
 - **세션 자동 만료 라우트 가드 (`RequireTenantAuth`, `RequireAdminAuth`)**:
   - 새로고침이나 URL 직접 입력으로 타 테넌트 세션으로 접근 시 **즉시 세션 만료 (로그아웃) 후 해당 사이트 로그인으로 리다이렉트**.
 

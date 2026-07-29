@@ -35,6 +35,7 @@ type AuthContextValue = {
     username: string,
     password: string,
     remember: boolean,
+    siteCode?: string,
   ) => Promise<LoginResult>;
   logout: () => void;
 };
@@ -68,6 +69,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     username: string,
     password: string,
     remember: boolean,
+    siteCode?: string,
   ): Promise<LoginResult> {
     const response = await fetch(`${API_BASE_URL}/api/v1/auth/login`, {
       method: "POST",
@@ -77,6 +79,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       body: JSON.stringify({
         username,
         password,
+        siteCode,
       }),
     });
 

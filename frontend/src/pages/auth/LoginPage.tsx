@@ -28,7 +28,7 @@ export default function LoginPage() {
       setLoading(true);
       setError("");
 
-      const loginResult = await login(id.trim(), pw, remember);
+      const loginResult = await login(id.trim(), pw, remember, companyCode || "logcom");
       const userSiteCode = loginResult.companySiteCode?.toLowerCase();
       const targetSiteCode = companyCode?.toLowerCase();
       const isOperator = loginResult.roles?.includes("ROLE_OPERATOR") || loginResult.roles?.includes("ROLE_SYSTEM_ADMIN");
