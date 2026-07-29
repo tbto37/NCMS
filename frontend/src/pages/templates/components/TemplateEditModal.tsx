@@ -206,6 +206,7 @@ export default function TemplateEditModal({
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/45 p-4 backdrop-blur-[2px]">
       <form
         onSubmit={handleSubmit}
+        style={{ fontFamily: "'President', 'aPresident', 'Instrument Serif', 'Nanum Myeongjo', 'Noto Serif KR', serif" }}
         className="flex h-[calc(100vh-32px)] w-full max-w-[1280px] flex-col overflow-hidden rounded-2xl border border-border bg-background shadow-2xl"
       >
         <header className="flex h-16 shrink-0 items-center justify-between border-b border-border bg-card px-6">
