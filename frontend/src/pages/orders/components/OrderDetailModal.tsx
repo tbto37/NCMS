@@ -2,15 +2,20 @@ import { useEffect } from "react";
 import { createPortal } from "react-dom";
 import {
   CalendarDays,
+  CreditCard,
+  FileText,
   Hash,
   Mail,
   MapPin,
   Package,
   Phone,
+  Printer,
   ReceiptText,
+  User,
   UserRound,
   X,
 } from "lucide-react";
+import { generateCardPrintPdf } from "@/shared/utils/generateCardPrintPdf";
 import DynamicBusinessCardPreview from "@/components/card/DynamicBusinessCardPreview";
 import type { BusinessCardInputData } from "@/shared/types/businessCard";
 
@@ -315,7 +320,25 @@ export default function OrderDetailModal({
           </div>
         </main>
 
-        <footer className="flex shrink-0 justify-end border-t border-border bg-card px-5 py-4 sm:px-6">
+        <footer className="flex shrink-0 justify-between items-center border-t border-border bg-card px-5 py-4 sm:px-6">
+          <button
+            type="button"
+            onClick={() =>
+              generateCardPrintPdf({
+                id: String(order.id || ""),
+                orderNo: String(order.orderNumber || order.id || ""),
+                recipientName: order.customerName || "명함",
+                name: order.customerName || "명함",
+                site: order.department || "",
+                templateId: order.templateId ? String(order.templateId) : "T_CHEIL",
+                cardDataJson: order.cardDataJson,
+              })
+            }
+            className="flex h-10 items-center gap-1.5 rounded-md border border-border bg-secondary px-4 text-xs font-semibold text-foreground transition hover:bg-secondary/80"
+          >
+            <Printer size={14} className="text-primary" />
+            인쇄용 무손실 PDF 다운로드
+          </button>
           <button
             type="button"
             onClick={onClose}

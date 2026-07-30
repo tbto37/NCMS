@@ -3,12 +3,18 @@ import {
   Download,
   Eye,
   FileDown,
+  FileSpreadsheet,
+  Filter,
   Package,
+  Plus,
   Printer,
   ReceiptText,
+  RefreshCw,
   RotateCcw,
+  Search,
   Truck,
 } from "lucide-react";
+import { generateCardPrintPdf } from "@/shared/utils/generateCardPrintPdf";
 import { useNavigate, useParams } from "react-router";
 import { SearchBar } from "@/components/common/SearchBar";
 import { Pagination } from "@/components/common/Pagination";
@@ -300,76 +306,15 @@ export default function OrdersPage() {
   }
 
   function handlePrintOrder(order: Order) {
-    let parsed: BusinessCardInputData | null = null;
-    if (order.cardDataJson) {
-      try {
-        parsed = JSON.parse(order.cardDataJson);
-      } catch (e) {
-        console.error(e);
-      }
-    }
-
-    const printWindow = window.open("", "_blank", "width=800,height=600");
-    if (!printWindow) {
-      alert("팝업이 차단되었습니다. 팝업을 허용해 주세요.");
-      return;
-    }
-
-    const frontName = parsed?.front?.name || order.name;
-    const frontDept = parsed?.front?.department || order.site;
-    const frontPos = parsed?.front?.position1 || "";
-    const frontPhone = parsed?.front?.mobile || order.phone;
-    const frontEmail = parsed?.front?.email || "";
-    const frontAddress = parsed?.front?.address || order.address;
-
-    printWindow.document.write(`
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <title>명함 인쇄 - ${order.id}</title>
-        <style>
-          @page { size: A4; margin: 20mm; }
-          body { font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif; margin: 0; padding: 20px; color: #333; }
-          .card-container { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 20px; }
-          .card-box {
-            width: 90mm;
-            height: 50mm;
-            border: 1px solid #ccc;
-            padding: 15px;
-            box-sizing: border-box;
-            background: #fff;
-            position: relative;
-            border-radius: 4px;
-          }
-          .company { font-size: 14px; font-weight: bold; color: #06418f; }
-          .name { font-size: 16px; font-weight: bold; margin-top: 10px; }
-          .title { font-size: 10px; color: #666; margin-bottom: 10px; }
-          .contact { font-size: 9px; color: #444; line-height: 1.4; position: absolute; bottom: 12px; }
-          .btn-print { padding: 8px 16px; background: #06418f; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
-          @media print { .no-print { display: none; } }
-        </style>
-      </head>
-      <body>
-        <div class="no-print" style="margin-bottom: 20px;">
-          <button class="btn-print" onclick="window.print()">🖨️ 명함 즉시 인쇄 (PDF 저장)</button>
-        </div>
-        <h2>NCMS 명함 인쇄용 스냅샷 [주문번호: ${order.id}]</h2>
-        <p>고객사: ${order.site} | 주문자: ${order.name} | 재질: ${order.material} | 수량: ${order.quantity}개</p>
-        <div class="card-container">
-          <div class="card-box">
-            <div class="company">${order.site}</div>
-            <div class="name">${frontName} <span style="font-size:11px; font-weight:normal;">${frontPos}</span></div>
-            <div class="title">${frontDept}</div>
-            <div class="contact">
-              <div>TEL: ${frontPhone} ${frontEmail ? '| EMAIL: ' + frontEmail : ''}</div>
-              <div>${frontAddress}</div>
-            </div>
-          </div>
-        </div>
-      </body>
-      </html>
-    `);
-    printWindow.document.close();
+    generateCardPrintPdf({
+      id: order.id,
+      orderNo: order.id,
+      recipientName: order.name,
+      name: order.name,
+      site: order.site,
+      templateId: order.templateId || "T_CHEIL",
+      cardDataJson: order.cardDataJson,
+    });
   }
 
   const isOperator = useMemo(() => {
