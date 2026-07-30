@@ -4,6 +4,7 @@ import { Pencil, X } from "lucide-react";
 
 export interface MemberEditData {
   id: number | string;
+  loginId?: string;
   password?: string;
   department?: string;
 }
@@ -16,13 +17,14 @@ interface MemberEditModalProps {
 }
 
 export default function MemberEditModal({
-                                          open,
-                                          member,
-                                          onClose,
-                                          onSubmit,
-                                        }: MemberEditModalProps) {
+  open,
+  member,
+  onClose,
+  onSubmit,
+}: MemberEditModalProps) {
   const [form, setForm] = useState<MemberEditData>({
     id: "",
+    loginId: "",
     password: "",
     department: "",
   });
@@ -32,6 +34,7 @@ export default function MemberEditModal({
 
     setForm({
       id: member.id ?? "",
+      loginId: member.loginId ?? String(member.id ?? ""),
       password: member.password ?? "",
       department: member.department ?? "",
     });
@@ -117,10 +120,11 @@ export default function MemberEditModal({
 
         <form onSubmit={handleSubmit}>
           <div className="space-y-4 px-5 py-5">
+            {/* ID (Readonly) */}
             <div>
               <label
                 htmlFor="member-edit-id"
-                className="mb-1.5 block text-xs font-medium text-foreground"
+                className="mb-1.5 block text-xs font-semibold text-foreground"
               >
                 ID
               </label>
@@ -128,16 +132,18 @@ export default function MemberEditModal({
               <input
                 id="member-edit-id"
                 type="text"
-                value={form.id}
-                onChange={(event) => handleChange("id", event.target.value)}
-                className="h-10 w-full rounded-md border border-border bg-secondary/45 px-3 text-xs text-foreground outline-none transition focus:border-ring focus:bg-background focus:ring-2 focus:ring-ring/15"
+                value={form.loginId || form.id}
+                readOnly
+                tabIndex={-1}
+                className="h-10 w-full rounded-md border border-border bg-secondary/80 px-3 text-xs font-mono text-muted-foreground cursor-not-allowed outline-none select-none"
               />
             </div>
 
+            {/* 비밀번호 (Editable) */}
             <div>
               <label
                 htmlFor="member-edit-password"
-                className="mb-1.5 block text-xs font-medium text-foreground"
+                className="mb-1.5 block text-xs font-semibold text-foreground"
               >
                 비밀번호
               </label>
@@ -150,14 +156,15 @@ export default function MemberEditModal({
                   handleChange("password", event.target.value)
                 }
                 placeholder="변경할 비밀번호를 입력하세요"
-                className="h-10 w-full rounded-md border border-border bg-secondary/45 px-3 text-xs text-foreground outline-none transition placeholder:text-muted-foreground/70 focus:border-ring focus:bg-background focus:ring-2 focus:ring-ring/15"
+                className="h-10 w-full rounded-md border border-border bg-secondary/45 px-3 text-xs font-mono text-foreground outline-none transition placeholder:text-muted-foreground/70 focus:border-ring focus:bg-background focus:ring-2 focus:ring-ring/15"
               />
             </div>
 
+            {/* 부서 (Readonly) */}
             <div>
               <label
                 htmlFor="member-edit-department"
-                className="mb-1.5 block text-xs font-medium text-foreground"
+                className="mb-1.5 block text-xs font-semibold text-foreground"
               >
                 부서
               </label>
@@ -166,11 +173,9 @@ export default function MemberEditModal({
                 id="member-edit-department"
                 type="text"
                 value={form.department ?? ""}
-                onChange={(event) =>
-                  handleChange("department", event.target.value)
-                }
-                placeholder="부서를 입력하세요"
-                className="h-10 w-full rounded-md border border-border bg-secondary/45 px-3 text-xs text-foreground outline-none transition placeholder:text-muted-foreground/70 focus:border-ring focus:bg-background focus:ring-2 focus:ring-ring/15"
+                readOnly
+                tabIndex={-1}
+                className="h-10 w-full rounded-md border border-border bg-secondary/80 px-3 text-xs text-muted-foreground cursor-not-allowed outline-none select-none"
               />
             </div>
           </div>

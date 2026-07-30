@@ -233,7 +233,8 @@ export default function MembersPage() {
 
   function handleEditMember(member: Member) {
     setSelectedMember({
-      id: member.loginId,
+      id: member.id,
+      loginId: member.loginId,
       password: member.password,
       department: member.dept,
     });
@@ -425,7 +426,7 @@ export default function MembersPage() {
       )}
 
       <div className="overflow-hidden rounded-lg border border-border bg-card">
-        <div className="flex overflow-x-auto border-b border-border">
+        <div className="flex flex-wrap border-b border-border">
           {memberTabs.map((tab) => {
             const count =
               tab === "전체"
@@ -511,7 +512,7 @@ export default function MembersPage() {
           </div>
         ) : (
           <>
-            <div className="hidden h-[510px] overflow-auto md:block">
+            <div className="hidden h-[460px] overflow-auto md:block">
               <table className="w-full min-w-[760px] table-fixed">
                 <colgroup>
                   <col style={{ width: "48px" }} />
@@ -523,7 +524,7 @@ export default function MembersPage() {
 
                 <thead>
                 <tr className="border-b border-border bg-secondary/40">
-                  <th className="px-0 py-2.5 text-center">
+                  <th className="px-0 py-2 text-center">
                     <input
                       type="checkbox"
                       checked={allSelected}
@@ -540,7 +541,7 @@ export default function MembersPage() {
                   ].map((header) => (
                     <th
                       key={header}
-                      className={`px-4 py-2.5 text-xs font-medium tracking-wider text-muted-foreground ${
+                      className={`px-4 py-2 text-xs font-medium tracking-wider text-muted-foreground ${
                         header === "액션"
                           ? "text-right"
                           : "text-left"
@@ -571,7 +572,7 @@ export default function MembersPage() {
                       }`}
                     >
                       <td
-                        className="px-0 py-3 text-center"
+                        className="px-0 py-2 text-center"
                         onClick={(event) =>
                           event.stopPropagation()
                         }
@@ -586,15 +587,15 @@ export default function MembersPage() {
                         />
                       </td>
 
-                      <td className="px-4 py-3 text-xs font-medium text-foreground">
+                      <td className="px-4 py-2 text-xs font-medium text-foreground">
                         {member.company}
                       </td>
 
-                      <td className="px-4 py-3 font-mono text-xs text-muted-foreground">
+                      <td className="px-4 py-2 font-mono text-xs text-muted-foreground">
                         {member.loginId}
                       </td>
 
-                      <td className="px-4 py-3 font-mono text-xs text-muted-foreground">
+                      <td className="px-4 py-2 font-mono text-xs text-muted-foreground">
                         {member.password}
                       </td>
 
@@ -713,11 +714,32 @@ export default function MembersPage() {
         open={selectedMember !== null}
         member={selectedMember}
         onClose={() => setSelectedMember(null)}
-        onSubmit={(updatedMember) => {
-          console.log(
-            "수정할 회원:",
-            updatedMember,
-          );
+        onSubmit={async (updatedMember) => {
+          if (updatedMember.password) {
+            try {
+              await fetch(`${API_BASE_URL}/api/v1/auth/password/change`, {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${accessToken}`,
+                },
+                body: JSON.stringify({
+                  currentPassword: selectedMember?.password || "",
+                  newPassword: updatedMember.password,
+                }),
+              });
+            } catch (err) {
+              console.error("비밀번호 변경 실패:", err);
+            }
+
+            setMembers((prevMembers) =>
+              prevMembers.map((m) =>
+                m.id === updatedMember.id || m.loginId === updatedMember.loginId
+                  ? { ...m, password: updatedMember.password || m.password }
+                  : m
+              )
+            );
+          }
 
           setSelectedMember(null);
         }}
