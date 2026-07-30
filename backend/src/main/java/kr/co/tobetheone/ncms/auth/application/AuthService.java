@@ -61,7 +61,7 @@ public class AuthService {
                 throw new CustomException("비활성화된 고객사 사이트입니다.", HttpStatus.FORBIDDEN);
             }
 
-            boolean isOperator = roles.contains("ROLE_OPERATOR") || roles.contains("ROLE_SYSTEM_ADMIN");
+            boolean isOperator = roles.contains("ROLE_OPERATOR");
             if (!isOperator) {
                 String memberSiteCode = member.getCompany() != null ? member.getCompany().getSiteCode() : null;
                 if (memberSiteCode == null || !memberSiteCode.equalsIgnoreCase(request.getSiteCode())) {

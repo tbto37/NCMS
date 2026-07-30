@@ -52,17 +52,18 @@ public class SecurityConfig {
                         .hasAnyRole("EMPLOYEE", "COMPANY_ADMIN", "OPERATOR")
                         .requestMatchers(HttpMethod.POST, "/api/v1/company/departments")
                         .hasAnyRole("COMPANY_ADMIN", "OPERATOR")
-                        .requestMatchers(HttpMethod.POST, "/api/v1/company/members").hasRole("COMPANY_ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/api/v1/company/members")
+                        .hasAnyRole("COMPANY_ADMIN", "OPERATOR")
                         .requestMatchers(HttpMethod.GET, "/api/v1/company/members")
                         .hasAnyRole("COMPANY_ADMIN", "OPERATOR")
                         .requestMatchers(HttpMethod.PUT, "/api/v1/company/members/**")
                         .hasAnyRole("COMPANY_ADMIN", "OPERATOR")
 
                         // 3. Admin & Operator & Orders
-                        .requestMatchers("/api/v1/admin/**").hasRole("SYSTEM_ADMIN")
-                        .requestMatchers("/api/v1/operator/**").hasAnyRole("OPERATOR", "SYSTEM_ADMIN")
+                        .requestMatchers("/api/v1/admin/**").hasRole("OPERATOR")
+                        .requestMatchers("/api/v1/operator/**").hasRole("OPERATOR")
                         .requestMatchers("/api/v1/orders/**")
-                        .hasAnyRole("EMPLOYEE", "COMPANY_ADMIN", "OPERATOR", "SYSTEM_ADMIN")
+                        .hasAnyRole("EMPLOYEE", "COMPANY_ADMIN", "OPERATOR")
 
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

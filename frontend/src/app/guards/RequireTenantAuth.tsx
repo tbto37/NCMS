@@ -15,13 +15,15 @@ export function RequireTenantAuth() {
   const userSiteCode = user.companySiteCode?.toLowerCase();
   const targetSiteCode = companyCode?.toLowerCase();
 
-  const isOperator = user.roles?.includes("ROLE_OPERATOR") || user.roles?.includes("ROLE_SYSTEM_ADMIN");
+  const isOperator = user.roles?.includes("ROLE_OPERATOR");
 
   const isMatchingTenant =
-    !isOperator &&
-    userSiteCode &&
-    targetSiteCode &&
-    (userSiteCode === targetSiteCode || userSiteCode.includes(targetSiteCode) || targetSiteCode.includes(userSiteCode));
+    isOperator ||
+    (userSiteCode &&
+      targetSiteCode &&
+      (userSiteCode === targetSiteCode ||
+        userSiteCode.includes(targetSiteCode) ||
+        targetSiteCode.includes(userSiteCode)));
 
   if (!isMatchingTenant) {
     // 세션 격리 위반 시 세션 만료 및 해당 고객사 로그인 페이지로 이동

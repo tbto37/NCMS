@@ -28,19 +28,20 @@ export default function LoginPage() {
       setLoading(true);
       setError("");
 
-      const loginResult = await login(id.trim(), pw, remember, companyCode || "logcom");
+      const loginResult = await login(id.trim(), pw, remember, companyCode || "");
       const userSiteCode = loginResult.companySiteCode?.toLowerCase();
       const targetSiteCode = companyCode?.toLowerCase();
-      const isOperator = loginResult.roles?.includes("ROLE_OPERATOR") || loginResult.roles?.includes("ROLE_SYSTEM_ADMIN");
+      const isOperator = loginResult.roles?.includes("ROLE_OPERATOR");
 
       if (isTenantLogin) {
-        // 고객사 어드민/로그인 페이지 접속 시:
-        const isOperatorUser = isOperator || userSiteCode === 'logcom';
+        // 고객사 어드민/로그인 페이지 접속 시 (/:companyCode/login):
         const isMatch =
-          isOperatorUser ||
+          isOperator ||
           (userSiteCode &&
-          targetSiteCode &&
-          (userSiteCode === targetSiteCode || userSiteCode.includes(targetSiteCode) || targetSiteCode.includes(userSiteCode)));
+            targetSiteCode &&
+            (userSiteCode === targetSiteCode ||
+              userSiteCode.includes(targetSiteCode) ||
+              targetSiteCode.includes(userSiteCode)));
 
         if (!isMatch) {
           logout();
@@ -48,26 +49,21 @@ export default function LoginPage() {
           return;
         }
 
-        const isLogcomSite = targetSiteCode === "logcom" || isOperatorUser;
-        if (isLogcomSite) {
-          navigate(`/${companyCode}/orders`, { replace: true });
+        if (isOperator) {
+          navigate("/operator/orders", { replace: true });
         } else {
           navigate(`/${companyCode}/templates`, { replace: true });
         }
       } else {
-        // 백오피스(/admin, /operator) 로그인 페이지 접속 시:
+        // 로그컴 대표 어드민 로그인 페이지 접속 시 (/login):
         if (!isOperator) {
           logout();
           const targetUrl = userSiteCode ? `/${userSiteCode}/login` : "/login";
-          setError(`로그컴 운영자 및 시스템 관리자 전용 로그인 페이지입니다. 소속 고객사 전용 주소(${targetUrl})로 접속해 주세요.`);
+          setError(`로그컴 어드민 전용 로그인 페이지입니다. 소속 고객사 전용 주소(${targetUrl})로 접속해 주세요.`);
           return;
         }
 
-        if (loginResult.roles?.includes("ROLE_OPERATOR")) {
-          navigate("/operator/orders", { replace: true });
-        } else {
-          navigate("/admin/orders", { replace: true });
-        }
+        navigate("/operator/orders", { replace: true });
       }
     } catch (error) {
       setError(
