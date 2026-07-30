@@ -18,6 +18,7 @@ import {
 import { generateCardPrintPdf } from "@/shared/utils/generateCardPrintPdf";
 import DynamicBusinessCardPreview from "@/components/card/DynamicBusinessCardPreview";
 import type { BusinessCardInputData } from "@/shared/types/businessCard";
+import { formatOrderDate } from "@/shared/constants/orders";
 
 export interface OrderDetailData {
   id?: number | string;
@@ -314,7 +315,7 @@ export default function OrderDetailModal({
 
               <dl className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
                 <DetailItem label="주문상태" value={order.status} />
-                <DetailItem label="접수일자" value={order.createdAt} />
+                <DetailItem label="접수일자" value={formatOrderDate(order.createdAt)} />
               </dl>
             </section>
           </div>

@@ -819,7 +819,14 @@ export default function OrdersPage() {
                         {order.material} · {order.quantity.toLocaleString()}매
                       </td>
                       <td className="px-3 py-2">
-                        <StatusBadge status={order.status} />
+                        <StatusBadge
+                          status={order.status}
+                          tooltip={
+                            order.status === "승인반려"
+                              ? order.rejectReason || "승인반려 사유 없음"
+                              : undefined
+                          }
+                        />
                       </td>
                       <td className="px-3 py-2 text-right">
                         <OrderActions
