@@ -635,13 +635,6 @@ export default function TemplateEditModal({
 
           <div className="flex gap-2">
             <button
-              type="button"
-              onClick={onSave}
-              className="flex h-10 items-center gap-2 rounded-md border border-border bg-background px-4 text-xs font-medium text-foreground transition hover:bg-secondary"
-            >
-              <Save size={14} /> 임시저장
-            </button>
-            <button
               type="submit"
               className="flex h-10 items-center gap-2 rounded-md bg-primary px-5 text-xs font-medium text-primary-foreground transition hover:opacity-90"
             >
