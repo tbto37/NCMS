@@ -16,4 +16,6 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     List<Order> findAllByOrderByCreatedAtDesc();
 
     long countByCreatedAtBetween(LocalDateTime start, LocalDateTime end);
+
+    boolean existsByOrderNo(String orderNo);
 }

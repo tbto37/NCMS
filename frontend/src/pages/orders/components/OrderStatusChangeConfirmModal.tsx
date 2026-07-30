@@ -49,7 +49,7 @@ export default function OrderStatusChangeConfirmModal({
   if (!open || !request) return null;
 
   const isDanger = request.variant === "danger";
-  const isReject = request.actionLabel === "주문 반려";
+  const isReject = request.actionLabel === "주문 반려" || request.targetStatus === "REJECTED";
   const isDelete = request.actionLabel === "영구 삭제" || request.targetStatus === "DELETE";
   const orderCount = request.orderIds.length;
 
@@ -60,6 +60,8 @@ export default function OrderStatusChangeConfirmModal({
   const confirmBtnText = isDelete
     ? `"${targetName}"(으)로 삭제하기`
     : `"${targetName}"(으)로 변경하기`;
+
+  const isSubmitDisabled = submitting || (isReject && !reason.trim());
 
   return createPortal(
     <div
@@ -97,11 +99,10 @@ export default function OrderStatusChangeConfirmModal({
         <header className="flex h-16 shrink-0 items-center justify-between border-b border-border bg-card px-5 sm:px-6">
           <div className="flex min-w-0 items-center gap-3">
             <span
-              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${
-                isDanger
-                  ? "bg-red-50 text-red-500 dark:bg-red-950/40"
-                  : "bg-primary/10 text-primary"
-              }`}
+              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${isDanger
+                ? "bg-red-50 text-red-500 dark:bg-red-950/40"
+                : "bg-primary/10 text-primary"
+                }`}
             >
               <RefreshCw size={17} />
             </span>
@@ -172,17 +173,15 @@ export default function OrderStatusChangeConfirmModal({
           )}
 
           <div
-            className={`mt-5 flex items-start gap-3 rounded-lg border px-4 py-4 ${
-              isDanger
-                ? "border-red-200 bg-red-50/70 dark:border-red-900/50 dark:bg-red-950/20"
-                : "border-border bg-card"
-            }`}
+            className={`mt-5 flex items-start gap-3 rounded-lg border px-4 py-4 ${isDanger
+              ? "border-red-200 bg-red-50/70 dark:border-red-900/50 dark:bg-red-950/20"
+              : "border-border bg-card"
+              }`}
           >
             <TriangleAlert
               size={18}
-              className={`mt-0.5 shrink-0 ${
-                isDanger ? "text-red-500" : "text-accent"
-              }`}
+              className={`mt-0.5 shrink-0 ${isDanger ? "text-red-500" : "text-accent"
+                }`}
             />
 
             <div>
@@ -199,8 +198,8 @@ export default function OrderStatusChangeConfirmModal({
                 {isDelete
                   ? `삭제된 주문 내역은 복구할 수 없습니다.`
                   : request.currentStatus
-                  ? `현재 "${request.currentStatus}" 탭에서 선택한 주문 ${orderCount}건의 상태를 변경 후 해당 탭으로 이동합니다.`
-                  : `선택한 주문 ${orderCount}건의 상태를 변경합니다.`}
+                    ? `현재 "${request.currentStatus}" 탭에서 선택한 주문 ${orderCount}건의 상태를 변경 후 해당 탭으로 이동합니다.`
+                    : `선택한 주문 ${orderCount}건의 상태를 변경합니다.`}
               </p>
             </div>
           </div>
@@ -218,13 +217,12 @@ export default function OrderStatusChangeConfirmModal({
 
           <button
             type="button"
-            disabled={submitting}
+            disabled={isSubmitDisabled}
             onClick={() => onConfirm?.({ ...request, reason: reason.trim() })}
-            className={`flex h-10 items-center justify-center gap-2 rounded-md px-4 text-xs font-medium text-white transition disabled:opacity-60 ${
-              isDanger
-                ? "bg-red-500 hover:bg-red-600 shadow-xs"
-                : "bg-primary text-primary-foreground hover:opacity-90 shadow-xs"
-            }`}
+            className={`flex h-10 items-center justify-center gap-2 rounded-md px-4 text-xs font-medium text-white transition disabled:opacity-60 ${isDanger
+              ? "bg-red-500 hover:bg-red-600 shadow-xs"
+              : "bg-primary text-primary-foreground hover:opacity-90 shadow-xs"
+              }`}
           >
             {submitting ? (
               <>

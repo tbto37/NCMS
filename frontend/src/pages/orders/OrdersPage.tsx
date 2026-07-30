@@ -468,8 +468,8 @@ export default function OrdersPage() {
       memo: order.rejectReason
         ? `반려 사유: ${order.rejectReason}`
         : order.trackingNumber
-        ? `배송방법: ${order.carrierCode || "택배"} / 송장번호: ${order.trackingNumber}`
-        : "",
+          ? `배송방법: ${order.carrierCode || "택배"} / 송장번호: ${order.trackingNumber}`
+          : "",
       customerName: order.name,
       phone: order.recipientPhone || order.phone,
       email: "contact@company.com",
@@ -701,19 +701,17 @@ export default function OrdersPage() {
                 key={tab}
                 type="button"
                 onClick={() => handleTabChange(tab)}
-                className={`-mb-px flex items-center gap-1.5 whitespace-nowrap border-b-2 px-3 py-3 text-xs font-medium transition-colors md:px-4 ${
-                  active
+                className={`-mb-px flex items-center gap-1.5 whitespace-nowrap border-b-2 px-3 py-3 text-xs font-medium transition-colors md:px-4 ${active
                     ? "border-primary text-foreground"
                     : "border-transparent text-muted-foreground hover:text-foreground"
-                }`}
+                  }`}
               >
                 {tab}
                 <span
-                  className={`rounded-full px-1.5 py-0.5 text-[10px] ${
-                    active
+                  className={`rounded-full px-1.5 py-0.5 text-[10px] ${active
                       ? "bg-primary/10 text-primary font-semibold"
                       : "bg-secondary text-muted-foreground"
-                  }`}
+                    }`}
                 >
                   {count}
                 </span>
@@ -736,13 +734,12 @@ export default function OrdersPage() {
                   key={action.label}
                   disabled={selectedCount === 0}
                   onClick={() => handleOpenStatusChange(action)}
-                  className={`rounded px-2.5 py-1 text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${
-                    action.variant === "danger"
+                  className={`rounded px-2.5 py-1 text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${action.variant === "danger"
                       ? "border border-red-200 bg-red-50 text-red-600 hover:bg-red-100"
                       : action.variant === "primary"
-                      ? "bg-primary text-primary-foreground hover:opacity-90"
-                      : "border border-border bg-background text-foreground hover:bg-secondary"
-                  }`}
+                        ? "bg-primary text-primary-foreground hover:opacity-90"
+                        : "border border-border bg-background text-foreground hover:bg-secondary"
+                    }`}
                 >
                   {action.label}
                 </button>
@@ -794,9 +791,8 @@ export default function OrdersPage() {
                   return (
                     <tr
                       key={order.id}
-                      className={`transition-colors hover:bg-secondary/30 ${
-                        isSelected ? "bg-secondary/40" : ""
-                      }`}
+                      className={`transition-colors hover:bg-secondary/30 ${isSelected ? "bg-secondary/40" : ""
+                        }`}
                     >
                       <td className="px-3 py-2 text-center">
                         <input

@@ -218,8 +218,13 @@ public class OrderService {
         LocalDateTime endOfDay = now.toLocalDate().atTime(LocalTime.MAX);
 
         long todayCount = orderRepository.countByCreatedAtBetween(startOfDay, endOfDay);
-        long nextSeq = todayCount + 1;
+        long seq = todayCount + 1;
 
-        return String.format("ORD-%s-%04d", dateStr, nextSeq);
+        String candidate;
+        do {
+            candidate = String.format("ORD-%s-%04d", dateStr, seq++);
+        } while (orderRepository.existsByOrderNo(candidate));
+
+        return candidate;
     }
 }

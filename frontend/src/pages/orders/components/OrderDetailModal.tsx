@@ -48,10 +48,10 @@ interface OrderDetailModalProps {
 }
 
 function DetailItem({
-                      label,
-                      value,
-                      fullWidth = false,
-                    }: {
+  label,
+  value,
+  fullWidth = false,
+}: {
   label: string;
   value?: React.ReactNode;
   fullWidth?: boolean;
@@ -69,9 +69,9 @@ function DetailItem({
 }
 
 function SectionTitle({
-                        icon,
-                        title,
-                      }: {
+  icon,
+  title,
+}: {
   icon: React.ReactNode;
   title: string;
 }) {
@@ -86,10 +86,10 @@ function SectionTitle({
 }
 
 export default function OrderDetailModal({
-                                           open,
-                                           order,
-                                           onClose,
-                                         }: OrderDetailModalProps) {
+  open,
+  order,
+  onClose,
+}: OrderDetailModalProps) {
   useEffect(() => {
     if (!open) return;
 
