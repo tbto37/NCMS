@@ -389,6 +389,56 @@ export default function OrdersPage() {
     void fetchCompanies();
   }, []);
 
+  // Fetch Orders list
+  useEffect(() => {
+    let isMounted = true;
+    async function fetchOrders() {
+      if (!accessToken) {
+        setLoading(false);
+        return;
+      }
+      setLoading(true);
+      setLoadError("");
+      try {
+        const endpoint = isOperator
+          ? `${API_BASE_URL}/api/v1/operator/orders`
+          : `${API_BASE_URL}/api/v1/orders`;
+        const res = await fetch(endpoint, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
+        if (!res.ok) {
+          throw new Error("주문 목록을 불러오는데 실패했습니다.");
+        }
+        const json: ApiResponse<BackendOrderResponse[]> = await res.json();
+        if (isMounted) {
+          if (json.data && Array.isArray(json.data)) {
+            const mapped = json.data.map(mapOrderResponse);
+            setOrders(mapped);
+          } else {
+            setOrders([]);
+          }
+        }
+      } catch (err: any) {
+        console.error("Failed to fetch orders:", err);
+        if (isMounted) {
+          setLoadError(err.message || "주문 목록을 불러오는 중 오류가 발생했습니다.");
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    }
+
+    void fetchOrders();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [accessToken, isOperator, reloadKey]);
+
   const orderCompanies = useMemo(() => {
     const combined = new Set([...dbCompanies, ...orders.map((o) => o.site)]);
     return Array.from(combined)
