@@ -14,6 +14,7 @@ public class MemberResponse {
     private Long departmentId;
     private String departmentName;
     private String username;
+    private String password;
     private String name;
     private String email;
     private String phone;

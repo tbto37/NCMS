@@ -1,12 +1,20 @@
 import { useLocation, useParams } from "react-router";
-import { Menu, Search, Bell } from "lucide-react";
+import { Menu, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import {
   getLayoutBasePath,
   getNavItems,
 } from "@/shared/constants/navigation";
 import { useAuth } from "@/app/providers/AuthProvider";
 
-export function Topbar({ onMenu }: { onMenu: () => void }) {
+export function Topbar({
+  onMenu,
+  sidebarCollapsed,
+  onToggleSidebar,
+}: {
+  onMenu: () => void;
+  sidebarCollapsed: boolean;
+  onToggleSidebar: () => void;
+}) {
   const location = useLocation();
   const { companyCode } = useParams<{ companyCode?: string }>();
   const { user } = useAuth();
@@ -19,11 +27,12 @@ export function Topbar({ onMenu }: { onMenu: () => void }) {
       location.pathname.startsWith(`${item.path}/`),
   );
 
-  const displayName = user?.name || "김관리자";
-  const initial = displayName.trim().charAt(0) || "K";
+  const displayName = user?.name || "관리자";
+  const initial = displayName.trim().charAt(0) || "A";
 
   return (
     <header className="h-12 bg-card border-b border-border flex items-center px-4 gap-3 shrink-0">
+      {/* Mobile Menu Button */}
       <button
         type="button"
         onClick={onMenu}
@@ -33,35 +42,37 @@ export function Topbar({ onMenu }: { onMenu: () => void }) {
         <Menu size={16} />
       </button>
 
-      <span className="text-xs font-medium md:hidden">
+      {/* Desktop Sidebar Toggle / Expansion Button (검색 및 알림 제거 ➔ 확장 버튼 교체) */}
+      <button
+        type="button"
+        onClick={onToggleSidebar}
+        className="hidden md:flex items-center gap-1.5 rounded-lg border border-border bg-secondary/50 px-3 py-1.5 text-xs font-semibold text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors shadow-xs"
+        title={sidebarCollapsed ? "사이드바 펼치기" : "화면 넓게 보기 (사이드바 접기)"}
+      >
+        {sidebarCollapsed ? (
+          <>
+            <PanelLeftOpen size={16} />
+            <span>메뉴 펼치기</span>
+          </>
+        ) : (
+          <>
+            <PanelLeftClose size={16} />
+            <span>화면 넓게 보기</span>
+          </>
+        )}
+      </button>
+
+      <span className="text-xs font-semibold md:hidden text-foreground">
         {currentNav?.label}
       </span>
 
-      <div className="relative hidden sm:block flex-1 max-w-xs">
-        <Search
-          size={12}
-          className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground"
-        />
-        <input
-          placeholder="검색..."
-          className="w-full pl-7 pr-3 py-1 text-xs bg-secondary border border-border rounded focus:outline-none focus:ring-1 focus:ring-ring"
-        />
-      </div>
-
-      <div className="ml-auto flex items-center gap-2 md:gap-3">
-        <button
-          type="button"
-          className="relative text-muted-foreground hover:text-foreground transition-colors"
-          aria-label="알림"
-        >
-          <Bell size={15} />
-          <span className="absolute -top-0.5 -right-0.5 w-1.5 h-1.5 bg-accent rounded-full" />
-        </button>
-        <div className="flex items-center gap-2 border-l border-border pl-2 md:pl-3">
-          <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center text-xs font-medium text-primary-foreground">
+      {/* User Profile */}
+      <div className="ml-auto flex items-center gap-3">
+        <div className="flex items-center gap-2 border-l border-border pl-3">
+          <div className="w-7 h-7 rounded-full bg-primary flex items-center justify-center text-xs font-medium text-primary-foreground">
             {initial}
           </div>
-          <span className="text-xs font-medium hidden sm:block">
+          <span className="text-xs font-semibold hidden sm:block text-foreground">
             {displayName}
           </span>
         </div>

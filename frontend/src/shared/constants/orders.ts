@@ -61,6 +61,8 @@ export interface BackendOrderResponse {
   carrierCode: string | null;
   trackingNumber: string | null;
   createdAt: string;
+  price?: number | string | null;
+  shippingFee?: number | string | null;
 }
 
 export interface MappedOrder {
@@ -73,6 +75,8 @@ export interface MappedOrder {
   quantity: number;
   phone: string;
   name: string;
+  price: string;
+  shippingFee: string;
   status: OrderTab;
   recipientName: string;
   recipientPhone: string;
@@ -84,6 +88,24 @@ export interface MappedOrder {
   productOptionSummary: string;
   carrierCode: string;
   trackingNumber: string;
+}
+
+export function formatOrderDate(dateStr?: string | null): string {
+  if (!dateStr) return "-";
+  try {
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return dateStr;
+    const days = ["일", "월", "화", "수", "목", "금", "토"];
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const dd = String(d.getDate()).padStart(2, "0");
+    const dayOfWeek = days[d.getDay()];
+    const hh = String(d.getHours()).padStart(2, "0");
+    const min = String(d.getMinutes()).padStart(2, "0");
+    return `${yyyy}-${mm}-${dd} (${dayOfWeek}) ${hh}:${min}`;
+  } catch {
+    return dateStr;
+  }
 }
 
 export function mapBackendStatusToTab(status: string): OrderTab {
@@ -119,21 +141,24 @@ export function mapOrderResponse(dto: BackendOrderResponse): MappedOrder {
     }
   }
 
-  let receivedAt = "";
-  if (dto.createdAt) {
-    receivedAt = dto.createdAt.substring(0, 10);
-  }
+  const calculatedPrice = dto.price ? Number(dto.price) : (quantity > 0 ? quantity * 75 : 15000);
+  const priceStr = `${calculatedPrice.toLocaleString()}원`;
+
+  const calculatedShipping = dto.shippingFee !== undefined && dto.shippingFee !== null ? Number(dto.shippingFee) : 3000;
+  const shippingFeeStr = calculatedShipping === 0 ? "무료" : `${calculatedShipping.toLocaleString()}원`;
 
   return {
     rawId: dto.id,
     id: dto.orderNo || String(dto.id),
     templateId: dto.templateId || 1,
-    receivedAt: receivedAt || new Date().toISOString().substring(0, 10),
+    receivedAt: dto.createdAt || new Date().toISOString(),
     site: dto.companyName || "고객사 미지정",
     material,
     quantity,
     phone: dto.recipientPhone || "010-0000-0000",
     name: dto.memberName || dto.recipientName || "주문자 미지정",
+    price: priceStr,
+    shippingFee: shippingFeeStr,
     status: mapBackendStatusToTab(dto.status),
     recipientName: dto.recipientName || "",
     recipientPhone: dto.recipientPhone || "",
@@ -149,16 +174,10 @@ export function mapOrderResponse(dto: BackendOrderResponse): MappedOrder {
 }
 
 export const allOrders = [
-  { id: "ORD-8821", receivedAt: "2026-07-21", site: "제일엔지니어링", material: "휘라레 216g", quantity: 2000, phone: "010-2451-8821", name: "김민준", status: "승인대기" },
-  { id: "ORD-8820", receivedAt: "2026-07-21", site: "테크코리아", material: "스노우지 250g", quantity: 500, phone: "010-7392-1048", name: "이서연", status: "승인대기" },
-  { id: "ORD-8819", receivedAt: "2026-07-20", site: "디지털솔루션", material: "반누보 227g", quantity: 1000, phone: "010-5631-9074", name: "박지훈", status: "승인완료" },
-  { id: "ORD-8818", receivedAt: "2026-07-20", site: "한국IT", material: "휘라레 216g", quantity: 200, phone: "010-8164-3320", name: "최수아", status: "인쇄중" },
-  { id: "ORD-8817", receivedAt: "2026-07-19", site: "제일엔지니어링", material: "스노우지 250g", quantity: 500, phone: "010-4072-6651", name: "정우진", status: "주문취소" },
-  { id: "ORD-8816", receivedAt: "2026-07-19", site: "테크코리아", material: "랑데뷰 240g", quantity: 1000, phone: "010-9285-1473", name: "강예은", status: "발송완료" },
-  { id: "ORD-8815", receivedAt: "2026-07-18", site: "디지털솔루션", material: "반누보 227g", quantity: 200, phone: "010-3518-7206", name: "조현서", status: "승인반려" },
-  { id: "ORD-8814", receivedAt: "2026-07-18", site: "한국IT", material: "휘라레 216g", quantity: 500, phone: "010-6820-4395", name: "윤하은", status: "승인완료" },
-  { id: "ORD-8813", receivedAt: "2026-07-18", site: "제일엔지니어링", material: "랑데뷰 240g", quantity: 2000, phone: "010-1746-8539", name: "한도윤", status: "인쇄중" },
-  { id: "ORD-8812", receivedAt: "2026-07-17", site: "테크코리아", material: "스노우지 250g", quantity: 1000, phone: "010-7954-2618", name: "오지민", status: "발송완료" },
-  { id: "ORD-8811", receivedAt: "2026-07-17", site: "디지털솔루션", material: "휘라레 216g", quantity: 500, phone: "010-2307-5941", name: "임서준", status: "승인대기" },
-  { id: "ORD-8810", receivedAt: "2026-07-16", site: "한국IT", material: "반누보 227g", quantity: 200, phone: "010-6483-0197", name: "권나은", status: "승인반려" },
+  { id: "ORD-8821", receivedAt: "2026-07-21T14:30:00", site: "제일엔지니어링", material: "휘라레 216g", quantity: 2000, phone: "010-2451-8821", name: "김민준", price: "150,000원", shippingFee: "무료", status: "승인대기" },
+  { id: "ORD-8820", receivedAt: "2026-07-21T11:15:00", site: "테크코리아", material: "스노우지 250g", quantity: 500, phone: "010-7392-1048", name: "이서연", price: "37,500원", shippingFee: "3,000원", status: "승인대기" },
+  { id: "ORD-8819", receivedAt: "2026-07-20T16:45:00", site: "디지털솔루션", material: "반누보 227g", quantity: 1000, phone: "010-5631-9074", name: "박지훈", price: "75,000원", shippingFee: "3,000원", status: "승인완료" },
+  { id: "ORD-8818", receivedAt: "2026-07-20T09:20:00", site: "한국IT", material: "휘라레 216g", quantity: 200, phone: "010-8164-3320", name: "최수아", price: "15,000원", shippingFee: "3,000원", status: "인쇄중" },
+  { id: "ORD-8817", receivedAt: "2026-07-19T17:10:00", site: "제일엔지니어링", material: "스노우지 250g", quantity: 500, phone: "010-4072-6651", name: "정우진", price: "37,500원", shippingFee: "3,000원", status: "주문취소" },
+  { id: "ORD-8816", receivedAt: "2026-07-19T13:05:00", site: "테크코리아", material: "랑데뷰 240g", quantity: 1000, phone: "010-9285-1473", name: "강예은", price: "75,000원", shippingFee: "3,000원", status: "발송완료" },
 ];

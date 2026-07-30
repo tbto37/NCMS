@@ -99,6 +99,18 @@ public class MemberService {
         return toResponse(member);
     }
 
+    private String decodePassword(String encodedPassword) {
+        if (encodedPassword == null || encodedPassword.isBlank()) {
+            return "";
+        }
+        try {
+            byte[] decodedBytes = java.util.Base64.getDecoder().decode(encodedPassword);
+            return new String(decodedBytes, java.nio.charset.StandardCharsets.UTF_8);
+        } catch (Exception e) {
+            return encodedPassword;
+        }
+    }
+
     private MemberResponse toResponse(Member member) {
         List<MemberRole> memberRoles = memberRoleRepository.findByMemberId(member.getId());
         List<String> roles = memberRoles.stream()
@@ -112,6 +124,7 @@ public class MemberService {
                 .departmentId(member.getDepartment() != null ? member.getDepartment().getId() : null)
                 .departmentName(member.getDepartment() != null ? member.getDepartment().getName() : null)
                 .username(member.getUsername())
+                .password(decodePassword(member.getPassword()))
                 .name(member.getName())
                 .email(member.getEmail())
                 .phone(member.getPhone())

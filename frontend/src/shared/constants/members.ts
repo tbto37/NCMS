@@ -5,6 +5,7 @@ export interface MemberApiResponse {
   departmentId: number | string | null;
   departmentName: string | null;
   username: string;
+  password?: string | null;
   name: string;
   email: string | null;
   phone: string | null;
@@ -70,7 +71,7 @@ export function mapMemberResponse(member: MemberApiResponse): Member {
     departmentId: member.departmentId ?? "",
     dept: member.departmentName?.trim() || "부서 미지정",
     loginId: member.username,
-    password: MEMBER_DISPLAY_PASSWORD,
+    password: member.password || MEMBER_DISPLAY_PASSWORD,
     name: member.name,
     email: member.email ?? "",
     phone: member.phone ?? "",
