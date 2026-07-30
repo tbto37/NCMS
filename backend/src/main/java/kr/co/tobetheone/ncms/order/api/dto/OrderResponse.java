@@ -15,6 +15,7 @@ public class OrderResponse {
     private Long memberId;
     private String memberName;
     private Long templateId;
+    private String templateName;
     private String status;
     private String recipientName;
     private String recipientPhone;

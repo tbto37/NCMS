@@ -80,18 +80,15 @@ public class OrderService {
     }
 
     public List<OrderResponse> getOrdersByCompany(Long companyId) {
-        return orderRepository.findByCompanyIdOrderByCreatedAtDesc(companyId)
-                .stream().map(this::toResponse).collect(Collectors.toList());
+        return toResponseList(orderRepository.findByCompanyIdOrderByCreatedAtDesc(companyId));
     }
 
     public List<OrderResponse> getOrdersByMember(Long memberId) {
-        return orderRepository.findByMemberIdOrderByCreatedAtDesc(memberId)
-                .stream().map(this::toResponse).collect(Collectors.toList());
+        return toResponseList(orderRepository.findByMemberIdOrderByCreatedAtDesc(memberId));
     }
 
     public List<OrderResponse> getOperatorOrders() {
-        return orderRepository.findAllByOrderByCreatedAtDesc()
-                .stream().map(this::toResponse).collect(Collectors.toList());
+        return toResponseList(orderRepository.findAllByOrderByCreatedAtDesc());
     }
 
     public OrderResponse getOrderDetails(Long orderId) {
@@ -143,6 +140,48 @@ public class OrderService {
         orderRepository.delete(order);
     }
 
+    private List<OrderResponse> toResponseList(List<Order> orders) {
+        if (orders == null || orders.isEmpty()) {
+            return List.of();
+        }
+        List<Long> orderIds = orders.stream().map(order -> order.getId()).toList();
+
+        java.util.Map<Long, OrderSnapshot> snapshotMap = orderSnapshotRepository.findByOrderIdIn(orderIds).stream()
+                .collect(Collectors.toMap(s -> s.getOrder().getId(), s -> s, (s1, s2) -> s1));
+
+        java.util.Map<Long, Shipment> shipmentMap = shipmentRepository.findByOrderIdIn(orderIds).stream()
+                .collect(Collectors.toMap(s -> s.getOrder().getId(), s -> s, (s1, s2) -> s1));
+
+        return orders.stream()
+                .map(order -> {
+                    OrderSnapshot snapshot = snapshotMap.get(order.getId());
+                    Shipment shipment = shipmentMap.get(order.getId());
+                    return OrderResponse.builder()
+                            .id(order.getId())
+                            .orderNo(order.getOrderNo())
+                            .companyId(order.getCompany().getId())
+                            .companyName(order.getCompany().getName())
+                            .memberId(order.getMember().getId())
+                            .memberName(order.getMember().getName())
+                            .templateId(order.getTemplate().getId())
+                            .templateName(order.getTemplate() != null ? order.getTemplate().getName() : null)
+                            .status(order.getStatus())
+                            .recipientName(order.getRecipientName())
+                            .recipientPhone(order.getRecipientPhone())
+                            .zipcode(order.getZipcode())
+                            .address(order.getAddress())
+                            .addressDetail(order.getAddressDetail())
+                            .rejectReason(order.getRejectReason())
+                            .cardDataJson(snapshot != null ? snapshot.getCardData() : null)
+                            .productOptionSummary(snapshot != null ? snapshot.getProductOptionSummary() : null)
+                            .carrierCode(shipment != null ? shipment.getCarrierCode() : null)
+                            .trackingNumber(shipment != null ? shipment.getTrackingNumber() : null)
+                            .createdAt(order.getCreatedAt())
+                            .build();
+                })
+                .collect(Collectors.toList());
+    }
+
     private OrderResponse toResponse(Order order) {
         OrderSnapshot snapshot = orderSnapshotRepository.findByOrderId(order.getId()).orElse(null);
         Shipment shipment = shipmentRepository.findByOrderId(order.getId()).orElse(null);
@@ -155,6 +194,7 @@ public class OrderService {
                 .memberId(order.getMember().getId())
                 .memberName(order.getMember().getName())
                 .templateId(order.getTemplate().getId())
+                .templateName(order.getTemplate() != null ? order.getTemplate().getName() : null)
                 .status(order.getStatus())
                 .recipientName(order.getRecipientName())
                 .recipientPhone(order.getRecipientPhone())

@@ -29,6 +29,20 @@ public class CompanyService {
                 .build();
     }
 
+    public java.util.List<PublicCompanyResponse> getAllPublicCompanies() {
+        return companyRepository.findAll().stream()
+                .filter(c -> "ACTIVE".equals(c.getStatus()))
+                .filter(c -> !"logcom".equalsIgnoreCase(c.getSiteCode()) && !"로그컴".equals(c.getName()))
+                .map(c -> PublicCompanyResponse.builder()
+                        .id(c.getId())
+                        .siteCode(c.getSiteCode())
+                        .name(c.getName())
+                        .logoUrl(c.getLogoUrl())
+                        .primaryColor(c.getPrimaryColor())
+                        .build())
+                .toList();
+    }
+
     public Company getCompanyById(Long id) {
         return companyRepository.findById(id)
                 .orElseThrow(() -> new CustomException("고객사를 찾을 수 없습니다.", HttpStatus.NOT_FOUND));

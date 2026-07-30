@@ -11,6 +11,8 @@ import {
   UserRound,
   X,
 } from "lucide-react";
+import DynamicBusinessCardPreview from "@/components/card/DynamicBusinessCardPreview";
+import type { BusinessCardInputData } from "@/shared/types/businessCard";
 
 export interface OrderDetailData {
   id?: number | string;
@@ -27,6 +29,11 @@ export interface OrderDetailData {
   detailAddress?: string;
   status?: string;
   createdAt?: string;
+  cardDataJson?: string;
+  templateId?: number | string;
+  carrierCode?: string;
+  trackingNumber?: string;
+  rejectReason?: string;
 }
 
 interface OrderDetailModalProps {
@@ -98,6 +105,15 @@ export default function OrderDetailModal({
 
   const orderNumber = order.orderNumber ?? order.id ?? "-";
 
+  let parsedCardData: BusinessCardInputData | null = null;
+  if (order.cardDataJson) {
+    try {
+      parsedCardData = JSON.parse(order.cardDataJson);
+    } catch (e) {
+      console.error("Failed to parse cardDataJson", e);
+    }
+  }
+
   return createPortal(
     <div
       className="fixed inset-0 z-[220] flex items-center justify-center bg-black/55 p-4 backdrop-blur-[2px]"
@@ -111,7 +127,7 @@ export default function OrderDetailModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby="order-detail-title"
-        className="flex max-h-[calc(100dvh-32px)] w-full max-w-[640px] flex-col overflow-hidden rounded-xl border border-border bg-background shadow-2xl"
+        className="flex max-h-[calc(100dvh-32px)] w-full max-w-[680px] flex-col overflow-hidden rounded-xl border border-border bg-background shadow-2xl"
       >
         <header className="flex h-16 shrink-0 items-center justify-between border-b border-border bg-card px-5 sm:px-6">
           <div className="flex min-w-0 items-center gap-3">
@@ -158,6 +174,33 @@ export default function OrderDetailModal({
           </div>
 
           <div className="space-y-4">
+            {parsedCardData && (
+              <section className="rounded-xl border border-border bg-card p-4 sm:p-5">
+                <SectionTitle
+                  icon={<ReceiptText size={14} />}
+                  title="명함 실물 미리보기"
+                />
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <span className="mb-1.5 block text-xs font-medium text-muted-foreground">앞면 (한글)</span>
+                    <DynamicBusinessCardPreview
+                      templateId={order.templateId || "T_CHEIL"}
+                      cardData={parsedCardData}
+                      isBack={false}
+                    />
+                  </div>
+                  <div>
+                    <span className="mb-1.5 block text-xs font-medium text-muted-foreground">뒷면 (영문)</span>
+                    <DynamicBusinessCardPreview
+                      templateId={order.templateId || "T_CHEIL"}
+                      cardData={parsedCardData}
+                      isBack={true}
+                    />
+                  </div>
+                </div>
+              </section>
+            )}
+
             <section className="rounded-xl border border-border bg-card p-4 sm:p-5">
               <SectionTitle
                 icon={<Package size={14} />}
@@ -176,6 +219,20 @@ export default function OrderDetailModal({
                       : `${order.quantity}개`
                   }
                 />
+                {order.rejectReason && (
+                  <DetailItem
+                    label="반려 사유"
+                    value={<span className="font-semibold text-destructive">{order.rejectReason}</span>}
+                    fullWidth
+                  />
+                )}
+                {order.trackingNumber && (
+                  <DetailItem
+                    label="송장 정보"
+                    value={`${order.carrierCode || "택배사"} : ${order.trackingNumber}`}
+                    fullWidth
+                  />
+                )}
                 <DetailItem
                   label="메모"
                   value={order.memo}

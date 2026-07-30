@@ -52,7 +52,15 @@ export function getLayoutBasePath(
 }
 
 export function getNavItems(basePath: string): NavItem[] {
-  const isCustomerSite = basePath !== "/admin" && basePath !== "/operator";
+  const normalized = basePath.toLowerCase();
+  const isOperatorOrAdmin =
+    normalized === "/admin" ||
+    normalized === "/operator" ||
+    normalized === "/logcom" ||
+    normalized.startsWith("/operator/") ||
+    normalized.startsWith("/logcom/");
+
+  const isCustomerSite = !isOperatorOrAdmin;
   const definitions = isCustomerSite
     ? navItemDefinitions
     : navItemDefinitions.filter((item) => item.id !== "templates");

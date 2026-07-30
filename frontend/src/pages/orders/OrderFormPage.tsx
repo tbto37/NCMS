@@ -64,38 +64,49 @@ export default function OrderFormPage() {
 
   const locationState = location.state as OrderFormLocationState | null;
   const orderDraft = locationState?.orderDraft;
+  const reorderData = locationState?.reorderData;
 
-  const cardData: BusinessCardInputData = orderDraft
+  const cardData: BusinessCardInputData = reorderData?.cardData
+    ? reorderData.cardData
+    : orderDraft
     ? { front: orderDraft.front, back: orderDraft.back }
     : defaultCardData;
 
-  const [recipientName, setRecipientName] = useState(orderDraft?.front?.name || "");
+  const [recipientName, setRecipientName] = useState(
+    reorderData?.recipientName || orderDraft?.front?.name || "",
+  );
   const [recipientPhone, setRecipientPhone] = useState(
-    orderDraft?.front?.mobile || orderDraft?.front?.telephone || "",
+    reorderData?.recipientPhone ||
+      orderDraft?.front?.mobile ||
+      orderDraft?.front?.telephone ||
+      "",
   );
   const [recipientAddress, setRecipientAddress] = useState(
-    orderDraft?.front?.address || "",
+    reorderData?.address || orderDraft?.front?.address || "",
   );
-  const [recipientDetailAddress, setRecipientDetailAddress] = useState("");
+  const [recipientDetailAddress, setRecipientDetailAddress] = useState(
+    reorderData?.addressDetail || "",
+  );
 
   useEffect(() => {
     console.group("📇 주문서 페이지 전달 데이터");
     console.log("전체 location.state:", location.state);
     console.log("전체 orderDraft:", orderDraft);
-    console.log("선택한 템플릿:", orderDraft?.template);
-    console.log("명함 앞면 정보");
-    console.table(orderDraft?.front);
-    console.log("명함 뒷면 정보");
-    console.table(orderDraft?.back);
+    console.log("재주문 데이터(reorderData):", reorderData);
     console.groupEnd();
 
-    if (orderDraft?.front) {
+    if (reorderData) {
+      if (reorderData.recipientName) setRecipientName(reorderData.recipientName);
+      if (reorderData.recipientPhone) setRecipientPhone(reorderData.recipientPhone);
+      if (reorderData.address) setRecipientAddress(reorderData.address);
+      if (reorderData.addressDetail) setRecipientDetailAddress(reorderData.addressDetail);
+    } else if (orderDraft?.front) {
       if (orderDraft.front.name) setRecipientName(orderDraft.front.name);
       const phoneVal = orderDraft.front.mobile || orderDraft.front.telephone;
       if (phoneVal) setRecipientPhone(phoneVal);
       if (orderDraft.front.address) setRecipientAddress(orderDraft.front.address);
     }
-  }, [location.state, orderDraft]);
+  }, [location.state, orderDraft, reorderData]);
 
   const [paperOptions, setPaperOptions] = useState<ProductOptionItem[]>([]);
   const [qtyOptions, setQtyOptions] = useState<ProductOptionItem[]>([]);
@@ -186,7 +197,7 @@ export default function OrderFormPage() {
       const cardDataJson = JSON.stringify(cardData);
 
       const requestBody = {
-        templateId: orderDraft?.template?.id || "T_1",
+        templateId: reorderData?.templateId || orderDraft?.template?.id || 1,
         recipientName: recipientName || "홍길동",
         recipientPhone: recipientPhone || "010-0000-0000",
         zipcode: "",

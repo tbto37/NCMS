@@ -66,6 +66,7 @@ export interface BackendOrderResponse {
 export interface MappedOrder {
   rawId: number | string;
   id: string;
+  templateId: number | string;
   receivedAt: string;
   site: string;
   material: string;
@@ -126,6 +127,7 @@ export function mapOrderResponse(dto: BackendOrderResponse): MappedOrder {
   return {
     rawId: dto.id,
     id: dto.orderNo || String(dto.id),
+    templateId: dto.templateId || 1,
     receivedAt: receivedAt || new Date().toISOString().substring(0, 10),
     site: dto.companyName || "고객사 미지정",
     material,

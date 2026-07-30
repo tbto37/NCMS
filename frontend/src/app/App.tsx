@@ -27,6 +27,15 @@ function PageFallback() {
   );
 }
 
+import { useParams } from "react-router";
+
+function TenantIndexRedirect() {
+  const { companyCode } = useParams<{ companyCode?: string }>();
+  const code = companyCode?.toLowerCase();
+  const isLogcom = code === "logcom" || code === "operator" || code === "admin";
+  return <Navigate to={isLogcom ? "orders" : "templates"} replace />;
+}
+
 function TenantWrapper() {
   return (
     <TenantProvider>
@@ -43,7 +52,7 @@ export default function App() {
           <Routes>
             {/* Dynamic Customer Path Routes: /:companyCode */}
             <Route path="/:companyCode" element={<TenantWrapper />}>
-              <Route index element={<Navigate to="templates" replace />} />
+              <Route index element={<TenantIndexRedirect />} />
               <Route path="login" element={<LoginPage />} />
               <Route element={<RequireTenantAuth />}>
                 <Route element={<AdminLayout />}>

@@ -4,9 +4,12 @@ import {
   Eye,
   FileDown,
   Package,
+  Printer,
   ReceiptText,
+  RotateCcw,
   Truck,
 } from "lucide-react";
+import { useNavigate, useParams } from "react-router";
 import { SearchBar } from "@/components/common/SearchBar";
 import { Pagination } from "@/components/common/Pagination";
 import { StatusBadge } from "@/components/common/StatusBadge";
@@ -16,6 +19,7 @@ import {
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import DynamicBusinessCardPreview from "@/components/card/DynamicBusinessCardPreview";
 import { useAuth } from "@/app/providers/AuthProvider";
 import { API_BASE_URL } from "@/shared/constants/api";
 import OrderDetailModal, {
@@ -38,6 +42,7 @@ import {
   type MappedOrder as Order,
   mapOrderResponse,
 } from "@/shared/constants/orders";
+import type { BusinessCardInputData } from "@/shared/types/businessCard";
 
 interface ApiResponse<T> {
   data?: T;
@@ -57,6 +62,8 @@ interface OrderActionsProps {
   order: Order;
   onOpenDetail: (order: Order) => void;
   onOpenShipmentTracking: (order: Order) => void;
+  onPrint: (order: Order) => void;
+  onReorder?: (order: Order) => void;
 }
 
 function ActionIconButton({ label, onClick, children }: ActionIconButtonProps) {
@@ -83,6 +90,15 @@ function ActionIconButton({ label, onClick, children }: ActionIconButtonProps) {
 }
 
 function BusinessCardPreview({ order }: { order: Order }) {
+  let parsed: BusinessCardInputData | null = null;
+  if (order.cardDataJson) {
+    try {
+      parsed = JSON.parse(order.cardDataJson);
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
@@ -97,36 +113,17 @@ function BusinessCardPreview({ order }: { order: Order }) {
         </span>
       </div>
 
-      <div className="aspect-[1.75/1] overflow-hidden rounded border border-border bg-white shadow-sm">
-        <div className="grid h-[calc(100%-5px)] grid-cols-[35%_65%]">
-          <div className="flex flex-col justify-between border-r border-slate-200 p-3">
-            <div className="flex items-end gap-0.5">
-              <span className="text-lg font-black tracking-[-0.08em] text-[#06418f]">
-                {order.site}
-              </span>
-              <span className="mb-0.5 h-3 w-1 bg-[#55b936]" />
-            </div>
-            <span className="text-[6px] italic text-slate-500">
-              “Smiling Technology”
-            </span>
-          </div>
-
-          <div className="p-3 text-slate-600">
-            <p className="text-[9px] font-semibold text-slate-900">{order.name}</p>
-            <p className="mt-0.5 text-[5.5px]">Business Div. / Director</p>
-            <p className="mt-3 text-[5.5px] font-semibold">{order.site}</p>
-            <div className="mt-1 space-y-0.5 text-[5px] leading-tight">
-              <p>{order.address || "22-6, Bangbaemae-ro 16gil, Seocho-gu"}</p>
-              <p>TEL. {order.phone} / FAX. 02-572-8970</p>
-              <p>contact@{order.site.toLowerCase().replace(/[^a-z0-9]/g, "") || "company"}.com</p>
-            </div>
-          </div>
+      {parsed ? (
+        <DynamicBusinessCardPreview
+          templateId={order.templateId || "T_CHEIL"}
+          cardData={parsed}
+          isBack={false}
+        />
+      ) : (
+        <div className="aspect-[1.75/1] overflow-hidden rounded border border-border bg-white shadow-sm p-3 text-xs text-muted-foreground">
+          명함 미리보기 데이터가 없습니다.
         </div>
-        <div className="flex h-[5px]">
-          <div className="w-[13%] bg-[#55b936]" />
-          <div className="flex-1 bg-[#06418f]" />
-        </div>
-      </div>
+      )}
     </div>
   );
 }
@@ -135,19 +132,31 @@ function OrderActions({
   order,
   onOpenDetail,
   onOpenShipmentTracking,
+  onPrint,
+  onReorder,
 }: OrderActionsProps) {
-  const handleAction = (action: string) => {
-    console.info(`[${action}]`, order.id);
-  };
-
   return (
     <div className="flex items-center justify-end gap-1.5">
+      {order.status === "승인반려" && onReorder && (
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            onReorder(order);
+          }}
+          className="flex h-7 items-center gap-1 rounded bg-amber-500/10 px-2 text-[11px] font-medium text-amber-600 hover:bg-amber-500/20"
+        >
+          <RotateCcw size={11} />
+          재주문
+        </button>
+      )}
+
       <ActionIconButton label="주문 상세" onClick={() => onOpenDetail(order)}>
         <ReceiptText size={13} />
       </ActionIconButton>
 
-      <ActionIconButton label="PDF 저장" onClick={() => handleAction("PDF 저장")}>
-        <FileDown size={13} />
+      <ActionIconButton label="명함 인쇄 / PDF" onClick={() => onPrint(order)}>
+        <Printer size={13} />
       </ActionIconButton>
 
       <HoverCard openDelay={150} closeDelay={80}>
@@ -158,7 +167,7 @@ function OrderActions({
             title="명함 미리보기"
             onClick={(event) => {
               event.stopPropagation();
-              handleAction("명함 미리보기");
+              onOpenDetail(order);
             }}
             className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-border bg-background text-muted-foreground transition-colors hover:border-primary/30 hover:bg-secondary hover:text-foreground"
           >
@@ -166,7 +175,7 @@ function OrderActions({
           </button>
         </HoverCardTrigger>
 
-        <HoverCardContent align="end" side="left" sideOffset={10} className="w-72 p-3">
+        <HoverCardContent align="end" side="left" sideOffset={10} className="w-80 p-3">
           <BusinessCardPreview order={order} />
         </HoverCardContent>
       </HoverCard>
@@ -182,6 +191,8 @@ function OrderActions({
 }
 
 export default function OrdersPage() {
+  const navigate = useNavigate();
+  const { companyCode } = useParams<{ companyCode?: string }>();
   const { accessToken, user } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -195,12 +206,10 @@ export default function OrdersPage() {
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const [company, setCompany] = useState("");
-  const [filterField, setFilterField] = useState("id");
-  const [filterValue, setFilterValue] = useState("");
+  const [nameSearch, setNameSearch] = useState("");
   const [applied, setApplied] = useState({
     company: "",
-    filterField: "id",
-    filterValue: "",
+    nameSearch: "",
     dateFrom: "",
     dateTo: "",
   });
@@ -211,88 +220,184 @@ export default function OrdersPage() {
   const [shipmentTrackingOrder, setShipmentTrackingOrder] =
     useState<ShipmentTrackingOrder | null>(null);
 
-  const isOperator = useMemo(() => {
-    return user?.roles?.some(
-      (r) => r === "ROLE_OPERATOR" || r === "ROLE_SYSTEM_ADMIN",
-    ) ?? false;
-  }, [user]);
+  const [dbCompanies, setDbCompanies] = useState<string[]>([]);
 
-  // Fetch live orders from backend DB API
-  useEffect(() => {
-    if (!accessToken) {
-      setOrders([]);
-      setLoading(false);
-      return;
-    }
-
-    const abortController = new AbortController();
-
-    async function fetchOrders() {
+  function handleReorder(order: Order) {
+    let cardData: BusinessCardInputData | undefined = undefined;
+    if (order.cardDataJson) {
       try {
-        setLoading(true);
-        setLoadError("");
-
-        const endpoint = isOperator
-          ? `${API_BASE_URL}/api/v1/operator/orders`
-          : `${API_BASE_URL}/api/v1/orders`;
-
-        const response = await fetch(endpoint, {
-          method: "GET",
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-          signal: abortController.signal,
-        });
-
-        const body = (await response
-          .json()
-          .catch(() => null)) as ApiResponse<BackendOrderResponse[]> | null;
-
-        if (!response.ok) {
-          const msg =
-            body?.message ??
-            body?.error?.message ??
-            "주문 목록을 불러오지 못했습니다.";
-          throw new Error(msg);
-        }
-
-        const data = body?.data;
-        if (!Array.isArray(data)) {
-          throw new Error("주문 목록 응답 형식이 올바르지 않습니다.");
-        }
-
-        setOrders(data.map(mapOrderResponse));
-      } catch (error) {
-        if (error instanceof DOMException && error.name === "AbortError") {
-          return;
-        }
-
-        setOrders([]);
-        setLoadError(
-          error instanceof Error
-            ? error.message
-            : "주문 목록을 불러오지 못했습니다.",
-        );
-      } finally {
-        if (!abortController.signal.aborted) {
-          setLoading(false);
-        }
+        cardData = JSON.parse(order.cardDataJson);
+      } catch (e) {
+        console.error("Failed to parse cardDataJson", e);
       }
     }
 
-    void fetchOrders();
+    const reorderData = {
+      templateId: order.templateId,
+      cardData: cardData || {
+        front: {
+          name: order.name,
+          departmentOption: "직접입력",
+          department: order.site,
+          position1Option: "직접입력",
+          position1: "",
+          position2Option: "직접입력",
+          position2: "",
+          address: order.address,
+          telephone: order.phone,
+          fax: "",
+          directTelephone: "",
+          mobile: order.phone,
+          email: "",
+          website: "",
+        },
+        back: {
+          name: "",
+          department: "",
+          position1: "",
+          position2: "",
+          address1: "",
+          address2: "",
+          telephone: "",
+          fax: "",
+          directTelephone: "",
+          mobile: "",
+          email: "",
+          website: "",
+        },
+      },
+      recipientName: order.recipientName || order.name,
+      recipientPhone: order.recipientPhone || order.phone,
+      zipcode: order.zipcode,
+      address: order.address,
+      addressDetail: order.addressDetail,
+      material: order.material,
+      quantity: order.quantity,
+    };
 
-    return () => abortController.abort();
-  }, [accessToken, isOperator, reloadKey]);
+    const targetUrl = companyCode ? `/${companyCode}/orders/form` : `/admin/orders/form`;
+    navigate(targetUrl, { state: { reorderData } });
+  }
+
+  function handlePrintOrder(order: Order) {
+    let parsed: BusinessCardInputData | null = null;
+    if (order.cardDataJson) {
+      try {
+        parsed = JSON.parse(order.cardDataJson);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    const printWindow = window.open("", "_blank", "width=800,height=600");
+    if (!printWindow) {
+      alert("팝업이 차단되었습니다. 팝업을 허용해 주세요.");
+      return;
+    }
+
+    const frontName = parsed?.front?.name || order.name;
+    const frontDept = parsed?.front?.department || order.site;
+    const frontPos = parsed?.front?.position1 || "";
+    const frontPhone = parsed?.front?.mobile || order.phone;
+    const frontEmail = parsed?.front?.email || "";
+    const frontAddress = parsed?.front?.address || order.address;
+
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>명함 인쇄 - ${order.id}</title>
+        <style>
+          @page { size: A4; margin: 20mm; }
+          body { font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif; margin: 0; padding: 20px; color: #333; }
+          .card-container { display: flex; gap: 20px; flex-wrap: wrap; margin-top: 20px; }
+          .card-box {
+            width: 90mm;
+            height: 50mm;
+            border: 1px solid #ccc;
+            padding: 15px;
+            box-sizing: border-box;
+            background: #fff;
+            position: relative;
+            border-radius: 4px;
+          }
+          .company { font-size: 14px; font-weight: bold; color: #06418f; }
+          .name { font-size: 16px; font-weight: bold; margin-top: 10px; }
+          .title { font-size: 10px; color: #666; margin-bottom: 10px; }
+          .contact { font-size: 9px; color: #444; line-height: 1.4; position: absolute; bottom: 12px; }
+          .btn-print { padding: 8px 16px; background: #06418f; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+          @media print { .no-print { display: none; } }
+        </style>
+      </head>
+      <body>
+        <div class="no-print" style="margin-bottom: 20px;">
+          <button class="btn-print" onclick="window.print()">🖨️ 명함 즉시 인쇄 (PDF 저장)</button>
+        </div>
+        <h2>NCMS 명함 인쇄용 스냅샷 [주문번호: ${order.id}]</h2>
+        <p>고객사: ${order.site} | 주문자: ${order.name} | 재질: ${order.material} | 수량: ${order.quantity}개</p>
+        <div class="card-container">
+          <div class="card-box">
+            <div class="company">${order.site}</div>
+            <div class="name">${frontName} <span style="font-size:11px; font-weight:normal;">${frontPos}</span></div>
+            <div class="title">${frontDept}</div>
+            <div class="contact">
+              <div>TEL: ${frontPhone} ${frontEmail ? '| EMAIL: ' + frontEmail : ''}</div>
+              <div>${frontAddress}</div>
+            </div>
+          </div>
+        </div>
+      </body>
+      </html>
+    `);
+    printWindow.document.close();
+  }
+
+  const isOperator = useMemo(() => {
+    const isOperatorRole = user?.roles?.some(
+      (r) =>
+        r === "ROLE_OPERATOR" ||
+        r === "OPERATOR" ||
+        r === "ROLE_SYSTEM_ADMIN" ||
+        r === "SYSTEM_ADMIN",
+    ) ?? false;
+
+    const pathname = location.pathname.toLowerCase();
+    const isOperatorRoute =
+      pathname === "/operator" ||
+      pathname.startsWith("/operator/") ||
+      pathname === "/logcom" ||
+      pathname.startsWith("/logcom/");
+
+    return isOperatorRole || isOperatorRoute;
+  }, [user, location.pathname]);
+
+  // Fetch DB Companies list for site dropdown filter
+  useEffect(() => {
+    async function fetchCompanies() {
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/v1/public/companies`);
+        if (res.ok) {
+          const json = await res.json();
+          if (Array.isArray(json.data)) {
+            setDbCompanies(json.data.map((c: { name: string }) => c.name));
+          }
+        }
+      } catch (e) {
+        console.warn("Failed to load public companies", e);
+      }
+    }
+    void fetchCompanies();
+  }, []);
 
   const orderCompanies = useMemo(() => {
-    return Array.from(new Set(orders.map((o) => o.site))).sort((a, b) =>
-      a.localeCompare(b, "ko"),
-    );
-  }, [orders]);
+    const combined = new Set([...dbCompanies, ...orders.map((o) => o.site)]);
+    return Array.from(combined)
+      .filter((s) => s && s !== "고객사 미지정")
+      .sort((a, b) => a.localeCompare(b, "ko"));
+  }, [dbCompanies, orders]);
 
   function handleSearch() {
-    setApplied({ company, filterField, filterValue, dateFrom, dateTo });
+    setApplied({ company, nameSearch, dateFrom, dateTo });
     setPage(1);
     setSelectedIds(new Set());
   }
@@ -301,12 +406,10 @@ export default function OrdersPage() {
     setDateFrom("");
     setDateTo("");
     setCompany("");
-    setFilterField("id");
-    setFilterValue("");
+    setNameSearch("");
     setApplied({
       company: "",
-      filterField: "id",
-      filterValue: "",
+      nameSearch: "",
       dateFrom: "",
       dateTo: "",
     });
@@ -320,11 +423,9 @@ export default function OrdersPage() {
       : orders.filter((order) => order.status === activeTab);
 
   const searched = tabFiltered.filter((order) => {
-    if (applied.filterValue) {
-      const value = applied.filterValue.toLowerCase();
-      const field = applied.filterField as keyof Order;
-
-      if (!String(order[field] ?? "").toLowerCase().includes(value)) {
+    if (applied.nameSearch) {
+      const term = applied.nameSearch.toLowerCase().trim();
+      if (!order.name.toLowerCase().includes(term)) {
         return false;
       }
     }
@@ -562,17 +663,15 @@ export default function OrdersPage() {
         dateFrom={dateFrom}
         dateTo={dateTo}
         company={company}
-        filterField={filterField}
-        filterValue={filterValue}
+        nameSearch={nameSearch}
         onDateFrom={setDateFrom}
         onDateTo={setDateTo}
         onCompany={setCompany}
-        onFilterField={setFilterField}
-        onFilterValue={setFilterValue}
+        onNameSearch={setNameSearch}
         onSearch={handleSearch}
         onReset={handleReset}
-        filterFields={ORDER_FILTER_FIELDS}
         companies={orderCompanies}
+        showCompanyFilter={isOperator}
         companyLabel="사이트"
       />
 
@@ -726,6 +825,8 @@ export default function OrdersPage() {
                           order={order}
                           onOpenDetail={handleOpenOrderDetail}
                           onOpenShipmentTracking={handleOpenShipmentTracking}
+                          onPrint={handlePrintOrder}
+                          onReorder={handleReorder}
                         />
                       </td>
                     </tr>

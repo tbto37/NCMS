@@ -13,6 +13,11 @@ public class PublicCompanyController {
 
     private final CompanyService companyService;
 
+    @GetMapping
+    public ApiResponse<java.util.List<PublicCompanyResponse>> getPublicCompanies() {
+        return ApiResponse.success(companyService.getAllPublicCompanies());
+    }
+
     @GetMapping("/{siteCode}")
     public ApiResponse<PublicCompanyResponse> getPublicCompanyInfo(@PathVariable String siteCode) {
         return ApiResponse.success(companyService.getPublicCompanyInfo(siteCode));

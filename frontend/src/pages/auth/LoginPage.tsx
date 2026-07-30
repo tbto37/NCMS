@@ -35,11 +35,12 @@ export default function LoginPage() {
 
       if (isTenantLogin) {
         // 고객사 어드민/로그인 페이지 접속 시:
+        const isOperatorUser = isOperator || userSiteCode === 'logcom';
         const isMatch =
-          !isOperator &&
-          userSiteCode &&
+          isOperatorUser ||
+          (userSiteCode &&
           targetSiteCode &&
-          (userSiteCode === targetSiteCode || userSiteCode.includes(targetSiteCode) || targetSiteCode.includes(userSiteCode));
+          (userSiteCode === targetSiteCode || userSiteCode.includes(targetSiteCode) || targetSiteCode.includes(userSiteCode)));
 
         if (!isMatch) {
           logout();
@@ -47,7 +48,12 @@ export default function LoginPage() {
           return;
         }
 
-        navigate(`/${companyCode}/templates`, { replace: true });
+        const isLogcomSite = targetSiteCode === "logcom" || isOperatorUser;
+        if (isLogcomSite) {
+          navigate(`/${companyCode}/orders`, { replace: true });
+        } else {
+          navigate(`/${companyCode}/templates`, { replace: true });
+        }
       } else {
         // 백오피스(/admin, /operator) 로그인 페이지 접속 시:
         if (!isOperator) {

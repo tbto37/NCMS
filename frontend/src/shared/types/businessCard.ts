@@ -46,6 +46,20 @@ export interface BusinessCardOrderDraft extends BusinessCardInputData {
   template: SelectedTemplateData;
 }
 
+export interface ReorderData {
+  templateId?: number | string;
+  templateName?: string;
+  cardData: BusinessCardInputData;
+  recipientName: string;
+  recipientPhone: string;
+  zipcode?: string;
+  address: string;
+  addressDetail: string;
+  material?: string;
+  quantity?: number | string;
+}
+
 export interface OrderFormLocationState {
-  orderDraft: BusinessCardOrderDraft;
+  orderDraft?: BusinessCardOrderDraft;
+  reorderData?: ReorderData;
 }

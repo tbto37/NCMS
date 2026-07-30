@@ -94,7 +94,6 @@
   --color-muted: var(--muted);
   --color-muted-foreground: var(--muted-foreground);
   --color-accent: var(--accent);
-  --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border);
@@ -195,4 +194,13 @@
     font-weight: var(--font-weight-normal);
     line-height: 1.5;
   }
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+#root {
+  height: 100%;
 }

@@ -7,4 +7,5 @@ import java.util.Optional;
 
 public interface OrderSnapshotRepository extends JpaRepository<OrderSnapshot, Long> {
     Optional<OrderSnapshot> findByOrderId(Long orderId);
+    java.util.List<OrderSnapshot> findByOrderIdIn(java.util.List<Long> orderIds);
 }
