@@ -123,8 +123,8 @@ function resolvePreviewUrl(url: string | null): string | null {
 }
 
 function TemplatePreview({
-                           template,
-                         }: {
+  template,
+}: {
   template: TemplateCardData;
 }) {
   const [imageLoadFailed, setImageLoadFailed] = useState(false);
@@ -265,10 +265,10 @@ export default function TemplatesPage() {
             총 {loading ? "-" : templates.length}개 템플릿
           </p>
         </div>
-        <button className="flex w-full items-center justify-center gap-1.5 rounded bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition-opacity hover:opacity-90 sm:w-auto">
+        {/* <button className="flex w-full items-center justify-center gap-1.5 rounded bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition-opacity hover:opacity-90 sm:w-auto">
           <Plus size={12} />
           템플릿 추가
-        </button>
+        </button> */}
       </div>
 
       {loading ? (
@@ -320,12 +320,12 @@ export default function TemplatesPage() {
                   <span className="font-mono text-xs text-muted-foreground">
                     {template.id}
                   </span>
-                  <button
+                  {/* <button
                     className="rounded p-1 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
                     aria-label="템플릿 메뉴"
                   >
                     <MoreHorizontal size={14} />
-                  </button>
+                  </button> */}
                 </div>
 
                 <TemplatePreview template={template} />
@@ -359,7 +359,7 @@ export default function TemplatesPage() {
                     <SquarePen size={12} />
                     편집
                   </button>
-                  <button
+                  {/* <button
                     className="flex items-center justify-center rounded border border-border px-2 py-1.5 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
                     aria-label="템플릿 복사"
                   >
@@ -370,18 +370,13 @@ export default function TemplatesPage() {
                     aria-label="디자인 설정"
                   >
                     <Palette size={12} />
-                  </button>
+                  </button> */}
                 </div>
               </div>
             </article>
           ))}
         </div>
       )}
-
-      <div className="flex items-center gap-2 rounded-lg border border-border bg-card px-4 py-3 text-xs text-muted-foreground">
-        <FileText size={14} className="shrink-0" />
-        템플릿 ID, 이름, 상태, 미리보기 이미지는 실제 API 데이터이며 카테고리, 필드, 수정일, 사용량은 임시 목업 데이터입니다.
-      </div>
 
       <TemplateEditModal
         key={selectedTemplate?.id ?? "template-edit"}
