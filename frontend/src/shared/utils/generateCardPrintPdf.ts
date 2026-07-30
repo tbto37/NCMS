@@ -1,4 +1,5 @@
 import { jsPDF } from "jspdf";
+import html2canvas from "html2canvas";
 import type { BusinessCardInputData } from "@/shared/types/businessCard";
 import { CARD_TEMPLATE_SPECS } from "@/shared/constants/cardTemplates";
 
@@ -12,7 +13,6 @@ interface OrderLike {
   cardDataJson?: string;
 }
 
-// 한글 이름 자간 포맷팅
 function formatKoreanName(nameStr?: string): string {
   if (!nameStr) return "";
   const trimmed = nameStr.replace(/\s+/g, "");
@@ -26,7 +26,7 @@ function formatKoreanName(nameStr?: string): string {
 }
 
 /**
- * 인쇄소 제출용 100% 무손실 벡터 2페이지 (90mm x 50mm) PDF 원클릭 즉시 생성 및 다운로드
+ * 마우스 오버 미리보기(SvgBusinessCardPreview)와 100% 동일한 300DPI 초고화질 90mm x 50mm 인쇄용 PDF 생성 및 자동 다운로드
  */
 export async function generateCardPrintPdf(order: OrderLike): Promise<void> {
   let cardData: any = { front: {}, back: {} };
@@ -43,17 +43,18 @@ export async function generateCardPrintPdf(order: OrderLike): Promise<void> {
   const key = tidStr.includes("hanmi") || tidStr === "3" ? "hanmi" : "cheil";
   const specGroup = CARD_TEMPLATE_SPECS[key] || CARD_TEMPLATE_SPECS.cheil;
 
-  // 오프스크린 렌더링용 임시 컨테이너 생성
+  // 오프스크린 렌더링 컨테이너 (실제 화면크기 519px x 288.333px 규격)
   const container = document.createElement("div");
-  container.style.position = "absolute";
+  container.style.position = "fixed";
   container.style.left = "-9999px";
   container.style.top = "-9999px";
   container.style.width = "519px";
   container.style.height = "288.333px";
+  container.style.zIndex = "-9999";
+  container.style.backgroundColor = "#ffffff";
   document.body.appendChild(container);
 
   try {
-    // 90mm x 50mm 정규격 2페이지 landscape PDF 세팅
     const doc = new jsPDF({
       orientation: "landscape",
       unit: "mm",
@@ -61,39 +62,35 @@ export async function generateCardPrintPdf(order: OrderLike): Promise<void> {
       compress: true,
     });
 
-    const docAny = doc as any;
+    // --- Page 1: 앞면 (국문) ---
+    container.innerHTML = createSvgMarkup(key, specGroup.front, cardData, false);
+    await waitForImages(container);
+    
+    // 300 DPI 초고화질 (scale: 4 = 2076px x 1153px) 캔버스 생성
+    const frontCanvas = await html2canvas(container, {
+      scale: 4,
+      useCORS: true,
+      logging: false,
+      backgroundColor: "#ffffff",
+    });
+    const frontImgData = frontCanvas.toDataURL("image/png", 1.0);
+    doc.addImage(frontImgData, "PNG", 0, 0, 90, 50);
 
-    // 1페이지 (앞면/국문) SVG HTML String 생성
-    const frontSpec = specGroup.front;
-    const frontSvgHtml = createSvgMarkup(key, frontSpec, cardData, false);
-    container.innerHTML = frontSvgHtml;
-    const frontSvgElem = container.querySelector("svg");
-
-    if (frontSvgElem && typeof docAny.svg === "function") {
-      await docAny.svg(frontSvgElem, {
-        x: 0,
-        y: 0,
-        width: 90,
-        height: 50,
-      });
-    }
-
-    // 2페이지 (뒷면/영문) 추가
+    // --- Page 2: 뒷면 (영문) ---
     doc.addPage([90, 50], "landscape");
-    const backSpec = specGroup.back;
-    const backSvgHtml = createSvgMarkup(key, backSpec, cardData, true);
-    container.innerHTML = backSvgHtml;
-    const backSvgElem = container.querySelector("svg");
+    container.innerHTML = createSvgMarkup(key, specGroup.back, cardData, true);
+    await waitForImages(container);
 
-    if (backSvgElem && typeof docAny.svg === "function") {
-      await docAny.svg(backSvgElem, {
-        x: 0,
-        y: 0,
-        width: 90,
-        height: 50,
-      });
-    }
+    const backCanvas = await html2canvas(container, {
+      scale: 4,
+      useCORS: true,
+      logging: false,
+      backgroundColor: "#ffffff",
+    });
+    const backImgData = backCanvas.toDataURL("image/png", 1.0);
+    doc.addImage(backImgData, "PNG", 0, 0, 90, 50);
 
+    // 파일 다운로드
     const orderNo = order.orderNo || order.id || "ORDER";
     const name = order.recipientName || order.name || "명함";
     const filename = `NCMS_명함인쇄_${orderNo}_${name}.pdf`;
@@ -103,11 +100,46 @@ export async function generateCardPrintPdf(order: OrderLike): Promise<void> {
     console.error("PDF 생성 중 오류 발생:", error);
     alert("인쇄용 PDF 생성 중 오류가 발생했습니다.");
   } finally {
-    document.body.removeChild(container);
+    if (document.body.contains(container)) {
+      document.body.removeChild(container);
+    }
   }
 }
 
-// SVG HTML 마크업 동적 생성 함수
+// 오프스크린 컨테이너 내 로고 이미지 로딩 완료 대기 유틸리티
+function waitForImages(container: HTMLElement): Promise<void> {
+  return new Promise((resolve) => {
+    const images = container.querySelectorAll("image, img");
+    if (images.length === 0) {
+      setTimeout(resolve, 50);
+      return;
+    }
+
+    let loadedCount = 0;
+    const totalCount = images.length;
+    const checkDone = () => {
+      loadedCount++;
+      if (loadedCount >= totalCount) {
+        setTimeout(resolve, 100);
+      }
+    };
+
+    images.forEach((imgElem) => {
+      const href = imgElem.getAttribute("href") || imgElem.getAttribute("src");
+      if (!href) {
+        checkDone();
+        return;
+      }
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.onload = checkDone;
+      img.onerror = checkDone;
+      img.src = href;
+    });
+  });
+}
+
+// SVG HTML 마크업 생성 함수 (미리보기 화면과 100% 일치)
 function createSvgMarkup(
   key: string,
   config: any,
@@ -122,8 +154,8 @@ function createSvgMarkup(
 
   const bottomBarHtml = config.showBottomBar
     ? key === "cheil"
-      ? `<rect x="0" y="278" width="519" height="15" fill="#003876" /><rect x="0" y="278" width="78" height="15" fill="#55b936" />`
-      : `<rect x="0" y="283" width="519" height="10" fill="#004B96" />`
+      ? `<rect x="0" y="273.333" width="519" height="15" fill="#003876" /><rect x="0" y="273.333" width="78" height="15" fill="#55b936" />`
+      : `<rect x="0" y="278.333" width="519" height="10" fill="#004B96" />`
     : "";
 
   const sloganHtml = config.showSlogan
@@ -149,7 +181,7 @@ function createSvgMarkup(
     : "HanmiGlobal Co.,Ltd.";
 
   return `
-    <svg viewBox="${config.viewBox}" width="519" height="288.333" xmlns="http://www.w3.org/2000/svg" style="background:#ffffff; font-family:'Pretendard Variable', Pretendard, sans-serif;">
+    <svg viewBox="${config.viewBox}" width="519" height="288.333" xmlns="http://www.w3.org/2000/svg" style="background:#ffffff; font-family:'Pretendard Variable', Pretendard, -apple-system, sans-serif; display:block;">
       ${bottomBarHtml}
       ${config.logoUrl ? `<image href="${config.logoUrl}" x="${logoSpec.x}" y="${logoSpec.y}" width="${logoSpec.width}" height="${logoSpec.height}" />` : ""}
       ${sloganHtml}
