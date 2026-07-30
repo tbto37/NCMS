@@ -1,5 +1,5 @@
 import { useState, useEffect, type FormEvent } from "react";
-import { ArrowLeft, Check, RotateCcw, ShoppingCart, AlertCircle } from "lucide-react";
+import { ArrowLeft, Check, RotateCcw, ShoppingCart, AlertCircle, Building2, Search, PenTool, X } from "lucide-react";
 import { Navigate, useLocation, useNavigate, useParams } from "react-router";
 import OrderCompleteModal from "./components/OrderCompleteModal";
 import { API_BASE_URL } from "@/shared/constants/api";
@@ -22,7 +22,7 @@ interface ProductOptionItem {
 
 const defaultCardData: BusinessCardInputData = {
   front: {
-    name: "조우진",
+    name: "홍길동",
     departmentOption: "직접입력",
     department: "상하수도사업부",
     position1Option: "직접입력",
@@ -34,21 +34,21 @@ const defaultCardData: BusinessCardInputData = {
     fax: "02-572-3112",
     directTelephone: "02-3498-2441",
     mobile: "010-9142-9719",
-    email: "a5273586@hanmail.net",
+    email: "hong@logcom.co.kr",
     website: "www.cheileng.com",
   },
   back: {
-    name: "Woo-Jin Jo",
+    name: "Hong Gil-dong",
     department: "Water Supply & Sewerage Eng. Div.",
     position1: "General Manager",
     position2: "",
     address1: "22-6, Gangnamdaero 16gil, Seocho-gu,",
     address2: "Seoul, Korea (06779)",
-    telephone: "82-2-3498-2600",
-    fax: "82-2-572-3112",
-    directTelephone: "82-2-3498-2441",
-    mobile: "82-10-9142-9719",
-    email: "a5273586@hanmail.net",
+    telephone: "+82-2-3498-2600",
+    fax: "+82-2-572-3112",
+    directTelephone: "+82-2-3498-2441",
+    mobile: "+82-10-9142-9719",
+    email: "hong@logcom.co.kr",
     website: "www.cheileng.com",
   },
 };
@@ -87,6 +87,10 @@ export default function OrderFormPage() {
   const [recipientDetailAddress, setRecipientDetailAddress] = useState(
     reorderData?.addressDetail || "",
   );
+  const [orderMemo, setOrderMemo] = useState("");
+  const [isManualAddress, setIsManualAddress] = useState(false);
+  const [isAddressSearchOpen, setIsAddressSearchOpen] = useState(false);
+  const [searchKeyword, setSearchKeyword] = useState("");
 
   useEffect(() => {
     console.group("📇 주문서 페이지 전달 데이터");
@@ -203,6 +207,7 @@ export default function OrderFormPage() {
         zipcode: "",
         address: recipientAddress || "기본 주소",
         addressDetail: recipientDetailAddress || "",
+        memo: orderMemo,
         cardDataJson,
         productOptionSummary,
       };
@@ -326,11 +331,36 @@ export default function OrderFormPage() {
 
         {/* 배송지 주소 섹션 */}
         <section className="overflow-hidden rounded-xl border border-border bg-card">
-          <div className="border-b border-border px-5 py-4">
-            <h2 className="text-sm font-semibold text-foreground">배송지 주소</h2>
-            <p className="mt-1 text-xs text-muted-foreground">
-              명함을 수령할 담당자와 배송지를 입력합니다.
-            </p>
+          <div className="flex flex-col gap-2 border-b border-border px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h2 className="text-sm font-semibold text-foreground">배송지 주소</h2>
+              <p className="mt-1 text-xs text-muted-foreground">
+                명함을 수령할 담당자와 배송지를 입력합니다.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setRecipientAddress("06164 서울시 강남구 테헤란로 87길 36 도심공항타워 (본사입고)");
+                  setRecipientDetailAddress("본사 수령");
+                }}
+                className="flex items-center gap-1.5 rounded-md border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary transition hover:bg-primary hover:text-primary-foreground"
+              >
+                <Building2 size={13} />
+                본사입고 (주소 생략)
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setIsManualAddress(!isManualAddress)}
+                className="flex items-center gap-1 rounded-md border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground transition hover:bg-secondary"
+              >
+                <PenTool size={12} />
+                {isManualAddress ? "주소검색 모드" : "공사현장/수기입력"}
+              </button>
+            </div>
           </div>
 
           <div className="grid gap-4 p-5 md:grid-cols-2 xl:grid-cols-[0.8fr_1fr_1.8fr_1.8fr]">
@@ -359,14 +389,30 @@ export default function OrderFormPage() {
             </div>
 
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
-                주소
-              </label>
+              <div className="mb-1.5 flex items-center justify-between">
+                <label className="text-xs font-medium text-muted-foreground">
+                  주소 {isManualAddress && <span className="text-primary">(수기 직접 입력)</span>}
+                </label>
+                {!isManualAddress && (
+                  <button
+                    type="button"
+                    onClick={() => setIsAddressSearchOpen(true)}
+                    className="flex items-center gap-1 text-[11px] text-primary hover:underline"
+                  >
+                    <Search size={11} />
+                    주소 검색
+                  </button>
+                )}
+              </div>
               <input
                 className={inputClassName}
                 value={recipientAddress}
                 onChange={(e) => setRecipientAddress(e.target.value)}
-                placeholder="주소를 입력해 주세요."
+                placeholder={
+                  isManualAddress
+                    ? "검색이 안 되는 현장 주소를 직접 수기로 입력하세요."
+                    : "신주소/구주소 입력 및 검색"
+                }
               />
             </div>
 
@@ -443,12 +489,14 @@ export default function OrderFormPage() {
 
             <div>
               <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
-                메모
+                메모 (요청사항)
               </label>
               <textarea
                 rows={4}
+                value={orderMemo}
+                onChange={(e) => setOrderMemo(e.target.value)}
                 className="w-full resize-none rounded-md border border-border bg-background px-3 py-2.5 text-xs text-foreground outline-none transition placeholder:text-muted-foreground focus:border-ring focus:ring-2 focus:ring-ring/15"
-                placeholder="제작 또는 배송 관련 요청사항을 입력해 주세요."
+                placeholder="제작 또는 배송 관련 요청사항을 입력해 주세요. 입력된 메모는 관리자/로그컴 관리 페이지에 연동됩니다."
               />
             </div>
           </div>
@@ -481,6 +529,81 @@ export default function OrderFormPage() {
         onGoMain={() => navigate(mainPath)}
         onGoOrders={() => navigate(ordersPath)}
       />
+
+      {/* 신주소/구주소 주소 검색 모달 */}
+      {isAddressSearchOpen && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-lg overflow-hidden rounded-xl border border-border bg-background shadow-2xl">
+            <div className="flex items-center justify-between border-b border-border bg-card px-5 py-3.5">
+              <div className="flex items-center gap-2">
+                <Search size={16} className="text-primary" />
+                <h3 className="text-sm font-semibold text-foreground">
+                  배송지 주소 검색 (신주소 / 구주소)
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsAddressSearchOpen(false)}
+                className="rounded p-1 text-muted-foreground hover:bg-secondary hover:text-foreground"
+              >
+                <X size={18} />
+              </button>
+            </div>
+            <div className="p-5 space-y-4">
+              <div className="flex gap-2">
+                <input
+                  className={inputClassName}
+                  value={searchKeyword}
+                  onChange={(e) => setSearchKeyword(e.target.value)}
+                  placeholder="도로명, 건물명, 지번을 입력하세요 (예: 테헤란로 87길, 역삼동)"
+                />
+                <button
+                  type="button"
+                  onClick={() => {}}
+                  className="flex shrink-0 items-center justify-center rounded-md bg-primary px-4 text-xs font-medium text-primary-foreground transition hover:opacity-90"
+                >
+                  검색
+                </button>
+              </div>
+
+              <div className="max-h-60 overflow-y-auto space-y-2 text-xs">
+                <p className="text-[11px] text-muted-foreground">검색 결과 예시 (클릭하여 선택):</p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setRecipientAddress("06164 서울특별시 강남구 테헤란로87길 36 (삼성동, 도심공항타워)");
+                    setIsAddressSearchOpen(false);
+                  }}
+                  className="w-full text-left p-3 rounded border border-border hover:bg-secondary/60 transition-colors"
+                >
+                  <span className="font-semibold text-foreground block">[신주소] 06164 서울특별시 강남구 테헤란로87길 36</span>
+                  <span className="text-[11px] text-muted-foreground block mt-0.5">[구주소] 서울특별시 강남구 삼성동 159-9 도심공항타워</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setRecipientAddress("06779 서울특별시 서초구 강남대로16길 22-6 (양재동)");
+                    setIsAddressSearchOpen(false);
+                  }}
+                  className="w-full text-left p-3 rounded border border-border hover:bg-secondary/60 transition-colors"
+                >
+                  <span className="font-semibold text-foreground block">[신주소] 06779 서울특별시 서초구 강남대로16길 22-6</span>
+                  <span className="text-[11px] text-muted-foreground block mt-0.5">[구주소] 서울특별시 서초구 양재동 232 빌딩</span>
+                </button>
+              </div>
+            </div>
+            <div className="flex justify-end border-t border-border bg-card px-5 py-3">
+              <button
+                type="button"
+                onClick={() => setIsAddressSearchOpen(false)}
+                className="h-9 rounded-md border border-border bg-background px-4 text-xs font-medium text-foreground transition hover:bg-secondary"
+              >
+                닫기
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </form>
   );
 }

@@ -824,8 +824,6 @@ export default function OrdersPage() {
                 <th className="px-3 py-2.5">이름</th>
                 <th className="px-3 py-2.5">전화번호</th>
                 <th className="px-3 py-2.5">재질/수량</th>
-                <th className="px-3 py-2.5 text-right">가격</th>
-                <th className="px-3 py-2.5 text-right">배송비</th>
                 <th className="px-3 py-2.5">상태</th>
                 <th className="px-3 py-2.5 text-right">작업</th>
               </tr>
@@ -833,13 +831,13 @@ export default function OrdersPage() {
             <tbody className="divide-y divide-border">
               {loading ? (
                 <tr>
-                  <td colSpan={11} className="py-12 text-center text-muted-foreground">
+                  <td colSpan={9} className="py-12 text-center text-muted-foreground">
                     주문 데이터를 불러오는 중입니다...
                   </td>
                 </tr>
               ) : paged.length === 0 ? (
                 <tr>
-                  <td colSpan={11} className="py-12 text-center text-muted-foreground">
+                  <td colSpan={9} className="py-12 text-center text-muted-foreground">
                     <Package size={28} className="mx-auto mb-2 opacity-40" />
                     조건에 해당하는 주문 내역이 없습니다.
                   </td>
@@ -878,12 +876,6 @@ export default function OrdersPage() {
                       </td>
                       <td className="px-3 py-2 text-muted-foreground">
                         {order.material} · {order.quantity.toLocaleString()}매
-                      </td>
-                      <td className="px-3 py-2 text-right font-medium text-foreground">
-                        {order.price}
-                      </td>
-                      <td className="px-3 py-2 text-right text-muted-foreground">
-                        {order.shippingFee}
                       </td>
                       <td className="px-3 py-2">
                         <StatusBadge status={order.status} />

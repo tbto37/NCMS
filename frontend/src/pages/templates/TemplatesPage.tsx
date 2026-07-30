@@ -382,6 +382,7 @@ export default function TemplatesPage() {
         key={selectedTemplate?.id ?? "template-edit"}
         open={editModalOpen}
         templateId={selectedTemplate?.id}
+        initialCardData={pendingCardData}
         onClose={() => {
           setEditModalOpen(false);
           setProofModalOpen(false);
@@ -390,15 +391,19 @@ export default function TemplatesPage() {
         }}
         onNext={(cardData) => {
           setPendingCardData(cardData);
+          setEditModalOpen(false);
           setProofModalOpen(true);
         }}
       />
 
       <ProofCheckModal
         open={proofModalOpen}
+        templateId={selectedTemplate?.id}
+        cardData={pendingCardData}
         onClose={() => setProofModalOpen(false)}
         onBack={() => {
           setProofModalOpen(false);
+          setEditModalOpen(true);
         }}
         onConfirm={() => {
           if (!companyCode || !selectedTemplate || !pendingCardData) {

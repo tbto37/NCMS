@@ -1,9 +1,13 @@
 import { useMemo, useState } from "react";
 import { createPortal } from "react-dom";
-import { CheckCircle2, X } from "lucide-react";
+import { CheckCircle2, X, Edit3 } from "lucide-react";
+import type { BusinessCardInputData } from "@/shared/types/businessCard";
+import DynamicBusinessCardPreview from "@/components/card/DynamicBusinessCardPreview";
 
 interface ProofCheckModalProps {
   open: boolean;
+  templateId?: number | string;
+  cardData?: BusinessCardInputData | null;
   onClose: () => void;
   onBack?: () => void;
   onConfirm?: () => void;
@@ -25,11 +29,13 @@ const checklistItems = [
 ];
 
 export default function ProofCheckModal({
-                                          open,
-                                          onClose,
-                                          onBack,
-                                          onConfirm,
-                                        }: ProofCheckModalProps) {
+  open,
+  templateId = "T_HANMI",
+  cardData,
+  onClose,
+  onBack,
+  onConfirm,
+}: ProofCheckModalProps) {
   const [checkedItems, setCheckedItems] = useState<string[]>([]);
 
   const allChecked = useMemo(
@@ -67,12 +73,12 @@ export default function ProofCheckModal({
   };
 
   return createPortal(
-    <div className="fixed inset-0 z-[200] flex h-dvh w-full items-center justify-center overflow-hidden bg-black/55 p-4 backdrop-blur-[2px]">
+    <div className="fixed inset-0 z-[200] flex h-dvh w-full items-center justify-center overflow-y-auto bg-black/60 p-4 backdrop-blur-sm">
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby="proof-check-title"
-        className="w-full max-w-[620px] overflow-hidden rounded-xl border border-border bg-background shadow-2xl"
+        className="my-auto w-full max-w-[760px] overflow-hidden rounded-xl border border-border bg-background shadow-2xl"
       >
         <header className="flex h-14 items-center justify-between border-b border-border bg-card px-5">
           <div className="flex items-center gap-2">
@@ -81,7 +87,7 @@ export default function ProofCheckModal({
               id="proof-check-title"
               className="text-sm font-semibold text-foreground"
             >
-              교정 확인
+              교정 확인 및 최종 시안 점검
             </h2>
           </div>
 
@@ -95,7 +101,38 @@ export default function ProofCheckModal({
           </button>
         </header>
 
-        <div className="px-5 py-6 sm:px-7">
+        <div className="max-h-[75vh] overflow-y-auto px-5 py-6 sm:px-7">
+          {/* 실시간 렌더링 시안 영역 */}
+          {cardData && (
+            <div className="mb-6 rounded-lg border border-border bg-card p-4">
+              <h4 className="mb-3 text-xs font-semibold text-foreground">
+                📌 최종 교정 명함 시안 (실시간 렌더링)
+              </h4>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <span className="mb-1 block text-[11px] font-medium text-muted-foreground">
+                    앞면 (국문)
+                  </span>
+                  <DynamicBusinessCardPreview
+                    templateId={templateId}
+                    cardData={cardData}
+                    isBack={false}
+                  />
+                </div>
+                <div>
+                  <span className="mb-1 block text-[11px] font-medium text-muted-foreground">
+                    뒷면 (영문)
+                  </span>
+                  <DynamicBusinessCardPreview
+                    templateId={templateId}
+                    cardData={cardData}
+                    isBack={true}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="text-center">
             <h3 className="text-base font-semibold text-foreground">
               다음 사항을 꼭 확인해 주세요!
@@ -151,9 +188,10 @@ export default function ProofCheckModal({
           <button
             type="button"
             onClick={handleBack}
-            className="h-10 rounded-md border border-border bg-background px-4 text-xs font-medium text-foreground transition hover:bg-secondary"
+            className="flex h-10 items-center justify-center gap-1.5 rounded-md border border-border bg-background px-4 text-xs font-medium text-foreground transition hover:bg-secondary"
           >
-            다시 확인하기
+            <Edit3 size={14} />
+            수정하기 (재편집)
           </button>
 
           <button
@@ -162,7 +200,7 @@ export default function ProofCheckModal({
             disabled={!allChecked}
             className="h-10 rounded-md bg-primary px-4 text-xs font-medium text-primary-foreground transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-35"
           >
-            확인 완료
+            확인 완료 및 주문하기
           </button>
         </footer>
       </div>

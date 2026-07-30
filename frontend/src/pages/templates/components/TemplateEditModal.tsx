@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import {
   ArrowRight,
   Building2,
+  Eye,
   Minus,
   Plus,
   RotateCcw,
@@ -18,6 +19,7 @@ import DynamicBusinessCardPreview from "@/components/card/DynamicBusinessCardPre
 interface TemplateEditModalProps {
   open: boolean;
   templateId?: number | string;
+  initialCardData?: BusinessCardInputData | null;
   onClose: () => void;
   onSave?: () => void;
   onNext?: (cardData: BusinessCardInputData) => void;
@@ -32,6 +34,7 @@ const DEPARTMENT_MAPPINGS: Record<string, string> = {
   "글로벌사업부": "Global Division",
   "엔지니어링실": "Engineering Division",
   "도로사업부": "Highway Eng. Business Div.",
+  "상하수도사업부": "Water Supply & Sewerage Eng. Div.",
 };
 
 // 직급 매핑 테이블 (한글 -> 영문)
@@ -52,11 +55,24 @@ const POSITION_MAPPINGS: Record<string, string> = {
   "실장": "Team Leader",
   "팀장": "Team Leader",
   "단장": "Project Manager",
+  "부장": "General Manager",
 };
+
+// 영문 전화번호 변환 (+82- (0) 제거 및 국문 번호 기반 자동 포맷팅)
+function formatEnglishPhone(val: string): string {
+  if (!val) return "";
+  let clean = val.trim();
+  clean = clean.replace(/\+82\s*\([0-9]\)\s*/g, ""); // +82 (0) 제거
+  clean = clean.replace(/^\+82-?/g, ""); // 기존 +82- 제거
+  if (clean.startsWith("0")) {
+    clean = clean.substring(1);
+  }
+  return clean ? `+82-${clean}` : "";
+}
 
 const defaultCardData: BusinessCardInputData = {
   front: {
-    name: "로그컴",
+    name: "홍길동",
     departmentOption: "직접입력",
     department: "비즈니스개발실",
     position1Option: "직접입력",
@@ -64,46 +80,54 @@ const defaultCardData: BusinessCardInputData = {
     position2Option: "직접입력",
     position2: "",
     address: "06164 서울시 강남구 테헤란로 87길 36 도심공항타워",
-    telephone: "+82 (0)70-0000-0000",
+    telephone: "070-0000-0000",
     fax: "",
     directTelephone: "",
-    mobile: "+82 (0)10-0000-0000",
-    email: "e@hanmiglobal.com",
-    website: "www.hanmiglobal.com",
+    mobile: "010-0000-0000",
+    email: "hong@logcom.co.kr",
+    website: "www.logcom.co.kr",
   },
   back: {
-    name: "Brad Hong",
+    name: "Hong Gil-dong",
     department: "Business Development Division",
     position1: "Senior Manager",
     position2: "",
     address1: "City Air Tower Bldg., 36, Teheran-ro 87-gil,",
     address2: "Gangnam-gu, Seoul, 06164, Korea",
-    telephone: "+82 (0)10-6379-1882",
+    telephone: "+82-70-0000-0000",
     fax: "",
     directTelephone: "",
-    mobile: "+82 (0)70-7188-2199",
-    email: "baeksy@hanmiglobal.com",
-    website: "www.hanmiglobal.com",
+    mobile: "+82-10-0000-0000",
+    email: "hong@logcom.co.kr",
+    website: "www.logcom.co.kr",
   },
 };
 
 export default function TemplateEditModal({
   open,
   templateId = "T_HANMI",
+  initialCardData = null,
   onClose,
   onSave,
   onNext,
 }: TemplateEditModalProps) {
-  const [cardData, setCardData] = useState<BusinessCardInputData>(defaultCardData);
+  const [cardData, setCardData] = useState<BusinessCardInputData>(
+    initialCardData || defaultCardData,
+  );
   const [zoomScale, setZoomScale] = useState<number>(1.0);
+  const [showPreviewModal, setShowPreviewModal] = useState<boolean>(false);
 
   useEffect(() => {
-    // 템플릿에 따라 초기 렌더 데이터 조정 (실제 AI 원본 데이터 스펙)
+    if (initialCardData) {
+      setCardData(initialCardData);
+      return;
+    }
+    // 템플릿에 따라 초기 렌더 데이터 조정 (이름 홍길동 통일, 전화번호 +82 제거 및 영문 자동완성 포맷팅)
     const tidStr = String(templateId || "").toLowerCase();
     if (tidStr.includes("cheil") || tidStr === "2") {
       setCardData({
         front: {
-          name: "조우진",
+          name: "홍길동",
           departmentOption: "직접입력",
           department: "상하수도사업부",
           position1Option: "직접입력",
@@ -115,21 +139,21 @@ export default function TemplateEditModal({
           fax: "02-572-3112",
           directTelephone: "02-3498-2441",
           mobile: "010-9142-9719",
-          email: "a5273586@hanmail.net",
+          email: "hong@logcom.co.kr",
           website: "www.cheileng.com",
         },
         back: {
-          name: "Woo-Jin Jo",
+          name: "Hong Gil-dong",
           department: "Water Supply & Sewerage Eng. Div.",
           position1: "General Manager",
           position2: "",
           address1: "22-6, Gangnamdaero 16gil, Seocho-gu,",
           address2: "Seoul, Korea (06779)",
-          telephone: "82-2-3498-2600",
-          fax: "82-2-572-3112",
-          directTelephone: "82-2-3498-2441",
-          mobile: "82-10-9142-9719",
-          email: "a5273586@hanmail.net",
+          telephone: "+82-2-3498-2600",
+          fax: "+82-2-572-3112",
+          directTelephone: "+82-2-3498-2441",
+          mobile: "+82-10-9142-9719",
+          email: "hong@logcom.co.kr",
           website: "www.cheileng.com",
         },
       });
@@ -150,10 +174,21 @@ export default function TemplateEditModal({
       const nextFront = { ...prev.front, [field]: value };
       const nextBack = { ...prev.back };
 
-      // 웹사이트 동기화
+      // 웹사이트, 이메일, 전화번호, 팩스, 직통, 핸드폰 자동 변환 및 동기화
       if (field === "website") {
         nextBack.website = value;
+      } else if (field === "email") {
+        nextBack.email = value;
+      } else if (field === "telephone") {
+        nextBack.telephone = formatEnglishPhone(value);
+      } else if (field === "fax") {
+        nextBack.fax = formatEnglishPhone(value);
+      } else if (field === "directTelephone") {
+        nextBack.directTelephone = formatEnglishPhone(value);
+      } else if (field === "mobile") {
+        nextBack.mobile = formatEnglishPhone(value);
       }
+
       return { front: nextFront, back: nextBack };
     });
   };
@@ -635,6 +670,15 @@ export default function TemplateEditModal({
 
           <div className="flex gap-2">
             <button
+              type="button"
+              onClick={() => setShowPreviewModal(true)}
+              className="flex h-10 items-center gap-1.5 rounded-md border border-border bg-background px-4 text-xs font-medium text-foreground transition hover:bg-secondary"
+            >
+              <Eye size={14} />
+              미리보기
+            </button>
+
+            <button
               type="submit"
               className="flex h-10 items-center gap-2 rounded-md bg-primary px-5 text-xs font-medium text-primary-foreground transition hover:opacity-90"
             >
@@ -643,6 +687,60 @@ export default function TemplateEditModal({
           </div>
         </footer>
       </form>
+
+      {/* 실시간 미리보기 팝업 모달 */}
+      {showPreviewModal && (
+        <div className="fixed inset-0 z-[250] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-4xl overflow-hidden rounded-xl border border-border bg-background shadow-2xl">
+            <div className="flex items-center justify-between border-b border-border bg-card px-5 py-3.5">
+              <div className="flex items-center gap-2">
+                <Eye size={16} className="text-primary" />
+                <h3 className="text-sm font-semibold text-foreground">
+                  명함 실시간 렌더링 미리보기
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowPreviewModal(false)}
+                className="rounded p-1 text-muted-foreground hover:bg-secondary hover:text-foreground"
+              >
+                <X size={18} />
+              </button>
+            </div>
+            <div className="grid gap-6 p-6 md:grid-cols-2">
+              <div>
+                <span className="mb-2 block text-xs font-semibold text-foreground">
+                  앞면 (국문)
+                </span>
+                <DynamicBusinessCardPreview
+                  templateId={templateId}
+                  cardData={cardData}
+                  isBack={false}
+                />
+              </div>
+              <div>
+                <span className="mb-2 block text-xs font-semibold text-foreground">
+                  뒷면 (영문)
+                </span>
+                <DynamicBusinessCardPreview
+                  templateId={templateId}
+                  cardData={cardData}
+                  isBack={true}
+                />
+              </div>
+            </div>
+            <div className="flex justify-end border-t border-border bg-card px-5 py-3">
+              <button
+                type="button"
+                onClick={() => setShowPreviewModal(false)}
+                className="h-9 rounded-md bg-primary px-4 text-xs font-medium text-primary-foreground transition hover:opacity-90"
+              >
+                닫기
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
