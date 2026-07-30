@@ -25,8 +25,25 @@ function formatKoreanName(nameStr?: string): string {
   return nameStr;
 }
 
+// 로고 URL을 100% 캔버스 캡처 호환용 Base64 Data URL로 변환
+async function fetchLogoBase64(url?: string): Promise<string> {
+  if (!url) return "";
+  try {
+    const res = await fetch(url);
+    const blob = await res.blob();
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.onerror = () => resolve(url);
+      reader.readAsDataURL(blob);
+    });
+  } catch (e) {
+    return url;
+  }
+}
+
 /**
- * 마우스 오버 미리보기(SvgBusinessCardPreview)와 100% 동일한 300DPI 초고화질 90mm x 50mm 인쇄용 PDF 생성 및 자동 다운로드
+ * 미리보기 화면과 100% 동일한 300DPI 초고화질 90mm x 50mm 인쇄용 PDF 생성 및 자동 다운로드
  */
 export async function generateCardPrintPdf(order: OrderLike): Promise<void> {
   let cardData: any = { front: {}, back: {} };
@@ -43,7 +60,7 @@ export async function generateCardPrintPdf(order: OrderLike): Promise<void> {
   const key = tidStr.includes("hanmi") || tidStr === "3" ? "hanmi" : "cheil";
   const specGroup = CARD_TEMPLATE_SPECS[key] || CARD_TEMPLATE_SPECS.cheil;
 
-  // 오프스크린 렌더링 컨테이너 (실제 화면크기 519px x 288.333px 규격)
+  // 오프스크린 렌더링 컨테이너
   const container = document.createElement("div");
   container.style.position = "fixed";
   container.style.left = "-9999px";
@@ -63,13 +80,15 @@ export async function generateCardPrintPdf(order: OrderLike): Promise<void> {
     });
 
     // --- Page 1: 앞면 (국문) ---
-    container.innerHTML = createSvgMarkup(key, specGroup.front, cardData, false);
-    await waitForImages(container);
+    const frontLogoBase64 = await fetchLogoBase64(specGroup.front.logoUrl);
+    container.innerHTML = createSvgMarkup(key, specGroup.front, cardData, false, frontLogoBase64);
+    await new Promise((res) => setTimeout(res, 100));
     
-    // 300 DPI 초고화질 (scale: 4 = 2076px x 1153px) 캔버스 생성
+    // 300 DPI 초고화질 (scale: 4)
     const frontCanvas = await html2canvas(container, {
       scale: 4,
       useCORS: true,
+      allowTaint: true,
       logging: false,
       backgroundColor: "#ffffff",
     });
@@ -78,12 +97,14 @@ export async function generateCardPrintPdf(order: OrderLike): Promise<void> {
 
     // --- Page 2: 뒷면 (영문) ---
     doc.addPage([90, 50], "landscape");
-    container.innerHTML = createSvgMarkup(key, specGroup.back, cardData, true);
-    await waitForImages(container);
+    const backLogoBase64 = await fetchLogoBase64(specGroup.back.logoUrl);
+    container.innerHTML = createSvgMarkup(key, specGroup.back, cardData, true, backLogoBase64);
+    await new Promise((res) => setTimeout(res, 100));
 
     const backCanvas = await html2canvas(container, {
       scale: 4,
       useCORS: true,
+      allowTaint: true,
       logging: false,
       backgroundColor: "#ffffff",
     });
@@ -106,45 +127,13 @@ export async function generateCardPrintPdf(order: OrderLike): Promise<void> {
   }
 }
 
-// 오프스크린 컨테이너 내 로고 이미지 로딩 완료 대기 유틸리티
-function waitForImages(container: HTMLElement): Promise<void> {
-  return new Promise((resolve) => {
-    const images = container.querySelectorAll("image, img");
-    if (images.length === 0) {
-      setTimeout(resolve, 50);
-      return;
-    }
-
-    let loadedCount = 0;
-    const totalCount = images.length;
-    const checkDone = () => {
-      loadedCount++;
-      if (loadedCount >= totalCount) {
-        setTimeout(resolve, 100);
-      }
-    };
-
-    images.forEach((imgElem) => {
-      const href = imgElem.getAttribute("href") || imgElem.getAttribute("src");
-      if (!href) {
-        checkDone();
-        return;
-      }
-      const img = new Image();
-      img.crossOrigin = "anonymous";
-      img.onload = checkDone;
-      img.onerror = checkDone;
-      img.src = href;
-    });
-  });
-}
-
-// SVG HTML 마크업 생성 함수 (미리보기 화면과 100% 일치)
+// SVG HTML 마크업 생성 함수 (Base64 로고 직주입)
 function createSvgMarkup(
   key: string,
   config: any,
   cardData: any,
-  isBack: boolean
+  isBack: boolean,
+  logoBase64: string
 ): string {
   const front = cardData.front || {};
   const back = cardData.back || {};
@@ -183,7 +172,7 @@ function createSvgMarkup(
   return `
     <svg viewBox="${config.viewBox}" width="519" height="288.333" xmlns="http://www.w3.org/2000/svg" style="background:#ffffff; font-family:'Pretendard Variable', Pretendard, -apple-system, sans-serif; display:block;">
       ${bottomBarHtml}
-      ${config.logoUrl ? `<image href="${config.logoUrl}" x="${logoSpec.x}" y="${logoSpec.y}" width="${logoSpec.width}" height="${logoSpec.height}" />` : ""}
+      ${logoBase64 ? `<image href="${logoBase64}" x="${logoSpec.x}" y="${logoSpec.y}" width="${logoSpec.width}" height="${logoSpec.height}" />` : ""}
       ${sloganHtml}
 
       ${config.fields.name ? `<text x="${config.fields.name.x}" y="${config.fields.name.y}" font-size="${config.fields.name.fontSize}" font-weight="${config.fields.name.fontWeight || "700"}" fill="${config.fields.name.fill || "#0f172a"}" letter-spacing="${!isBack && key === "cheil" ? "0.35em" : !isBack ? "0.25em" : "normal"}" dominant-baseline="hanging">${nameText}</text>` : ""}
