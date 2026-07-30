@@ -749,8 +749,25 @@ export default function MembersPage() {
         open={deleteMember !== null}
         member={deleteMember}
         onClose={() => setDeleteMember(null)}
-        onConfirm={(member) => {
-          console.log("삭제할 회원:", member);
+        onConfirm={async (memberToDelete) => {
+          try {
+            await fetch(`${API_BASE_URL}/api/v1/company/members/${memberToDelete.id}`, {
+              method: "PUT",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${accessToken}`,
+              },
+              body: JSON.stringify({
+                status: "INACTIVE",
+              }),
+            });
+          } catch (err) {
+            console.error("회원 삭제 실패:", err);
+          }
+
+          setMembers((prevMembers) =>
+            prevMembers.filter((m) => String(m.id) !== String(memberToDelete.id))
+          );
           setDeleteMember(null);
         }}
       />
