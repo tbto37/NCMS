@@ -144,8 +144,7 @@ export function mapOrderResponse(dto: BackendOrderResponse): MappedOrder {
   const calculatedPrice = dto.price ? Number(dto.price) : (quantity > 0 ? quantity * 75 : 15000);
   const priceStr = `${calculatedPrice.toLocaleString()}원`;
 
-  const calculatedShipping = dto.shippingFee !== undefined && dto.shippingFee !== null ? Number(dto.shippingFee) : 3000;
-  const shippingFeeStr = calculatedShipping === 0 ? "무료" : `${calculatedShipping.toLocaleString()}원`;
+  const shippingFeeStr = "0원";
 
   return {
     rawId: dto.id,
@@ -174,10 +173,10 @@ export function mapOrderResponse(dto: BackendOrderResponse): MappedOrder {
 }
 
 export const allOrders = [
-  { id: "ORD-8821", receivedAt: "2026-07-21T14:30:00", site: "제일엔지니어링", material: "휘라레 216g", quantity: 2000, phone: "010-2451-8821", name: "김민준", price: "150,000원", shippingFee: "무료", status: "승인대기" },
-  { id: "ORD-8820", receivedAt: "2026-07-21T11:15:00", site: "테크코리아", material: "스노우지 250g", quantity: 500, phone: "010-7392-1048", name: "이서연", price: "37,500원", shippingFee: "3,000원", status: "승인대기" },
-  { id: "ORD-8819", receivedAt: "2026-07-20T16:45:00", site: "디지털솔루션", material: "반누보 227g", quantity: 1000, phone: "010-5631-9074", name: "박지훈", price: "75,000원", shippingFee: "3,000원", status: "승인완료" },
-  { id: "ORD-8818", receivedAt: "2026-07-20T09:20:00", site: "한국IT", material: "휘라레 216g", quantity: 200, phone: "010-8164-3320", name: "최수아", price: "15,000원", shippingFee: "3,000원", status: "인쇄중" },
-  { id: "ORD-8817", receivedAt: "2026-07-19T17:10:00", site: "제일엔지니어링", material: "스노우지 250g", quantity: 500, phone: "010-4072-6651", name: "정우진", price: "37,500원", shippingFee: "3,000원", status: "주문취소" },
-  { id: "ORD-8816", receivedAt: "2026-07-19T13:05:00", site: "테크코리아", material: "랑데뷰 240g", quantity: 1000, phone: "010-9285-1473", name: "강예은", price: "75,000원", shippingFee: "3,000원", status: "발송완료" },
+  { id: "ORD-8821", receivedAt: "2026-07-21T14:30:00", site: "제일엔지니어링", material: "휘라레 216g", quantity: 2000, phone: "010-2451-8821", name: "김민준", price: "150,000원", shippingFee: "0원", status: "승인대기" },
+  { id: "ORD-8820", receivedAt: "2026-07-21T11:15:00", site: "테크코리아", material: "스노우지 250g", quantity: 500, phone: "010-7392-1048", name: "이서연", price: "37,500원", shippingFee: "0원", status: "승인대기" },
+  { id: "ORD-8819", receivedAt: "2026-07-20T16:45:00", site: "디지털솔루션", material: "반누보 227g", quantity: 1000, phone: "010-5631-9074", name: "박지훈", price: "75,000원", shippingFee: "0원", status: "승인완료" },
+  { id: "ORD-8818", receivedAt: "2026-07-20T09:20:00", site: "한국IT", material: "휘라레 216g", quantity: 200, phone: "010-8164-3320", name: "최수아", price: "15,000원", shippingFee: "0원", status: "인쇄중" },
+  { id: "ORD-8817", receivedAt: "2026-07-19T17:10:00", site: "제일엔지니어링", material: "스노우지 250g", quantity: 500, phone: "010-4072-6651", name: "정우진", price: "37,500원", shippingFee: "0원", status: "주문취소" },
+  { id: "ORD-8816", receivedAt: "2026-07-19T13:05:00", site: "테크코리아", material: "랑데뷰 240g", quantity: 1000, phone: "010-9285-1473", name: "강예은", price: "75,000원", shippingFee: "0원", status: "발송완료" },
 ];

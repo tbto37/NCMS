@@ -100,28 +100,47 @@ function BusinessCardPreview({ order }: { order: Order }) {
     }
   }
 
+  const templateId = order.templateId || "T_CHEIL";
+
   return (
-    <div className="space-y-2">
-      <div className="flex items-center justify-between">
+    <div className="space-y-3">
+      <div className="flex items-center justify-between border-b border-border pb-2">
         <div>
-          <p className="text-xs font-semibold text-foreground">명함 미리보기</p>
+          <p className="text-xs font-bold text-foreground">명함 실시간 미리보기</p>
           <p className="mt-0.5 text-[11px] text-muted-foreground">
-            {order.name} · {order.id}
+            {order.name} · {order.id} ({order.site})
           </p>
         </div>
-        <span className="rounded bg-secondary px-2 py-0.5 text-[10px] text-muted-foreground">
-          앞면
-        </span>
       </div>
 
       {parsed ? (
-        <DynamicBusinessCardPreview
-          templateId={order.templateId || "T_CHEIL"}
-          cardData={parsed}
-          isBack={false}
-        />
+        <div className="space-y-3">
+          <div className="space-y-1">
+            <span className="text-[10px] font-semibold text-muted-foreground">
+              [앞면]
+            </span>
+            <DynamicBusinessCardPreview
+              templateId={templateId}
+              cardData={parsed}
+              isBack={false}
+              scale={0.95}
+            />
+          </div>
+
+          <div className="space-y-1">
+            <span className="text-[10px] font-semibold text-muted-foreground">
+              [뒷면]
+            </span>
+            <DynamicBusinessCardPreview
+              templateId={templateId}
+              cardData={parsed}
+              isBack={true}
+              scale={0.95}
+            />
+          </div>
+        </div>
       ) : (
-        <div className="aspect-[1.75/1] overflow-hidden rounded border border-border bg-white shadow-sm p-3 text-xs text-muted-foreground">
+        <div className="aspect-[1.75/1] flex items-center justify-center rounded-lg border border-border bg-white p-4 text-xs text-muted-foreground">
           명함 미리보기 데이터가 없습니다.
         </div>
       )}
@@ -176,7 +195,7 @@ function OrderActions({
           </button>
         </HoverCardTrigger>
 
-        <HoverCardContent align="end" side="left" sideOffset={10} className="w-80 p-3">
+        <HoverCardContent align="end" side="left" sideOffset={12} className="w-[470px] max-h-[85vh] overflow-y-auto p-4">
           <BusinessCardPreview order={order} />
         </HoverCardContent>
       </HoverCard>
