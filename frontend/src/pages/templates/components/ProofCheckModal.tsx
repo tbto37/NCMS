@@ -78,7 +78,7 @@ export default function ProofCheckModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby="proof-check-title"
-        className="my-auto w-full max-w-[760px] overflow-hidden rounded-xl border border-border bg-background shadow-2xl"
+        className="my-auto w-full max-w-[1050px] overflow-hidden rounded-xl border border-border bg-background shadow-2xl"
       >
         <header className="flex h-14 items-center justify-between border-b border-border bg-card px-5">
           <div className="flex items-center gap-2">

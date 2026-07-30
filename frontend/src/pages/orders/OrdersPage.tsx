@@ -195,7 +195,7 @@ function OrderActions({
           </button>
         </HoverCardTrigger>
 
-        <HoverCardContent align="end" side="left" sideOffset={12} className="w-[470px] max-h-[85vh] overflow-y-auto p-4">
+        <HoverCardContent align="end" side="left" sideOffset={12} className="w-[490px] overflow-hidden p-3.5 shadow-2xl">
           <BusinessCardPreview order={order} />
         </HoverCardContent>
       </HoverCard>

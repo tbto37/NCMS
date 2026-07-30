@@ -87,11 +87,54 @@ VALUES (
 
 ---
 
-### Step 4. 고객사 템플릿 배정
+### Step 4. AI 원본 기반 SVG 명함 템플릿 등록 및 좌표 매핑
 
-로그컴 시스템 관리자 화면(`/admin/templates`)에서 해당 신규 고객사가 사용할 수 있는 명함 디자인 템플릿을 연결(`company_templates`)합니다.
+신규 고객사의 AI(Adobe Illustrator) 원본 명함 시안을 파싱하여 **0.001pt 정밀 SVG 동적 미리보기 메타데이터**를 세팅하고 템플릿을 등록합니다.
 
-* 배정된 템플릿만 해당 고객사 임직원 화면(`/{companyCode}/templates`)에 노출됩니다.
+#### 1) 로고 이미지 파일 등록
+* 신규 업체의 국문/영문 로고 이미지를 `c:\NCMS\frontend\public\logos\` 경로에 저장합니다.
+  - 예: `company_front_logo.png` (국문 앞면), `company_back_logo.png` (영문 뒷면)
+
+#### 2) AI 원본 좌표 파싱 및 메타데이터 세팅
+* [`c:\NCMS\frontend\src\shared\constants\cardTemplates.ts`](file:///c:/NCMS/frontend/src/shared/constants/cardTemplates.ts) 파일에 신규 업체 코드를 등록합니다.
+* 명함 규격은 표준 **`90mm × 50mm` (aspect ratio 90:50 / 519 × 288.333)**를 사용하며, 로고 위치(`logoSpec`) 및 필드별 X, Y 좌표, 폰트크기(`fontSize`), 색상(`fill`)을 입력합니다.
+
+```typescript
+// cardTemplates.ts 등록 예시
+newcompany: {
+  front: {
+    viewBox: "0 0 519 288.333", // 90mm x 50mm 정규격
+    width: 519,
+    height: 288.333,
+    logoUrl: "/logos/newcompany_front_logo.png",
+    logoSpec: { x: 25, y: 55, width: 165, height: 56 },
+    showSlogan: false,
+    showCenterLine: false,
+    showBottomBar: false,
+    fields: {
+      name: { x: 285, y: 44, fontSize: 25, fontWeight: "700", fill: "#0f172a" },
+      departmentPosition: { x: 285, y: 80, fontSize: 13, fontWeight: "500", fill: "#1e293b" },
+      companyName: { x: 285, y: 138, fontSize: 14.5, fontWeight: "700", fill: "#0f172a" },
+      telephone: { x: 285, y: 162, fontSize: 12.5, fontWeight: "500", fill: "#1e293b" },
+      mobile: { x: 285, y: 183, fontSize: 12.5, fontWeight: "500", fill: "#1e293b" },
+      email: { x: 285, y: 204, fontSize: 12.5, fontWeight: "500", fill: "#1e293b" },
+      address1: { x: 285, y: 228, fontSize: 12, fontWeight: "400", fill: "#334155" },
+    },
+  },
+  back: {
+    viewBox: "0 0 519 288.333",
+    width: 519,
+    height: 288.333,
+    logoUrl: "/logos/newcompany_back_logo.png",
+    logoSpec: { x: 18, y: 74, width: 215, height: 52 },
+    // 영문 뒷면 좌표 정의 ...
+  },
+}
+```
+
+#### 3) 고객사 템플릿 배정
+* 로그컴 시스템 관리자 화면(`/admin/templates`)에서 해당 신규 고객사에 템플릿(`T_NEWCOMPANY`)을 배정(`company_templates`)합니다.
+* 등록 즉시 해당 고객사 임직원 화면에서 **실시간 돋보기 줌/팬(Zoom & Pan) 미리보기**가 자동 지원됩니다.
 
 ---
 

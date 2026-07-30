@@ -15,6 +15,7 @@ import type {
   BusinessCardInputData,
 } from "@/shared/types/businessCard";
 import DynamicBusinessCardPreview from "@/components/card/DynamicBusinessCardPreview";
+import InteractiveCardViewer from "@/components/card/InteractiveCardViewer";
 
 interface TemplateEditModalProps {
   open: boolean;
@@ -114,7 +115,7 @@ export default function TemplateEditModal({
   const [cardData, setCardData] = useState<BusinessCardInputData>(
     initialCardData || defaultCardData,
   );
-  const [zoomScale, setZoomScale] = useState<number>(1.0);
+  const [zoomScale, setZoomScale] = useState<number>(1.15);
   const [showPreviewModal, setShowPreviewModal] = useState<boolean>(false);
 
   useEffect(() => {
@@ -292,63 +293,16 @@ export default function TemplateEditModal({
           <div className="space-y-6 p-6">
             {/* 미리보기 세션 */}
             <section className="overflow-hidden rounded-xl border border-border bg-card">
-              <div className="flex items-center justify-between border-b border-border px-5 py-4">
-                <div>
-                  <h3 className="text-sm font-semibold text-foreground">실시간 명함 미리보기</h3>
-                  <p className="mt-1 text-xs text-muted-foreground">입력하시는 텍스트가 미리보기에 실시간으로 렌더링됩니다.</p>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setZoomScale((prev) => Math.max(0.7, prev - 0.1))}
-                    className="flex h-8 w-8 items-center justify-center rounded-md border border-border bg-background text-muted-foreground hover:text-foreground"
-                  >
-                    <Minus size={14} />
-                  </button>
-                  <span className="w-12 text-center text-xs font-medium">{Math.round(zoomScale * 100)}%</span>
-                  <button
-                    type="button"
-                    onClick={() => setZoomScale((prev) => Math.min(1.4, prev + 0.1))}
-                    className="flex h-8 w-8 items-center justify-center rounded-md border border-border bg-background text-muted-foreground hover:text-foreground"
-                  >
-                    <Plus size={14} />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setZoomScale(1.0)}
-                    className="ml-1 flex h-8 items-center gap-1.5 rounded-md border border-border bg-background px-2.5 text-xs text-muted-foreground hover:text-foreground"
-                  >
-                    <RotateCcw size={13} /> 초기화
-                  </button>
-                </div>
+              <div className="border-b border-border px-5 py-4">
+                <h3 className="text-sm font-semibold text-foreground">실시간 명함 미리보기 (돋보기 뷰어)</h3>
+                <p className="mt-1 text-xs text-muted-foreground">입력하시는 텍스트가 실시간 렌더링되며, 슬라이더로 확대한 뒤 마우스로 잡고 자유롭게 이동할 수 있습니다.</p>
               </div>
 
-              <div className="grid gap-4 p-4 lg:grid-cols-2">
-                <div>
-                  <div className="mb-2 flex items-center justify-between">
-                    <span className="text-xs font-semibold">앞면 (한글)</span>
-                    <span className="text-[11px] text-muted-foreground">Korean</span>
-                  </div>
-                  <DynamicBusinessCardPreview
-                    templateId={templateId}
-                    cardData={cardData}
-                    isBack={false}
-                    scale={zoomScale}
-                  />
-                </div>
-                <div>
-                  <div className="mb-2 flex items-center justify-between">
-                    <span className="text-xs font-semibold">뒷면 (영문)</span>
-                    <span className="text-[11px] text-muted-foreground">English</span>
-                  </div>
-                  <DynamicBusinessCardPreview
-                    templateId={templateId}
-                    cardData={cardData}
-                    isBack={true}
-                    scale={zoomScale}
-                  />
-                </div>
+              <div className="p-4">
+                <InteractiveCardViewer
+                  templateId={templateId}
+                  cardData={cardData}
+                />
               </div>
             </section>
 
@@ -691,7 +645,7 @@ export default function TemplateEditModal({
       {/* 실시간 미리보기 팝업 모달 */}
       {showPreviewModal && (
         <div className="fixed inset-0 z-[250] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-4xl overflow-hidden rounded-xl border border-border bg-background shadow-2xl">
+          <div className="w-full max-w-6xl overflow-hidden rounded-xl border border-border bg-background shadow-2xl">
             <div className="flex items-center justify-between border-b border-border bg-card px-5 py-3.5">
               <div className="flex items-center gap-2">
                 <Eye size={16} className="text-primary" />
