@@ -47,46 +47,53 @@ export default function DynamicBusinessCardPreview({
             /* ==================== 한미글로벌 앞면 (한글) ==================== */
             <div
               style={{ fontFamily: "'Pretendard Variable', Pretendard, -apple-system, sans-serif" }}
-              className="relative w-[430px] h-[240px] bg-white rounded-sm shadow-md border border-slate-200 p-6 flex flex-col justify-between select-none text-slate-800"
+              className="relative w-[430px] h-[240px] bg-white rounded-sm shadow-md border border-slate-200 p-5 pl-6 pt-5 pb-4 flex justify-between items-start select-none text-slate-800"
             >
-              {/* 상단: 로고 (좌) vs 이름/직급 (우) */}
-              <div className="flex items-start justify-between">
-                <div className="pt-1">
-                  <img
-                    src="/logos/hanmi_front_logo.png"
-                    alt="한미글로벌 로고"
-                    className="h-10 object-contain"
-                  />
-                </div>
-
-                <div className="text-right">
-                  <div className="text-[17px] font-extrabold text-slate-900 tracking-wider">
-                    {formatKoreanName(front.name) || "백   승   연"}
-                  </div>
-                  <div className="text-[10px] font-semibold text-slate-600 mt-1">
-                    {[front.position1, front.department].filter(Boolean).join(" / ") || "프로 / 경영지원팀"}
-                  </div>
-                </div>
+              {/* 좌측: 로고 */}
+              <div className="w-[125px] shrink-0 pt-1">
+                <img
+                  src="/logos/hanmi_front_logo.png"
+                  alt="한미글로벌 로고"
+                  className="h-10 object-contain"
+                />
               </div>
 
-              {/* 하단: 회사명 및 상세 연락처 */}
-              <div className="mt-auto pt-2 flex flex-col items-end text-right">
-                <div className="text-[11px] font-bold text-slate-900 mb-1.5">한미글로벌</div>
-                <div className="space-y-0.5 text-[9.5px] leading-tight text-slate-600 font-medium tracking-tight">
-                  <div className="flex justify-end gap-1.5">
-                    <span className="font-bold text-slate-800">T</span>
-                    <span>{front.telephone || "+82 (0)10-6379-1882"}</span>
+              {/* 우측: 상세 내용 (좌측 정렬) */}
+              <div className="flex-1 pl-4 text-left flex flex-col justify-between h-full pt-0.5">
+                {/* 상단: 이름 및 부서/직급 */}
+                <div>
+                  <div className="text-[17px] font-bold text-slate-900 tracking-[0.25em]">
+                    {formatKoreanName(front.name) || "홍    길    동"}
                   </div>
-                  <div className="flex justify-end gap-1.5">
-                    <span className="font-bold text-slate-800">M</span>
-                    <span>{front.mobile || "+82 (0)70-7188-2199"}</span>
+                  <div className="text-[9.5px] font-medium text-slate-700 mt-1">
+                    {[front.position1, front.department].filter(Boolean).join(" / ") || "시니어 매니저 / 비즈니스개발실"}
                   </div>
-                  <div className="flex justify-end gap-1.5">
-                    <span className="font-bold text-slate-800">E</span>
-                    <span>{front.email || "baeksy@hanmiglobal.com"}</span>
+                </div>
+
+                {/* 하단: 회사명 및 상세 연락처 */}
+                <div className="space-y-[2px] text-[8.5px] leading-snug text-slate-700 font-medium">
+                  <div className="text-[10px] font-bold text-slate-900 mb-1">
+                    한미글로벌 주식회사
                   </div>
-                  <div className="pt-1 text-[9px] text-slate-500 font-normal leading-snug">
-                    {front.address || "06164, 서울시 강남구 테헤란로 87길 36 도심공항타워"}
+                  <div className="flex gap-2">
+                    <span className="font-bold text-slate-900">T</span>
+                    <span>{front.telephone || "+82(0)70-0000-0000"}</span>
+                  </div>
+                  <div className="flex gap-[6px]">
+                    <span className="font-bold text-slate-900">M</span>
+                    <span>{front.mobile || "+82(0)10-0000-0000"}</span>
+                  </div>
+                  <div className="flex gap-2">
+                    <span className="font-bold text-slate-900">E</span>
+                    <span>{front.email || "logcom2@hanmiglobal.com"}</span>
+                  </div>
+                  <div className="pt-0.5 text-[8.5px] leading-tight text-slate-700 max-w-[230px]">
+                    {front.address || (
+                      <>
+                        06164, 서울시 강남구 테헤란로 87길<br />
+                        36 도심공항타워
+                      </>
+                    )}
                   </div>
                 </div>
               </div>
@@ -95,38 +102,48 @@ export default function DynamicBusinessCardPreview({
             /* ==================== 한미글로벌 뒷면 (영문) ==================== */
             <div
               style={{ fontFamily: "'Pretendard Variable', Pretendard, -apple-system, sans-serif" }}
-              className="relative w-[430px] h-[240px] bg-white rounded-sm shadow-md border border-slate-200 p-6 flex flex-col justify-between select-none text-slate-800"
+              className="relative w-[430px] h-[240px] bg-white rounded-sm shadow-md border border-slate-200 p-5 pl-6 pt-5 pb-4 flex justify-between items-start select-none text-slate-800"
             >
-              {/* 상단: 영문 로고 & 영문 이름 */}
-              <div className="flex items-start justify-between">
-                <div className="pt-1">
-                  <img
-                    src="/logos/hanmi_back_logo.png"
-                    alt="HanmiGlobal Logo"
-                    className="h-10 object-contain"
-                  />
-                </div>
-
-                <div className="text-right">
-                  <div className="text-[17px] font-bold text-slate-900">
-                    {back.name || "Rosy Baek"}
-                  </div>
-                  <div className="text-[9.5px] font-medium text-slate-600 mt-1 leading-tight">
-                    <div>{back.position1 || "Professional"} /</div>
-                    <div>{back.department || "Management Support Team"}</div>
-                  </div>
-                </div>
+              {/* 좌측: 영문 로고 */}
+              <div className="w-[125px] shrink-0 pt-1">
+                <img
+                  src="/logos/hanmi_back_logo.png"
+                  alt="HanmiGlobal Logo"
+                  className="h-10 object-contain"
+                />
               </div>
 
-              {/* 하단: 영문 회사명 & 주소 */}
-              <div className="mt-auto pt-2 flex flex-col items-end text-right">
-                <div className="text-[11px] font-bold text-slate-900">HanmiGlobal Co.,Ltd.</div>
-                <div className="text-[9.5px] font-semibold text-[#004B96] my-0.5">
-                  {back.website || "www.hanmiglobal.com"}
+              {/* 우측: 영문 상세 내용 (좌측 정렬) */}
+              <div className="flex-1 pl-4 text-left flex flex-col justify-between h-full pt-0.5">
+                {/* 상단: 영문 이름 & 영문 직급/부서 */}
+                <div>
+                  <div className="text-[17px] font-bold text-slate-900">
+                    {back.name || "Brad Hong"}
+                  </div>
+                  <div className="text-[9.5px] font-medium text-slate-700 mt-1 leading-tight">
+                    <div>{back.position1 || "Senior Manager /"}</div>
+                    <div>{back.department || "Business Development Division"}</div>
+                  </div>
                 </div>
-                <div className="text-[8.5px] leading-tight text-slate-500 font-normal max-w-[260px]">
-                  {back.address1 || "City Air Tower Bldg., 36, Teheran-ro 87-gil, Gangnam-gu, Seoul, 06164, Korea"}
-                  {back.address2 && <div>{back.address2}</div>}
+
+                {/* 하단: 영문 회사명 & 주소 */}
+                <div className="space-y-[2px] text-[8.5px] leading-snug text-slate-700 font-medium">
+                  <div className="text-[10px] font-bold text-slate-900">
+                    HanmiGlobal Co.,Ltd.
+                  </div>
+                  <div className="text-[9.5px] font-semibold text-[#004B96] my-0.5">
+                    {back.website || "www.hanmiglobal.com"}
+                  </div>
+                  <div className="text-[8.5px] leading-tight text-slate-700 max-w-[240px]">
+                    {back.address1 || (
+                      <>
+                        City Air Tower Bldg., 36, Teheran-ro<br />
+                        87-gil, Gangnam-gu, Seoul, 06164,<br />
+                        Korea
+                      </>
+                    )}
+                    {back.address2 && <div>{back.address2}</div>}
+                  </div>
                 </div>
               </div>
             </div>
