@@ -141,7 +141,8 @@ export default function TemplateEditModal({
   if (!open) return null;
 
   const isDeptDirect = !cardData.front.departmentOption || cardData.front.departmentOption === "직접입력";
-  const isPosDirect = !cardData.front.position1Option || cardData.front.position1Option === "직접입력";
+  const isPos1Direct = !cardData.front.position1Option || cardData.front.position1Option === "직접입력";
+  const isPos2Direct = !cardData.front.position2Option || cardData.front.position2Option === "직접입력";
 
   // 앞면 일반 필드 변경 시 실시간 반영
   const handleFrontChange = (field: string, value: string) => {
@@ -183,8 +184,8 @@ export default function TemplateEditModal({
     }));
   };
 
-  // 직급 셀렉트 변경 시 레거시 동일 한/영 동시 매핑
-  const handlePositionSelectChange = (e: ChangeEvent<HTMLSelectElement>) => {
+  // 직급1 셀렉트 변경 시 레거시 동일 한/영 동시 매핑
+  const handlePosition1SelectChange = (e: ChangeEvent<HTMLSelectElement>) => {
     const selectedKor = e.target.value;
     const mappedEng = POSITION_MAPPINGS[selectedKor] || "";
 
@@ -197,6 +198,24 @@ export default function TemplateEditModal({
       back: {
         ...prev.back,
         position1: selectedKor === "직접입력" ? prev.back.position1 : mappedEng,
+      },
+    }));
+  };
+
+  // 직급2 셀렉트 변경 시 레거시 동일 한/영 동시 매핑
+  const handlePosition2SelectChange = (e: ChangeEvent<HTMLSelectElement>) => {
+    const selectedKor = e.target.value;
+    const mappedEng = POSITION_MAPPINGS[selectedKor] || "";
+
+    setCardData((prev) => ({
+      front: {
+        ...prev.front,
+        position2Option: selectedKor,
+        position2: selectedKor === "직접입력" ? prev.front.position2 : selectedKor,
+      },
+      back: {
+        ...prev.back,
+        position2: selectedKor === "직접입력" ? prev.back.position2 : mappedEng,
       },
     }));
   };
@@ -307,6 +326,7 @@ export default function TemplateEditModal({
                   <p className="mt-1 text-xs text-muted-foreground">한글 명함에 표시할 정보를 입력합니다.</p>
                 </div>
                 <div className="space-y-3 px-5 py-5">
+                  {/* 1. 이름 */}
                   <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
                     <label className="text-xs font-medium text-muted-foreground">이름</label>
                     <input
@@ -316,6 +336,7 @@ export default function TemplateEditModal({
                     />
                   </div>
 
+                  {/* 2. 부서 선택 & 부서 */}
                   <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
                     <label className="text-xs font-medium text-muted-foreground">부서 선택</label>
                     <select
@@ -331,24 +352,24 @@ export default function TemplateEditModal({
                   </div>
 
                   <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
-                    <label className="text-xs font-medium text-muted-foreground">부서</label>
+                    <div />
                     <input
                       value={cardData.front.department}
                       onChange={(e) => handleFrontChange("department", e.target.value)}
                       readOnly={!isDeptDirect}
-                      className={`h-9 w-full rounded-md border border-border px-3 text-xs outline-none transition ${
-                        isDeptDirect
-                          ? "bg-background text-foreground focus:border-ring focus:ring-2 focus:ring-ring/15"
-                          : "bg-muted/50 text-muted-foreground cursor-not-allowed"
-                      }`}
+                      className={`h-9 w-full rounded-md border border-border px-3 text-xs outline-none transition ${isDeptDirect
+                        ? "bg-background text-foreground focus:border-ring focus:ring-2 focus:ring-ring/15"
+                        : "bg-muted/50 text-muted-foreground cursor-not-allowed"
+                        }`}
                     />
                   </div>
 
+                  {/* 3. 직급1 선택 & 직급1 */}
                   <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
-                    <label className="text-xs font-medium text-muted-foreground">직급 선택</label>
+                    <label className="text-xs font-medium text-muted-foreground">직급1 선택</label>
                     <select
                       value={cardData.front.position1Option || "직접입력"}
-                      onChange={handlePositionSelectChange}
+                      onChange={handlePosition1SelectChange}
                       className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
                     >
                       <option value="직접입력">직접입력</option>
@@ -359,19 +380,47 @@ export default function TemplateEditModal({
                   </div>
 
                   <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
-                    <label className="text-xs font-medium text-muted-foreground">직급</label>
+                    <div />
                     <input
                       value={cardData.front.position1}
                       onChange={(e) => handleFrontChange("position1", e.target.value)}
-                      readOnly={!isPosDirect}
-                      className={`h-9 w-full rounded-md border border-border px-3 text-xs outline-none transition ${
-                        isPosDirect
-                          ? "bg-background text-foreground focus:border-ring focus:ring-2 focus:ring-ring/15"
-                          : "bg-muted/50 text-muted-foreground cursor-not-allowed"
-                      }`}
+                      readOnly={!isPos1Direct}
+                      className={`h-9 w-full rounded-md border border-border px-3 text-xs outline-none transition ${isPos1Direct
+                        ? "bg-background text-foreground focus:border-ring focus:ring-2 focus:ring-ring/15"
+                        : "bg-muted/50 text-muted-foreground cursor-not-allowed"
+                        }`}
                     />
                   </div>
 
+                  {/* 4. 직급2 선택 & 직급2 */}
+                  <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
+                    <label className="text-xs font-medium text-muted-foreground">직급2 선택</label>
+                    <select
+                      value={cardData.front.position2Option || "직접입력"}
+                      onChange={handlePosition2SelectChange}
+                      className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
+                    >
+                      <option value="직접입력">직접입력</option>
+                      {Object.keys(POSITION_MAPPINGS).map((pos) => (
+                        <option key={pos} value={pos}>{pos}</option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
+                    <div />
+                    <input
+                      value={cardData.front.position2}
+                      onChange={(e) => handleFrontChange("position2", e.target.value)}
+                      readOnly={!isPos2Direct}
+                      className={`h-9 w-full rounded-md border border-border px-3 text-xs outline-none transition ${isPos2Direct
+                        ? "bg-background text-foreground focus:border-ring focus:ring-2 focus:ring-ring/15"
+                        : "bg-muted/50 text-muted-foreground cursor-not-allowed"
+                        }`}
+                    />
+                  </div>
+
+                  {/* 5. 주소 */}
                   <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
                     <label className="text-xs font-medium text-muted-foreground">주소</label>
                     <input
@@ -381,6 +430,7 @@ export default function TemplateEditModal({
                     />
                   </div>
 
+                  {/* 6. 전화번호 */}
                   <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
                     <label className="text-xs font-medium text-muted-foreground">전화번호</label>
                     <input
@@ -390,6 +440,27 @@ export default function TemplateEditModal({
                     />
                   </div>
 
+                  {/* 7. 팩스 */}
+                  <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
+                    <label className="text-xs font-medium text-muted-foreground">팩스</label>
+                    <input
+                      value={cardData.front.fax}
+                      onChange={(e) => handleFrontChange("fax", e.target.value)}
+                      className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
+                    />
+                  </div>
+
+                  {/* 8. 직통번호 */}
+                  <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
+                    <label className="text-xs font-medium text-muted-foreground">직통번호</label>
+                    <input
+                      value={cardData.front.directTelephone}
+                      onChange={(e) => handleFrontChange("directTelephone", e.target.value)}
+                      className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
+                    />
+                  </div>
+
+                  {/* 9. 핸드폰 */}
                   <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
                     <label className="text-xs font-medium text-muted-foreground">핸드폰</label>
                     <input
@@ -399,6 +470,7 @@ export default function TemplateEditModal({
                     />
                   </div>
 
+                  {/* 10. 이메일 */}
                   <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
                     <label className="text-xs font-medium text-muted-foreground">이메일</label>
                     <input
@@ -407,18 +479,29 @@ export default function TemplateEditModal({
                       className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
                     />
                   </div>
+
+                  {/* 11. 웹사이트 */}
+                  <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
+                    <label className="text-xs font-medium text-muted-foreground">웹사이트</label>
+                    <input
+                      value={cardData.front.website}
+                      onChange={(e) => handleFrontChange("website", e.target.value)}
+                      className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
+                    />
+                  </div>
                 </div>
               </section>
 
-              {/* 뒷면 입력 폼 */}
+              {/* 뒷면 입력 폼 (모든 필드 일반 input) */}
               <section className="overflow-hidden rounded-xl border border-border bg-card">
                 <div className="border-b border-border px-5 py-4">
                   <h3 className="text-sm font-semibold text-foreground">뒷면 정보</h3>
                   <p className="mt-1 text-xs text-muted-foreground">영문 명함에 표시할 정보를 입력합니다.</p>
                 </div>
                 <div className="space-y-3 px-5 py-5">
+                  {/* 1. 이름 (영문) */}
                   <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
-                    <label className="text-xs font-medium text-muted-foreground">이름 (영문)</label>
+                    <label className="text-xs font-medium text-muted-foreground">이름</label>
                     <input
                       value={cardData.back.name}
                       onChange={(e) => handleBackChange("name", e.target.value)}
@@ -426,36 +509,39 @@ export default function TemplateEditModal({
                     />
                   </div>
 
+                  {/* 2. 부서 (영문) */}
                   <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
-                    <label className="text-xs font-medium text-muted-foreground">부서 (영문)</label>
+                    <label className="text-xs font-medium text-muted-foreground">부서</label>
                     <input
                       value={cardData.back.department}
                       onChange={(e) => handleBackChange("department", e.target.value)}
-                      readOnly={!isDeptDirect}
-                      className={`h-9 w-full rounded-md border border-border px-3 text-xs outline-none transition ${
-                        isDeptDirect
-                          ? "bg-background text-foreground focus:border-ring focus:ring-2 focus:ring-ring/15"
-                          : "bg-muted/50 text-muted-foreground cursor-not-allowed"
-                      }`}
+                      className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
                     />
                   </div>
 
+                  {/* 3. 직급1 (영문) */}
                   <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
-                    <label className="text-xs font-medium text-muted-foreground">직급 (영문)</label>
+                    <label className="text-xs font-medium text-muted-foreground">직급1</label>
                     <input
                       value={cardData.back.position1}
                       onChange={(e) => handleBackChange("position1", e.target.value)}
-                      readOnly={!isPosDirect}
-                      className={`h-9 w-full rounded-md border border-border px-3 text-xs outline-none transition ${
-                        isPosDirect
-                          ? "bg-background text-foreground focus:border-ring focus:ring-2 focus:ring-ring/15"
-                          : "bg-muted/50 text-muted-foreground cursor-not-allowed"
-                      }`}
+                      className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
                     />
                   </div>
 
+                  {/* 4. 직급2 (영문) */}
                   <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
-                    <label className="text-xs font-medium text-muted-foreground">주소 1 (영문)</label>
+                    <label className="text-xs font-medium text-muted-foreground">직급2</label>
+                    <input
+                      value={cardData.back.position2}
+                      onChange={(e) => handleBackChange("position2", e.target.value)}
+                      className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
+                    />
+                  </div>
+
+                  {/* 5. 주소 (영문) */}
+                  <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
+                    <label className="text-xs font-medium text-muted-foreground">주소</label>
                     <input
                       value={cardData.back.address1}
                       onChange={(e) => handleBackChange("address1", e.target.value)}
@@ -463,8 +549,9 @@ export default function TemplateEditModal({
                     />
                   </div>
 
+                  {/* 6. 주소2 (영문) */}
                   <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
-                    <label className="text-xs font-medium text-muted-foreground">주소 2 (영문)</label>
+                    <label className="text-xs font-medium text-muted-foreground">주소2</label>
                     <input
                       value={cardData.back.address2}
                       onChange={(e) => handleBackChange("address2", e.target.value)}
@@ -472,6 +559,7 @@ export default function TemplateEditModal({
                     />
                   </div>
 
+                  {/* 7. 전화번호 */}
                   <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
                     <label className="text-xs font-medium text-muted-foreground">전화번호</label>
                     <input
@@ -481,6 +569,27 @@ export default function TemplateEditModal({
                     />
                   </div>
 
+                  {/* 8. 팩스 */}
+                  <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
+                    <label className="text-xs font-medium text-muted-foreground">팩스</label>
+                    <input
+                      value={cardData.back.fax}
+                      onChange={(e) => handleBackChange("fax", e.target.value)}
+                      className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
+                    />
+                  </div>
+
+                  {/* 9. 직통번호 */}
+                  <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
+                    <label className="text-xs font-medium text-muted-foreground">직통번호</label>
+                    <input
+                      value={cardData.back.directTelephone}
+                      onChange={(e) => handleBackChange("directTelephone", e.target.value)}
+                      className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
+                    />
+                  </div>
+
+                  {/* 10. 핸드폰 */}
                   <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
                     <label className="text-xs font-medium text-muted-foreground">핸드폰</label>
                     <input
@@ -490,6 +599,17 @@ export default function TemplateEditModal({
                     />
                   </div>
 
+                  {/* 11. 이메일 */}
+                  <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
+                    <label className="text-xs font-medium text-muted-foreground">이메일</label>
+                    <input
+                      value={cardData.back.email}
+                      onChange={(e) => handleBackChange("email", e.target.value)}
+                      className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
+                    />
+                  </div>
+
+                  {/* 12. 웹사이트 */}
                   <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
                     <label className="text-xs font-medium text-muted-foreground">웹사이트</label>
                     <input
