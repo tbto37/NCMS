@@ -16,21 +16,21 @@ type NavItemDefinition = Omit<NavItem, "path"> & {
 const navItemDefinitions: NavItemDefinition[] = [
   {
     id: "templates",
-    label: "템플릿 관리",
+    label: "템플릿",
     icon: Layers,
     route: "templates",
-  },
-  {
-    id: "members",
-    label: "회원 관리",
-    icon: Users,
-    route: "members",
   },
   {
     id: "orders",
     label: "주문 관리",
     icon: ShoppingCart,
     route: "orders",
+  },
+  {
+    id: "members",
+    label: "회원 관리",
+    icon: Users,
+    route: "members",
   },
 ];
 
