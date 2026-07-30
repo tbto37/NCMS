@@ -140,6 +140,9 @@ export default function TemplateEditModal({
 
   if (!open) return null;
 
+  const isDeptDirect = !cardData.front.departmentOption || cardData.front.departmentOption === "직접입력";
+  const isPosDirect = !cardData.front.position1Option || cardData.front.position1Option === "직접입력";
+
   // 앞면 일반 필드 변경 시 실시간 반영
   const handleFrontChange = (field: string, value: string) => {
     setCardData((prev) => {
@@ -332,7 +335,12 @@ export default function TemplateEditModal({
                     <input
                       value={cardData.front.department}
                       onChange={(e) => handleFrontChange("department", e.target.value)}
-                      className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
+                      readOnly={!isDeptDirect}
+                      className={`h-9 w-full rounded-md border border-border px-3 text-xs outline-none transition ${
+                        isDeptDirect
+                          ? "bg-background text-foreground focus:border-ring focus:ring-2 focus:ring-ring/15"
+                          : "bg-muted/50 text-muted-foreground cursor-not-allowed"
+                      }`}
                     />
                   </div>
 
@@ -355,7 +363,12 @@ export default function TemplateEditModal({
                     <input
                       value={cardData.front.position1}
                       onChange={(e) => handleFrontChange("position1", e.target.value)}
-                      className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
+                      readOnly={!isPosDirect}
+                      className={`h-9 w-full rounded-md border border-border px-3 text-xs outline-none transition ${
+                        isPosDirect
+                          ? "bg-background text-foreground focus:border-ring focus:ring-2 focus:ring-ring/15"
+                          : "bg-muted/50 text-muted-foreground cursor-not-allowed"
+                      }`}
                     />
                   </div>
 
@@ -418,7 +431,12 @@ export default function TemplateEditModal({
                     <input
                       value={cardData.back.department}
                       onChange={(e) => handleBackChange("department", e.target.value)}
-                      className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
+                      readOnly={!isDeptDirect}
+                      className={`h-9 w-full rounded-md border border-border px-3 text-xs outline-none transition ${
+                        isDeptDirect
+                          ? "bg-background text-foreground focus:border-ring focus:ring-2 focus:ring-ring/15"
+                          : "bg-muted/50 text-muted-foreground cursor-not-allowed"
+                      }`}
                     />
                   </div>
 
@@ -427,7 +445,12 @@ export default function TemplateEditModal({
                     <input
                       value={cardData.back.position1}
                       onChange={(e) => handleBackChange("position1", e.target.value)}
-                      className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
+                      readOnly={!isPosDirect}
+                      className={`h-9 w-full rounded-md border border-border px-3 text-xs outline-none transition ${
+                        isPosDirect
+                          ? "bg-background text-foreground focus:border-ring focus:ring-2 focus:ring-ring/15"
+                          : "bg-muted/50 text-muted-foreground cursor-not-allowed"
+                      }`}
                     />
                   </div>
 

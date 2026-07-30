@@ -410,17 +410,15 @@ export default function MembersPage() {
         dateFrom={dateFrom}
         dateTo={dateTo}
         company={company}
-        filterField={filterField}
-        filterValue={filterValue}
+        nameSearch={filterValue}
         onDateFrom={setDateFrom}
         onDateTo={setDateTo}
         onCompany={setCompany}
-        onFilterField={setFilterField}
-        onFilterValue={setFilterValue}
+        onNameSearch={setFilterValue}
         onSearch={handleSearch}
         onReset={handleReset}
-        filterFields={MEMBER_FILTER_FIELDS}
         companies={memberCompanies}
+        showCompanyFilter={isOperator}
       />
 
       {searchNotice && (
