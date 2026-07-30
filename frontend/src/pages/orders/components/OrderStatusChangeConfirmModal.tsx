@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { RefreshCw, TriangleAlert, X } from "lucide-react";
+import { Loader2, RefreshCw, TriangleAlert, X } from "lucide-react";
 
 export interface OrderStatusChangeRequest {
   actionLabel: string;
@@ -15,6 +15,7 @@ export interface OrderStatusChangeRequest {
 interface OrderStatusChangeConfirmModalProps {
   open: boolean;
   request: OrderStatusChangeRequest | null;
+  submitting?: boolean;
   onClose: () => void;
   onConfirm?: (request: OrderStatusChangeRequest) => void;
 }
@@ -22,6 +23,7 @@ interface OrderStatusChangeConfirmModalProps {
 export default function OrderStatusChangeConfirmModal({
   open,
   request,
+  submitting = false,
   onClose,
   onConfirm,
 }: OrderStatusChangeConfirmModalProps) {
@@ -32,7 +34,7 @@ export default function OrderStatusChangeConfirmModal({
 
     setReason("");
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
+      if (event.key === "Escape" && !submitting) {
         onClose();
       }
     };
@@ -42,7 +44,7 @@ export default function OrderStatusChangeConfirmModal({
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [open, onClose]);
+  }, [open, onClose, submitting]);
 
   if (!open || !request) return null;
 
@@ -63,7 +65,7 @@ export default function OrderStatusChangeConfirmModal({
     <div
       className="fixed inset-0 z-[230] flex items-center justify-center bg-black/55 p-4 backdrop-blur-[2px]"
       onMouseDown={(event) => {
-        if (event.target === event.currentTarget) {
+        if (event.target === event.currentTarget && !submitting) {
           onClose();
         }
       }}
@@ -73,8 +75,25 @@ export default function OrderStatusChangeConfirmModal({
         aria-modal="true"
         aria-labelledby="order-status-change-title"
         aria-describedby="order-status-change-description"
-        className="w-full max-w-[520px] overflow-hidden rounded-xl border border-border bg-background shadow-2xl transition-all"
+        className="relative w-full max-w-[520px] overflow-hidden rounded-xl border border-border bg-background shadow-2xl transition-all"
       >
+        {/* 작업 중 Dim 로딩 오버레이 */}
+        {submitting && (
+          <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-background/85 backdrop-blur-[2px]">
+            <div className="flex flex-col items-center gap-3 rounded-xl border border-border bg-card p-6 shadow-2xl">
+              <Loader2 className="h-9 w-9 animate-spin text-primary" />
+              <div className="text-center">
+                <p className="text-sm font-semibold text-foreground">
+                  {isDelete ? "주문 삭제 처리 중..." : "주문 상태 변경 중..."}
+                </p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  데이터베이스에 반영하고 있습니다. 완료될 때까지 잠시만 기다려 주세요.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         <header className="flex h-16 shrink-0 items-center justify-between border-b border-border bg-card px-5 sm:px-6">
           <div className="flex min-w-0 items-center gap-3">
             <span
@@ -104,8 +123,9 @@ export default function OrderStatusChangeConfirmModal({
           <button
             type="button"
             onClick={onClose}
+            disabled={submitting}
             aria-label="주문 상태 변경 창 닫기"
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-muted-foreground transition hover:bg-secondary hover:text-foreground"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-muted-foreground transition hover:bg-secondary hover:text-foreground disabled:opacity-50"
           >
             <X size={18} />
           </button>
@@ -142,10 +162,11 @@ export default function OrderStatusChangeConfirmModal({
               <textarea
                 id="reject-reason"
                 rows={3}
+                disabled={submitting}
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
                 placeholder="명함 오타, 이미지 화질 저하 등 반려 사유를 입력하세요."
-                className="w-full rounded-md border border-input bg-background p-2.5 text-xs text-foreground outline-none focus:border-ring focus:ring-2 focus:ring-ring/20"
+                className="w-full rounded-md border border-input bg-background p-2.5 text-xs text-foreground outline-none focus:border-ring focus:ring-2 focus:ring-ring/20 disabled:opacity-50"
               />
             </div>
           )}
@@ -189,21 +210,30 @@ export default function OrderStatusChangeConfirmModal({
           <button
             type="button"
             onClick={onClose}
-            className="h-10 rounded-md border border-border bg-background px-4 text-xs font-medium text-foreground transition hover:bg-secondary"
+            disabled={submitting}
+            className="h-10 rounded-md border border-border bg-background px-4 text-xs font-medium text-foreground transition hover:bg-secondary disabled:opacity-50"
           >
             취소하기
           </button>
 
           <button
             type="button"
+            disabled={submitting}
             onClick={() => onConfirm?.({ ...request, reason: reason.trim() })}
-            className={`h-10 rounded-md px-4 text-xs font-medium text-white transition ${
+            className={`flex h-10 items-center justify-center gap-2 rounded-md px-4 text-xs font-medium text-white transition disabled:opacity-60 ${
               isDanger
                 ? "bg-red-500 hover:bg-red-600 shadow-xs"
                 : "bg-primary text-primary-foreground hover:opacity-90 shadow-xs"
             }`}
           >
-            {confirmBtnText}
+            {submitting ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <span>처리 중...</span>
+              </>
+            ) : (
+              confirmBtnText
+            )}
           </button>
         </footer>
       </div>

@@ -62,17 +62,17 @@ export default function DynamicBusinessCardPreview({
               <div className="flex-1 pl-4 text-left flex flex-col justify-between h-full pt-0.5">
                 {/* 상단: 이름 및 부서/직급 */}
                 <div>
-                  <div className="text-[17px] font-bold text-slate-900 tracking-[0.25em]">
+                  <div className="text-[19px] font-bold text-slate-900 tracking-[0.25em]">
                     {formatKoreanName(front.name) || "홍    길    동"}
                   </div>
-                  <div className="text-[9.5px] font-medium text-slate-700 mt-1">
+                  <div className="text-[11px] font-medium text-slate-700 mt-1">
                     {[front.position1, front.department].filter(Boolean).join(" / ") || "시니어 매니저 / 비즈니스개발실"}
                   </div>
                 </div>
 
                 {/* 하단: 회사명 및 상세 연락처 */}
-                <div className="space-y-[2px] text-[8.5px] leading-snug text-slate-700 font-medium">
-                  <div className="text-[10px] font-bold text-slate-900 mb-1">
+                <div className="space-y-[2px] text-[9.5px] leading-snug text-slate-700 font-medium">
+                  <div className="text-[11.5px] font-bold text-slate-900 mb-1">
                     한미글로벌 주식회사
                   </div>
                   <div className="flex gap-2">
@@ -87,7 +87,7 @@ export default function DynamicBusinessCardPreview({
                     <span className="font-bold text-slate-900">E</span>
                     <span>{front.email || "logcom2@hanmiglobal.com"}</span>
                   </div>
-                  <div className="pt-0.5 text-[8.5px] leading-tight text-slate-700 max-w-[230px]">
+                  <div className="pt-0.5 text-[9.5px] leading-tight text-slate-700 max-w-[240px]">
                     {front.address || (
                       <>
                         06164, 서울시 강남구 테헤란로 87길<br />
@@ -117,24 +117,24 @@ export default function DynamicBusinessCardPreview({
               <div className="flex-1 pl-4 text-left flex flex-col justify-between h-full pt-0.5">
                 {/* 상단: 영문 이름 & 영문 직급/부서 */}
                 <div>
-                  <div className="text-[17px] font-bold text-slate-900">
+                  <div className="text-[19px] font-bold text-slate-900">
                     {back.name || "Brad Hong"}
                   </div>
-                  <div className="text-[9.5px] font-medium text-slate-700 mt-1 leading-tight">
+                  <div className="text-[11px] font-medium text-slate-700 mt-1 leading-tight">
                     <div>{back.position1 || "Senior Manager /"}</div>
                     <div>{back.department || "Business Development Division"}</div>
                   </div>
                 </div>
 
                 {/* 하단: 영문 회사명 & 주소 */}
-                <div className="space-y-[2px] text-[8.5px] leading-snug text-slate-700 font-medium">
-                  <div className="text-[10px] font-bold text-slate-900">
+                <div className="space-y-[2px] text-[9.5px] leading-snug text-slate-700 font-medium">
+                  <div className="text-[11.5px] font-bold text-slate-900">
                     HanmiGlobal Co.,Ltd.
                   </div>
-                  <div className="text-[9.5px] font-semibold text-[#004B96] my-0.5">
+                  <div className="text-[10.5px] font-semibold text-[#004B96] my-0.5">
                     {back.website || "www.hanmiglobal.com"}
                   </div>
-                  <div className="text-[8.5px] leading-tight text-slate-700 max-w-[240px]">
+                  <div className="text-[9.5px] leading-tight text-slate-700 max-w-[250px]">
                     {back.address1 || (
                       <>
                         City Air Tower Bldg., 36, Teheran-ro<br />
@@ -173,7 +173,7 @@ export default function DynamicBusinessCardPreview({
                     className="h-9 object-contain"
                   />
                 </div>
-                <div className="text-[10.5px] font-bold italic tracking-tight text-slate-800 font-serif pb-0.5">
+                <div className="text-[11px] font-bold italic tracking-tight text-slate-800 font-serif pb-0.5">
                   “Smiling Technology”
                 </div>
               </div>
@@ -181,19 +181,19 @@ export default function DynamicBusinessCardPreview({
               {/* 우측: 상세 명함 내용 (좌측 정렬) */}
               <div className="flex-1 pl-4 text-left flex flex-col justify-between h-full pt-0.5">
                 <div>
-                  <p className="text-[17px] font-bold text-slate-900 tracking-[0.25em]">
+                  <p className="text-[19px] font-bold text-slate-900 tracking-[0.25em]">
                     {formatKoreanName(front.name) || "홍    길    동"}
                   </p>
-                  <p className="mt-1 text-[9.5px] text-slate-700 font-medium leading-tight">
+                  <p className="mt-1 text-[11px] text-slate-700 font-medium leading-tight">
                     {[front.department, front.position1].filter(Boolean).join(" / ") || "도로사업부 / 이사"}
                   </p>
-                  <p className="text-[9px] text-slate-600 font-medium leading-tight">
+                  <p className="text-[10px] text-slate-600 font-medium leading-tight">
                     {front.position2 || "도로 및 공항 기술사"}
                   </p>
                 </div>
 
-                <div className="space-y-[2px] text-[8.5px] leading-snug text-slate-700 font-medium">
-                  <p className="font-bold text-slate-900 text-[10px] mb-1">
+                <div className="space-y-[2px] text-[9.5px] leading-snug text-slate-700 font-medium">
+                  <p className="font-bold text-slate-900 text-[11.5px] mb-1">
                     (주)제일엔지니어링
                   </p>
                   <p>{front.address || "06779 서울시 서초구 강남대로16길 22-6(양재동)"}</p>
@@ -203,7 +203,7 @@ export default function DynamicBusinessCardPreview({
                   <p>직통 : {front.directTelephone || "02-3498-2662"}</p>
                   <p>핸드폰 : {front.mobile || "010-1234-5678"}</p>
                   <p>E-mail: {front.email || "youremail@email.com"}</p>
-                  <p className="font-bold text-slate-900 text-[9px] pt-0.5">
+                  <p className="font-bold text-slate-900 text-[10.5px] pt-0.5">
                     {front.website || "www.cheileng.com"}
                   </p>
                 </div>
@@ -232,7 +232,7 @@ export default function DynamicBusinessCardPreview({
                     className="h-9 object-contain"
                   />
                 </div>
-                <div className="text-[10.5px] font-bold italic tracking-tight text-slate-800 font-serif pb-0.5">
+                <div className="text-[11px] font-bold italic tracking-tight text-slate-800 font-serif pb-0.5">
                   “Smiling Technology”
                 </div>
               </div>
@@ -240,19 +240,19 @@ export default function DynamicBusinessCardPreview({
               {/* 우측: 영문 상세 내용 (좌측 정렬) */}
               <div className="flex-1 pl-4 text-left flex flex-col justify-between h-full pt-0.5">
                 <div>
-                  <p className="text-[17px] font-bold text-slate-900">
+                  <p className="text-[19px] font-bold text-slate-900">
                     {back.name || "Hong Gil Dong"}
                   </p>
-                  <p className="mt-1 text-[9.5px] text-slate-700 font-medium leading-tight">
+                  <p className="mt-1 text-[11px] text-slate-700 font-medium leading-tight">
                     {back.department || "Highway Eng. Business Div."}
                   </p>
-                  <p className="text-[9px] text-slate-600 font-medium leading-tight">
+                  <p className="text-[10px] text-slate-600 font-medium leading-tight">
                     {[back.position1, back.position2].filter(Boolean).join(" / ") || "Director / P.E."}
                   </p>
                 </div>
 
-                <div className="space-y-[2px] text-[8.5px] leading-snug text-slate-700 font-medium">
-                  <p className="font-bold text-slate-900 text-[9.5px] mb-1 tracking-tight">
+                <div className="space-y-[2px] text-[9.5px] leading-snug text-slate-700 font-medium">
+                  <p className="font-bold text-slate-900 text-[11px] mb-1 tracking-tight">
                     CHEIL ENGINEERING CO.,LTD.
                   </p>
                   <p>{back.address1 || "22-6, Gangnamdaero 16gil, Seocho-gu,"}</p>
@@ -263,7 +263,7 @@ export default function DynamicBusinessCardPreview({
                   <p>Dir: {back.directTelephone || "82-2-3498-2745"}</p>
                   <p>Mobile: {back.mobile || "82-10-1234-5678"}</p>
                   <p>E-mail: {back.email || "youremail@email.com"}</p>
-                  <p className="font-bold text-slate-900 text-[9px] pt-0.5">
+                  <p className="font-bold text-slate-900 text-[10.5px] pt-0.5">
                     {back.website || "www.cheileng.com"}
                   </p>
                 </div>

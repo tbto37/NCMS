@@ -36,7 +36,7 @@ import { PAGE_SIZE } from "@/shared/constants/pagination";
 import {
   ORDER_TABS,
   type OrderTab,
-  TAB_ACTIONS,
+  getTabActions,
   ORDER_FILTER_FIELDS,
   type BackendOrderResponse,
   type MappedOrder as Order,
@@ -557,31 +557,36 @@ export default function OrdersPage() {
     });
   }
 
+  const [isSubmittingStatus, setIsSubmittingStatus] = useState(false);
+  const [isSubmittingShipment, setIsSubmittingShipment] = useState(false);
+
   async function handleConfirmStatusChange(request: OrderStatusChangeRequest) {
     if (!accessToken) return;
 
+    setIsSubmittingStatus(true);
     try {
       const selectedOrders = orders.filter((o) => request.orderIds.includes(o.id));
+      const endpointBase = isOperator ? `${API_BASE_URL}/api/v1/operator/orders` : `${API_BASE_URL}/api/v1/orders`;
 
       for (const order of selectedOrders) {
         const rawId = order.rawId;
 
         if (request.actionLabel === "영구 삭제" || request.targetStatus === "DELETE") {
-          await fetch(`${API_BASE_URL}/api/v1/operator/orders/${rawId}`, {
+          await fetch(`${endpointBase}/${rawId}`, {
             method: "DELETE",
             headers: {
               Authorization: `Bearer ${accessToken}`,
             },
           });
         } else if (request.actionLabel === "주문 승인" || request.targetStatus === "APPROVED") {
-          await fetch(`${API_BASE_URL}/api/v1/operator/orders/${rawId}/approve`, {
+          await fetch(`${endpointBase}/${rawId}/approve`, {
             method: "POST",
             headers: {
               Authorization: `Bearer ${accessToken}`,
             },
           });
         } else if (request.actionLabel === "주문 반려" || request.targetStatus === "REJECTED") {
-          await fetch(`${API_BASE_URL}/api/v1/operator/orders/${rawId}/reject`, {
+          await fetch(`${endpointBase}/${rawId}/reject`, {
             method: "POST",
             headers: {
               Authorization: `Bearer ${accessToken}`,
@@ -590,7 +595,7 @@ export default function OrdersPage() {
             body: JSON.stringify({ reason: request.reason || "검수 반려" }),
           });
         } else if (request.targetStatus) {
-          await fetch(`${API_BASE_URL}/api/v1/operator/orders/${rawId}/status`, {
+          await fetch(`${endpointBase}/${rawId}/status`, {
             method: "PATCH",
             headers: {
               Authorization: `Bearer ${accessToken}`,
@@ -598,44 +603,26 @@ export default function OrdersPage() {
             },
             body: JSON.stringify({ status: request.targetStatus }),
           });
-        } else if (request.actionLabel === "인쇄 시작") {
-          await fetch(`${API_BASE_URL}/api/v1/operator/orders/${rawId}/status`, {
-            method: "PATCH",
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ status: "PRINTING" }),
-          });
-        } else if (request.actionLabel === "주문 취소") {
-          await fetch(`${API_BASE_URL}/api/v1/operator/orders/${rawId}/status`, {
-            method: "PATCH",
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ status: "CANCELLED" }),
-          });
-        } else if (request.actionLabel === "재승인 요청") {
-          await fetch(`${API_BASE_URL}/api/v1/operator/orders/${rawId}/status`, {
-            method: "PATCH",
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ status: "PENDING" }),
-          });
         }
       }
 
-      // Automatically switch to targetTab if specified (Image 1 specification)
-      if (request.targetTab) {
+      if (request.actionLabel === "영구 삭제" || request.targetStatus === "DELETE") {
+        setOrders((prev) => prev.filter((o) => !request.orderIds.includes(o.id)));
+      } else if (request.targetTab) {
+        setOrders((prev) =>
+          prev.map((o) =>
+            request.orderIds.includes(o.id)
+              ? { ...o, status: request.targetTab as OrderTab }
+              : o
+          )
+        );
         setActiveTab(request.targetTab as OrderTab);
         setPage(1);
       }
     } catch (err) {
       console.error("Status change error:", err);
     } finally {
+      setIsSubmittingStatus(false);
       setStatusChangeRequest(null);
       setSelectedIds(new Set());
       setReloadKey((k) => k + 1);
@@ -662,9 +649,11 @@ export default function OrdersPage() {
     const targetOrder = orders.find((o) => o.id === orderId || o.rawId === orderId);
     if (!targetOrder) return;
 
+    setIsSubmittingShipment(true);
     try {
+      const endpointBase = isOperator ? `${API_BASE_URL}/api/v1/operator/orders` : `${API_BASE_URL}/api/v1/orders`;
       await fetch(
-        `${API_BASE_URL}/api/v1/operator/orders/${targetOrder.rawId}/status`,
+        `${endpointBase}/${targetOrder.rawId}/status`,
         {
           method: "PATCH",
           headers: {
@@ -681,6 +670,7 @@ export default function OrdersPage() {
     } catch (err) {
       console.error("Shipment tracking error:", err);
     } finally {
+      setIsSubmittingShipment(false);
       setShipmentTrackingOrder(null);
       setSelectedIds(new Set());
       setReloadKey((k) => k + 1);
@@ -712,7 +702,7 @@ export default function OrdersPage() {
     setSelectedIds(new Set());
   }
 
-  const actions = TAB_ACTIONS[activeTab];
+  const actions = getTabActions(activeTab, isOperator);
 
   return (
     <div className="space-y-4 p-4 md:p-6">
@@ -931,6 +921,7 @@ export default function OrdersPage() {
       <OrderStatusChangeConfirmModal
         open={Boolean(statusChangeRequest)}
         request={statusChangeRequest}
+        submitting={isSubmittingStatus}
         onClose={() => setStatusChangeRequest(null)}
         onConfirm={handleConfirmStatusChange}
       />
@@ -938,6 +929,7 @@ export default function OrdersPage() {
       <ShipmentTrackingModal
         open={Boolean(shipmentTrackingOrder)}
         order={shipmentTrackingOrder}
+        submitting={isSubmittingShipment}
         onClose={() => setShipmentTrackingOrder(null)}
         onConfirm={handleConfirmShipmentTracking}
       />

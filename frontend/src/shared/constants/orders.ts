@@ -8,29 +8,51 @@ export interface TabActionItem {
   targetStatus?: string;
 }
 
-export const TAB_ACTIONS: Record<OrderTab, TabActionItem[]> = {
+// 고객사용 탭 액션
+export const CUSTOMER_TAB_ACTIONS: Record<OrderTab, TabActionItem[]> = {
+  전체:     [],
+  승인대기: [
+    { label: "주문 승인", variant: "primary", targetTab: "승인완료", targetStatus: "APPROVED" },
+    { label: "주문 반려", variant: "danger", targetTab: "승인반려", targetStatus: "REJECTED" },
+  ],
+  승인완료: [
+    { label: "인쇄중", variant: "primary", targetTab: "인쇄중", targetStatus: "PRINTING" },
+  ],
+  인쇄중:   [],
+  발송완료: [],
+  승인반려: [],
+  주문취소: [],
+};
+
+// 어드민(로그컴)용 탭 액션
+export const ADMIN_TAB_ACTIONS: Record<OrderTab, TabActionItem[]> = {
   전체:     [],
   승인대기: [
     { label: "주문 승인", variant: "primary", targetTab: "승인완료", targetStatus: "APPROVED" },
     { label: "주문 취소", variant: "danger", targetTab: "주문취소", targetStatus: "CANCELLED" },
-    { label: "주문 반려", variant: "danger", targetTab: "승인반려", targetStatus: "REJECTED" },
   ],
   승인완료: [
-    { label: "인쇄 시작", variant: "primary", targetTab: "인쇄중", targetStatus: "PRINTING" },
+    { label: "인쇄중", variant: "primary", targetTab: "인쇄중", targetStatus: "PRINTING" },
     { label: "주문 취소", variant: "danger", targetTab: "주문취소", targetStatus: "CANCELLED" },
   ],
   인쇄중:   [
-    { label: "발송 처리", variant: "primary", targetTab: "발송완료", targetStatus: "SHIPPED" },
+    { label: "발송완료", variant: "primary", targetTab: "발송완료", targetStatus: "SHIPPED" },
   ],
   발송완료: [],
-  승인반려: [
-    { label: "재승인 요청", variant: "primary", targetTab: "승인대기", targetStatus: "PENDING" },
-    { label: "주문 취소", variant: "danger", targetTab: "주문취소", targetStatus: "CANCELLED" },
-  ],
+  승인반려: [],
   주문취소: [
     { label: "영구 삭제", variant: "danger", targetTab: null, targetStatus: "DELETE" },
   ],
 };
+
+export const TAB_ACTIONS = ADMIN_TAB_ACTIONS;
+
+export function getTabActions(activeTab: OrderTab, isOperator: boolean): TabActionItem[] {
+  if (isOperator) {
+    return ADMIN_TAB_ACTIONS[activeTab] || [];
+  }
+  return CUSTOMER_TAB_ACTIONS[activeTab] || [];
+}
 
 export const ORDER_FILTER_FIELDS = [
   { value: "id", label: "주문번호" },
