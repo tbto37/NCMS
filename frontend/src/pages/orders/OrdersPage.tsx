@@ -722,7 +722,7 @@ export default function OrdersPage() {
         onReset={handleReset}
         companies={orderCompanies}
         showCompanyFilter={isOperator}
-        companyLabel="사이트"
+        companyLabel="회사명"
       />
 
       {loadError && (

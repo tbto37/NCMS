@@ -1,7 +1,7 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --font-size: 14px;
+  --font-size: 18px;
   --background: #f5f4f1;
   --foreground: #1a1917;
   --card: #ffffff;
@@ -81,6 +81,12 @@
 @theme inline {
   --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;
   --font-serif: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;
+  --text-xs: 0.85rem;
+  --text-sm: 0.95rem;
+  --text-base: 1.1rem;
+  --text-lg: 1.3rem;
+  --text-xl: 1.5rem;
+  --text-2xl: 1.8rem;
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);

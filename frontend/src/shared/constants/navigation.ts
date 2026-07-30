@@ -25,14 +25,12 @@ const navItemDefinitions: NavItemDefinition[] = [
     label: "회원 관리",
     icon: Users,
     route: "members",
-    badge: 12,
   },
   {
     id: "orders",
     label: "주문 관리",
     icon: ShoppingCart,
     route: "orders",
-    badge: 5,
   },
 ];
 

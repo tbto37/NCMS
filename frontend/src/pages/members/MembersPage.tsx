@@ -11,7 +11,6 @@ import { useAuth } from "@/app/providers/AuthProvider";
 import { PAGE_SIZE } from "@/shared/constants/pagination";
 import {
   MEMBER_FILTER_FIELDS,
-  MEMBER_TAB_ACTIONS,
   mapMemberResponse,
   type ApiResponse,
   type Member,
@@ -379,11 +378,6 @@ export default function MembersPage() {
     setSelectedIds(new Set());
   }
 
-  const actions =
-    activeTab === "전체"
-      ? []
-      : MEMBER_TAB_ACTIONS;
-
   return (
     <div className="space-y-4 p-4 md:p-6">
       <div className="flex items-center justify-between">
@@ -418,7 +412,10 @@ export default function MembersPage() {
         onSearch={handleSearch}
         onReset={handleReset}
         companies={memberCompanies}
-        showCompanyFilter={isOperator}
+        showDateFilter={false}
+        showCompanyFilter={false}
+        nameSearchLabel="아이디"
+        nameSearchPlaceholder="아이디 검색어 입력"
       />
 
       {searchNotice && (
@@ -699,35 +696,6 @@ export default function MembersPage() {
                 );
               })}
             </div>
-
-            {actions.length > 0 && (
-              <div className="flex items-center justify-between border-t border-border bg-secondary/30 px-4 py-3">
-                <span className="text-xs text-muted-foreground">
-                  {selectedCount > 0
-                    ? `${selectedCount}건 선택됨`
-                    : "항목을 선택하세요"}
-                </span>
-
-                <div className="flex items-center gap-2">
-                  {actions.map((action) => (
-                    <button
-                      key={action.label}
-                      type="button"
-                      disabled={selectedCount === 0}
-                      className={`rounded px-3 py-1.5 text-xs font-medium transition-all disabled:cursor-not-allowed disabled:opacity-40 ${
-                        action.variant === "primary"
-                          ? "bg-primary text-primary-foreground hover:opacity-90"
-                          : action.variant === "danger"
-                            ? "bg-red-500 text-white hover:bg-red-600"
-                            : "border border-border text-foreground hover:bg-secondary"
-                      }`}
-                    >
-                      {action.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
 
             <Pagination
               page={page}
