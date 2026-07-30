@@ -71,7 +71,7 @@ export default function DynamicBusinessCardPreview({
 
               {/* 하단: 회사명 및 상세 연락처 (우측 정렬/배치) */}
               <div className="mt-auto pt-2 flex flex-col items-end text-right">
-                <div className="text-[11px] font-bold text-slate-900 mb-1.5">한미글로벌 주식회사</div>
+                <div className="text-[11px] font-bold text-slate-900 mb-1.5">한미글로벌</div>
                 <div className="space-y-0.5 text-[9.5px] leading-tight text-slate-600 font-medium tracking-tight">
                   <div className="flex justify-end gap-1.5">
                     <span className="font-bold text-slate-800">T</span>

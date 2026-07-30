@@ -1,8 +1,8 @@
 -- NCMS Migration V5: 한미글로벌 고객사, 부서, 템플릿, 계정 및 더미 주문 데이터 세팅 (site_code: hanmi)
 
--- 1. 신규 고객사 등록 (3: 한미글로벌 주식회사, site_code: hanmi)
+-- 1. 신규 고객사 등록 (3: 한미글로벌, site_code: hanmi)
 INSERT INTO companies (id, site_code, name, logo_url, primary_color, status) VALUES
-    (3, 'hanmi', '한미글로벌 주식회사', 'https://cdn.logcom.co.kr/logos/hanmiglobal.png', '#004B96', 'ACTIVE')
+    (3, 'hanmi', '한미글로벌', 'https://cdn.logcom.co.kr/logos/hanmiglobal.png', '#004B96', 'ACTIVE')
 ON CONFLICT (site_code) DO NOTHING;
 
 -- 2. 부서 등록 (3: 한미글로벌)
