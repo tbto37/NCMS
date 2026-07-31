@@ -187,7 +187,7 @@ function OrderActions({
 }: OrderActionsProps) {
   return (
     <div className="flex items-center justify-end gap-1.5">
-      {onReorder && (
+      {!isOperator && onReorder && (
         <button
           type="button"
           onClick={(e) => {
@@ -304,6 +304,7 @@ export default function OrdersPage() {
   const [dbCompanies, setDbCompanies] = useState<string[]>([]);
 
   function handleReorder(order: Order) {
+    if (isOperator) return;
     let cardData: BusinessCardInputData | null = null;
     if (order.cardDataJson) {
       try {
