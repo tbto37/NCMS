@@ -89,12 +89,12 @@ function mapTemplateResponse(
   const mockDetail = MOCK_CARD_DETAILS[index % MOCK_CARD_DETAILS.length];
 
   let previewFrontUrl = template.previewFrontUrl ?? null;
-  if (!previewFrontUrl) {
-    const nameStr = (template.name || "").toLowerCase();
-    const idStr = String(template.id || "").toLowerCase();
-    if (idStr === "3" || idStr.includes("hanmi") || nameStr.includes("한미")) {
-      previewFrontUrl = "/hanmi_template.jpg";
-    }
+  const nameStr = (template.name || "").toLowerCase();
+  const idStr = String(template.id || "").toLowerCase();
+
+  // 한미글로벌 템플릿의 경우 템플릿 목록 카드 썸네일로 hanmi_template.jpg 사용
+  if (idStr === "3" || idStr.includes("hanmi") || nameStr.includes("한미")) {
+    previewFrontUrl = "/hanmi_template.jpg";
   }
 
   return {
