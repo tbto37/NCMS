@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Pencil, Plus, RefreshCw, Trash2, Users } from "lucide-react";
+import { ListFilter, Pencil, Plus, RefreshCw, Trash2, Users } from "lucide-react";
 import { SearchBar } from "@/components/common/SearchBar";
 import { Pagination } from "@/components/common/Pagination";
 import {
@@ -380,90 +380,107 @@ export default function MembersPage() {
   }
 
   return (
-    <div className="space-y-4 p-4 md:p-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-lg font-semibold text-foreground md:text-xl">
+    <div className="space-y-3 p-4 md:p-6">
+      {/* 1. 상단 인라인 통합 헤더 (헤더 타이틀 + 검색 필터 + 회원 추가 버튼 수평 정렬) */}
+      <div className="flex flex-col gap-3 rounded-xl border border-border bg-card p-3.5 shadow-sm xl:flex-row xl:items-center xl:justify-between">
+        <div className="flex items-center gap-2.5 shrink-0">
+          <h1 className="text-base font-bold text-foreground md:text-lg">
             회원 관리
           </h1>
-
-          <p className="mt-0.5 text-xs text-muted-foreground">
-            총 {members.length}명
-          </p>
+          <span className="rounded-full bg-secondary px-2.5 py-0.5 text-[11px] font-semibold text-muted-foreground">
+            총 {members.length}명의 회원
+          </span>
         </div>
 
-        <button
-          type="button"
-          className="flex items-center gap-1.5 rounded bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground transition-opacity hover:opacity-90"
-        >
-          <Plus size={11} />
-          회원 추가
-        </button>
+        <div className="flex flex-wrap items-center gap-2.5">
+          <SearchBar
+            dateFrom={dateFrom}
+            dateTo={dateTo}
+            company={company}
+            nameSearch={filterValue}
+            onDateFrom={setDateFrom}
+            onDateTo={setDateTo}
+            onCompany={setCompany}
+            onNameSearch={setFilterValue}
+            onSearch={handleSearch}
+            onReset={handleReset}
+            companies={memberCompanies}
+            showDateFilter={false}
+            showCompanyFilter={false}
+            nameSearchLabel="아이디"
+            nameSearchPlaceholder="아이디 검색어 입력"
+            embedded={true}
+          />
+
+          <button
+            type="button"
+            className="flex h-10 items-center gap-1.5 rounded-lg bg-primary px-4 text-xs font-semibold text-primary-foreground transition-opacity hover:opacity-90 shrink-0"
+          >
+            <Plus size={13} />
+            <span>회원 추가</span>
+          </button>
+        </div>
       </div>
 
-      <SearchBar
-        dateFrom={dateFrom}
-        dateTo={dateTo}
-        company={company}
-        nameSearch={filterValue}
-        onDateFrom={setDateFrom}
-        onDateTo={setDateTo}
-        onCompany={setCompany}
-        onNameSearch={setFilterValue}
-        onSearch={handleSearch}
-        onReset={handleReset}
-        companies={memberCompanies}
-        showDateFilter={false}
-        showCompanyFilter={false}
-        nameSearchLabel="아이디"
-        nameSearchPlaceholder="아이디 검색어 입력"
-      />
-
       {searchNotice && (
-        <p className="text-xs text-amber-600">
+        <p className="text-xs font-medium text-amber-600 px-1">
           {searchNotice}
         </p>
       )}
 
-      <div className="overflow-hidden rounded-lg border border-border bg-card">
-        <div className="flex flex-wrap border-b border-border">
-          {memberTabs.map((tab) => {
-            const count =
-              tab === "전체"
-                ? members.length
-                : members.filter((member) =>
-                  isOperator
-                    ? member.company === tab
-                    : member.dept === tab,
-                ).length;
+      {/* 2. 가로 탭 바 (전체 탭만 아이콘 포함, 확대된 글씨 크기) */}
+      <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+        <div className="border-b border-border bg-secondary/15 p-2.5 sm:p-3">
+          <div className="flex flex-wrap gap-2">
+            {memberTabs.map((tab) => {
+              const count =
+                tab === "전체"
+                  ? members.length
+                  : members.filter((member) =>
+                      isOperator
+                        ? member.company === tab
+                        : member.dept === tab,
+                    ).length;
 
-            const active = activeTab === tab;
+              const active = activeTab === tab;
 
-            return (
-              <button
-                key={tab}
-                type="button"
-                onClick={() => handleTabChange(tab)}
-                className={`-mb-px flex items-center gap-1.5 whitespace-nowrap border-b-2 px-3 py-3 text-xs font-medium transition-colors md:px-4 ${
-                  active
-                    ? "border-primary text-foreground"
-                    : "border-transparent text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {tab}
-
-                <span
-                  className={`rounded-full px-1.5 py-0.5 font-mono text-xs ${
+              return (
+                <button
+                  key={tab}
+                  type="button"
+                  onClick={() => handleTabChange(tab)}
+                  className={`flex items-center justify-center gap-2 rounded-xl border py-2.5 px-3.5 transition-all duration-150 ${
                     active
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-secondary text-muted-foreground"
+                      ? "border-primary bg-primary/10 text-primary shadow-sm ring-2 ring-primary/20"
+                      : "border-border/80 bg-background text-muted-foreground hover:border-border hover:bg-secondary/60 hover:text-foreground"
                   }`}
                 >
-                  {count}
-                </span>
-              </button>
-            );
-          })}
+                  {/* '전체' 탭인 경우만 아이콘 노출 */}
+                  {tab === "전체" && (
+                    <span className={`shrink-0 transition-transform duration-150 ${active ? "scale-110 text-primary" : "text-muted-foreground opacity-80"}`}>
+                      <ListFilter size={17} />
+                    </span>
+                  )}
+
+                  {/* 텍스트 라벨 */}
+                  <span className={`text-sm md:text-[15px] font-extrabold whitespace-nowrap ${active ? "text-primary" : "text-foreground/90"}`}>
+                    {tab}
+                  </span>
+
+                  {/* 우측 카운트 뱃지 */}
+                  <span
+                    className={`ml-0.5 flex items-center justify-center rounded-full px-2 py-0.5 text-[10px] font-extrabold transition-colors ${
+                      active
+                        ? "bg-primary text-primary-foreground shadow-sm"
+                        : "bg-secondary text-muted-foreground"
+                    }`}
+                  >
+                    {count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {loading ? (

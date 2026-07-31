@@ -1,11 +1,15 @@
 import { useEffect, useMemo, useState } from "react";
 import {
+  Ban,
+  CheckCircle2,
+  Clock,
   Download,
   Eye,
   FileDown,
   FileSpreadsheet,
   FileText,
   Filter,
+  ListFilter,
   Package,
   Plus,
   Printer,
@@ -14,6 +18,7 @@ import {
   RotateCcw,
   Search,
   Truck,
+  XCircle,
 } from "lucide-react";
 import { generateCardPrintPdf } from "@/shared/utils/generateCardPrintPdf";
 import { useNavigate, useParams } from "react-router";
@@ -54,6 +59,16 @@ import {
   formatOrderDate,
 } from "@/shared/constants/orders";
 import type { BusinessCardInputData } from "@/shared/types/businessCard";
+
+const TAB_ICON_MAP: Record<OrderTab, React.ReactNode> = {
+  전체: <ListFilter size={17} />,
+  승인대기: <Clock size={17} />,
+  승인완료: <CheckCircle2 size={17} />,
+  인쇄중: <Printer size={17} />,
+  발송완료: <Truck size={17} />,
+  승인반려: <XCircle size={17} />,
+  주문취소: <Ban size={17} />,
+};
 
 interface ApiResponse<T> {
   data?: T;
@@ -134,7 +149,7 @@ function BusinessCardPreview({ order }: { order: Order }) {
               templateId={templateId}
               cardData={parsed}
               isBack={false}
-              scale={0.95}
+              scale={1.0}
             />
           </div>
 
@@ -146,7 +161,7 @@ function BusinessCardPreview({ order }: { order: Order }) {
               templateId={templateId}
               cardData={parsed}
               isBack={true}
-              scale={0.95}
+              scale={1.0}
             />
           </div>
         </div>
@@ -209,7 +224,7 @@ function OrderActions({
           </button>
         </HoverCardTrigger>
 
-        <HoverCardContent align="end" side="left" sideOffset={12} className="w-[490px] overflow-hidden p-3.5 shadow-2xl">
+        <HoverCardContent align="end" side="left" sideOffset={12} className="w-[545px] max-h-[85vh] overflow-y-auto p-3.5 shadow-2xl">
           <BusinessCardPreview order={order} />
         </HoverCardContent>
       </HoverCard>
@@ -683,35 +698,45 @@ export default function OrdersPage() {
   const actions = getTabActions(activeTab, isOperator);
 
   return (
-    <div className="space-y-4 p-4 md:p-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-lg font-semibold text-foreground md:text-xl">
+    <div className="space-y-3 p-4 md:p-6">
+      {/* 1. 상단 인라인 통합 헤더 (헤더 타이틀 + 검색 필터 + 액션 버튼 수평 정렬) */}
+      <div className="flex flex-col gap-3 rounded-xl border border-border bg-card p-3.5 shadow-sm xl:flex-row xl:items-center xl:justify-between">
+        <div className="flex items-center gap-2.5 shrink-0">
+          <h1 className="text-base font-bold text-foreground md:text-lg">
             주문 관리
           </h1>
-          <p className="mt-0.5 text-xs text-muted-foreground">총 {orders.length}건</p>
+          <span className="rounded-full bg-secondary px-2.5 py-0.5 text-[11px] font-semibold text-muted-foreground">
+            총 {orders.length}건의 주문
+          </span>
         </div>
-        <button className="flex items-center gap-1.5 rounded border border-border px-2.5 py-1.5 text-xs transition-colors hover:bg-secondary">
-          <Download size={11} />
-          <span className="hidden sm:inline">내보내기</span>
-        </button>
-      </div>
 
-      <SearchBar
-        dateFrom={dateFrom}
-        dateTo={dateTo}
-        company={company}
-        nameSearch={nameSearch}
-        onDateFrom={setDateFrom}
-        onDateTo={setDateTo}
-        onCompany={setCompany}
-        onNameSearch={setNameSearch}
-        onSearch={handleSearch}
-        onReset={handleReset}
-        companies={orderCompanies}
-        showCompanyFilter={isOperator}
-        companyLabel="회사명"
-      />
+        <div className="flex flex-wrap items-center gap-2.5">
+          <SearchBar
+            dateFrom={dateFrom}
+            dateTo={dateTo}
+            company={company}
+            nameSearch={nameSearch}
+            onDateFrom={setDateFrom}
+            onDateTo={setDateTo}
+            onCompany={setCompany}
+            onNameSearch={setNameSearch}
+            onSearch={handleSearch}
+            onReset={handleReset}
+            companies={orderCompanies}
+            showCompanyFilter={isOperator}
+            companyLabel="회사명"
+            embedded={true}
+          />
+
+          <button
+            type="button"
+            className="flex h-10 items-center gap-1.5 rounded-lg border border-border bg-background px-3 text-xs font-semibold text-foreground transition-colors hover:bg-secondary shrink-0"
+          >
+            <Download size={13} />
+            <span>엑셀 다운로드</span>
+          </button>
+        </div>
+      </div>
 
       {loadError && (
         <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-xs text-red-600">
@@ -719,38 +744,54 @@ export default function OrdersPage() {
         </div>
       )}
 
-      <div className="overflow-hidden rounded-lg border border-border bg-card">
-        <div className="flex flex-wrap border-b border-border">
-          {ORDER_TABS.map((tab) => {
-            const count =
-              tab === "전체"
-                ? orders.length
-                : orders.filter((order) => order.status === tab).length;
+      {/* 2. 가로 탭 바 (아이콘 좌측 배치, 확대된 글씨 크기) */}
+      <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+        <div className="border-b border-border bg-secondary/15 p-2.5 sm:p-3">
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-7">
+            {ORDER_TABS.map((tab) => {
+              const count =
+                tab === "전체"
+                  ? orders.length
+                  : orders.filter((order) => order.status === tab).length;
 
-            const active = activeTab === tab;
+              const active = activeTab === tab;
+              const IconComponent = TAB_ICON_MAP[tab];
 
-            return (
-              <button
-                key={tab}
-                type="button"
-                onClick={() => handleTabChange(tab)}
-                className={`-mb-px flex items-center gap-1.5 whitespace-nowrap border-b-2 px-3 py-3 text-xs font-medium transition-colors md:px-4 ${active
-                  ? "border-primary text-foreground"
-                  : "border-transparent text-muted-foreground hover:text-foreground"
+              return (
+                <button
+                  key={tab}
+                  type="button"
+                  onClick={() => handleTabChange(tab)}
+                  className={`flex items-center justify-center gap-2 rounded-xl border py-2.5 px-3 transition-all duration-150 ${
+                    active
+                      ? "border-primary bg-primary/10 text-primary shadow-sm ring-2 ring-primary/20"
+                      : "border-border/80 bg-background text-muted-foreground hover:border-border hover:bg-secondary/60 hover:text-foreground"
                   }`}
-              >
-                {tab}
-                <span
-                  className={`rounded-full px-1.5 py-0.5 text-[10px] ${active
-                    ? "bg-primary/10 text-primary font-semibold"
-                    : "bg-secondary text-muted-foreground"
-                    }`}
                 >
-                  {count}
-                </span>
-              </button>
-            );
-          })}
+                  {/* 좌측 15px 아이콘 */}
+                  <span className={`shrink-0 transition-transform duration-150 ${active ? "scale-110 text-primary" : "text-muted-foreground opacity-80"}`}>
+                    {IconComponent}
+                  </span>
+
+                  {/* 중앙 확대된 글씨 라벨 */}
+                  <span className={`text-sm md:text-[15px] font-extrabold whitespace-nowrap ${active ? "text-primary" : "text-foreground/90"}`}>
+                    {tab}
+                  </span>
+
+                  {/* 우측 카운트 뱃지 */}
+                  <span
+                    className={`ml-0.5 flex items-center justify-center rounded-full px-2 py-0.5 text-[10px] font-extrabold transition-colors ${
+                      active
+                        ? "bg-primary text-primary-foreground shadow-sm"
+                        : "bg-secondary text-muted-foreground"
+                    }`}
+                  >
+                    {count}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {actions.length > 0 && (

@@ -7,6 +7,7 @@ export interface DateRangePickerProps {
   onDateFrom: (val: string) => void;
   onDateTo: (val: string) => void;
   label?: string;
+  hideLabel?: boolean;
 }
 
 function parseDateStr(str: string): Date | null {
@@ -21,6 +22,7 @@ export function DateRangePicker({
   onDateFrom,
   onDateTo,
   label = "날짜",
+  hideLabel = false,
 }: DateRangePickerProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [tempStart, setTempStart] = useState(dateFrom);
@@ -201,9 +203,11 @@ export function DateRangePicker({
 
   return (
     <div ref={containerRef} className="relative w-full">
-      <label className="mb-1 block text-xs font-semibold text-muted-foreground">
-        {label}
-      </label>
+      {!hideLabel && (
+        <label className="mb-1 block text-xs font-semibold text-muted-foreground">
+          {label}
+        </label>
+      )}
       <div
         onClick={() => setIsOpen((prev) => !prev)}
         className="flex h-10 w-full cursor-pointer items-center justify-between rounded-lg border border-border bg-secondary/60 px-3 text-xs font-medium text-foreground transition hover:border-ring"
