@@ -1,0 +1,510 @@
+
+<meta charset="utf-8" />
+
+
+                      <table class="table table-bordered table-hover" id="price_list_table">
+                        <thead>
+                           <tr>
+                              <td>접수일자</td>
+                              <td>주문번호</td>
+                              <td>부서/매장명</td>
+                              <td>수량</td>
+                              <td>전화번호</td>
+                              <td>이름</td>
+                              <td>주문상태</td>
+
+							  <!--
+                              <th class="total" style="vertical-align:middle;">엑션</th>
+							  -->
+                           </tr>
+                        </thead>
+                        <tbody class="price_list_tbody">
+                           
+                                <tr class="list_tr_basket">
+                                  <td>2026-07-31(금) 11:27</td>
+                                  <td>341356</td>
+                                  <td></td>
+                                  <td>200</td>
+                                  <td>02-3498-2600</td>
+                                  <td>승민수</td>
+                                  <td>인쇄중</td>
+                                  
+                                </tr>
+                      
+                                
+                                <tr class="list_tr_basket">
+                                  <td>2026-07-30(목) 14:58</td>
+                                  <td>341348</td>
+                                  <td></td>
+                                  <td>200</td>
+                                  <td>02-3498-2600</td>
+                                  <td>홍길동</td>
+                                  <td>승인반려</td>
+                                  
+                                </tr>
+                      
+                                
+                                <tr class="list_tr_basket">
+                                  <td>2026-07-28(화) 09:47</td>
+                                  <td>341276</td>
+                                  <td></td>
+                                  <td>200</td>
+                                  <td></td>
+                                  <td>차성현</td>
+                                  <td>인쇄중</td>
+                                  
+                                </tr>
+                      
+                                
+                                <tr class="list_tr_basket">
+                                  <td>2026-07-27(월) 16:04</td>
+                                  <td>341266</td>
+                                  <td></td>
+                                  <td>200</td>
+                                  <td>02-3498-2600</td>
+                                  <td>주진우</td>
+                                  <td>인쇄중</td>
+                                  
+                                </tr>
+                      
+                                
+                                <tr class="list_tr_basket">
+                                  <td>2026-07-27(월) 10:17</td>
+                                  <td>341254</td>
+                                  <td></td>
+                                  <td>200</td>
+                                  <td>02-3498-2600</td>
+                                  <td>김광인</td>
+                                  <td>인쇄중</td>
+                                  
+                                </tr>
+                      
+                                
+                                <tr class="list_tr_basket">
+                                  <td>2026-07-24(금) 09:23</td>
+                                  <td>341219</td>
+                                  <td></td>
+                                  <td>200</td>
+                                  <td>02-3498-2600</td>
+                                  <td>박병선</td>
+                                  <td>인쇄중</td>
+                                  
+                                </tr>
+                      
+                                
+                                <tr class="list_tr_basket">
+                                  <td>2026-07-23(목) 16:02</td>
+                                  <td>341209</td>
+                                  <td></td>
+                                  <td>200</td>
+                                  <td>010-8405-9896</td>
+                                  <td>오중환</td>
+                                  <td>인쇄중</td>
+                                  
+                                </tr>
+                      
+                                
+                                <tr class="list_tr_basket">
+                                  <td>2026-07-23(목) 13:55</td>
+                                  <td>341202</td>
+                                  <td></td>
+                                  <td>200</td>
+                                  <td>02-3498-2600</td>
+                                  <td>배현석</td>
+                                  <td>인쇄중</td>
+                                  
+                                </tr>
+                      
+                                
+                                <tr class="list_tr_basket">
+                                  <td>2026-07-23(목) 11:17</td>
+                                  <td>341183</td>
+                                  <td></td>
+                                  <td>200</td>
+                                  <td>02-3498-2600</td>
+                                  <td>지병걸</td>
+                                  <td>인쇄중</td>
+                                  
+                                </tr>
+                      
+                                
+                                <tr class="list_tr_basket">
+                                  <td>2026-07-23(목) 09:21</td>
+                                  <td>341175</td>
+                                  <td></td>
+                                  <td>200</td>
+                                  <td></td>
+                                  <td>이석호</td>
+                                  <td>인쇄중</td>
+                                  
+                                </tr>
+                      
+                                
+                                <tr class="list_tr_basket">
+                                  <td>2026-07-22(수) 16:30</td>
+                                  <td>341168</td>
+                                  <td></td>
+                                  <td>200</td>
+                                  <td>02-3498-2600</td>
+                                  <td>지병걸</td>
+                                  <td>승인반려</td>
+                                  
+                                </tr>
+                      
+                                
+                                <tr class="list_tr_basket">
+                                  <td>2026-07-22(수) 09:34</td>
+                                  <td>341144</td>
+                                  <td></td>
+                                  <td>200</td>
+                                  <td>02-3498-2600</td>
+                                  <td>이아현</td>
+                                  <td>인쇄중</td>
+                                  
+                                </tr>
+                      
+                                
+                                <tr class="list_tr_basket">
+                                  <td>2026-07-22(수) 08:59</td>
+                                  <td>341142</td>
+                                  <td></td>
+                                  <td>200</td>
+                                  <td>02-3498-2600</td>
+                                  <td>우지영</td>
+                                  <td>인쇄중</td>
+                                  
+                                </tr>
+                      
+                                
+                                <tr class="list_tr_basket">
+                                  <td>2026-07-16(목) 11:41</td>
+                                  <td>341054</td>
+                                  <td></td>
+                                  <td>200</td>
+                                  <td>010-2289-0574</td>
+                                  <td>김원태</td>
+                                  <td>주문취소</td>
+                                  
+                                </tr>
+                      
+                                
+                                <tr class="list_tr_basket">
+                                  <td>2026-07-16(목) 11:09</td>
+                                  <td>341053</td>
+                                  <td></td>
+                                  <td>200</td>
+                                  <td>010-8508-4031</td>
+                                  <td>이현규</td>
+                                  <td>인쇄중</td>
+                                  
+                                </tr>
+                      
+                                
+                                <tr class="list_tr_basket">
+                                  <td>2026-07-16(목) 10:56</td>
+                                  <td>341052</td>
+                                  <td></td>
+                                  <td>200</td>
+                                  <td>02-3498-2600</td>
+                                  <td>하진영</td>
+                                  <td>인쇄중</td>
+                                  
+                                </tr>
+                      
+                                
+                                <tr class="list_tr_basket">
+                                  <td>2026-07-16(목) 09:29</td>
+                                  <td>341049</td>
+                                  <td></td>
+                                  <td>200</td>
+                                  <td>010-3610-1211</td>
+                                  <td>노상수</td>
+                                  <td>인쇄중</td>
+                                  
+                                </tr>
+                      
+                                
+                                <tr class="list_tr_basket">
+                                  <td>2026-07-16(목) 08:21</td>
+                                  <td>341048</td>
+                                  <td></td>
+                                  <td>200</td>
+                                  <td>010-3785-4623</td>
+                                  <td>이보환</td>
+                                  <td>인쇄중</td>
+                                  
+                                </tr>
+                      
+                                
+                                <tr class="list_tr_basket">
+                                  <td>2026-07-15(수) 12:48</td>
+                                  <td>341036</td>
+                                  <td></td>
+                                  <td>200</td>
+                                  <td>02-1234-5678</td>
+                                  <td>테스트</td>
+                                  <td>배송중</td>
+                                  
+                                </tr>
+                      
+                                
+                                <tr class="list_tr_basket">
+                                  <td>2026-07-15(수) 09:59</td>
+                                  <td>341014</td>
+                                  <td></td>
+                                  <td>200</td>
+                                  <td>02-3498-2600</td>
+                                  <td>신동만</td>
+                                  <td>인쇄중</td>
+                                  
+                                </tr>
+                      
+                                
+                                <tr class="list_tr_basket">
+                                  <td>2026-07-13(월) 14:09</td>
+                                  <td>340964</td>
+                                  <td></td>
+                                  <td>200</td>
+                                  <td></td>
+                                  <td>오중환</td>
+                                  <td>인쇄중</td>
+                                  
+                                </tr>
+                      
+                                
+                                <tr class="list_tr_basket">
+                                  <td>2026-07-13(월) 11:04</td>
+                                  <td>340960</td>
+                                  <td></td>
+                                  <td>200</td>
+                                  <td></td>
+                                  <td>김상근</td>
+                                  <td>인쇄중</td>
+                                  
+                                </tr>
+                      
+                                
+                                <tr class="list_tr_basket">
+                                  <td>2026-07-10(금) 15:51</td>
+                                  <td>340935</td>
+                                  <td></td>
+                                  <td>200</td>
+                                  <td></td>
+                                  <td>김상근</td>
+                                  <td>주문취소</td>
+                                  
+                                </tr>
+                      
+                                
+                                <tr class="list_tr_basket">
+                                  <td>2026-07-10(금) 14:55</td>
+                                  <td>340931</td>
+                                  <td></td>
+                                  <td>200</td>
+                                  <td></td>
+                                  <td>김태호</td>
+                                  <td>인쇄중</td>
+                                  
+                                </tr>
+                      
+                                
+                                <tr class="list_tr_basket">
+                                  <td>2026-07-10(금) 14:54</td>
+                                  <td>340930</td>
+                                  <td></td>
+                                  <td>200</td>
+                                  <td></td>
+                                  <td>김태호</td>
+                                  <td>주문취소</td>
+                                  
+                                </tr>
+                      
+                                
+                                <tr class="list_tr_basket">
+                                  <td>2026-07-10(금) 10:39</td>
+                                  <td>340920</td>
+                                  <td></td>
+                                  <td>200</td>
+                                  <td>01074900778</td>
+                                  <td>강경일</td>
+                                  <td>인쇄중</td>
+                                  
+                                </tr>
+                      
+                                
+                                <tr class="list_tr_basket">
+                                  <td>2026-07-09(목) 14:00</td>
+                                  <td>340903</td>
+                                  <td></td>
+                                  <td>200</td>
+                                  <td>02-3498-2600</td>
+                                  <td>이오태</td>
+                                  <td>인쇄중</td>
+                                  
+                                </tr>
+                      
+                                
+                                <tr class="list_tr_basket">
+                                  <td>2026-07-09(목) 10:49</td>
+                                  <td>340894</td>
+                                  <td></td>
+                                  <td>200</td>
+                                  <td></td>
+                                  <td>오기택</td>
+                                  <td>인쇄중</td>
+                                  
+                                </tr>
+                      
+                                
+                                <tr class="list_tr_basket">
+                                  <td>2026-07-08(수) 10:41</td>
+                                  <td>340853</td>
+                                  <td></td>
+                                  <td>200</td>
+                                  <td>02-3498-1234</td>
+                                  <td>테스트 2</td>
+                                  <td>배송중</td>
+                                  
+                                </tr>
+                      
+                                
+                                <tr class="list_tr_basket">
+                                  <td>2026-07-08(수) 10:39</td>
+                                  <td>340852</td>
+                                  <td></td>
+                                  <td>200</td>
+                                  <td>02-3498-1234</td>
+                                  <td>테스트</td>
+                                  <td>배송중</td>
+                                  
+                                </tr>
+                      
+                                
+                                <tr class="list_tr_basket">
+                                  <td>2026-07-06(월) 10:15</td>
+                                  <td>340780</td>
+                                  <td></td>
+                                  <td>200</td>
+                                  <td>070-7706-5111</td>
+                                  <td>조승환</td>
+                                  <td>인쇄중</td>
+                                  
+                                </tr>
+                      
+                                
+                                <tr class="list_tr_basket">
+                                  <td>2026-07-06(월) 09:22</td>
+                                  <td>340779</td>
+                                  <td></td>
+                                  <td>200</td>
+                                  <td>070-7706-5111</td>
+                                  <td>조승환</td>
+                                  <td>주문취소</td>
+                                  
+                                </tr>
+                      
+                                
+                                <tr class="list_tr_basket">
+                                  <td>2026-07-06(월) 09:22</td>
+                                  <td>340778</td>
+                                  <td></td>
+                                  <td>200</td>
+                                  <td>070-7706-5111</td>
+                                  <td>조승환</td>
+                                  <td>인쇄중</td>
+                                  
+                                </tr>
+                      
+                                
+                                <tr class="list_tr_basket">
+                                  <td>2026-07-03(금) 17:39</td>
+                                  <td>340744</td>
+                                  <td></td>
+                                  <td>200</td>
+                                  <td></td>
+                                  <td>공형석</td>
+                                  <td>인쇄중</td>
+                                  
+                                </tr>
+                      
+                                
+                                <tr class="list_tr_basket">
+                                  <td>2026-07-03(금) 13:35</td>
+                                  <td>340715</td>
+                                  <td></td>
+                                  <td>200</td>
+                                  <td></td>
+                                  <td>임문식</td>
+                                  <td>인쇄중</td>
+                                  
+                                </tr>
+                      
+                                
+                                <tr class="list_tr_basket">
+                                  <td>2026-07-02(목) 18:00</td>
+                                  <td>340680</td>
+                                  <td></td>
+                                  <td>200</td>
+                                  <td>010-5118-5935</td>
+                                  <td>임수재</td>
+                                  <td>인쇄중</td>
+                                  
+                                </tr>
+                      
+                                
+                                <tr class="list_tr_basket">
+                                  <td>2026-07-02(목) 13:14</td>
+                                  <td>340662</td>
+                                  <td></td>
+                                  <td>200</td>
+                                  <td>010-5268-4730</td>
+                                  <td>박인협</td>
+                                  <td>인쇄중</td>
+                                  
+                                </tr>
+                      
+                                
+                                <tr class="list_tr_basket">
+                                  <td>2026-07-02(목) 13:12</td>
+                                  <td>340660</td>
+                                  <td></td>
+                                  <td>200</td>
+                                  <td>010-5268-4730</td>
+                                  <td>박인협</td>
+                                  <td>인쇄중</td>
+                                  
+                                </tr>
+                      
+                                
+                                <tr class="list_tr_basket">
+                                  <td>2026-07-02(목) 13:09</td>
+                                  <td>340658</td>
+                                  <td></td>
+                                  <td>200</td>
+                                  <td>010-5268-4730</td>
+                                  <td>박인협</td>
+                                  <td>인쇄중</td>
+                                  
+                                </tr>
+                      
+                                
+                                <tr class="list_tr_basket">
+                                  <td>2026-07-02(목) 13:06</td>
+                                  <td>340657</td>
+                                  <td></td>
+                                  <td>200</td>
+                                  <td>010-5268-4730</td>
+                                  <td>박인협</td>
+                                  <td>인쇄중</td>
+                                  
+                                </tr>
+                      
+                                
+                        </tbody>
+                     </table>
+
+
+
+</body>
+<!-- END BODY -->
+</html>
