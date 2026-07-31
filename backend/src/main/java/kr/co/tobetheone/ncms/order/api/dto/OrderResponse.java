@@ -14,6 +14,7 @@ public class OrderResponse {
     private String companyName;
     private Long memberId;
     private String memberName;
+    private String memberEmail;
     private Long templateId;
     private String templateName;
     private String status;
