@@ -88,10 +88,19 @@ function mapTemplateResponse(
 ): TemplateCardData {
   const mockDetail = MOCK_CARD_DETAILS[index % MOCK_CARD_DETAILS.length];
 
+  let previewFrontUrl = template.previewFrontUrl ?? null;
+  if (!previewFrontUrl) {
+    const nameStr = (template.name || "").toLowerCase();
+    const idStr = String(template.id || "").toLowerCase();
+    if (idStr === "3" || idStr.includes("hanmi") || nameStr.includes("한미")) {
+      previewFrontUrl = "/hanmi_template.jpg";
+    }
+  }
+
   return {
     id: template.id,
     name: template.name,
-    previewFrontUrl: template.previewFrontUrl ?? null,
+    previewFrontUrl: previewFrontUrl,
     previewBackUrl: template.previewBackUrl ?? null,
     status: getStatusLabel(template.status),
     category: mockDetail.category,
@@ -114,12 +123,11 @@ function resolvePreviewUrl(url: string | null): string | null {
     return null;
   }
 
-  if (/^(https?:|data:|blob:)/i.test(url)) {
+  if (/^(https?:|data:|blob:|\/)/i.test(url)) {
     return url;
   }
 
-  const normalizedPath = url.startsWith("/") ? url : `/${url}`;
-  return `${API_BASE_URL}${normalizedPath}`;
+  return `${API_BASE_URL}/${url}`;
 }
 
 function TemplatePreview({
