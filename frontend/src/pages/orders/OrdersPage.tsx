@@ -507,7 +507,7 @@ export default function OrdersPage() {
     setSelectedOrder({
       id: order.rawId,
       orderNumber: order.id,
-      department: order.site,
+      companyName: order.site,
       product: "명함",
       material: order.material,
       quantity: order.quantity,
