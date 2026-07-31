@@ -92,6 +92,7 @@ interface OrderActionsProps {
   onPrint: (order: Order) => void;
   onReorder?: (order: Order) => void;
   isOperator?: boolean;
+  showShipmentTracking?: boolean;
 }
 
 function ActionIconButton({ label, onClick, children }: ActionIconButtonProps) {
@@ -182,6 +183,7 @@ function OrderActions({
   onPrint,
   onReorder,
   isOperator,
+  showShipmentTracking = true,
 }: OrderActionsProps) {
   return (
     <div className="flex items-center justify-end gap-1.5">
@@ -252,12 +254,14 @@ function OrderActions({
         </Tooltip>
       )}
 
-      <ActionIconButton
-        label="배송 추적"
-        onClick={() => onOpenShipmentTracking(order)}
-      >
-        <Truck size={13} />
-      </ActionIconButton>
+      {showShipmentTracking && (
+        <ActionIconButton
+          label="배송 추적"
+          onClick={() => onOpenShipmentTracking(order)}
+        >
+          <Truck size={13} />
+        </ActionIconButton>
+      )}
     </div>
   );
 }
@@ -379,6 +383,17 @@ export default function OrdersPage() {
 
     return isOperatorRole || isOperatorRoute;
   }, [user, location.pathname]);
+
+  const isEmployeeOnly = useMemo(() => {
+    return (
+      (user?.roles?.includes("ROLE_EMPLOYEE") ?? false) &&
+      !user?.roles?.includes("ROLE_COMPANY_ADMIN") &&
+      !user?.roles?.includes("ROLE_OPERATOR") &&
+      !user?.roles?.includes("ROLE_SYSTEM_ADMIN")
+    );
+  }, [user?.roles]);
+
+  const showShipmentTracking = !isEmployeeOnly;
 
   // Fetch DB Companies list for site dropdown filter
   useEffect(() => {
@@ -624,6 +639,7 @@ export default function OrdersPage() {
   }
 
   function handleOpenShipmentTracking(order: Order) {
+    if (isEmployeeOnly) return;
     setShipmentTrackingOrder({
       id: order.id,
       name: order.name,
@@ -944,6 +960,7 @@ export default function OrdersPage() {
                           onPrint={handlePrintOrder}
                           onReorder={handleReorder}
                           isOperator={isOperator}
+                          showShipmentTracking={showShipmentTracking}
                         />
                       </td>
                     </tr>
