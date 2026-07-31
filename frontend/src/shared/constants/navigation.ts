@@ -70,7 +70,8 @@ export function getNavItems(
     normalized.startsWith("/operator/") ||
     normalized.startsWith("/logcom/");
 
-  const isCheil = siteCode?.toLowerCase() === "cheil";
+  const code = siteCode?.toLowerCase();
+  const isGuideAllowed = code === "cheil" || code === "hanmi";
 
   const isEmployeeOnly =
     roles?.includes("ROLE_EMPLOYEE") &&
@@ -84,7 +85,7 @@ export function getNavItems(
     definitions = definitions.filter((item) => item.id !== "templates");
   }
 
-  if (!isCheil) {
+  if (!isGuideAllowed) {
     definitions = definitions.filter((item) => item.id !== "guide");
   }
 

@@ -22,6 +22,7 @@ export interface BackBusinessCardData {
   position2: string;
   address1: string;
   address2: string;
+  address3?: string;
   telephone: string;
   fax: string;
   directTelephone: string;
