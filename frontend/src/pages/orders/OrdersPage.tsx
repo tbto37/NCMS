@@ -391,6 +391,21 @@ export default function OrdersPage() {
 
   const showShipmentTracking = !isEmployeeOnly;
 
+  const canApproveHighlight = useMemo(() => {
+    const roles = user?.roles || [];
+    return (
+      roles.some(
+        (r) =>
+          r === "ROLE_OPERATOR" ||
+          r === "OPERATOR" ||
+          r === "ROLE_SYSTEM_ADMIN" ||
+          r === "SYSTEM_ADMIN" ||
+          r === "ROLE_COMPANY_ADMIN" ||
+          r === "COMPANY_ADMIN",
+      ) || isOperator
+    );
+  }, [user?.roles, isOperator]);
+
   // Fetch DB Companies list for site dropdown filter
   useEffect(() => {
     async function fetchCompanies() {
@@ -832,21 +847,37 @@ export default function OrdersPage() {
             </span>
 
             <div className="flex gap-1.5">
-              {actions.map((action) => (
-                <button
-                  key={action.label}
-                  disabled={selectedCount === 0}
-                  onClick={() => handleOpenStatusChange(action)}
-                  className={`rounded px-2.5 py-1 text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${action.variant === "danger"
-                    ? "border border-red-200 bg-red-50 text-red-600 hover:bg-red-100"
-                    : action.variant === "primary"
-                      ? "bg-primary text-primary-foreground hover:opacity-90"
-                      : "border border-border bg-background text-foreground hover:bg-secondary"
-                    }`}
-                >
-                  {action.label}
-                </button>
-              ))}
+              {actions.map((action) => {
+                const isApproveBtn =
+                  action.label === "주문 승인" || action.targetStatus === "APPROVED";
+                const isFlashing =
+                  isApproveBtn && canApproveHighlight && selectedCount > 0;
+
+                let btnStyle =
+                  "border border-border bg-background text-foreground hover:bg-secondary";
+
+                if (isApproveBtn) {
+                  btnStyle = `bg-blue-600 text-white font-semibold hover:bg-blue-700 ${
+                    isFlashing ? "animate-pulse font-bold" : ""
+                  }`;
+                } else if (action.variant === "danger") {
+                  btnStyle =
+                    "border border-red-200 bg-red-50 text-red-600 hover:bg-red-100";
+                } else if (action.variant === "primary") {
+                  btnStyle = "bg-primary text-primary-foreground hover:opacity-90";
+                }
+
+                return (
+                  <button
+                    key={action.label}
+                    disabled={selectedCount === 0}
+                    onClick={() => handleOpenStatusChange(action)}
+                    className={`rounded px-2.5 py-1 text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${btnStyle}`}
+                  >
+                    {action.label}
+                  </button>
+                );
+              })}
             </div>
           </div>
         )}
