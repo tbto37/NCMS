@@ -60,6 +60,7 @@ import {
   formatOrderDate,
 } from "@/shared/constants/orders";
 import type { BusinessCardInputData } from "@/shared/types/businessCard";
+import { getCarrierTrackingUrl } from "@/shared/utils/shipmentTracking";
 
 const TAB_ICON_MAP: Record<OrderTab, React.ReactNode> = {
   전체: <ListFilter size={17} />,
@@ -200,6 +201,23 @@ function OrderActions({
           재주문
         </button>
       )}
+
+      {order.trackingNumber && (() => {
+        const trackingUrl = getCarrierTrackingUrl(order.carrierCode, order.trackingNumber);
+        return trackingUrl ? (
+          <a
+            href={trackingUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={(e) => e.stopPropagation()}
+            className="flex h-7 items-center gap-1.5 rounded bg-blue-500/10 px-2.5 text-[11px] font-semibold text-blue-600 hover:bg-blue-500/20"
+            title={`${order.carrierCode || "택배"} : ${order.trackingNumber}`}
+          >
+            <Truck size={11} />
+            배송 추적
+          </a>
+        ) : null;
+      })()}
 
       <ActionIconButton label="주문 상세" onClick={() => onOpenDetail(order)}>
         <ReceiptText size={13} />

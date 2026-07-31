@@ -137,6 +137,9 @@ export default function OrderFormPage() {
   const [selectedPaper, setSelectedPaper] = useState("");
   const [selectedQty, setSelectedQty] = useState("");
 
+  const tidStr = String(orderDraft?.template?.id || reorderData?.templateId || "").toLowerCase();
+  const isHanmi = tidStr.includes("hanmi") || tidStr === "3";
+
   useEffect(() => {
     async function loadOptions() {
       try {
@@ -145,44 +148,46 @@ export default function OrderFormPage() {
           fetch(`${API_BASE_URL}/api/v1/product-options?category=QTY`),
         ]);
 
+        let papers: ProductOptionItem[] = [
+          { id: "OPT_P0", category: "PAPER", name: "아르미230", sortOrder: 0 },
+          { id: "OPT_P1", category: "PAPER", name: "휘라레 216g", sortOrder: 1 },
+          { id: "OPT_P2", category: "PAPER", name: "스노우지 250g", sortOrder: 2 },
+          { id: "OPT_P3", category: "PAPER", name: "랑데뷰 240g", sortOrder: 3 },
+          { id: "OPT_P4", category: "PAPER", name: "띤또레또 250g", sortOrder: 4 },
+        ];
+
         if (paperRes.ok) {
           const json = await paperRes.json();
           if (json.data && Array.isArray(json.data) && json.data.length > 0) {
-            setPaperOptions(json.data);
-            setSelectedPaper(json.data[0].name);
-          } else {
-            const fallbackPapers = [
-              { id: "OPT_P1", category: "PAPER", name: "휘라레 216g", sortOrder: 1 },
-              { id: "OPT_P2", category: "PAPER", name: "스노우지 250g", sortOrder: 2 },
-              { id: "OPT_P3", category: "PAPER", name: "랑데뷰 240g", sortOrder: 3 },
-              { id: "OPT_P4", category: "PAPER", name: "띤또레또 250g", sortOrder: 4 },
-            ];
-            setPaperOptions(fallbackPapers);
-            setSelectedPaper(fallbackPapers[0].name);
+            papers = json.data;
+            if (!papers.some((p) => p.name === "아르미230")) {
+              papers.unshift({ id: "OPT_P0", category: "PAPER", name: "아르미230", sortOrder: 0 });
+            }
           }
         }
+        setPaperOptions(papers);
+        setSelectedPaper(isHanmi ? "아르미230" : papers[0].name);
+
+        let qtys: ProductOptionItem[] = [
+          { id: "OPT_Q1", category: "QTY", name: "100매", sortOrder: 1 },
+          { id: "OPT_Q2", category: "QTY", name: "200매", sortOrder: 2 },
+          { id: "OPT_Q3", category: "QTY", name: "300매", sortOrder: 3 },
+          { id: "OPT_Q4", category: "QTY", name: "500매", sortOrder: 4 },
+          { id: "OPT_Q5", category: "QTY", name: "1000매", sortOrder: 5 },
+        ];
 
         if (qtyRes.ok) {
           const json = await qtyRes.json();
           if (json.data && Array.isArray(json.data) && json.data.length > 0) {
-            setQtyOptions(json.data);
-            const default200 = json.data.find((q: ProductOptionItem) => q.name === "200매");
-            setSelectedQty(default200 ? default200.name : json.data[0].name);
-          } else {
-            const fallbackQtys = [
-              { id: "OPT_Q1", category: "QTY", name: "100매", sortOrder: 1 },
-              { id: "OPT_Q2", category: "QTY", name: "200매", sortOrder: 2 },
-              { id: "OPT_Q3", category: "QTY", name: "300매", sortOrder: 3 },
-              { id: "OPT_Q4", category: "QTY", name: "500매", sortOrder: 4 },
-              { id: "OPT_Q5", category: "QTY", name: "1000매", sortOrder: 5 },
-            ];
-            setQtyOptions(fallbackQtys);
-            setSelectedQty("200매");
+            qtys = json.data;
           }
         }
+        setQtyOptions(qtys);
+        setSelectedQty(isHanmi ? "300매" : "200매");
       } catch (e) {
         console.warn("ProductOption DB 조회 실패 - 가라데이터 표시:", e);
         const fallbackPapers = [
+          { id: "OPT_P0", category: "PAPER", name: "아르미230", sortOrder: 0 },
           { id: "OPT_P1", category: "PAPER", name: "휘라레 216g", sortOrder: 1 },
           { id: "OPT_P2", category: "PAPER", name: "스노우지 250g", sortOrder: 2 },
           { id: "OPT_P3", category: "PAPER", name: "랑데뷰 240g", sortOrder: 3 },
@@ -196,13 +201,13 @@ export default function OrderFormPage() {
           { id: "OPT_Q5", category: "QTY", name: "1000매", sortOrder: 5 },
         ];
         setPaperOptions(fallbackPapers);
-        setSelectedPaper(fallbackPapers[0].name);
+        setSelectedPaper(isHanmi ? "아르미230" : "아르미230");
         setQtyOptions(fallbackQtys);
-        setSelectedQty("200매");
+        setSelectedQty(isHanmi ? "300매" : "200매");
       }
     }
     loadOptions();
-  }, []);
+  }, [isHanmi]);
 
   if (!companyCode) {
     return <Navigate to="/orders" replace />;

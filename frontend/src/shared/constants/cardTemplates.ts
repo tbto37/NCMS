@@ -234,7 +234,7 @@ export const CARD_TEMPLATE_SPECS: Record<string, { front: CardTemplateConfig; ba
       width: 519,
       height: 288.333,
       logoUrl: "/logos/hanmi_front_logo.png",
-      logoSpec: { x: 25, y: 69, width: 165, height: 56 },
+      logoSpec: { x: 25, y: 67, width: 165, height: 56 },
       showSlogan: false,
       showCenterLine: false,
       showBottomBar: false,

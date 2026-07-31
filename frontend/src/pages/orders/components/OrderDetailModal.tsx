@@ -12,10 +12,12 @@ import {
   Package,
   Phone,
   ReceiptText,
+  Truck,
   User,
   UserRound,
   X,
 } from "lucide-react";
+import { getCarrierTrackingUrl } from "@/shared/utils/shipmentTracking";
 import DynamicBusinessCardPreview from "@/components/card/DynamicBusinessCardPreview";
 import type { BusinessCardInputData } from "@/shared/types/businessCard";
 import { formatOrderDate } from "@/shared/constants/orders";
@@ -253,13 +255,33 @@ export default function OrderDetailModal({
                     fullWidth
                   />
                 )}
-                {order.trackingNumber && (
-                  <DetailItem
-                    label="송장 정보"
-                    value={`${order.carrierCode || "택배사"} : ${order.trackingNumber}`}
-                    fullWidth
-                  />
-                )}
+                {order.trackingNumber && (() => {
+                  const trackingUrl = getCarrierTrackingUrl(order.carrierCode, order.trackingNumber);
+                  return (
+                    <DetailItem
+                      label="송장 정보"
+                      value={
+                        <div className="flex flex-wrap items-center gap-2">
+                          <span className="font-mono font-medium text-foreground">
+                            {`${order.carrierCode || "택배사"} : ${order.trackingNumber}`}
+                          </span>
+                          {trackingUrl && (
+                            <a
+                              href={trackingUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 rounded bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary transition hover:bg-primary hover:text-white"
+                            >
+                              <Truck size={12} />
+                              배송 추적
+                            </a>
+                          )}
+                        </div>
+                      }
+                      fullWidth
+                    />
+                  );
+                })()}
                 <DetailItem
                   label="메모"
                   value={order.memo}

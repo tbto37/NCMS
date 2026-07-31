@@ -80,13 +80,13 @@ const defaultCardData: BusinessCardInputData = {
     position1: "시니어 매니저",
     position2Option: "직접입력",
     position2: "",
-    address: "06164 서울시 강남구 테헤란로 87길 36 도심공항타워",
-    telephone: "070-0000-0000",
+    address: "06164, 서울시 강남구 테헤란로 87길\n36 도심공항타워",
+    telephone: "070-1234-5678",
     fax: "",
     directTelephone: "",
-    mobile: "010-0000-0000",
-    email: "hong@logcom.co.kr",
-    website: "www.logcom.co.kr",
+    mobile: "010-1234-4567",
+    email: "00000000@hanmiglobal.com",
+    website: "",
   },
   back: {
     name: "Hong Gil-dong",
@@ -95,12 +95,12 @@ const defaultCardData: BusinessCardInputData = {
     position2: "",
     address1: "City Air Tower Bldg., 36, Teheran-ro 87-gil,",
     address2: "Gangnam-gu, Seoul, 06164, Korea",
-    telephone: "+82-70-0000-0000",
+    telephone: "+82-70-1234-5678",
     fax: "",
     directTelephone: "",
-    mobile: "+82-10-0000-0000",
-    email: "hong@logcom.co.kr",
-    website: "www.logcom.co.kr",
+    mobile: "+82-10-1234-4567",
+    email: "00000000@hanmiglobal.com",
+    website: "",
   },
 };
 
@@ -164,6 +164,9 @@ export default function TemplateEditModal({
   }, [templateId, open]);
 
   if (!open) return null;
+
+  const tidStr = String(templateId || "").toLowerCase();
+  const isHanmi = tidStr.includes("hanmi") || tidStr === "3";
 
   const isDeptDirect = !cardData.front.departmentOption || cardData.front.departmentOption === "직접입력";
   const isPos1Direct = !cardData.front.position1Option || cardData.front.position1Option === "직접입력";
@@ -345,11 +348,8 @@ export default function TemplateEditModal({
                     <input
                       value={cardData.front.department}
                       onChange={(e) => handleFrontChange("department", e.target.value)}
-                      readOnly={!isDeptDirect}
-                      className={`h-9 w-full rounded-md border border-border px-3 text-xs outline-none transition ${isDeptDirect
-                        ? "bg-background text-foreground focus:border-ring focus:ring-2 focus:ring-ring/15"
-                        : "bg-muted/50 text-muted-foreground cursor-not-allowed"
-                        }`}
+                      placeholder="부서명 직접 입력 가능"
+                      className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
                     />
                   </div>
 
@@ -373,11 +373,8 @@ export default function TemplateEditModal({
                     <input
                       value={cardData.front.position1}
                       onChange={(e) => handleFrontChange("position1", e.target.value)}
-                      readOnly={!isPos1Direct}
-                      className={`h-9 w-full rounded-md border border-border px-3 text-xs outline-none transition ${isPos1Direct
-                        ? "bg-background text-foreground focus:border-ring focus:ring-2 focus:ring-ring/15"
-                        : "bg-muted/50 text-muted-foreground cursor-not-allowed"
-                        }`}
+                      placeholder="직급명 직접 입력 가능"
+                      className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
                     />
                   </div>
 
@@ -401,21 +398,20 @@ export default function TemplateEditModal({
                     <input
                       value={cardData.front.position2}
                       onChange={(e) => handleFrontChange("position2", e.target.value)}
-                      readOnly={!isPos2Direct}
-                      className={`h-9 w-full rounded-md border border-border px-3 text-xs outline-none transition ${isPos2Direct
-                        ? "bg-background text-foreground focus:border-ring focus:ring-2 focus:ring-ring/15"
-                        : "bg-muted/50 text-muted-foreground cursor-not-allowed"
-                        }`}
+                      placeholder="직급2 직접 입력 가능"
+                      className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
                     />
                   </div>
 
                   {/* 5. 주소 */}
-                  <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
-                    <label className="text-xs font-medium text-muted-foreground">주소</label>
-                    <input
+                  <div className="grid grid-cols-[108px_minmax(0,1fr)] items-start gap-3">
+                    <label className="mt-2 text-xs font-medium text-muted-foreground">주소</label>
+                    <textarea
+                      rows={2}
                       value={cardData.front.address}
                       onChange={(e) => handleFrontChange("address", e.target.value)}
-                      className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
+                      placeholder="06164, 서울시 강남구 테헤란로 87길&#10;36 도심공항타워"
+                      className="w-full resize-none rounded-md border border-border bg-background px-3 py-2 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
                     />
                   </div>
 
@@ -429,25 +425,29 @@ export default function TemplateEditModal({
                     />
                   </div>
 
-                  {/* 7. 팩스 */}
-                  <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
-                    <label className="text-xs font-medium text-muted-foreground">팩스</label>
-                    <input
-                      value={cardData.front.fax}
-                      onChange={(e) => handleFrontChange("fax", e.target.value)}
-                      className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
-                    />
-                  </div>
+                  {/* 7. 팩스 (한미글로벌 제외) */}
+                  {!isHanmi && (
+                    <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
+                      <label className="text-xs font-medium text-muted-foreground">팩스</label>
+                      <input
+                        value={cardData.front.fax}
+                        onChange={(e) => handleFrontChange("fax", e.target.value)}
+                        className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
+                      />
+                    </div>
+                  )}
 
-                  {/* 8. 직통번호 */}
-                  <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
-                    <label className="text-xs font-medium text-muted-foreground">직통번호</label>
-                    <input
-                      value={cardData.front.directTelephone}
-                      onChange={(e) => handleFrontChange("directTelephone", e.target.value)}
-                      className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
-                    />
-                  </div>
+                  {/* 8. 직통번호 (한미글로벌 제외) */}
+                  {!isHanmi && (
+                    <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
+                      <label className="text-xs font-medium text-muted-foreground">직통번호</label>
+                      <input
+                        value={cardData.front.directTelephone}
+                        onChange={(e) => handleFrontChange("directTelephone", e.target.value)}
+                        className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
+                      />
+                    </div>
+                  )}
 
                   {/* 9. 핸드폰 */}
                   <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
@@ -469,15 +469,17 @@ export default function TemplateEditModal({
                     />
                   </div>
 
-                  {/* 11. 웹사이트 */}
-                  <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
-                    <label className="text-xs font-medium text-muted-foreground">웹사이트</label>
-                    <input
-                      value={cardData.front.website}
-                      onChange={(e) => handleFrontChange("website", e.target.value)}
-                      className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
-                    />
-                  </div>
+                  {/* 11. 웹사이트 (한미글로벌 제외) */}
+                  {!isHanmi && (
+                    <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
+                      <label className="text-xs font-medium text-muted-foreground">웹사이트</label>
+                      <input
+                        value={cardData.front.website}
+                        onChange={(e) => handleFrontChange("website", e.target.value)}
+                        className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
+                      />
+                    </div>
+                  )}
                 </div>
               </section>
 
