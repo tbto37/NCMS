@@ -235,17 +235,12 @@ function OrderActions({
       {order.memo && (
         <Tooltip>
           <TooltipTrigger asChild>
-            <button
-              type="button"
+            <div
               aria-label="주문 메모"
-              onClick={(event) => {
-                event.stopPropagation();
-                onOpenDetail(order);
-              }}
-              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-amber-500/35 bg-amber-500/10 text-amber-600 transition-colors hover:border-amber-500/60 hover:bg-amber-500/20"
+              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-amber-500/35 bg-amber-500/10 text-amber-600 cursor-default"
             >
               <FileText size={13} />
-            </button>
+            </div>
           </TooltipTrigger>
           <TooltipContent side="top" sideOffset={6} className="max-w-xs break-words">
             <p className="font-semibold text-amber-300">주문 메모</p>
