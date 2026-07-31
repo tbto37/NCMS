@@ -172,6 +172,14 @@ function createSvgMarkup(
   const back = cardData.back || {};
   const currentData = isBack ? back : front;
 
+  const hasDirectTel = Boolean(currentData?.directTelephone && currentData.directTelephone.trim() !== "");
+  const cheilY = {
+    directTel: !isBack ? 174 : 191,
+    mobile: !isBack ? (hasDirectTel ? 192 : 174) : (hasDirectTel ? 209 : 191),
+    email: !isBack ? (hasDirectTel ? 210 : 192) : (hasDirectTel ? 227 : 209),
+    website: !isBack ? (hasDirectTel ? 232 : 214) : (hasDirectTel ? 247 : 229),
+  };
+
   // 미리보기(SvgBusinessCardPreview)와 100% 동일한 로고 사양 및 좌표 적용
   const logoSpec = config.logoSpec || {
     x: key === "cheil" ? 32 : 30,
@@ -188,7 +196,7 @@ function createSvgMarkup(
     : "";
 
   const sloganHtml = config.showSlogan
-    ? `<text x="34" y="230" font-size="13.5" font-weight="700" font-style="italic" fill="#333333" font-family="'a파도소리', 'aPadosori', 'Georgia', serif" dominant-baseline="hanging" alignment-baseline="before-edge">${config.sloganText || '"Smiling Technology"'}</text>`
+    ? `<text x="34" y="230" font-size="13.5" font-weight="700" fill="#333333" font-family="'a파도소리', 'aPadosori', 'Georgia', serif" transform="translate(34, 230) skewX(-6) translate(-34, -230)" dominant-baseline="hanging" alignment-baseline="before-edge">${config.sloganText || '"Smiling Technology"'}</text>`
     : "";
 
   const nameText = !isBack
@@ -246,16 +254,16 @@ function createSvgMarkup(
       ${key === "hanmi" && config.fields.telephone ? `<text x="${config.fields.telephone.x}" y="${config.fields.telephone.y}" font-size="${config.fields.telephone.fontSize}" font-weight="400" fill="#1e293b" dominant-baseline="hanging" alignment-baseline="before-edge"><tspan x="${config.fields.telephone.x}" font-weight="400" fill="#1e293b">T</tspan><tspan x="${config.fields.telephone.x + 16}">${telephoneText}</tspan></text>` : ""}
 
       {/* 7. 직통전화 */}
-      ${config.fields.directTelephone && (currentData.directTelephone || key === "cheil") ? `<text x="${config.fields.directTelephone.x}" y="${config.fields.directTelephone.y}" font-size="${config.fields.directTelephone.fontSize}" font-weight="400" fill="#1e293b" dominant-baseline="hanging" alignment-baseline="before-edge">${key === "cheil" ? (!isBack ? `직통 : ${currentData.directTelephone || "02-3498-2662"}` : `Dir: ${currentData.directTelephone || "82-2-3498-2745"}`) : `Dir ${currentData.directTelephone || "02-3498-2662"}`}</text>` : ""}
+      ${config.fields.directTelephone && (key === "cheil" ? hasDirectTel : currentData.directTelephone) ? `<text x="${config.fields.directTelephone.x}" y="${key === "cheil" ? cheilY.directTel : config.fields.directTelephone.y}" font-size="${config.fields.directTelephone.fontSize}" font-weight="400" fill="#1e293b" dominant-baseline="hanging" alignment-baseline="before-edge">${key === "cheil" ? (!isBack ? `직통 : ${currentData.directTelephone}` : `Dir: ${currentData.directTelephone}`) : `Dir ${currentData.directTelephone || "02-3498-2662"}`}</text>` : ""}
 
       {/* 8. 핸드폰 (regular weight & X=301 칼선 정렬) */}
-      ${config.fields.mobile ? `<text x="${config.fields.mobile.x}" y="${config.fields.mobile.y}" font-size="${config.fields.mobile.fontSize}" font-weight="400" fill="#1e293b" dominant-baseline="hanging" alignment-baseline="before-edge">${key === "cheil" ? (!isBack ? `핸드폰 : ${currentData.mobile || "010-1234-5678"}` : `Mobile: ${currentData.mobile || "82-10-1234-5678"}`) : `<tspan x="${config.fields.mobile.x}" font-weight="400" fill="#1e293b">M</tspan><tspan x="${config.fields.mobile.x + 16}">${mobileText}</tspan>`}</text>` : ""}
+      ${config.fields.mobile ? `<text x="${config.fields.mobile.x}" y="${key === "cheil" ? cheilY.mobile : config.fields.mobile.y}" font-size="${config.fields.mobile.fontSize}" font-weight="400" fill="#1e293b" dominant-baseline="hanging" alignment-baseline="before-edge">${key === "cheil" ? (!isBack ? `핸드폰 : ${currentData.mobile || "010-1234-5678"}` : `Mobile: ${currentData.mobile || "82-10-1234-5678"}`) : `<tspan x="${config.fields.mobile.x}" font-weight="400" fill="#1e293b">M</tspan><tspan x="${config.fields.mobile.x + 16}">${mobileText}</tspan>`}</text>` : ""}
 
       {/* 9. 이메일 (regular weight & X=301 칼선 정렬) */}
-      ${config.fields.email ? `<text x="${config.fields.email.x}" y="${config.fields.email.y}" font-size="${config.fields.email.fontSize}" font-weight="400" fill="#1e293b" dominant-baseline="hanging" alignment-baseline="before-edge">${key === "cheil" ? (!isBack ? `E-mail : ${currentData.email || "hong@cheileng.com"}` : `E-mail: ${currentData.email || "hong@cheileng.com"}`) : `<tspan x="${config.fields.email.x}" font-weight="400" fill="#1e293b">E</tspan><tspan x="${config.fields.email.x + 16}">${currentData.email || "baeksy@hanmiglobal.com"}</tspan>`}</text>` : ""}
+      ${config.fields.email ? `<text x="${config.fields.email.x}" y="${key === "cheil" ? cheilY.email : config.fields.email.y}" font-size="${config.fields.email.fontSize}" font-weight="400" fill="#1e293b" dominant-baseline="hanging" alignment-baseline="before-edge">${key === "cheil" ? (!isBack ? `E-mail: ${currentData.email || "youremail@email.com"}` : `E-mail: ${currentData.email || "youremail@email.com"}`) : `<tspan x="${config.fields.email.x}" font-weight="400" fill="#1e293b">E</tspan><tspan x="${config.fields.email.x + 16}">${currentData.email || "baeksy@hanmiglobal.com"}</tspan>`}</text>` : ""}
 
       {/* 10. 웹사이트 */}
-      ${config.fields.website ? `<text x="${config.fields.website.x}" y="${config.fields.website.y}" font-size="${config.fields.website.fontSize}" font-weight="700" fill="${key === "cheil" ? "#0f172a" : "#004B96"}" dominant-baseline="hanging" alignment-baseline="before-edge">${currentData.website || (key === "cheil" ? "www.cheileng.com" : "www.hanmiglobal.com")}</text>` : ""}
+      ${config.fields.website ? `<text x="${config.fields.website.x}" y="${key === "cheil" ? cheilY.website : config.fields.website.y}" font-size="${config.fields.website.fontSize}" font-weight="700" fill="${key === "cheil" ? "#0f172a" : "#004B96"}" dominant-baseline="hanging" alignment-baseline="before-edge">${currentData.website || (key === "cheil" ? "www.cheileng.com" : "www.hanmiglobal.com")}</text>` : ""}
 
       {/* 11. 주소 */}
       ${key === "hanmi" && !isBack ? `

@@ -38,6 +38,15 @@ export default function SvgBusinessCardPreview({
 
   const currentData = isBack ? back : front;
 
+  // 제일엔지니어링 직통번호 유무에 따른 수직 줄간격(Line Spacing) 동적 연산
+  const hasDirectTel = Boolean(currentData?.directTelephone && currentData.directTelephone.trim() !== "");
+  const cheilY = {
+    directTel: !isBack ? 174 : 191,
+    mobile: !isBack ? (hasDirectTel ? 192 : 174) : (hasDirectTel ? 209 : 191),
+    email: !isBack ? (hasDirectTel ? 210 : 192) : (hasDirectTel ? 227 : 209),
+    website: !isBack ? (hasDirectTel ? 232 : 214) : (hasDirectTel ? 247 : 229),
+  };
+
   // 웨일 광고 차단기 및 로컬 네트워크 필터 우회용 Base64 인라인 데이터 URL
   const [logoBase64, setLogoBase64] = useState<string>(config.logoUrl || "");
 
@@ -118,16 +127,16 @@ export default function SvgBusinessCardPreview({
             />
           )}
 
-          {/* 좌측 하단: 슬로건 ("Smiling Technology" - a파도소리 13.5pt, K80 농도, Italic, X=34) */}
+          {/* 좌측 하단: 슬로건 ("Smiling Technology" - a파도소리 13.5pt, K80 농도, 덜 기울어진 -6deg skewX, X=34) */}
           {config.showSlogan && (
             <text
               x="34"
               y="230"
               fontSize="13.5"
               fontWeight="700"
-              fontStyle="italic"
               fill="#333333"
               fontFamily="'a파도소리', 'aPadosori', 'Georgia', serif"
+              transform="translate(34, 230) skewX(-6) translate(-34, -230)"
               dominantBaseline="hanging"
               alignmentBaseline="before-edge"
             >
@@ -297,10 +306,10 @@ export default function SvgBusinessCardPreview({
           )}
 
           {/* 6. 직통번호 (Dir) */}
-          {config.fields.directTelephone && (currentData.directTelephone || key === "cheil") && (
+          {config.fields.directTelephone && (key === "cheil" ? hasDirectTel : currentData.directTelephone) && (
             <text
               x={config.fields.directTelephone.x}
-              y={config.fields.directTelephone.y}
+              y={key === "cheil" ? cheilY.directTel : config.fields.directTelephone.y}
               fontSize={config.fields.directTelephone.fontSize}
               fontWeight="400"
               fill="#1e293b"
@@ -309,8 +318,8 @@ export default function SvgBusinessCardPreview({
             >
               {key === "cheil"
                 ? !isBack
-                  ? `직통 : ${currentData.directTelephone || "02-3498-2662"}`
-                  : `Dir: ${currentData.directTelephone || "82-2-3498-2745"}`
+                  ? `직통 : ${currentData.directTelephone}`
+                  : `Dir: ${currentData.directTelephone}`
                 : `Dir ${currentData.directTelephone || "02-3498-2662"}`}
             </text>
           )}
@@ -319,7 +328,7 @@ export default function SvgBusinessCardPreview({
           {config.fields.mobile && (
             <text
               x={config.fields.mobile.x}
-              y={config.fields.mobile.y}
+              y={key === "cheil" ? cheilY.mobile : config.fields.mobile.y}
               fontSize={config.fields.mobile.fontSize}
               fontWeight="400"
               fill="#1e293b"
@@ -351,7 +360,7 @@ export default function SvgBusinessCardPreview({
           {config.fields.email && (
             <text
               x={config.fields.email.x}
-              y={config.fields.email.y}
+              y={key === "cheil" ? cheilY.email : config.fields.email.y}
               fontSize={config.fields.email.fontSize}
               fontWeight="400"
               fill="#1e293b"
@@ -377,7 +386,7 @@ export default function SvgBusinessCardPreview({
           {config.fields.website && (
             <text
               x={config.fields.website.x}
-              y={config.fields.website.y}
+              y={key === "cheil" ? cheilY.website : config.fields.website.y}
               fontSize={config.fields.website.fontSize}
               fontWeight={key === "cheil" ? "700" : "500"}
               fill={config.fields.website.fill || "#004B96"}
