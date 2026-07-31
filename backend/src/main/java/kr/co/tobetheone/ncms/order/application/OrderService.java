@@ -14,14 +14,12 @@ import kr.co.tobetheone.ncms.shipment.domain.Shipment;
 import kr.co.tobetheone.ncms.shipment.infrastructure.ShipmentRepository;
 import kr.co.tobetheone.ncms.template.domain.Template;
 import kr.co.tobetheone.ncms.template.infrastructure.TemplateRepository;
+import kr.co.tobetheone.ncms.global.email.EmailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,6 +33,7 @@ public class OrderService {
     private final ShipmentRepository shipmentRepository;
     private final MemberRepository memberRepository;
     private final TemplateRepository templateRepository;
+    private final EmailService emailService;
 
     @Transactional
     public OrderResponse createOrder(Long memberId, CreateOrderRequest request) {
@@ -102,6 +101,7 @@ public class OrderService {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new CustomException("주문을 찾을 수 없습니다.", HttpStatus.NOT_FOUND));
         order.approve();
+        emailService.sendApprovalNotification(order);
         return toResponse(order);
     }
 
@@ -211,18 +211,11 @@ public class OrderService {
     }
 
     private synchronized String generateOrderNo() {
-        LocalDateTime now = LocalDateTime.now();
-        String dateStr = now.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-
-        LocalDateTime startOfDay = now.toLocalDate().atStartOfDay();
-        LocalDateTime endOfDay = now.toLocalDate().atTime(LocalTime.MAX);
-
-        long todayCount = orderRepository.countByCreatedAtBetween(startOfDay, endOfDay);
-        long seq = todayCount + 1;
-
+        long count = orderRepository.count();
+        long seq = count + 1;
         String candidate;
         do {
-            candidate = String.format("ORD-%s-%04d", dateStr, seq++);
+            candidate = String.format("%05d", seq++);
         } while (orderRepository.existsByOrderNo(candidate));
 
         return candidate;

@@ -427,6 +427,19 @@ export default function OrderFormPage() {
                 placeholder="상세주소를 입력해 주세요."
               />
             </div>
+
+            <div>
+              <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
+                배송 및 주문 메모 (요청사항)
+              </label>
+              <textarea
+                rows={3}
+                value={orderMemo}
+                onChange={(e) => setOrderMemo(e.target.value)}
+                className="w-full resize-none rounded-md border border-border bg-background px-3 py-2.5 text-xs text-foreground outline-none transition placeholder:text-muted-foreground focus:border-ring focus:ring-2 focus:ring-ring/15"
+                placeholder="배송지 수령 방법, 인쇄 관련 특이사항 등 메모를 입력하세요. 입력된 메모는 관리자/로그컴 주문관리 창과 연동됩니다."
+              />
+            </div>
           </div>
         </section>
 
@@ -435,11 +448,11 @@ export default function OrderFormPage() {
           <div className="border-b border-border px-5 py-4">
             <h2 className="text-sm font-semibold text-foreground">제품 정보</h2>
             <p className="mt-1 text-xs text-muted-foreground">
-              용지와 수량을 확인하고 요청사항을 입력합니다.
+              용지와 수량 옵션을 확인합니다.
             </p>
           </div>
 
-          <div className="space-y-4 p-5">
+          <div className="p-5">
             <div className="grid gap-4 lg:grid-cols-[1.7fr_0.8fr_0.8fr]">
               <div>
                 <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
@@ -485,19 +498,6 @@ export default function OrderFormPage() {
                   ))}
                 </select>
               </div>
-            </div>
-
-            <div>
-              <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
-                메모 (요청사항)
-              </label>
-              <textarea
-                rows={4}
-                value={orderMemo}
-                onChange={(e) => setOrderMemo(e.target.value)}
-                className="w-full resize-none rounded-md border border-border bg-background px-3 py-2.5 text-xs text-foreground outline-none transition placeholder:text-muted-foreground focus:border-ring focus:ring-2 focus:ring-ring/15"
-                placeholder="제작 또는 배송 관련 요청사항을 입력해 주세요. 입력된 메모는 관리자/로그컴 관리 페이지에 연동됩니다."
-              />
             </div>
           </div>
         </section>

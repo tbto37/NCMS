@@ -38,6 +38,7 @@ import ShipmentTrackingModal, {
   type ShipmentTrackingOrder,
   type ShipmentTrackingSubmitPayload,
 } from "./components/ShipmentTrackingModal";
+import RejectReasonModal from "./components/RejectReasonModal";
 import { PAGE_SIZE } from "@/shared/constants/pagination";
 import {
   ORDER_TABS,
@@ -457,6 +458,8 @@ export default function OrdersPage() {
   const allSelected = paged.length > 0 && paged.every((order) => selectedIds.has(order.id));
   const selectedCount = paged.filter((order) => selectedIds.has(order.id)).length;
 
+  const [rejectModalOrder, setRejectModalOrder] = useState<Order | null>(null);
+
   function handleOpenOrderDetail(order: Order) {
     setSelectedOrder({
       id: order.rawId,
@@ -486,15 +489,16 @@ export default function OrdersPage() {
     targetTab?: OrderTab | null;
     targetStatus?: string;
   }) {
-    const orderIds = paged
-      .filter((order) => selectedIds.has(order.id))
-      .map((order) => order.id);
+    const selectedOrders = paged.filter((order) => selectedIds.has(order.id));
+    const orderIds = selectedOrders.map((order) => order.id);
+    const targetOrders = selectedOrders.map((order) => ({ id: order.id, name: order.name }));
 
     if (orderIds.length === 0) return;
 
     setStatusChangeRequest({
       actionLabel: action.label,
       orderIds,
+      targetOrders,
       currentStatus: activeTab,
       variant: action.variant,
       targetTab: action.targetTab,
@@ -760,8 +764,8 @@ export default function OrdersPage() {
                     className="rounded border-border"
                   />
                 </th>
-                <th className="px-3 py-2.5">주문번호</th>
                 <th className="px-3 py-2.5">접수일자</th>
+                <th className="px-3 py-2.5">주문번호</th>
                 <th className="px-3 py-2.5">고객사</th>
                 <th className="px-3 py-2.5">이름</th>
                 <th className="px-3 py-2.5">전화번호</th>
@@ -802,11 +806,11 @@ export default function OrdersPage() {
                           className="rounded border-border"
                         />
                       </td>
-                      <td className="px-3 py-2 font-mono font-medium text-foreground">
-                        {order.id}
-                      </td>
                       <td className="whitespace-nowrap px-3 py-2 text-muted-foreground">
                         {formatOrderDate(order.receivedAt)}
+                      </td>
+                      <td className="px-3 py-2 font-mono font-medium text-foreground">
+                        {order.id}
                       </td>
                       <td className="px-3 py-2 font-medium text-foreground">
                         {order.site}
@@ -819,14 +823,31 @@ export default function OrdersPage() {
                         {order.material} · {order.quantity.toLocaleString()}매
                       </td>
                       <td className="px-3 py-2">
-                        <StatusBadge
-                          status={order.status}
-                          tooltip={
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            if (order.status === "승인반려") {
+                              e.stopPropagation();
+                              setRejectModalOrder(order);
+                            }
+                          }}
+                          className={
                             order.status === "승인반려"
-                              ? order.rejectReason || "승인반려 사유 없음"
-                              : undefined
+                              ? "cursor-pointer rounded transition-transform active:scale-95"
+                              : "cursor-default"
                           }
-                        />
+                        >
+                          <StatusBadge
+                            status={order.status}
+                            tooltip={
+                              order.status === "승인반려"
+                                ? order.rejectReason
+                                  ? `클릭하여 반려 사유 팝업 확인: ${order.rejectReason}`
+                                  : "클릭하여 반려 사유 팝업 확인"
+                                : undefined
+                            }
+                          />
+                        </button>
                       </td>
                       <td className="px-3 py-2 text-right">
                         <OrderActions
@@ -872,6 +893,14 @@ export default function OrdersPage() {
         submitting={isSubmittingShipment}
         onClose={() => setShipmentTrackingOrder(null)}
         onConfirm={handleConfirmShipmentTracking}
+      />
+
+      <RejectReasonModal
+        open={Boolean(rejectModalOrder)}
+        orderNo={rejectModalOrder?.id}
+        customerName={rejectModalOrder?.name}
+        reason={rejectModalOrder?.rejectReason}
+        onClose={() => setRejectModalOrder(null)}
       />
     </div>
   );

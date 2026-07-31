@@ -5,6 +5,7 @@ import { Loader2, RefreshCw, TriangleAlert, X } from "lucide-react";
 export interface OrderStatusChangeRequest {
   actionLabel: string;
   orderIds: string[];
+  targetOrders?: Array<{ id: string; name: string }>;
   currentStatus?: string;
   variant?: string;
   reason?: string;
@@ -59,9 +60,12 @@ export default function OrderStatusChangeConfirmModal({
 
   const confirmBtnText = isDelete
     ? `"${targetName}"(으)로 삭제하기`
-    : `"${targetName}"(으)로 변경하기`;
+    : `"${targetName}"(으)로 승인/변경하기`;
 
   const isSubmitDisabled = submitting || (isReject && !reason.trim());
+
+  // 주문 대상자 이름 문자열 가공
+  const displayTargets = request.targetOrders || request.orderIds.map((id) => ({ id, name: "" }));
 
   return createPortal(
     <div
@@ -83,7 +87,7 @@ export default function OrderStatusChangeConfirmModal({
         {submitting && (
           <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-background/85 backdrop-blur-[2px]">
             <div className="flex flex-col items-center gap-3 rounded-xl border border-border bg-card p-6 shadow-2xl">
-              <Loader2 className="h-9 w-9 animate-spin text-primary" />
+              <Loader2 className="h-9 w-9 animate-spin text-blue-600" />
               <div className="text-center">
                 <p className="text-sm font-semibold text-foreground">
                   {isDelete ? "주문 삭제 처리 중..." : "주문 상태 변경 중..."}
@@ -99,10 +103,11 @@ export default function OrderStatusChangeConfirmModal({
         <header className="flex h-16 shrink-0 items-center justify-between border-b border-border bg-card px-5 sm:px-6">
           <div className="flex min-w-0 items-center gap-3">
             <span
-              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${isDanger
-                ? "bg-red-50 text-red-500 dark:bg-red-950/40"
-                : "bg-primary/10 text-primary"
-                }`}
+              className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg ${
+                isDanger
+                  ? "bg-red-100 text-red-600 dark:bg-red-950/40"
+                  : "bg-blue-100 text-blue-600 dark:bg-blue-950/40"
+              }`}
             >
               <RefreshCw size={17} />
             </span>
@@ -112,7 +117,7 @@ export default function OrderStatusChangeConfirmModal({
                 id="order-status-change-title"
                 className="truncate text-base font-semibold text-foreground"
               >
-                주문 상태 변경
+                주문 승인 및 상태 변경
               </h2>
 
               <p className="mt-0.5 truncate text-xs text-muted-foreground">
@@ -134,22 +139,27 @@ export default function OrderStatusChangeConfirmModal({
 
         <div className="px-5 py-6 sm:px-6">
           <div className="rounded-lg border border-border bg-secondary/35 px-4 py-3">
-            <div className="flex items-center justify-between">
-              <p className="text-[11px] font-medium text-muted-foreground">
-                [주문번호]
+            <div className="flex items-center justify-between border-b border-border/60 pb-2">
+              <p className="text-xs font-semibold text-foreground">
+                승인 / 변경 대상 정보
               </p>
-              <span className="text-xs font-semibold text-foreground">
+              <span className="text-xs font-semibold text-blue-600 dark:text-blue-400">
                 총 {orderCount}건 선택
               </span>
             </div>
 
-            <div className="mt-2 flex max-h-24 flex-wrap gap-1.5 overflow-y-auto">
-              {request.orderIds.map((orderId) => (
+            <div className="mt-2.5 flex max-h-28 flex-wrap gap-1.5 overflow-y-auto">
+              {displayTargets.map((item) => (
                 <span
-                  key={orderId}
-                  className="rounded-md border border-border bg-background px-2.5 py-1 font-mono text-xs font-semibold text-foreground shadow-xs"
+                  key={item.id}
+                  className="inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-2.5 py-1 text-xs shadow-xs"
                 >
-                  {orderId}
+                  {item.name ? (
+                    <strong className="font-semibold text-foreground">{item.name}</strong>
+                  ) : null}
+                  <span className="font-mono text-[11px] text-muted-foreground">
+                    ({item.id})
+                  </span>
                 </span>
               ))}
             </div>
@@ -173,15 +183,15 @@ export default function OrderStatusChangeConfirmModal({
           )}
 
           <div
-            className={`mt-5 flex items-start gap-3 rounded-lg border px-4 py-4 ${isDanger
-              ? "border-red-200 bg-red-50/70 dark:border-red-900/50 dark:bg-red-950/20"
-              : "border-border bg-card"
-              }`}
+            className={`mt-5 flex items-start gap-3 rounded-lg border px-4 py-4 ${
+              isDanger
+                ? "border-red-200 bg-red-50/70 dark:border-red-900/50 dark:bg-red-950/20"
+                : "border-blue-200 bg-blue-50/60 dark:border-blue-900/50 dark:bg-blue-950/20"
+            }`}
           >
             <TriangleAlert
               size={18}
-              className={`mt-0.5 shrink-0 ${isDanger ? "text-red-500" : "text-accent"
-                }`}
+              className={`mt-0.5 shrink-0 ${isDanger ? "text-red-600" : "text-blue-600"}`}
             />
 
             <div>
@@ -198,8 +208,8 @@ export default function OrderStatusChangeConfirmModal({
                 {isDelete
                   ? `삭제된 주문 내역은 복구할 수 없습니다.`
                   : request.currentStatus
-                    ? `현재 "${request.currentStatus}" 탭에서 선택한 주문 ${orderCount}건의 상태를 변경 후 해당 탭으로 이동합니다.`
-                    : `선택한 주문 ${orderCount}건의 상태를 변경합니다.`}
+                  ? `현재 "${request.currentStatus}" 탭에서 선택한 주문 ${orderCount}건의 상태를 변경 후 해당 탭으로 이동합니다.`
+                  : `선택한 주문 ${orderCount}건의 상태를 변경합니다.`}
               </p>
             </div>
           </div>
@@ -219,10 +229,11 @@ export default function OrderStatusChangeConfirmModal({
             type="button"
             disabled={isSubmitDisabled}
             onClick={() => onConfirm?.({ ...request, reason: reason.trim() })}
-            className={`flex h-10 items-center justify-center gap-2 rounded-md px-4 text-xs font-medium text-white transition disabled:opacity-60 ${isDanger
-              ? "bg-red-500 hover:bg-red-600 shadow-xs"
-              : "bg-primary text-primary-foreground hover:opacity-90 shadow-xs"
-              }`}
+            className={`flex h-10 items-center justify-center gap-2 rounded-md px-5 text-xs font-semibold text-white transition disabled:opacity-60 ${
+              isDanger
+                ? "bg-red-600 hover:bg-red-700 shadow-xs"
+                : "bg-blue-600 hover:bg-blue-700 shadow-xs"
+            }`}
           >
             {submitting ? (
               <>
