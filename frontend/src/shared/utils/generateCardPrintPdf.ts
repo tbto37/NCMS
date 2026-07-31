@@ -196,7 +196,7 @@ function createSvgMarkup(
     : "";
 
   const sloganHtml = config.showSlogan
-    ? `<text x="34" y="230" font-size="13.5" font-weight="700" fill="#333333" font-family="'a파도소리', 'aPadosori', 'Georgia', serif" transform="translate(34, 230) skewX(-6) translate(-34, -230)" dominant-baseline="hanging" alignment-baseline="before-edge">${config.sloganText || '"Smiling Technology"'}</text>`
+    ? `<text x="34" y="230" font-size="13.5" font-weight="700" fill="#333333" font-family="'a파도소리', 'aPadosori', 'Georgia', serif" transform="translate(34, 230) skewX(-8) translate(-34, -230)" dominant-baseline="hanging" alignment-baseline="before-edge">${config.sloganText || '"Smiling Technology"'}</text>`
     : "";
 
   const nameText = !isBack
