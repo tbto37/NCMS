@@ -3,3 +3,32 @@
 
 /* Google Fonts Fallback */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap');
+
+/* 명함 전용 폰트 (HY울릉도M & a파도소리) 로컬/웹폰트 매핑 */
+@font-face {
+  font-family: 'HY울릉도M';
+  src: local('HY울릉도M'), local('HYUlsungdoM'), local('HYPMokGak-Medium');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'HYUlsungdoM';
+  src: local('HY울릉도M'), local('HYUlsungdoM'), local('HYPMokGak-Medium');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'a파도소리';
+  src: local('a파도소리'), local('aPadosori');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'aPadosori';
+  src: local('a파도소리'), local('aPadosori');
+  font-weight: normal;
+  font-style: normal;
+}

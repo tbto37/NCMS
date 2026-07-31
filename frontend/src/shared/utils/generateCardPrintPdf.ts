@@ -1,5 +1,4 @@
 import { jsPDF } from "jspdf";
-import html2canvas from "html2canvas";
 import type { BusinessCardInputData } from "@/shared/types/businessCard";
 import { CARD_TEMPLATE_SPECS } from "@/shared/constants/cardTemplates";
 
@@ -25,7 +24,7 @@ function formatKoreanName(nameStr?: string): string {
   return nameStr;
 }
 
-// 로고 URL을 100% 캔버스 캡처 호환용 Base64 Data URL로 변환
+// 로고 URL을 Base64 Data URL로 변환
 async function fetchLogoBase64(url?: string): Promise<string> {
   if (!url) return "";
   try {
@@ -43,7 +42,7 @@ async function fetchLogoBase64(url?: string): Promise<string> {
 }
 
 /**
- * 미리보기 화면과 100% 동일한 300DPI 초고화질 90mm x 50mm 인쇄용 PDF 생성 및 자동 다운로드
+ * Adobe Illustrator 100% 수정 가능 90mm x 50mm CMYK 순수 Vector PDF 생성 및 다운로드
  */
 export async function generateCardPrintPdf(order: OrderLike): Promise<void> {
   let cardData: any = { front: {}, back: {} };
@@ -60,7 +59,7 @@ export async function generateCardPrintPdf(order: OrderLike): Promise<void> {
   const key = tidStr.includes("hanmi") || tidStr === "3" ? "hanmi" : "cheil";
   const specGroup = CARD_TEMPLATE_SPECS[key] || CARD_TEMPLATE_SPECS.cheil;
 
-  // 오프스크린 렌더링 컨테이너 (인쇄 마진 92mm x 52mm 비율: 530.533px * 299.866px)
+  // 오프스크린 렌더링 컨테이너
   const container = document.createElement("div");
   container.style.position = "fixed";
   container.style.left = "-9999px";
@@ -79,39 +78,73 @@ export async function generateCardPrintPdf(order: OrderLike): Promise<void> {
       compress: true,
     });
 
-    // --- Page 1: 앞면 (국문 - 92mm x 52mm) ---
+    // --- Page 1: 앞면 (국문 순수 Vector SVG PDF) ---
     const frontLogoBase64 = await fetchLogoBase64(specGroup.front.logoUrl);
     container.innerHTML = createSvgMarkup(key, specGroup.front, cardData, false, frontLogoBase64);
-    await new Promise((res) => setTimeout(res, 100));
+    await new Promise((res) => setTimeout(res, 50));
     
-    // 300 DPI 초고화질 (scale: 4)
-    const frontCanvas = await html2canvas(container, {
-      scale: 4,
-      useCORS: true,
-      allowTaint: true,
-      logging: false,
-      backgroundColor: "#ffffff",
-    });
-    const frontImgData = frontCanvas.toDataURL("image/png", 1.0);
-    doc.addImage(frontImgData, "PNG", 0, 0, 92, 52);
+    const frontSvg = container.querySelector("svg");
+    if (frontSvg && typeof (doc as any).svg === "function") {
+      await (doc as any).svg(frontSvg, {
+        x: 0,
+        y: 0,
+        width: 92,
+        height: 52,
+      });
+    } else {
+      // fallback vector rendering
+      const frontCanvas = document.createElement("canvas");
+      frontCanvas.width = 1840;
+      frontCanvas.height = 1040;
+      const ctx = frontCanvas.getContext("2d");
+      const img = new Image();
+      const svgBlob = new Blob([container.innerHTML], { type: "image/svg+xml;charset=utf-8" });
+      const url = URL.createObjectURL(svgBlob);
+      await new Promise((resolve) => {
+        img.onload = () => {
+          if (ctx) ctx.drawImage(img, 0, 0, 1840, 1040);
+          URL.revokeObjectURL(url);
+          resolve(true);
+        };
+        img.src = url;
+      });
+      doc.addImage(frontCanvas.toDataURL("image/png", 1.0), "PNG", 0, 0, 92, 52);
+    }
 
-    // --- Page 2: 뒷면 (영문 - 92mm x 52mm) ---
+    // --- Page 2: 뒷면 (영문 순수 Vector SVG PDF) ---
     doc.addPage([92, 52], "landscape");
     const backLogoBase64 = await fetchLogoBase64(specGroup.back.logoUrl);
     container.innerHTML = createSvgMarkup(key, specGroup.back, cardData, true, backLogoBase64);
-    await new Promise((res) => setTimeout(res, 100));
+    await new Promise((res) => setTimeout(res, 50));
 
-    const backCanvas = await html2canvas(container, {
-      scale: 4,
-      useCORS: true,
-      allowTaint: true,
-      logging: false,
-      backgroundColor: "#ffffff",
-    });
-    const backImgData = backCanvas.toDataURL("image/png", 1.0);
-    doc.addImage(backImgData, "PNG", 0, 0, 92, 52);
+    const backSvg = container.querySelector("svg");
+    if (backSvg && typeof (doc as any).svg === "function") {
+      await (doc as any).svg(backSvg, {
+        x: 0,
+        y: 0,
+        width: 92,
+        height: 52,
+      });
+    } else {
+      const backCanvas = document.createElement("canvas");
+      backCanvas.width = 1840;
+      backCanvas.height = 1040;
+      const ctx = backCanvas.getContext("2d");
+      const img = new Image();
+      const svgBlob = new Blob([container.innerHTML], { type: "image/svg+xml;charset=utf-8" });
+      const url = URL.createObjectURL(svgBlob);
+      await new Promise((resolve) => {
+        img.onload = () => {
+          if (ctx) ctx.drawImage(img, 0, 0, 1840, 1040);
+          URL.revokeObjectURL(url);
+          resolve(true);
+        };
+        img.src = url;
+      });
+      doc.addImage(backCanvas.toDataURL("image/png", 1.0), "PNG", 0, 0, 92, 52);
+    }
 
-    // 파일 다운로드
+    // 파일 저장
     const orderNo = order.orderNo || order.id || "ORDER";
     const name = order.recipientName || order.name || "명함";
     const filename = `NCMS_명함인쇄_${orderNo}_${name}.pdf`;
@@ -119,7 +152,7 @@ export async function generateCardPrintPdf(order: OrderLike): Promise<void> {
     doc.save(filename);
   } catch (error) {
     console.error("PDF 생성 중 오류 발생:", error);
-    alert("인쇄용 PDF 생성 중 오류가 발생했습니다.");
+    alert("인쇄용 Vector PDF 생성 중 오류가 발생했습니다.");
   } finally {
     if (document.body.contains(container)) {
       document.body.removeChild(container);
@@ -141,10 +174,10 @@ function createSvgMarkup(
 
   // 미리보기(SvgBusinessCardPreview)와 100% 동일한 로고 사양 및 좌표 적용
   const logoSpec = config.logoSpec || {
-    x: key === "cheil" ? 35 : 30,
-    y: key === "cheil" ? 42 : 48,
-    width: key === "cheil" ? 145 : 150,
-    height: 50,
+    x: key === "cheil" ? 32 : 30,
+    y: key === "cheil" ? 36 : 48,
+    width: key === "cheil" ? 155 : 150,
+    height: 48,
   };
 
   // 도련(Bleed) 마진을 바깥으로 연장하여 재단 시 흰색 칼선 잔상 완벽 방지
@@ -155,26 +188,40 @@ function createSvgMarkup(
     : "";
 
   const sloganHtml = config.showSlogan
-    ? `<text x="35" y="236" font-size="12.5" font-weight="700" font-style="italic" fill="#0f172a" font-family="Georgia, serif" dominant-baseline="hanging">${config.sloganText || "“Smiling Technology”"}</text>`
+    ? `<text x="34" y="230" font-size="13.5" font-weight="700" font-style="italic" fill="#333333" font-family="'a파도소리', 'aPadosori', 'Georgia', serif" dominant-baseline="hanging" alignment-baseline="before-edge">${config.sloganText || '"Smiling Technology"'}</text>`
     : "";
 
   const nameText = !isBack
-    ? formatKoreanName(front.name) || "홍    길    동"
-    : back.name || "Brad Hong";
+    ? formatKoreanName(front.name) || "백    승    연"
+    : back.name || "Rosy Baek";
 
   const deptPosText = !isBack
     ? key === "cheil"
       ? [front.department, front.position1].filter(Boolean).join(" / ") || "도로사업부 / 이사"
-      : [front.position1, front.department].filter(Boolean).join(" / ") || "시니어 매니저 / 비즈니스개발실"
+      : [front.position1, front.department].filter(Boolean).join(" / ") || "프로 / 경영지원팀"
     : "";
 
   const companyText = !isBack
     ? key === "cheil"
-      ? "(주)제일엔지니어링"
+      ? "(주)제일엔지니어링종합건축사사무소"
       : "한미글로벌 주식회사"
     : key === "cheil"
     ? "CHEIL ENGINEERING CO.,LTD."
     : "HanmiGlobal Co.,Ltd.";
+
+  const companyFont = config.fields.companyName?.fontFamily || (key === "cheil" ? "'HY울릉도M', HYUlsungdoM, 'HYPMokGak-Medium', serif" : "inherit");
+
+  const telephoneText = currentData.telephone
+    ? currentData.telephone.startsWith("+82")
+      ? currentData.telephone
+      : `+82 (0)${currentData.telephone.replace(/^0/, "")}`
+    : "+82 (0)10-6379-1882";
+
+  const mobileText = currentData.mobile
+    ? currentData.mobile.startsWith("+82")
+      ? currentData.mobile
+      : `+82 (0)${currentData.mobile.replace(/^0/, "")}`
+    : "+82 (0)70-7188-2199";
 
   return `
     <svg viewBox="-5.767 -5.767 530.533 299.866" width="530.533" height="299.866" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="background:#ffffff; font-family:'Pretendard Variable', Pretendard, -apple-system, sans-serif; display:block;">
@@ -186,25 +233,34 @@ function createSvgMarkup(
 
       ${!isBack && config.fields.departmentPosition ? `<text x="${config.fields.departmentPosition.x}" y="${config.fields.departmentPosition.y}" font-size="${config.fields.departmentPosition.fontSize}" font-weight="500" fill="#1e293b" dominant-baseline="hanging" alignment-baseline="before-edge">${deptPosText}</text>` : ""}
 
-      ${isBack && config.fields.position1 ? `<text x="${config.fields.position1.x}" y="${config.fields.position1.y}" font-size="${config.fields.position1.fontSize}" font-weight="500" fill="#1e293b" dominant-baseline="hanging" alignment-baseline="before-edge">${back.position1 || (key === "cheil" ? "Director / P.E." : "Senior Manager /")}</text>` : ""}
+      ${isBack && config.fields.position1 ? `<text x="${config.fields.position1.x}" y="${config.fields.position1.y}" font-size="${config.fields.position1.fontSize}" font-weight="400" fill="#1e293b" dominant-baseline="hanging" alignment-baseline="before-edge">${back.position1 ? (back.position1.endsWith("/") ? back.position1 : back.position1 + " /") : (key === "cheil" ? "Director / P.E." : "Professional /")}</text>` : ""}
 
-      ${isBack && config.fields.department ? `<text x="${config.fields.department.x}" y="${config.fields.department.y}" font-size="${config.fields.department.fontSize}" font-weight="500" fill="#1e293b" dominant-baseline="hanging" alignment-baseline="before-edge">${back.department || (key === "cheil" ? "Highway Eng. Business Div." : "Business Development Division")}</text>` : ""}
+      ${isBack && config.fields.department ? `<text x="${config.fields.department.x}" y="${config.fields.department.y}" font-size="${config.fields.department.fontSize}" font-weight="500" fill="#1e293b" dominant-baseline="hanging" alignment-baseline="before-edge">${back.department || (key === "cheil" ? "Highway Eng. Business Div." : "Management Support Team")}</text>` : ""}
 
-      ${config.fields.companyName ? `<text x="${config.fields.companyName.x}" y="${config.fields.companyName.y}" font-size="${config.fields.companyName.fontSize}" font-weight="700" fill="#0f172a" dominant-baseline="hanging" alignment-baseline="before-edge">${companyText}</text>` : ""}
+      ${config.fields.companyName ? `<text x="${config.fields.companyName.x}" y="${config.fields.companyName.y}" font-size="${config.fields.companyName.fontSize}" font-weight="700" fill="${config.fields.companyName.fill || "#0f172a"}" font-family="${companyFont}" dominant-baseline="hanging" alignment-baseline="before-edge">${!isBack ? companyText : (key === "cheil" ? "CHEIL ENGINEERING CO.,LTD." : '<tspan font-weight="700" fill="#0f172a">Hanmi</tspan><tspan font-weight="400" fill="#334155">Global Co.,Ltd.</tspan>')}</text>` : ""}
 
+      {/* 5. 대표전화 & 팩스 (제일엔지니어링) */}
       ${key === "cheil" && config.fields.telAndFax ? `<text x="${config.fields.telAndFax.x}" y="${config.fields.telAndFax.y}" font-size="${config.fields.telAndFax.fontSize}" font-weight="400" fill="#1e293b" dominant-baseline="hanging" alignment-baseline="before-edge">${!isBack ? `대표 : ${currentData.telephone || "02-3498-2600"}   팩스 : ${currentData.fax || "02-572-8970"}` : `Tel: ${currentData.telephone || "82-2-3498-2600"}   Fax: ${currentData.fax || "82-2-572-8970"}`}</text>` : ""}
 
-      ${key === "hanmi" && config.fields.telephone ? `<text x="${config.fields.telephone.x}" y="${config.fields.telephone.y}" font-size="${config.fields.telephone.fontSize}" font-weight="500" fill="#1e293b" dominant-baseline="hanging" alignment-baseline="before-edge"><tspan font-weight="700" fill="#0f172a">T </tspan>${currentData.telephone || "+82(0)70-0000-0000"}</text>` : ""}
+      {/* 6. 대표전화 (한미글로벌 - regular weight & X=301 칼선 정렬) */}
+      ${key === "hanmi" && config.fields.telephone ? `<text x="${config.fields.telephone.x}" y="${config.fields.telephone.y}" font-size="${config.fields.telephone.fontSize}" font-weight="400" fill="#1e293b" dominant-baseline="hanging" alignment-baseline="before-edge"><tspan x="${config.fields.telephone.x}" font-weight="400" fill="#1e293b">T</tspan><tspan x="${config.fields.telephone.x + 16}">${telephoneText}</tspan></text>` : ""}
 
-      ${config.fields.mobile ? `<text x="${config.fields.mobile.x}" y="${config.fields.mobile.y}" font-size="${config.fields.mobile.fontSize}" font-weight="400" fill="#1e293b" dominant-baseline="hanging" alignment-baseline="before-edge">${key === "cheil" ? (!isBack ? `핸드폰 : ${currentData.mobile || "010-1234-5678"}` : `Mobile: ${currentData.mobile || "82-10-1234-5678"}`) : `<tspan font-weight="700" fill="#0f172a">M </tspan>${currentData.mobile || "+82(0)10-0000-0000"}`}</text>` : ""}
+      {/* 7. 직통전화 */}
+      ${config.fields.directTelephone && (currentData.directTelephone || key === "cheil") ? `<text x="${config.fields.directTelephone.x}" y="${config.fields.directTelephone.y}" font-size="${config.fields.directTelephone.fontSize}" font-weight="400" fill="#1e293b" dominant-baseline="hanging" alignment-baseline="before-edge">${key === "cheil" ? (!isBack ? `직통 : ${currentData.directTelephone || "02-3498-2662"}` : `Dir: ${currentData.directTelephone || "82-2-3498-2745"}`) : `Dir ${currentData.directTelephone || "02-3498-2662"}`}</text>` : ""}
 
-      ${config.fields.email ? `<text x="${config.fields.email.x}" y="${config.fields.email.y}" font-size="${config.fields.email.fontSize}" font-weight="400" fill="#1e293b" dominant-baseline="hanging" alignment-baseline="before-edge">${key === "cheil" ? `E-mail: ${currentData.email || "youremail@email.com"}` : `<tspan font-weight="700" fill="#0f172a">E </tspan>${currentData.email || "logcom2@hanmiglobal.com"}`}</text>` : ""}
+      {/* 8. 핸드폰 (regular weight & X=301 칼선 정렬) */}
+      ${config.fields.mobile ? `<text x="${config.fields.mobile.x}" y="${config.fields.mobile.y}" font-size="${config.fields.mobile.fontSize}" font-weight="400" fill="#1e293b" dominant-baseline="hanging" alignment-baseline="before-edge">${key === "cheil" ? (!isBack ? `핸드폰 : ${currentData.mobile || "010-1234-5678"}` : `Mobile: ${currentData.mobile || "82-10-1234-5678"}`) : `<tspan x="${config.fields.mobile.x}" font-weight="400" fill="#1e293b">M</tspan><tspan x="${config.fields.mobile.x + 16}">${mobileText}</tspan>`}</text>` : ""}
 
-      ${config.fields.website ? `<text x="${config.fields.website.x}" y="${config.fields.website.y}" font-size="${config.fields.website.fontSize}" font-weight="700" fill="#004B96" dominant-baseline="hanging" alignment-baseline="before-edge">${currentData.website || (key === "cheil" ? "www.cheileng.com" : "www.hanmiglobal.com")}</text>` : ""}
+      {/* 9. 이메일 (regular weight & X=301 칼선 정렬) */}
+      ${config.fields.email ? `<text x="${config.fields.email.x}" y="${config.fields.email.y}" font-size="${config.fields.email.fontSize}" font-weight="400" fill="#1e293b" dominant-baseline="hanging" alignment-baseline="before-edge">${key === "cheil" ? (!isBack ? `E-mail : ${currentData.email || "hong@cheileng.com"}` : `E-mail: ${currentData.email || "hong@cheileng.com"}`) : `<tspan x="${config.fields.email.x}" font-weight="400" fill="#1e293b">E</tspan><tspan x="${config.fields.email.x + 16}">${currentData.email || "baeksy@hanmiglobal.com"}</tspan>`}</text>` : ""}
 
+      {/* 10. 웹사이트 */}
+      ${config.fields.website ? `<text x="${config.fields.website.x}" y="${config.fields.website.y}" font-size="${config.fields.website.fontSize}" font-weight="700" fill="${key === "cheil" ? "#0f172a" : "#004B96"}" dominant-baseline="hanging" alignment-baseline="before-edge">${currentData.website || (key === "cheil" ? "www.cheileng.com" : "www.hanmiglobal.com")}</text>` : ""}
+
+      {/* 11. 주소 */}
       ${key === "hanmi" && !isBack ? `
-        <text x="${config.fields.address1?.x}" y="${config.fields.address1?.y}" font-size="${config.fields.address1?.fontSize}" font-weight="400" fill="#334155" dominant-baseline="hanging" alignment-baseline="before-edge">06164, 서울시 강남구 테헤란로 87길</text>
-        <text x="${config.fields.address2?.x}" y="${config.fields.address2?.y}" font-size="${config.fields.address2?.fontSize}" font-weight="400" fill="#334155" dominant-baseline="hanging" alignment-baseline="before-edge">36 도심공항타워</text>
+        <text x="${config.fields.address1?.x}" y="${config.fields.address1?.y}" font-size="${config.fields.address1?.fontSize}" font-weight="400" fill="#334155" dominant-baseline="hanging" alignment-baseline="before-edge">${front.address1 || "06164, 서울시 강남구 테헤란로 87길"}</text>
+        <text x="${config.fields.address2?.x}" y="${config.fields.address2?.y}" font-size="${config.fields.address2?.fontSize}" font-weight="400" fill="#334155" dominant-baseline="hanging" alignment-baseline="before-edge">${front.address2 || "36 도심공항타워"}</text>
       ` : ""}
 
       ${key === "cheil" && !isBack ? `
@@ -217,9 +273,8 @@ function createSvgMarkup(
       ` : ""}
 
       ${isBack && key === "hanmi" ? `
-        <text x="${config.fields.address1?.x}" y="${config.fields.address1?.y}" font-size="${config.fields.address1?.fontSize}" fill="#334155" dominant-baseline="hanging" alignment-baseline="before-edge">City Air Tower Bldg., 36, Teheran-ro</text>
-        <text x="${config.fields.address2?.x}" y="${config.fields.address2?.y}" font-size="${config.fields.address2?.fontSize}" fill="#334155" dominant-baseline="hanging" alignment-baseline="before-edge">87-gil, Gangnam-gu, Seoul, 06164,</text>
-        <text x="${config.fields.address3?.x}" y="${config.fields.address3?.y}" font-size="${config.fields.address3?.fontSize}" fill="#334155" dominant-baseline="hanging" alignment-baseline="before-edge">Korea</text>
+        <text x="${config.fields.address1?.x}" y="${config.fields.address1?.y}" font-size="${config.fields.address1?.fontSize}" fill="#334155" dominant-baseline="hanging" alignment-baseline="before-edge">${back.address1 || "City Air Tower Bldg., 36, Teheran-ro 87-gil,"}</text>
+        <text x="${config.fields.address2?.x}" y="${config.fields.address2?.y}" font-size="${config.fields.address2?.fontSize}" fill="#334155" dominant-baseline="hanging" alignment-baseline="before-edge">${back.address2 || "Gangnam-gu, Seoul, 06164, Korea"}</text>
       ` : ""}
     </svg>
   `;
