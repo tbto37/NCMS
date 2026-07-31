@@ -37,78 +37,118 @@ export function exportOrdersExcel(
 
   let rowsHtml = "";
   for (const order of ordersToExport) {
-    let deptName = "";
-    if (order.cardDataJson) {
-      try {
-        const parsed = JSON.parse(order.cardDataJson);
-        deptName = parsed?.front?.department || "";
-      } catch (e) {
-        console.error("Failed to parse cardDataJson for excel export", e);
-      }
-    }
-    if (!deptName && order.site && order.site !== "고객사 미지정") {
-      deptName = order.site;
-    }
+    const name = order.recipientName || order.name || "";
+    const phone = order.recipientPhone || order.phone || "";
+    const fullAddress = [order.address, order.addressDetail]
+      .filter(Boolean)
+      .join(" ");
+    const memo = order.memo || "";
 
-    const formattedDate = formatExcelDate(order.receivedAt);
-    const orderNo = order.id || order.rawId || "";
-    const quantity = order.quantity || 200;
-    const phone = order.phone || order.recipientPhone || "";
-    const name = order.name || order.recipientName || "";
-    const status = order.status || "";
+    const dataTdStyle =
+      "font-family: '맑은 고딕', 'Malgun Gothic', sans-serif; font-size: 11pt; font-weight: normal; color: #000000; text-align: left; vertical-align: middle; padding: 6px 10px;";
+    const emptyTdStyle =
+      "font-family: '맑은 고딕', 'Malgun Gothic', sans-serif; font-size: 11pt; vertical-align: middle;";
 
-    rowsHtml += `                                 <tr class="list_tr_basket">
-                                   <td>${escapeXml(formattedDate)}</td>
-                                   <td>${escapeXml(String(orderNo))}</td>
-                                   <td>${escapeXml(deptName)}</td>
-                                   <td>${quantity}</td>
-                                   <td>${escapeXml(phone)}</td>
-                                   <td>${escapeXml(name)}</td>
-                                   <td>${escapeXml(status)}</td>
-                                   
-                                 </tr>\n                       \n                                 \n`;
+    rowsHtml += `    <tr>
+      <td style="${dataTdStyle}">${escapeXml(name)}</td>
+      <td style="${dataTdStyle}">${escapeXml(phone)}</td>
+      <td style="${dataTdStyle}">${escapeXml(fullAddress)}</td>
+      <td style="${emptyTdStyle}"></td>
+      <td style="${emptyTdStyle}"></td>
+      <td style="${emptyTdStyle}"></td>
+      <td style="${emptyTdStyle}"></td>
+      <td style="${dataTdStyle}">${escapeXml(memo)}</td>
+      <td style="${emptyTdStyle}"></td>
+    </tr>\n`;
   }
 
+  const thStyle =
+    "background-color: #F0F0F0; font-family: '굴림', Gulim, sans-serif; font-size: 9pt; font-weight: bold; color: #000000; text-align: center; vertical-align: middle; border: 1px solid #000000; padding: 6px 10px;";
+
   const htmlContent = `
+<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+<head>
 <meta charset="utf-8" />
-
-
-                      <table class="table table-bordered table-hover" id="price_list_table">
-                        <thead>
-                           <tr>
-                              <td>접수일자</td>
-                              <td>주문번호</td>
-                              <td>부서/매장명</td>
-                              <td>수량</td>
-                              <td>전화번호</td>
-                              <td>이름</td>
-                              <td>주문상태</td>
-
-							  <!--
-                              <th class="total" style="vertical-align:middle;">엑션</th>
-							  -->
-                           </tr>
-                        </thead>
-                        <tbody class="price_list_tbody">
-                           
+<!--[if gte mso 9]>
+<xml>
+ <x:ExcelWorkbook>
+  <x:ExcelWorksheets>
+   <x:ExcelWorksheet>
+    <x:Name>Sheet1</x:Name>
+    <x:WorksheetOptions>
+     <x:DisplayGridlines/>
+    </x:WorksheetOptions>
+   </x:ExcelWorksheet>
+  </x:ExcelWorksheets>
+ </x:ExcelWorkbook>
+</xml>
+<![endif]-->
+<style>
+  table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+  th {
+    background-color: #F0F0F0;
+    font-family: '굴림', Gulim, sans-serif;
+    font-size: 9pt;
+    font-weight: bold;
+    color: #000000;
+    text-align: center;
+    vertical-align: middle;
+    border: 1px solid #000000;
+  }
+  td {
+    font-family: '맑은 고딕', 'Malgun Gothic', sans-serif;
+    font-size: 11pt;
+    color: #000000;
+    vertical-align: middle;
+  }
+</style>
+</head>
+<body>
+<table border="0" cellpadding="0" cellspacing="0">
+  <colgroup>
+    <col width="180" style="width: 180px;" />
+    <col width="130" style="width: 130px;" />
+    <col width="450" style="width: 450px;" />
+    <col width="90" style="width: 90px;" />
+    <col width="90" style="width: 90px;" />
+    <col width="90" style="width: 90px;" />
+    <col width="90" style="width: 90px;" />
+    <col width="140" style="width: 140px;" />
+    <col width="90" style="width: 90px;" />
+  </colgroup>
+  <thead>
+     <tr>
+        <th style="${thStyle}">받는분성명</th>
+        <th style="${thStyle}">받는분전화번호</th>
+        <th style="${thStyle}">받는분주소(전체, 분할)</th>
+        <th style="${thStyle}">품목명</th>
+        <th style="${thStyle}">품목명</th>
+        <th style="${thStyle}">품목명</th>
+        <th style="${thStyle}">품목명</th>
+        <th style="${thStyle}">배송메세지1</th>
+        <th style="${thStyle}">박스타입</th>
+     </tr>
+  </thead>
+  <tbody>
 ${rowsHtml}
-                        </tbody>
-                     </table>
-
-
-
+  </tbody>
+</table>
 </body>
-<!-- END BODY -->
-</html>`;
+</html>
+`;
 
   const blob = new Blob([htmlContent], {
     type: "application/vnd.ms-excel;charset=utf-8;",
   });
 
-  const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
-  link.href = url;
+  const url = URL.createObjectURL(blob);
+  link.setAttribute("href", url);
   link.setAttribute("download", fileName);
+  link.style.visibility = "hidden";
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
