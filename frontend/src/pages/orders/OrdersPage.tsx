@@ -407,7 +407,7 @@ export default function OrdersPage() {
     );
   }, [user?.roles]);
 
-  const showShipmentTracking = !isEmployeeOnly;
+  const showShipmentTracking = true;
 
   const canApproveHighlight = useMemo(() => {
     const roles = user?.roles || [];
@@ -668,7 +668,6 @@ export default function OrdersPage() {
   }
 
   function handleOpenShipmentTracking(order: Order) {
-    if (isEmployeeOnly) return;
     setShipmentTrackingOrder({
       id: order.id,
       name: order.name,
