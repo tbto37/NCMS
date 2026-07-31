@@ -100,7 +100,7 @@ const defaultCardData: BusinessCardInputData = {
     directTelephone: "",
     mobile: "+82-10-1234-4567",
     email: "00000000@hanmiglobal.com",
-    website: "",
+    website: "www.hanmiglobal.com",
   },
 };
 
@@ -166,7 +166,12 @@ export default function TemplateEditModal({
   if (!open) return null;
 
   const tidStr = String(templateId || "").toLowerCase();
-  const isHanmi = tidStr.includes("hanmi") || tidStr === "3";
+  const isHanmi =
+    tidStr.includes("hanmi") ||
+    tidStr === "3" ||
+    cardData.front.email?.includes("hanmiglobal") ||
+    cardData.front.address?.includes("테헤란로") ||
+    cardData.back.website?.includes("hanmiglobal");
 
   const isDeptDirect = !cardData.front.departmentOption || cardData.front.departmentOption === "직접입력";
   const isPos1Direct = !cardData.front.position1Option || cardData.front.position1Option === "직접입력";
@@ -530,27 +535,40 @@ export default function TemplateEditModal({
                     />
                   </div>
 
-                  {/* 5. 주소 (영문) */}
+                  {/* 5. 주소 1행 (영문) */}
                   <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
-                    <label className="text-xs font-medium text-muted-foreground">주소</label>
+                    <label className="text-xs font-medium text-muted-foreground">주소 1행</label>
                     <input
                       value={cardData.back.address1}
                       onChange={(e) => handleBackChange("address1", e.target.value)}
+                      placeholder="City Air Tower Bldg., 36, Teheran-ro 87-gil,"
                       className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
                     />
                   </div>
 
-                  {/* 6. 주소2 (영문) */}
+                  {/* 6. 주소 2행 (영문) */}
                   <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
-                    <label className="text-xs font-medium text-muted-foreground">주소2</label>
+                    <label className="text-xs font-medium text-muted-foreground">주소 2행</label>
                     <input
                       value={cardData.back.address2}
                       onChange={(e) => handleBackChange("address2", e.target.value)}
+                      placeholder="Gangnam-gu, Seoul, 06164,"
                       className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
                     />
                   </div>
 
-                  {/* 7. 전화번호 */}
+                  {/* 7. 주소 3행 (영문) */}
+                  <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
+                    <label className="text-xs font-medium text-muted-foreground">주소 3행</label>
+                    <input
+                      value={cardData.back.address3 || ""}
+                      onChange={(e) => handleBackChange("address3", e.target.value)}
+                      placeholder="Korea"
+                      className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
+                    />
+                  </div>
+
+                  {/* 8. 전화번호 */}
                   <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
                     <label className="text-xs font-medium text-muted-foreground">전화번호</label>
                     <input
@@ -560,27 +578,31 @@ export default function TemplateEditModal({
                     />
                   </div>
 
-                  {/* 8. 팩스 */}
-                  <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
-                    <label className="text-xs font-medium text-muted-foreground">팩스</label>
-                    <input
-                      value={cardData.back.fax}
-                      onChange={(e) => handleBackChange("fax", e.target.value)}
-                      className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
-                    />
-                  </div>
+                  {/* 9. 팩스 (한미글로벌 제외) */}
+                  {!isHanmi && (
+                    <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
+                      <label className="text-xs font-medium text-muted-foreground">팩스</label>
+                      <input
+                        value={cardData.back.fax}
+                        onChange={(e) => handleBackChange("fax", e.target.value)}
+                        className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
+                      />
+                    </div>
+                  )}
 
-                  {/* 9. 직통번호 */}
-                  <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
-                    <label className="text-xs font-medium text-muted-foreground">직통번호</label>
-                    <input
-                      value={cardData.back.directTelephone}
-                      onChange={(e) => handleBackChange("directTelephone", e.target.value)}
-                      className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
-                    />
-                  </div>
+                  {/* 10. 직통번호 (한미글로벌 제외) */}
+                  {!isHanmi && (
+                    <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
+                      <label className="text-xs font-medium text-muted-foreground">직통번호</label>
+                      <input
+                        value={cardData.back.directTelephone}
+                        onChange={(e) => handleBackChange("directTelephone", e.target.value)}
+                        className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
+                      />
+                    </div>
+                  )}
 
-                  {/* 10. 핸드폰 */}
+                  {/* 11. 핸드폰 */}
                   <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
                     <label className="text-xs font-medium text-muted-foreground">핸드폰</label>
                     <input
@@ -590,7 +612,7 @@ export default function TemplateEditModal({
                     />
                   </div>
 
-                  {/* 11. 이메일 */}
+                  {/* 12. 이메일 */}
                   <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
                     <label className="text-xs font-medium text-muted-foreground">이메일</label>
                     <input
@@ -600,12 +622,13 @@ export default function TemplateEditModal({
                     />
                   </div>
 
-                  {/* 12. 웹사이트 */}
+                  {/* 13. 웹사이트 (뒷면 영문 웹사이트 항상 표시) */}
                   <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
                     <label className="text-xs font-medium text-muted-foreground">웹사이트</label>
                     <input
                       value={cardData.back.website}
                       onChange={(e) => handleBackChange("website", e.target.value)}
+                      placeholder={isHanmi ? "www.hanmiglobal.com" : "www.cheileng.com"}
                       className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
                     />
                   </div>
