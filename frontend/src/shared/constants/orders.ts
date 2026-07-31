@@ -8,7 +8,20 @@ export interface TabActionItem {
   targetStatus?: string;
 }
 
-// 고객사용 탭 액션
+// 일반 임직원(ROLE_EMPLOYEE)용 탭 액션
+export const EMPLOYEE_TAB_ACTIONS: Record<OrderTab, TabActionItem[]> = {
+  전체:     [],
+  승인대기: [
+    { label: "주문 취소", variant: "danger", targetTab: "주문취소", targetStatus: "CANCELLED" },
+  ],
+  승인완료: [],
+  인쇄중:   [],
+  발송완료: [],
+  승인반려: [],
+  주문취소: [],
+};
+
+// 기업 관리자(ROLE_COMPANY_ADMIN)용 탭 액션
 export const CUSTOMER_TAB_ACTIONS: Record<OrderTab, TabActionItem[]> = {
   전체:     [],
   승인대기: [
@@ -47,10 +60,25 @@ export const ADMIN_TAB_ACTIONS: Record<OrderTab, TabActionItem[]> = {
 
 export const TAB_ACTIONS = ADMIN_TAB_ACTIONS;
 
-export function getTabActions(activeTab: OrderTab, isOperator: boolean): TabActionItem[] {
+export function getTabActions(
+  activeTab: OrderTab,
+  isOperator: boolean,
+  userRoles?: string[],
+): TabActionItem[] {
   if (isOperator) {
     return ADMIN_TAB_ACTIONS[activeTab] || [];
   }
+
+  const isEmployeeOnly =
+    userRoles?.includes("ROLE_EMPLOYEE") &&
+    !userRoles?.includes("ROLE_COMPANY_ADMIN") &&
+    !userRoles?.includes("ROLE_OPERATOR") &&
+    !userRoles?.includes("ROLE_SYSTEM_ADMIN");
+
+  if (isEmployeeOnly) {
+    return EMPLOYEE_TAB_ACTIONS[activeTab] || [];
+  }
+
   return CUSTOMER_TAB_ACTIONS[activeTab] || [];
 }
 

@@ -723,7 +723,7 @@ export default function OrdersPage() {
     setSelectedIds(new Set());
   }
 
-  const actions = getTabActions(activeTab, isOperator);
+  const actions = getTabActions(activeTab, isOperator, user?.roles);
 
   return (
     <div className="space-y-3 p-4 md:p-6">
