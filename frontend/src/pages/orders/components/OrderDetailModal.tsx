@@ -1,5 +1,7 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { createPortal } from "react-dom";
+import { useLocation } from "react-router";
+import { useAuth } from "@/app/providers/AuthProvider";
 import {
   CalendarDays,
   CreditCard,
@@ -91,6 +93,27 @@ export default function OrderDetailModal({
   order,
   onClose,
 }: OrderDetailModalProps) {
+  const { user } = useAuth();
+  const location = useLocation();
+
+  const isOperator = useMemo(() => {
+    const isOperatorRole = user?.roles?.some(
+      (r) =>
+        r === "ROLE_OPERATOR" ||
+        r === "OPERATOR" ||
+        r === "ROLE_SYSTEM_ADMIN" ||
+        r === "SYSTEM_ADMIN",
+    ) ?? false;
+
+    const pathname = location.pathname.toLowerCase();
+    const isOperatorRoute =
+      pathname === "/operator" ||
+      pathname.startsWith("/operator/") ||
+      pathname === "/logcom" ||
+      pathname.startsWith("/logcom/");
+
+    return isOperatorRole || isOperatorRoute;
+  }, [user, location.pathname]);
   useEffect(() => {
     if (!open) return;
 
@@ -322,24 +345,28 @@ export default function OrderDetailModal({
         </main>
 
         <footer className="flex shrink-0 justify-between items-center border-t border-border bg-card px-5 py-4 sm:px-6">
-          <button
-            type="button"
-            onClick={() =>
-              generateCardPrintPdf({
-                id: String(order.id || ""),
-                orderNo: String(order.orderNumber || order.id || ""),
-                recipientName: order.customerName || "명함",
-                name: order.customerName || "명함",
-                site: order.department || "",
-                templateId: order.templateId ? String(order.templateId) : "T_CHEIL",
-                cardDataJson: order.cardDataJson,
-              })
-            }
-            className="flex h-10 items-center gap-1.5 rounded-md border border-border bg-secondary px-4 text-xs font-semibold text-foreground transition hover:bg-secondary/80"
-          >
-            <Printer size={14} className="text-primary" />
-            인쇄용 무손실 PDF 다운로드
-          </button>
+          {isOperator ? (
+            <button
+              type="button"
+              onClick={() =>
+                generateCardPrintPdf({
+                  id: String(order.id || ""),
+                  orderNo: String(order.orderNumber || order.id || ""),
+                  recipientName: order.customerName || "명함",
+                  name: order.customerName || "명함",
+                  site: order.department || "",
+                  templateId: order.templateId ? String(order.templateId) : "T_CHEIL",
+                  cardDataJson: order.cardDataJson,
+                })
+              }
+              className="flex h-10 items-center gap-1.5 rounded-md border border-border bg-secondary px-4 text-xs font-semibold text-foreground transition hover:bg-secondary/80"
+            >
+              <Printer size={14} className="text-primary" />
+              인쇄용 무손실 PDF 다운로드
+            </button>
+          ) : (
+            <div />
+          )}
           <button
             type="button"
             onClick={onClose}

@@ -60,13 +60,13 @@ export async function generateCardPrintPdf(order: OrderLike): Promise<void> {
   const key = tidStr.includes("hanmi") || tidStr === "3" ? "hanmi" : "cheil";
   const specGroup = CARD_TEMPLATE_SPECS[key] || CARD_TEMPLATE_SPECS.cheil;
 
-  // 오프스크린 렌더링 컨테이너
+  // 오프스크린 렌더링 컨테이너 (인쇄 마진 92mm x 52mm 비율: 530.533px * 299.866px)
   const container = document.createElement("div");
   container.style.position = "fixed";
   container.style.left = "-9999px";
   container.style.top = "-9999px";
-  container.style.width = "519px";
-  container.style.height = "288.333px";
+  container.style.width = "530.533px";
+  container.style.height = "299.866px";
   container.style.zIndex = "-9999";
   container.style.backgroundColor = "#ffffff";
   document.body.appendChild(container);
@@ -75,11 +75,11 @@ export async function generateCardPrintPdf(order: OrderLike): Promise<void> {
     const doc = new jsPDF({
       orientation: "landscape",
       unit: "mm",
-      format: [90, 50],
+      format: [92, 52],
       compress: true,
     });
 
-    // --- Page 1: 앞면 (국문) ---
+    // --- Page 1: 앞면 (국문 - 92mm x 52mm) ---
     const frontLogoBase64 = await fetchLogoBase64(specGroup.front.logoUrl);
     container.innerHTML = createSvgMarkup(key, specGroup.front, cardData, false, frontLogoBase64);
     await new Promise((res) => setTimeout(res, 100));
@@ -93,10 +93,10 @@ export async function generateCardPrintPdf(order: OrderLike): Promise<void> {
       backgroundColor: "#ffffff",
     });
     const frontImgData = frontCanvas.toDataURL("image/png", 1.0);
-    doc.addImage(frontImgData, "PNG", 0, 0, 90, 50);
+    doc.addImage(frontImgData, "PNG", 0, 0, 92, 52);
 
-    // --- Page 2: 뒷면 (영문) ---
-    doc.addPage([90, 50], "landscape");
+    // --- Page 2: 뒷면 (영문 - 92mm x 52mm) ---
+    doc.addPage([92, 52], "landscape");
     const backLogoBase64 = await fetchLogoBase64(specGroup.back.logoUrl);
     container.innerHTML = createSvgMarkup(key, specGroup.back, cardData, true, backLogoBase64);
     await new Promise((res) => setTimeout(res, 100));
@@ -109,7 +109,7 @@ export async function generateCardPrintPdf(order: OrderLike): Promise<void> {
       backgroundColor: "#ffffff",
     });
     const backImgData = backCanvas.toDataURL("image/png", 1.0);
-    doc.addImage(backImgData, "PNG", 0, 0, 90, 50);
+    doc.addImage(backImgData, "PNG", 0, 0, 92, 52);
 
     // 파일 다운로드
     const orderNo = order.orderNo || order.id || "ORDER";
@@ -143,8 +143,8 @@ function createSvgMarkup(
 
   const bottomBarHtml = config.showBottomBar
     ? key === "cheil"
-      ? `<rect x="0" y="273.333" width="519" height="15" fill="#003876" /><rect x="0" y="273.333" width="78" height="15" fill="#55b936" />`
-      : `<rect x="0" y="278.333" width="519" height="10" fill="#004B96" />`
+      ? `<rect x="0" y="284.866" width="530.533" height="15" fill="#003876" /><rect x="0" y="284.866" width="80" height="15" fill="#55b936" />`
+      : `<rect x="0" y="289.866" width="530.533" height="10" fill="#004B96" />`
     : "";
 
   const sloganHtml = config.showSlogan
@@ -170,7 +170,7 @@ function createSvgMarkup(
     : "HanmiGlobal Co.,Ltd.";
 
   return `
-    <svg viewBox="${config.viewBox}" width="519" height="288.333" xmlns="http://www.w3.org/2000/svg" style="background:#ffffff; font-family:'Pretendard Variable', Pretendard, -apple-system, sans-serif; display:block;">
+    <svg viewBox="${config.viewBox}" width="530.533" height="299.866" xmlns="http://www.w3.org/2000/svg" style="background:#ffffff; font-family:'Pretendard Variable', Pretendard, -apple-system, sans-serif; display:block;">
       ${bottomBarHtml}
       ${logoBase64 ? `<image href="${logoBase64}" x="${logoSpec.x}" y="${logoSpec.y}" width="${logoSpec.width}" height="${logoSpec.height}" />` : ""}
       ${sloganHtml}

@@ -72,6 +72,7 @@ interface OrderActionsProps {
   onOpenShipmentTracking: (order: Order) => void;
   onPrint: (order: Order) => void;
   onReorder?: (order: Order) => void;
+  isOperator?: boolean;
 }
 
 function ActionIconButton({ label, onClick, children }: ActionIconButtonProps) {
@@ -161,6 +162,7 @@ function OrderActions({
   onOpenShipmentTracking,
   onPrint,
   onReorder,
+  isOperator,
 }: OrderActionsProps) {
   return (
     <div className="flex items-center justify-end gap-1.5">
@@ -182,9 +184,11 @@ function OrderActions({
         <ReceiptText size={13} />
       </ActionIconButton>
 
-      <ActionIconButton label="명함 인쇄 / PDF" onClick={() => onPrint(order)}>
-        <Printer size={13} />
-      </ActionIconButton>
+      {isOperator && (
+        <ActionIconButton label="명함 인쇄 / PDF" onClick={() => onPrint(order)}>
+          <Printer size={13} />
+        </ActionIconButton>
+      )}
 
       <HoverCard openDelay={150} closeDelay={80}>
         <HoverCardTrigger asChild>
@@ -856,6 +860,7 @@ export default function OrdersPage() {
                           onOpenShipmentTracking={handleOpenShipmentTracking}
                           onPrint={handlePrintOrder}
                           onReorder={handleReorder}
+                          isOperator={isOperator}
                         />
                       </td>
                     </tr>
