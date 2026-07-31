@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import type { BusinessCardInputData } from "@/shared/types/businessCard";
 import { CARD_TEMPLATE_SPECS } from "@/shared/constants/cardTemplates";
 
@@ -38,6 +38,35 @@ export default function SvgBusinessCardPreview({
 
   const currentData = isBack ? back : front;
 
+  // 웨일 광고 차단기 및 로컬 네트워크 필터 우회용 Base64 인라인 데이터 URL
+  const [logoBase64, setLogoBase64] = useState<string>(config.logoUrl || "");
+
+  useEffect(() => {
+    let isMounted = true;
+    if (!config.logoUrl) {
+      setLogoBase64("");
+      return;
+    }
+    fetch(config.logoUrl)
+      .then((res) => res.blob())
+      .then((blob) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          if (isMounted && typeof reader.result === "string") {
+            setLogoBase64(reader.result);
+          }
+        };
+        reader.readAsDataURL(blob);
+      })
+      .catch(() => {
+        if (isMounted) setLogoBase64(config.logoUrl || "");
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [config.logoUrl]);
+
   // scale 조절용 랩핑 style
   const containerStyle: React.CSSProperties = {
     transform: `scale(${scale})`,
@@ -51,6 +80,8 @@ export default function SvgBusinessCardPreview({
     width: key === "cheil" ? 145 : 150,
     height: 50,
   };
+
+  const imageSrc = logoBase64 || config.logoUrl;
 
   return (
     <div className="flex w-full items-center justify-center rounded-lg bg-slate-50/60 p-1 md:p-2 overflow-hidden">
@@ -74,10 +105,11 @@ export default function SvgBusinessCardPreview({
             )
           )}
 
-          {/* 좌측: 로고 이미지 (앞/뒷면 개별 사양 적용) */}
-          {config.logoUrl && (
+          {/* 좌측: 로고 이미지 (앞/뒷면 개별 사양 적용 및 웨일 브라우저 Base64/xlinkHref 레거시 호환) */}
+          {imageSrc && (
             <image
-              href={config.logoUrl}
+              href={imageSrc}
+              xlinkHref={imageSrc}
               x={logoSpec.x}
               y={logoSpec.y}
               width={logoSpec.width}
@@ -97,6 +129,7 @@ export default function SvgBusinessCardPreview({
               fill="#0f172a"
               fontFamily="Georgia, 'Times New Roman', serif"
               dominantBaseline="hanging"
+              alignmentBaseline="before-edge"
             >
               {config.sloganText || "“Smiling Technology”"}
             </text>
@@ -117,6 +150,7 @@ export default function SvgBusinessCardPreview({
               fill={config.fields.name.fill || "#0f172a"}
               letterSpacing={!isBack && key === "cheil" ? "0.35em" : !isBack ? "0.25em" : "normal"}
               dominantBaseline="hanging"
+              alignmentBaseline="before-edge"
             >
               {!isBack
                 ? formatKoreanName(front.name) || "홍    길    동"
@@ -135,6 +169,7 @@ export default function SvgBusinessCardPreview({
                   fontWeight={config.fields.departmentPosition.fontWeight || "500"}
                   fill={config.fields.departmentPosition.fill || "#1e293b"}
                   dominantBaseline="hanging"
+                  alignmentBaseline="before-edge"
                 >
                   {key === "cheil"
                     ? [front.department, front.position1].filter(Boolean).join(" / ") || "도로사업부 / 이사"
