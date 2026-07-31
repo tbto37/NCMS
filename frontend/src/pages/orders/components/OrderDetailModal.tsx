@@ -255,7 +255,7 @@ export default function OrderDetailModal({
                     fullWidth
                   />
                 )}
-                {order.trackingNumber && (() => {
+                {order.trackingNumber && (!isOperator ? (() => {
                   const trackingUrl = getCarrierTrackingUrl(order.carrierCode, order.trackingNumber);
                   return (
                     <DetailItem
@@ -281,7 +281,13 @@ export default function OrderDetailModal({
                       fullWidth
                     />
                   );
-                })()}
+                })() : (
+                  <DetailItem
+                    label="송장 정보"
+                    value={`${order.carrierCode || "택배사"} : ${order.trackingNumber}`}
+                    fullWidth
+                  />
+                ))}
                 <DetailItem
                   label="메모"
                   value={order.memo}

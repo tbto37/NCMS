@@ -202,23 +202,6 @@ function OrderActions({
         </button>
       )}
 
-      {order.trackingNumber && (() => {
-        const trackingUrl = getCarrierTrackingUrl(order.carrierCode, order.trackingNumber);
-        return trackingUrl ? (
-          <a
-            href={trackingUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={(e) => e.stopPropagation()}
-            className="flex h-7 items-center gap-1.5 rounded bg-blue-500/10 px-2.5 text-[11px] font-semibold text-blue-600 hover:bg-blue-500/20"
-            title={`${order.carrierCode || "택배"} : ${order.trackingNumber}`}
-          >
-            <Truck size={11} />
-            배송 추적
-          </a>
-        ) : null;
-      })()}
-
       <ActionIconButton label="주문 상세" onClick={() => onOpenDetail(order)}>
         <ReceiptText size={13} />
       </ActionIconButton>
@@ -267,9 +250,9 @@ function OrderActions({
         </Tooltip>
       )}
 
-      {showShipmentTracking && (
+      {isOperator && showShipmentTracking && (
         <ActionIconButton
-          label="배송 추적"
+          label="송장번호 입력/수정"
           onClick={() => onOpenShipmentTracking(order)}
         >
           <Truck size={13} />
@@ -970,31 +953,44 @@ export default function OrdersPage() {
                         {order.material} · {order.quantity.toLocaleString()}매
                       </td>
                       <td className="px-3 py-2">
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            if (order.status === "승인반려") {
-                              e.stopPropagation();
-                              setRejectModalOrder(order);
-                            }
-                          }}
-                          className={
-                            order.status === "승인반려"
-                              ? "cursor-pointer rounded transition-transform active:scale-95"
-                              : "cursor-default"
-                          }
-                        >
-                          <StatusBadge
-                            status={order.status}
-                            tooltip={
-                              order.status === "승인반려"
-                                ? order.rejectReason
-                                  ? `클릭하여 반려 사유 팝업 확인: ${order.rejectReason}`
-                                  : "클릭하여 반려 사유 팝업 확인"
-                                : undefined
-                            }
-                          />
-                        </button>
+                        {(() => {
+                          const trackingUrl = (order.status === "발송완료" || (order.status as string) === "SHIPPED") && order.trackingNumber
+                            ? getCarrierTrackingUrl(order.carrierCode, order.trackingNumber)
+                            : null;
+                          const isClickableStatus = order.status === "승인반려" || Boolean(trackingUrl);
+
+                          return (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (order.status === "승인반려") {
+                                  setRejectModalOrder(order);
+                                } else if (trackingUrl) {
+                                  window.open(trackingUrl, "_blank", "noopener,noreferrer");
+                                }
+                              }}
+                              className={
+                                isClickableStatus
+                                  ? "cursor-pointer rounded transition-transform active:scale-95"
+                                  : "cursor-default"
+                              }
+                            >
+                              <StatusBadge
+                                status={order.status}
+                                tooltip={
+                                  order.status === "승인반려"
+                                    ? order.rejectReason
+                                      ? `클릭하여 반려 사유 팝업 확인: ${order.rejectReason}`
+                                      : "클릭하여 반려 사유 팝업 확인"
+                                    : trackingUrl
+                                      ? `클릭하여 실시간 배송 추적 (${order.carrierCode || "택배"} : ${order.trackingNumber})`
+                                      : undefined
+                                }
+                              />
+                            </button>
+                          );
+                        })()}
                       </td>
                       <td className="px-3 py-2 text-right">
                         <OrderActions
