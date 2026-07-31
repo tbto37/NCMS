@@ -23,7 +23,7 @@ import { formatOrderDate } from "@/shared/constants/orders";
 export interface OrderDetailData {
   id?: number | string;
   orderNumber?: string;
-  department?: string;
+  companyName?: string;
   product?: string;
   material?: string;
   quantity?: number | string;
@@ -235,7 +235,7 @@ export default function OrderDetailModal({
               />
 
               <dl className="grid grid-cols-1 gap-x-6 gap-y-4 sm:grid-cols-2">
-                <DetailItem label="부서명" value={order.department} />
+                <DetailItem label="고객사" value={order.companyName} />
                 <DetailItem label="제품" value={order.product} />
                 <DetailItem label="재질" value={order.material} />
                 <DetailItem

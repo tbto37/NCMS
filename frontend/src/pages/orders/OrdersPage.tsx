@@ -21,6 +21,7 @@ import {
   XCircle,
 } from "lucide-react";
 import { generateCardPrintPdf } from "@/shared/utils/generateCardPrintPdf";
+import { exportOrdersExcel } from "@/shared/utils/exportOrdersExcel";
 import { useNavigate, useParams } from "react-router";
 import { SearchBar } from "@/components/common/SearchBar";
 import { Pagination } from "@/components/common/Pagination";
@@ -506,7 +507,7 @@ export default function OrdersPage() {
     setSelectedOrder({
       id: order.rawId,
       orderNumber: order.id,
-      department: order.site,
+      companyName: order.site,
       product: "명함",
       material: order.material,
       quantity: order.quantity,
@@ -689,6 +690,21 @@ export default function OrdersPage() {
     });
   }
 
+  function handleExcelDownload() {
+    const sitePrefix = companyCode || user?.companySiteCode || "order";
+    const targetOrders =
+      selectedIds.size > 0
+        ? searched.filter((o) => selectedIds.has(o.id))
+        : searched;
+
+    if (targetOrders.length === 0) {
+      alert("다운로드할 주문 내역이 없습니다.");
+      return;
+    }
+
+    exportOrdersExcel(targetOrders, sitePrefix);
+  }
+
   function handleTabChange(tab: OrderTab) {
     setActiveTab(tab);
     setPage(1);
@@ -730,6 +746,7 @@ export default function OrdersPage() {
 
           <button
             type="button"
+            onClick={handleExcelDownload}
             className="flex h-10 items-center gap-1.5 rounded-lg border border-border bg-background px-3 text-xs font-semibold text-foreground transition-colors hover:bg-secondary shrink-0"
           >
             <Download size={13} />
