@@ -139,12 +139,19 @@ function createSvgMarkup(
   const back = cardData.back || {};
   const currentData = isBack ? back : front;
 
-  const logoSpec = config.logoSpec || { x: 30, y: 55, width: 150, height: 50 };
+  // 미리보기(SvgBusinessCardPreview)와 100% 동일한 로고 사양 및 좌표 적용
+  const logoSpec = config.logoSpec || {
+    x: key === "cheil" ? 35 : 30,
+    y: key === "cheil" ? 42 : 48,
+    width: key === "cheil" ? 145 : 150,
+    height: 50,
+  };
 
+  // 도련(Bleed) 마진을 바깥으로 연장하여 재단 시 흰색 칼선 잔상 완벽 방지
   const bottomBarHtml = config.showBottomBar
     ? key === "cheil"
-      ? `<rect x="0" y="284.866" width="530.533" height="15" fill="#003876" /><rect x="0" y="284.866" width="80" height="15" fill="#55b936" />`
-      : `<rect x="0" y="289.866" width="530.533" height="10" fill="#004B96" />`
+      ? `<rect x="-10" y="278" width="550" height="25" fill="#003876" /><rect x="-10" y="278" width="88" height="25" fill="#55b936" />`
+      : `<rect x="-10" y="283" width="550" height="20" fill="#004B96" />`
     : "";
 
   const sloganHtml = config.showSlogan
@@ -170,9 +177,9 @@ function createSvgMarkup(
     : "HanmiGlobal Co.,Ltd.";
 
   return `
-    <svg viewBox="${config.viewBox}" width="530.533" height="299.866" xmlns="http://www.w3.org/2000/svg" style="background:#ffffff; font-family:'Pretendard Variable', Pretendard, -apple-system, sans-serif; display:block;">
+    <svg viewBox="-5.767 -5.767 530.533 299.866" width="530.533" height="299.866" xmlns="http://www.w3.org/2000/svg" style="background:#ffffff; font-family:'Pretendard Variable', Pretendard, -apple-system, sans-serif; display:block;">
       ${bottomBarHtml}
-      ${logoBase64 ? `<image href="${logoBase64}" x="${logoSpec.x}" y="${logoSpec.y}" width="${logoSpec.width}" height="${logoSpec.height}" />` : ""}
+      ${logoBase64 ? `<image href="${logoBase64}" x="${logoSpec.x}" y="${logoSpec.y}" width="${logoSpec.width}" height="${logoSpec.height}" preserveAspectRatio="xMinYMin meet" />` : ""}
       ${sloganHtml}
 
       ${config.fields.name ? `<text x="${config.fields.name.x}" y="${config.fields.name.y}" font-size="${config.fields.name.fontSize}" font-weight="${config.fields.name.fontWeight || "700"}" fill="${config.fields.name.fill || "#0f172a"}" letter-spacing="${!isBack && key === "cheil" ? "0.35em" : !isBack ? "0.25em" : "normal"}" dominant-baseline="hanging">${nameText}</text>` : ""}
