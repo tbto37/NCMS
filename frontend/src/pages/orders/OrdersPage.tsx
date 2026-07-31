@@ -39,6 +39,8 @@ import ShipmentTrackingModal, {
   type ShipmentTrackingSubmitPayload,
 } from "./components/ShipmentTrackingModal";
 import RejectReasonModal from "./components/RejectReasonModal";
+import TemplateEditModal from "@/pages/templates/components/TemplateEditModal";
+import ProofCheckModal from "@/pages/templates/components/ProofCheckModal";
 import { PAGE_SIZE } from "@/shared/constants/pagination";
 import {
   ORDER_TABS,
@@ -166,7 +168,7 @@ function OrderActions({
 }: OrderActionsProps) {
   return (
     <div className="flex items-center justify-end gap-1.5">
-      {order.status === "승인반려" && onReorder && (
+      {onReorder && (
         <button
           type="button"
           onClick={(e) => {
@@ -251,10 +253,15 @@ export default function OrdersPage() {
   const [shipmentTrackingOrder, setShipmentTrackingOrder] =
     useState<ShipmentTrackingOrder | null>(null);
 
+  const [reorderEditModalOpen, setReorderEditModalOpen] = useState(false);
+  const [reorderProofModalOpen, setReorderProofModalOpen] = useState(false);
+  const [selectedReorderOrder, setSelectedReorderOrder] = useState<Order | null>(null);
+  const [pendingReorderCardData, setPendingReorderCardData] = useState<BusinessCardInputData | null>(null);
+
   const [dbCompanies, setDbCompanies] = useState<string[]>([]);
 
   function handleReorder(order: Order) {
-    let cardData: BusinessCardInputData | undefined = undefined;
+    let cardData: BusinessCardInputData | null = null;
     if (order.cardDataJson) {
       try {
         cardData = JSON.parse(order.cardDataJson);
@@ -263,22 +270,21 @@ export default function OrdersPage() {
       }
     }
 
-    const reorderData = {
-      templateId: order.templateId,
-      cardData: cardData || {
+    if (!cardData) {
+      cardData = {
         front: {
-          name: order.name,
+          name: order.name || "홍길동",
           departmentOption: "직접입력",
-          department: order.site,
+          department: order.site || "",
           position1Option: "직접입력",
           position1: "",
           position2Option: "직접입력",
           position2: "",
-          address: order.address,
-          telephone: order.phone,
+          address: order.address || "",
+          telephone: order.phone || "",
           fax: "",
           directTelephone: "",
-          mobile: order.phone,
+          mobile: order.phone || "",
           email: "",
           website: "",
         },
@@ -296,18 +302,12 @@ export default function OrdersPage() {
           email: "",
           website: "",
         },
-      },
-      recipientName: order.recipientName || order.name,
-      recipientPhone: order.recipientPhone || order.phone,
-      zipcode: order.zipcode,
-      address: order.address,
-      addressDetail: order.addressDetail,
-      material: order.material,
-      quantity: order.quantity,
-    };
+      };
+    }
 
-    const targetUrl = companyCode ? `/${companyCode}/orders/form` : `/admin/orders/form`;
-    navigate(targetUrl, { state: { reorderData } });
+    setSelectedReorderOrder(order);
+    setPendingReorderCardData(cardData);
+    setReorderEditModalOpen(true);
   }
 
   function handlePrintOrder(order: Order) {
@@ -477,9 +477,9 @@ export default function OrdersPage() {
         : order.trackingNumber
           ? `배송방법: ${order.carrierCode || "택배"} / 송장번호: ${order.trackingNumber}`
           : "",
-      customerName: order.name,
+      customerName: order.recipientName || order.name,
       phone: order.recipientPhone || order.phone,
-      email: "contact@company.com",
+      email: order.email || "user@company.com",
       address: order.address || "06779 서울시 서초구 방배천로 22-6",
       detailAddress: order.addressDetail || "9층",
       status: order.status,
@@ -710,15 +710,15 @@ export default function OrdersPage() {
                 type="button"
                 onClick={() => handleTabChange(tab)}
                 className={`-mb-px flex items-center gap-1.5 whitespace-nowrap border-b-2 px-3 py-3 text-xs font-medium transition-colors md:px-4 ${active
-                    ? "border-primary text-foreground"
-                    : "border-transparent text-muted-foreground hover:text-foreground"
+                  ? "border-primary text-foreground"
+                  : "border-transparent text-muted-foreground hover:text-foreground"
                   }`}
               >
                 {tab}
                 <span
                   className={`rounded-full px-1.5 py-0.5 text-[10px] ${active
-                      ? "bg-primary/10 text-primary font-semibold"
-                      : "bg-secondary text-muted-foreground"
+                    ? "bg-primary/10 text-primary font-semibold"
+                    : "bg-secondary text-muted-foreground"
                     }`}
                 >
                   {count}
@@ -743,10 +743,10 @@ export default function OrdersPage() {
                   disabled={selectedCount === 0}
                   onClick={() => handleOpenStatusChange(action)}
                   className={`rounded px-2.5 py-1 text-xs font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-40 ${action.variant === "danger"
-                      ? "border border-red-200 bg-red-50 text-red-600 hover:bg-red-100"
-                      : action.variant === "primary"
-                        ? "bg-primary text-primary-foreground hover:opacity-90"
-                        : "border border-border bg-background text-foreground hover:bg-secondary"
+                    ? "border border-red-200 bg-red-50 text-red-600 hover:bg-red-100"
+                    : action.variant === "primary"
+                      ? "bg-primary text-primary-foreground hover:opacity-90"
+                      : "border border-border bg-background text-foreground hover:bg-secondary"
                     }`}
                 >
                   {action.label}
@@ -906,6 +906,62 @@ export default function OrdersPage() {
         customerName={rejectModalOrder?.name}
         reason={rejectModalOrder?.rejectReason}
         onClose={() => setRejectModalOrder(null)}
+      />
+
+      <TemplateEditModal
+        key={selectedReorderOrder?.id ?? "reorder-template-edit"}
+        open={reorderEditModalOpen}
+        templateId={selectedReorderOrder?.templateId || "T_CHEIL"}
+        initialCardData={pendingReorderCardData}
+        onClose={() => {
+          setReorderEditModalOpen(false);
+          setReorderProofModalOpen(false);
+          setSelectedReorderOrder(null);
+          setPendingReorderCardData(null);
+        }}
+        onNext={(cardData) => {
+          setPendingReorderCardData(cardData);
+          setReorderEditModalOpen(false);
+          setReorderProofModalOpen(true);
+        }}
+      />
+
+      <ProofCheckModal
+        open={reorderProofModalOpen}
+        templateId={selectedReorderOrder?.templateId || "T_CHEIL"}
+        cardData={pendingReorderCardData}
+        onClose={() => {
+          setReorderProofModalOpen(false);
+          setSelectedReorderOrder(null);
+          setPendingReorderCardData(null);
+        }}
+        onBack={() => {
+          setReorderProofModalOpen(false);
+          setReorderEditModalOpen(true);
+        }}
+        onConfirm={() => {
+          if (!selectedReorderOrder || !pendingReorderCardData) return;
+
+          const reorderData = {
+            templateId: selectedReorderOrder.templateId || "T_CHEIL",
+            cardData: pendingReorderCardData,
+            recipientName: selectedReorderOrder.recipientName || selectedReorderOrder.name,
+            recipientPhone: selectedReorderOrder.recipientPhone || selectedReorderOrder.phone,
+            zipcode: selectedReorderOrder.zipcode || "",
+            address: selectedReorderOrder.address || "",
+            addressDetail: selectedReorderOrder.addressDetail || "",
+            material: selectedReorderOrder.material || "일반용지 200g",
+            quantity: selectedReorderOrder.quantity || 200,
+          };
+
+          const targetUrl = companyCode ? `/${companyCode}/orders/form` : `/admin/orders/form`;
+          setReorderProofModalOpen(false);
+          setReorderEditModalOpen(false);
+          setSelectedReorderOrder(null);
+          setPendingReorderCardData(null);
+
+          navigate(targetUrl, { state: { reorderData } });
+        }}
       />
     </div>
   );

@@ -70,6 +70,7 @@ export interface BackendOrderResponse {
   companyName: string;
   memberId: number | string;
   memberName: string;
+  memberEmail?: string | null;
   templateId: number | string;
   status: string;
   recipientName: string;
@@ -97,6 +98,7 @@ export interface MappedOrder {
   quantity: number;
   phone: string;
   name: string;
+  email: string;
   price: string;
   shippingFee: string;
   status: OrderTab;
@@ -167,6 +169,8 @@ export function mapOrderResponse(dto: BackendOrderResponse): MappedOrder {
   const priceStr = `${calculatedPrice.toLocaleString()}원`;
 
   const shippingFeeStr = "0원";
+  const nameStr = dto.recipientName || dto.memberName || "주문자 미지정";
+  const emailStr = dto.memberEmail || "";
 
   return {
     rawId: dto.id,
@@ -177,11 +181,12 @@ export function mapOrderResponse(dto: BackendOrderResponse): MappedOrder {
     material,
     quantity,
     phone: dto.recipientPhone || "010-0000-0000",
-    name: dto.memberName || dto.recipientName || "주문자 미지정",
+    name: nameStr,
+    email: emailStr,
     price: priceStr,
     shippingFee: shippingFeeStr,
     status: mapBackendStatusToTab(dto.status),
-    recipientName: dto.recipientName || "",
+    recipientName: nameStr,
     recipientPhone: dto.recipientPhone || "",
     zipcode: dto.zipcode || "",
     address: dto.address || "",
