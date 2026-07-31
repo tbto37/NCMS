@@ -10,10 +10,12 @@ export function Sidebar({
   drawerOpen,
   collapsed = false,
   onClose,
+  onOpenGuide,
 }: {
   drawerOpen: boolean;
   collapsed?: boolean;
   onClose: () => void;
+  onOpenGuide?: () => void;
 }) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -21,9 +23,10 @@ export function Sidebar({
   const { logout, user } = useAuth();
 
   const sidebarTitle = user?.companyName?.trim() || "ADMIN";
+  const siteCode = companyCode || user?.companySiteCode || undefined;
 
   const basePath = getLayoutBasePath(location.pathname, companyCode);
-  const navItems = getNavItems(basePath);
+  const navItems = getNavItems(basePath, siteCode);
 
   function handleLogout() {
     logout();
@@ -62,37 +65,61 @@ export function Sidebar({
       </div>
 
       <nav className="flex-1 py-3 space-y-1 px-2">
-        {navItems.map((item) => (
-          <NavLink
-            key={item.id}
-            to={item.path}
-            onClick={onClose}
-            title={collapsed ? item.label : undefined}
-            className={({ isActive }: { isActive: boolean }) =>
-              `w-full flex items-center gap-2.5 px-2.5 py-2.5 md:py-2 rounded-lg text-xs transition-colors relative ${
-                collapsed ? "md:justify-center md:px-0" : ""
-              } ${active_(isActive)}`
-            }
-          >
-            {({ isActive }: { isActive: boolean }) => (
-              <>
+        {navItems.map((item) => {
+          if (item.isModal) {
+            return (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => {
+                  onClose();
+                  if (item.id === "guide" && onOpenGuide) {
+                    onOpenGuide();
+                  }
+                }}
+                title={collapsed ? item.label : undefined}
+                className={`w-full flex items-center gap-2.5 px-2.5 py-2.5 md:py-2 rounded-lg text-xs text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors relative ${
+                  collapsed ? "md:justify-center md:px-0" : ""
+                }`}
+              >
                 <item.icon size={16} className="shrink-0" />
                 <span className={collapsed ? "md:hidden" : ""}>{item.label}</span>
-                {item.badge && !collapsed && (
-                  <span
-                    className={`ml-auto text-xs font-mono px-1.5 py-0.5 rounded-full ${
-                      isActive
-                        ? "bg-primary-foreground/20 text-primary-foreground"
-                        : "bg-accent text-foreground"
-                    }`}
-                  >
-                    {item.badge}
-                  </span>
-                )}
-              </>
-            )}
-          </NavLink>
-        ))}
+              </button>
+            );
+          }
+
+          return (
+            <NavLink
+              key={item.id}
+              to={item.path}
+              onClick={onClose}
+              title={collapsed ? item.label : undefined}
+              className={({ isActive }: { isActive: boolean }) =>
+                `w-full flex items-center gap-2.5 px-2.5 py-2.5 md:py-2 rounded-lg text-xs transition-colors relative ${
+                  collapsed ? "md:justify-center md:px-0" : ""
+                } ${active_(isActive)}`
+              }
+            >
+              {({ isActive }: { isActive: boolean }) => (
+                <>
+                  <item.icon size={16} className="shrink-0" />
+                  <span className={collapsed ? "md:hidden" : ""}>{item.label}</span>
+                  {item.badge && !collapsed && (
+                    <span
+                      className={`ml-auto text-xs font-mono px-1.5 py-0.5 rounded-full ${
+                        isActive
+                          ? "bg-primary-foreground/20 text-primary-foreground"
+                          : "bg-accent text-foreground"
+                      }`}
+                    >
+                      {item.badge}
+                    </span>
+                  )}
+                </>
+              )}
+            </NavLink>
+          );
+        })}
       </nav>
 
       <div className="p-2 border-t border-border">

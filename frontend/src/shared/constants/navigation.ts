@@ -1,5 +1,5 @@
 import type { ElementType } from "react";
-import { Users, ShoppingCart, Layers } from "lucide-react";
+import { Users, ShoppingCart, Layers, BookOpen } from "lucide-react";
 
 export type NavItem = {
   id: string;
@@ -7,6 +7,7 @@ export type NavItem = {
   icon: ElementType;
   path: string;
   badge?: number;
+  isModal?: boolean;
 };
 
 type NavItemDefinition = Omit<NavItem, "path"> & {
@@ -25,6 +26,13 @@ const navItemDefinitions: NavItemDefinition[] = [
     label: "주문 관리",
     icon: ShoppingCart,
     route: "orders",
+  },
+  {
+    id: "guide",
+    label: "이용가이드",
+    icon: BookOpen,
+    route: "#",
+    isModal: true,
   },
   {
     id: "members",
@@ -49,7 +57,7 @@ export function getLayoutBasePath(
   return "/admin";
 }
 
-export function getNavItems(basePath: string): NavItem[] {
+export function getNavItems(basePath: string, siteCode?: string): NavItem[] {
   const normalized = basePath.toLowerCase();
   const isOperatorOrAdmin =
     normalized === "/admin" ||
@@ -58,13 +66,20 @@ export function getNavItems(basePath: string): NavItem[] {
     normalized.startsWith("/operator/") ||
     normalized.startsWith("/logcom/");
 
-  const isCustomerSite = !isOperatorOrAdmin;
-  const definitions = isCustomerSite
-    ? navItemDefinitions
-    : navItemDefinitions.filter((item) => item.id !== "templates");
+  const isCheil = siteCode?.toLowerCase() === "cheil";
+
+  let definitions = navItemDefinitions;
+
+  if (isOperatorOrAdmin) {
+    definitions = definitions.filter((item) => item.id !== "templates");
+  }
+
+  if (!isCheil) {
+    definitions = definitions.filter((item) => item.id !== "guide");
+  }
 
   return definitions.map(({ route, ...item }) => ({
     ...item,
-    path: `${basePath}/${route}`,
+    path: item.isModal ? "#" : `${basePath}/${route}`,
   }));
 }

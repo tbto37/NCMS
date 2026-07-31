@@ -3,10 +3,12 @@ import { Outlet } from "react-router";
 import { Sidebar } from "./Sidebar";
 import { Topbar } from "./Topbar";
 import { MobileNav } from "./MobileNav";
+import UserGuideModal from "@/components/common/UserGuideModal";
 
 export function AdminLayout() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [guideOpen, setGuideOpen] = useState(false);
 
   return (
     <div className="flex h-screen bg-background overflow-hidden">
@@ -23,6 +25,7 @@ export function AdminLayout() {
         drawerOpen={drawerOpen}
         collapsed={sidebarCollapsed}
         onClose={() => setDrawerOpen(false)}
+        onOpenGuide={() => setGuideOpen(true)}
       />
 
       {/* Main Container */}
@@ -39,8 +42,10 @@ export function AdminLayout() {
         </main>
 
         {/* Mobile bottom nav */}
-        <MobileNav />
+        <MobileNav onOpenGuide={() => setGuideOpen(true)} />
       </div>
+
+      <UserGuideModal open={guideOpen} onOpenChange={setGuideOpen} />
     </div>
   );
 }
