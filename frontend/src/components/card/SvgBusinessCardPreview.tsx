@@ -22,6 +22,36 @@ function formatKoreanName(nameStr?: string): string {
   return nameStr;
 }
 
+// 한미글로벌 국문 주소 엔터(\n) 및 2줄 분할 처리
+export function getHanmiFrontAddressLines(front: any): [string, string] {
+  if (front?.address1 || front?.address2) {
+    return [
+      front?.address1 || "06164, 서울시 강남구 테헤란로 87길",
+      front?.address2 || "36 도심공항타워",
+    ];
+  }
+  const raw = (front?.address || "").trim();
+  if (!raw) {
+    return ["06164, 서울시 강남구 테헤란로 87길", "36 도심공항타워"];
+  }
+  if (raw.includes("\n")) {
+    const lines = raw.split("\n").map((l: string) => l.trim()).filter(Boolean);
+    return [lines[0] || "", lines.slice(1).join(" ")];
+  }
+  const splitMatch = raw.match(/^(.*?(?:87길|테헤란로|강남구|서울시|길|로))\s*(.*)$/);
+  if (splitMatch && splitMatch[1] && splitMatch[2]) {
+    return [splitMatch[1].trim(), splitMatch[2].trim()];
+  }
+  if (raw.length > 20) {
+    const mid = Math.floor(raw.length / 2);
+    const spaceIdx = raw.indexOf(" ", mid - 4);
+    if (spaceIdx !== -1) {
+      return [raw.substring(0, spaceIdx).trim(), raw.substring(spaceIdx).trim()];
+    }
+  }
+  return [raw, ""];
+}
+
 export default function SvgBusinessCardPreview({
   templateId = "T_CHEIL",
   cardData,
@@ -106,6 +136,12 @@ export default function SvgBusinessCardPreview({
             forcedColorAdjust: "none",
           }}
         >
+          <defs>
+            <style>{`
+              @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css');
+              text { forced-color-adjust: none; color-scheme: light; }
+            `}</style>
+          </defs>
           {/* 하단 풀 블레이드 바 (제일엔지니어링만 사용, 한미글로벌은 백그라운드 클린) */}
           {config.showBottomBar && (
             key === "cheil" ? (
@@ -403,30 +439,35 @@ export default function SvgBusinessCardPreview({
             </text>
           )}
 
-          {key === "hanmi" && !isBack && (
-            <>
-              <text
-                x={config.fields.address1?.x}
-                y={config.fields.address1?.y}
-                fontSize={config.fields.address1?.fontSize}
-                fontWeight="400"
-                fill="#334155"
-                dominantBaseline="hanging"
-              >
-                06164, 서울시 강남구 테헤란로 87길
-              </text>
-              <text
-                x={config.fields.address2?.x}
-                y={config.fields.address2?.y}
-                fontSize={config.fields.address2?.fontSize}
-                fontWeight="400"
-                fill="#334155"
-                dominantBaseline="hanging"
-              >
-                36 도심공항타워
-              </text>
-            </>
-          )}
+          {key === "hanmi" && !isBack && (() => {
+            const [addr1, addr2] = getHanmiFrontAddressLines(front);
+            return (
+              <>
+                <text
+                  x={config.fields.address1?.x}
+                  y={config.fields.address1?.y}
+                  fontSize={config.fields.address1?.fontSize}
+                  fontWeight="400"
+                  fill="#334155"
+                  dominantBaseline="hanging"
+                >
+                  {addr1}
+                </text>
+                {addr2 && (
+                  <text
+                    x={config.fields.address2?.x}
+                    y={config.fields.address2?.y}
+                    fontSize={config.fields.address2?.fontSize}
+                    fontWeight="400"
+                    fill="#334155"
+                    dominantBaseline="hanging"
+                  >
+                    {addr2}
+                  </text>
+                )}
+              </>
+            );
+          })()}
 
           {/* 영문 주소 (address1, address2, address3) */}
           {isBack && (

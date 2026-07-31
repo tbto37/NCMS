@@ -1,6 +1,7 @@
 import { jsPDF } from "jspdf";
 import type { BusinessCardInputData } from "@/shared/types/businessCard";
 import { CARD_TEMPLATE_SPECS } from "@/shared/constants/cardTemplates";
+import { getHanmiFrontAddressLines } from "@/components/card/SvgBusinessCardPreview";
 
 interface OrderLike {
   id?: string;
@@ -233,6 +234,12 @@ function createSvgMarkup(
 
   return `
     <svg viewBox="-5.767 -5.767 530.533 299.866" width="530.533" height="299.866" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="background:#ffffff; font-family:'Pretendard Variable', Pretendard, -apple-system, sans-serif; display:block;">
+      <defs>
+        <style>
+          @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css');
+          text { forced-color-adjust: none; color-scheme: light; }
+        </style>
+      </defs>
       ${bottomBarHtml}
       ${logoBase64 ? `<image href="${logoBase64}" xlink:href="${logoBase64}" x="${logoSpec.x}" y="${logoSpec.y}" width="${logoSpec.width}" height="${logoSpec.height}" preserveAspectRatio="xMinYMin meet" />` : ""}
       ${sloganHtml}
@@ -261,10 +268,13 @@ function createSvgMarkup(
 
       ${config.fields.website ? `<text x="${config.fields.website.x}" y="${key === "cheil" ? cheilY.website : config.fields.website.y}" font-size="${config.fields.website.fontSize}" font-weight="700" fill="${key === "cheil" ? "#0f172a" : "#004B96"}" dominant-baseline="hanging">${currentData.website || (key === "cheil" ? "www.cheileng.com" : "www.hanmiglobal.com")}</text>` : ""}
 
-      ${key === "hanmi" && !isBack ? `
-        <text x="${config.fields.address1?.x}" y="${config.fields.address1?.y}" font-size="${config.fields.address1?.fontSize}" font-weight="400" fill="#334155" dominant-baseline="hanging">${front.address1 || front.address || "06164, 서울시 강남구 테헤란로 87길"}</text>
-        <text x="${config.fields.address2?.x}" y="${config.fields.address2?.y}" font-size="${config.fields.address2?.fontSize}" font-weight="400" fill="#334155" dominant-baseline="hanging">${front.address2 || (front.address ? "" : "36 도심공항타워")}</text>
-      ` : ""}
+      ${key === "hanmi" && !isBack ? (() => {
+        const [addr1, addr2] = getHanmiFrontAddressLines(front);
+        return `
+          <text x="${config.fields.address1?.x}" y="${config.fields.address1?.y}" font-size="${config.fields.address1?.fontSize}" font-weight="400" fill="#334155" dominant-baseline="hanging">${addr1}</text>
+          ${addr2 ? `<text x="${config.fields.address2?.x}" y="${config.fields.address2?.y}" font-size="${config.fields.address2?.fontSize}" font-weight="400" fill="#334155" dominant-baseline="hanging">${addr2}</text>` : ""}
+        `;
+      })() : ""}
 
       ${key === "cheil" && !isBack ? `
         <text x="${config.fields.address?.x}" y="${config.fields.address?.y}" font-size="${config.fields.address?.fontSize}" font-weight="400" fill="#334155" dominant-baseline="hanging">${front.address || "06779 서울시 서초구 강남대로16길 22-6(양재동)"}</text>
