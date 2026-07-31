@@ -531,9 +531,9 @@ export default function OrdersPage() {
             : "",
       customerName: order.recipientName || order.name,
       phone: order.recipientPhone || order.phone,
-      email: order.email || "user@company.com",
-      address: order.address || "06779 서울시 서초구 방배천로 22-6",
-      detailAddress: order.addressDetail || "9층",
+      email: order.email || "",
+      address: order.address || "",
+      detailAddress: order.addressDetail || "",
       status: order.status,
       createdAt: order.receivedAt,
     });
