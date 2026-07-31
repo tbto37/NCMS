@@ -26,7 +26,7 @@ export function Sidebar({
   const siteCode = companyCode || user?.companySiteCode || undefined;
 
   const basePath = getLayoutBasePath(location.pathname, companyCode);
-  const navItems = getNavItems(basePath, siteCode);
+  const navItems = getNavItems(basePath, siteCode, user?.roles);
 
   function handleLogout() {
     logout();

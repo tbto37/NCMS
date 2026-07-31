@@ -18,6 +18,7 @@ const CompanyNotFoundPage = lazy(() => import("@/pages/error/CompanyNotFoundPage
 
 import { RequireTenantAuth } from "./guards/RequireTenantAuth";
 import { RequireAdminAuth } from "./guards/RequireAdminAuth";
+import { RequireMemberManageAuth } from "./guards/RequireMemberManageAuth";
 
 function PageFallback() {
   return (
@@ -59,7 +60,9 @@ export default function App() {
                   <Route path="templates" element={<TemplatesPage />} />
                   <Route path="orders" element={<OrdersPage />} />
                   <Route path="orders/form" element={<OrderFormPage />} />
-                  <Route path="members" element={<MembersPage />} />
+                  <Route element={<RequireMemberManageAuth />}>
+                    <Route path="members" element={<MembersPage />} />
+                  </Route>
                 </Route>
               </Route>
             </Route>

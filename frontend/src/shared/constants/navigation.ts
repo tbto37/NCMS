@@ -57,7 +57,11 @@ export function getLayoutBasePath(
   return "/admin";
 }
 
-export function getNavItems(basePath: string, siteCode?: string): NavItem[] {
+export function getNavItems(
+  basePath: string,
+  siteCode?: string,
+  roles?: string[],
+): NavItem[] {
   const normalized = basePath.toLowerCase();
   const isOperatorOrAdmin =
     normalized === "/admin" ||
@@ -68,6 +72,12 @@ export function getNavItems(basePath: string, siteCode?: string): NavItem[] {
 
   const isCheil = siteCode?.toLowerCase() === "cheil";
 
+  const isEmployeeOnly =
+    roles?.includes("ROLE_EMPLOYEE") &&
+    !roles?.includes("ROLE_COMPANY_ADMIN") &&
+    !roles?.includes("ROLE_OPERATOR") &&
+    !roles?.includes("ROLE_SYSTEM_ADMIN");
+
   let definitions = navItemDefinitions;
 
   if (isOperatorOrAdmin) {
@@ -76,6 +86,10 @@ export function getNavItems(basePath: string, siteCode?: string): NavItem[] {
 
   if (!isCheil) {
     definitions = definitions.filter((item) => item.id !== "guide");
+  }
+
+  if (isEmployeeOnly) {
+    definitions = definitions.filter((item) => item.id !== "members");
   }
 
   return definitions.map(({ route, ...item }) => ({

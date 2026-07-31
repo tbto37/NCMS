@@ -35,6 +35,10 @@ public class MemberService {
     private final PasswordEncoder passwordEncoder;
 
     public List<MemberResponse> getMembersByCompany(Long companyId, String currentUserRole) {
+        if ("ROLE_EMPLOYEE".equals(currentUserRole)) {
+            throw new CustomException("일반 임직원(ROLE_EMPLOYEE)은 회원 관리 목록에 접근할 권한이 없습니다. (403 Forbidden)", HttpStatus.FORBIDDEN);
+        }
+
         List<Member> members = "ROLE_OPERATOR".equals(currentUserRole)
                 ? memberRepository.findAll()
                 : memberRepository.findByCompanyId(companyId);
@@ -45,6 +49,9 @@ public class MemberService {
     @Transactional
     public MemberResponse createMemberByCompanyAdmin(Long companyId, String currentUserRole,
             CreateMemberRequest request) {
+        if ("ROLE_EMPLOYEE".equals(currentUserRole)) {
+            throw new CustomException("일반 임직원(ROLE_EMPLOYEE)은 신규 회원을 등록할 권한이 없습니다. (403 Forbidden)", HttpStatus.FORBIDDEN);
+        }
         if ("ROLE_OPERATOR".equals(currentUserRole)) {
             throw new CustomException("ROLE_OPERATOR은 신규 임직원을 직접 등록할 수 없습니다. (403 Forbidden)", HttpStatus.FORBIDDEN);
         }

@@ -12,7 +12,7 @@ export function MobileNav({ onOpenGuide }: { onOpenGuide?: () => void }) {
 
   const siteCode = companyCode || user?.companySiteCode || undefined;
   const basePath = getLayoutBasePath(location.pathname, companyCode);
-  const navItems = getNavItems(basePath, siteCode);
+  const navItems = getNavItems(basePath, siteCode, user?.roles);
 
   return (
     <nav className="md:hidden flex border-t border-border bg-card shrink-0">
