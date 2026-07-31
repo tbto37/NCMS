@@ -56,6 +56,9 @@ public class Order extends BaseEntity {
     @Column(name = "address_detail", length = 255)
     private String addressDetail;
 
+    @Column(columnDefinition = "TEXT")
+    private String memo;
+
     @Column(name = "reject_reason", columnDefinition = "TEXT")
     private String rejectReason;
 

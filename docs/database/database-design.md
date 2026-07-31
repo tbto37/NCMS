@@ -89,6 +89,7 @@ erDiagram
 - `template_id` (BIGINT / int8, FK) - 선택 템플릿 ID
 - `status` (VARCHAR(30)) - `PENDING`, `APPROVED`, `REJECTED`, `PRINTING`, `SHIPPED`, `DELIVERED`, `CANCELLED`
 - `recipient_name`, `recipient_phone`, `zipcode`, `address`, `address_detail` (VARCHAR) - 수령지 정보
+- `memo` (TEXT) - 배송 및 주문 메모 (요청사항)
 - `reject_reason` (TEXT) - 반려 시 사유
 - `created_at`, `updated_at` (TIMESTAMPTZ)
 

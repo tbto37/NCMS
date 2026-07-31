@@ -78,6 +78,7 @@ export interface BackendOrderResponse {
   zipcode: string | null;
   address: string | null;
   addressDetail: string | null;
+  memo?: string | null;
   rejectReason: string | null;
   cardDataJson: string | null;
   productOptionSummary: string | null;
@@ -107,6 +108,7 @@ export interface MappedOrder {
   zipcode: string;
   address: string;
   addressDetail: string;
+  memo: string;
   rejectReason: string;
   cardDataJson: string;
   productOptionSummary: string;
@@ -191,6 +193,7 @@ export function mapOrderResponse(dto: BackendOrderResponse): MappedOrder {
     zipcode: dto.zipcode || "",
     address: dto.address || "",
     addressDetail: dto.addressDetail || "",
+    memo: dto.memo || "",
     rejectReason: dto.rejectReason || "",
     cardDataJson: dto.cardDataJson || "{}",
     productOptionSummary: dto.productOptionSummary || "",

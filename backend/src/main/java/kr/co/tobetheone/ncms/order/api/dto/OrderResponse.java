@@ -23,6 +23,7 @@ public class OrderResponse {
     private String zipcode;
     private String address;
     private String addressDetail;
+    private String memo;
     private String rejectReason;
     private String cardDataJson;
     private String productOptionSummary;

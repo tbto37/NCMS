@@ -61,6 +61,7 @@ public class OrderService {
                 .zipcode(request.getZipcode())
                 .address(request.getAddress())
                 .addressDetail(request.getAddressDetail())
+                .memo(request.getMemo())
                 .build();
 
         order = orderRepository.save(order);
@@ -172,6 +173,7 @@ public class OrderService {
                             .zipcode(order.getZipcode())
                             .address(order.getAddress())
                             .addressDetail(order.getAddressDetail())
+                            .memo(order.getMemo())
                             .rejectReason(order.getRejectReason())
                             .cardDataJson(snapshot != null ? snapshot.getCardData() : null)
                             .productOptionSummary(snapshot != null ? snapshot.getProductOptionSummary() : null)
@@ -203,6 +205,7 @@ public class OrderService {
                 .zipcode(order.getZipcode())
                 .address(order.getAddress())
                 .addressDetail(order.getAddressDetail())
+                .memo(order.getMemo())
                 .rejectReason(order.getRejectReason())
                 .cardDataJson(snapshot != null ? snapshot.getCardData() : null)
                 .productOptionSummary(snapshot != null ? snapshot.getProductOptionSummary() : null)

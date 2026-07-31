@@ -4,6 +4,7 @@ import {
   Eye,
   FileDown,
   FileSpreadsheet,
+  FileText,
   Filter,
   Package,
   Plus,
@@ -212,6 +213,28 @@ function OrderActions({
           <BusinessCardPreview order={order} />
         </HoverCardContent>
       </HoverCard>
+
+      {order.memo && (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              type="button"
+              aria-label="주문 메모"
+              onClick={(event) => {
+                event.stopPropagation();
+                onOpenDetail(order);
+              }}
+              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-amber-500/35 bg-amber-500/10 text-amber-600 transition-colors hover:border-amber-500/60 hover:bg-amber-500/20"
+            >
+              <FileText size={13} />
+            </button>
+          </TooltipTrigger>
+          <TooltipContent side="top" sideOffset={6} className="max-w-xs break-words">
+            <p className="font-semibold text-amber-300">주문 메모</p>
+            <p className="mt-0.5 text-xs text-white">{order.memo}</p>
+          </TooltipContent>
+        </Tooltip>
+      )}
 
       <ActionIconButton
         label="배송 추적"
@@ -472,11 +495,13 @@ export default function OrdersPage() {
       product: "명함",
       material: order.material,
       quantity: order.quantity,
-      memo: order.rejectReason
-        ? `반려 사유: ${order.rejectReason}`
-        : order.trackingNumber
-          ? `배송방법: ${order.carrierCode || "택배"} / 송장번호: ${order.trackingNumber}`
-          : "",
+      memo: order.memo
+        ? order.memo
+        : order.rejectReason
+          ? `반려 사유: ${order.rejectReason}`
+          : order.trackingNumber
+            ? `배송방법: ${order.carrierCode || "택배"} / 송장번호: ${order.trackingNumber}`
+            : "",
       customerName: order.recipientName || order.name,
       phone: order.recipientPhone || order.phone,
       email: order.email || "user@company.com",
