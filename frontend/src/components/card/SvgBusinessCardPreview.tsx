@@ -100,7 +100,11 @@ export default function SvgBusinessCardPreview({
           width="519"
           height="288.333"
           className="w-full max-w-[519px] aspect-[90/50] rounded bg-white shadow-xl ring-1 ring-slate-900/10 select-none"
-          style={{ fontFamily: "'Pretendard Variable', Pretendard, -apple-system, sans-serif" }}
+          style={{
+            fontFamily: "'Pretendard Variable', Pretendard, -apple-system, sans-serif",
+            colorScheme: "light",
+            forcedColorAdjust: "none",
+          }}
         >
           {/* 하단 풀 블레이드 바 (제일엔지니어링만 사용, 한미글로벌은 백그라운드 클린) */}
           {config.showBottomBar && (
@@ -138,7 +142,6 @@ export default function SvgBusinessCardPreview({
               fontFamily="'a파도소리', 'aPadosori', 'Georgia', serif"
               transform="translate(34, 230) skewX(-8) translate(-34, -230)"
               dominantBaseline="hanging"
-              alignmentBaseline="before-edge"
             >
               {config.sloganText || '"Smiling Technology"'}
             </text>
@@ -159,7 +162,6 @@ export default function SvgBusinessCardPreview({
               fill={config.fields.name.fill || "#0f172a"}
               letterSpacing={!isBack && key === "cheil" ? "0.35em" : !isBack ? "0.25em" : "normal"}
               dominantBaseline="hanging"
-              alignmentBaseline="before-edge"
             >
               {!isBack
                 ? formatKoreanName(front.name) || "백    승    연"
@@ -178,7 +180,6 @@ export default function SvgBusinessCardPreview({
                   fontWeight={config.fields.departmentPosition.fontWeight || "500"}
                   fill={config.fields.departmentPosition.fill || "#1e293b"}
                   dominantBaseline="hanging"
-                  alignmentBaseline="before-edge"
                 >
                   {key === "cheil"
                     ? [front.department, front.position1].filter(Boolean).join(" / ") || "도로사업부 / 이사"
@@ -208,7 +209,6 @@ export default function SvgBusinessCardPreview({
                   fontWeight={config.fields.position1.fontWeight || "400"}
                   fill={config.fields.position1.fill || "#1e293b"}
                   dominantBaseline="hanging"
-                  alignmentBaseline="before-edge"
                 >
                   {back.position1
                     ? back.position1.endsWith("/")
@@ -227,7 +227,6 @@ export default function SvgBusinessCardPreview({
                   fontWeight={config.fields.department.fontWeight || "400"}
                   fill={config.fields.department.fill || "#1e293b"}
                   dominantBaseline="hanging"
-                  alignmentBaseline="before-edge"
                 >
                   {back.department || (key === "cheil" ? "Highway Eng. Business Div." : "Management Support Team")}
                 </text>
@@ -245,7 +244,6 @@ export default function SvgBusinessCardPreview({
               fill={config.fields.companyName.fill || "#0f172a"}
               fontFamily={config.fields.companyName.fontFamily || (key === "cheil" ? "'HY울릉도M', HYUlsungdoM, 'HYPMokGak-Medium', serif" : "inherit")}
               dominantBaseline="hanging"
-              alignmentBaseline="before-edge"
             >
               {!isBack ? (
                 key === "cheil" ? "(주)제일엔지니어링종합건축사사무소" : "한미글로벌 주식회사"
@@ -273,7 +271,6 @@ export default function SvgBusinessCardPreview({
               fontWeight="400"
               fill="#1e293b"
               dominantBaseline="hanging"
-              alignmentBaseline="before-edge"
             >
               {!isBack
                 ? `대표 : ${currentData.telephone || "02-3498-2600"}   팩스 : ${currentData.fax || "02-572-8970"}`
@@ -290,7 +287,6 @@ export default function SvgBusinessCardPreview({
               fontWeight="400"
               fill="#1e293b"
               dominantBaseline="hanging"
-              alignmentBaseline="before-edge"
             >
               <tspan x={config.fields.telephone.x} fontWeight="400" fill="#1e293b">
                 T
@@ -314,7 +310,6 @@ export default function SvgBusinessCardPreview({
               fontWeight="400"
               fill="#1e293b"
               dominantBaseline="hanging"
-              alignmentBaseline="before-edge"
             >
               {key === "cheil"
                 ? !isBack
@@ -333,7 +328,6 @@ export default function SvgBusinessCardPreview({
               fontWeight="400"
               fill="#1e293b"
               dominantBaseline="hanging"
-              alignmentBaseline="before-edge"
             >
               {key === "cheil" ? (
                 !isBack
@@ -365,7 +359,6 @@ export default function SvgBusinessCardPreview({
               fontWeight="400"
               fill="#1e293b"
               dominantBaseline="hanging"
-              alignmentBaseline="before-edge"
             >
               {key === "cheil" ? (
                 `E-mail: ${currentData.email || "youremail@email.com"}`
@@ -391,7 +384,6 @@ export default function SvgBusinessCardPreview({
               fontWeight={key === "cheil" ? "700" : "500"}
               fill={config.fields.website.fill || "#004B96"}
               dominantBaseline="hanging"
-              alignmentBaseline="before-edge"
             >
               {currentData.website || (key === "cheil" ? "www.cheileng.com" : "www.hanmiglobal.com")}
             </text>
