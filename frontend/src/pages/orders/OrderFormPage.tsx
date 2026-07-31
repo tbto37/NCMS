@@ -1,6 +1,7 @@
 import { useState, useEffect, type FormEvent } from "react";
 import { ArrowLeft, Check, RotateCcw, ShoppingCart, AlertCircle, Building2, Search, PenTool, X } from "lucide-react";
 import { Navigate, useLocation, useNavigate, useParams } from "react-router";
+import DaumPostcode, { type Address } from "react-daum-postcode";
 import OrderCompleteModal from "./components/OrderCompleteModal";
 import { API_BASE_URL } from "@/shared/constants/api";
 import { useAuth } from "@/app/providers/AuthProvider";
@@ -111,6 +112,25 @@ export default function OrderFormPage() {
       if (orderDraft.front.address) setRecipientAddress(orderDraft.front.address);
     }
   }, [location.state, orderDraft, reorderData]);
+
+  const handleCompleteAddress = (data: Address) => {
+    let fullAddress = data.address;
+    let extraAddress = "";
+
+    if (data.addressType === "R") {
+      if (data.bname !== "") {
+        extraAddress += data.bname;
+      }
+      if (data.buildingName !== "") {
+        extraAddress += extraAddress !== "" ? `, ${data.buildingName}` : data.buildingName;
+      }
+      fullAddress += extraAddress !== "" ? ` (${extraAddress})` : "";
+    }
+
+    const formattedAddress = `${data.zonecode} ${fullAddress}`;
+    setRecipientAddress(formattedAddress);
+    setIsAddressSearchOpen(false);
+  };
 
   const [paperOptions, setPaperOptions] = useState<ProductOptionItem[]>([]);
   const [qtyOptions, setQtyOptions] = useState<ProductOptionItem[]>([]);
@@ -428,7 +448,7 @@ export default function OrderFormPage() {
               />
             </div>
 
-            <div>
+            <div className="md:col-span-2 xl:col-span-4">
               <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
                 배송 및 주문 메모 (요청사항)
               </label>
@@ -530,7 +550,7 @@ export default function OrderFormPage() {
         onGoOrders={() => navigate(ordersPath)}
       />
 
-      {/* 신주소/구주소 주소 검색 모달 */}
+      {/* 신주소/구주소 주소 검색 모달 (카카오/다음 표준 우편번호 API 연동) */}
       {isAddressSearchOpen && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
           <div className="w-full max-w-lg overflow-hidden rounded-xl border border-border bg-background shadow-2xl">
@@ -538,7 +558,7 @@ export default function OrderFormPage() {
               <div className="flex items-center gap-2">
                 <Search size={16} className="text-primary" />
                 <h3 className="text-sm font-semibold text-foreground">
-                  배송지 주소 검색 (신주소 / 구주소)
+                  배송지 주소 검색 (카카오/다음 우편번호)
                 </h3>
               </div>
               <button
@@ -549,48 +569,11 @@ export default function OrderFormPage() {
                 <X size={18} />
               </button>
             </div>
-            <div className="p-5 space-y-4">
-              <div className="flex gap-2">
-                <input
-                  className={inputClassName}
-                  value={searchKeyword}
-                  onChange={(e) => setSearchKeyword(e.target.value)}
-                  placeholder="도로명, 건물명, 지번을 입력하세요 (예: 테헤란로 87길, 역삼동)"
-                />
-                <button
-                  type="button"
-                  onClick={() => {}}
-                  className="flex shrink-0 items-center justify-center rounded-md bg-primary px-4 text-xs font-medium text-primary-foreground transition hover:opacity-90"
-                >
-                  검색
-                </button>
-              </div>
-
-              <div className="max-h-60 overflow-y-auto space-y-2 text-xs">
-                <p className="text-[11px] text-muted-foreground">검색 결과 예시 (클릭하여 선택):</p>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setRecipientAddress("06164 서울특별시 강남구 테헤란로87길 36 (삼성동, 도심공항타워)");
-                    setIsAddressSearchOpen(false);
-                  }}
-                  className="w-full text-left p-3 rounded border border-border hover:bg-secondary/60 transition-colors"
-                >
-                  <span className="font-semibold text-foreground block">[신주소] 06164 서울특별시 강남구 테헤란로87길 36</span>
-                  <span className="text-[11px] text-muted-foreground block mt-0.5">[구주소] 서울특별시 강남구 삼성동 159-9 도심공항타워</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setRecipientAddress("06779 서울특별시 서초구 강남대로16길 22-6 (양재동)");
-                    setIsAddressSearchOpen(false);
-                  }}
-                  className="w-full text-left p-3 rounded border border-border hover:bg-secondary/60 transition-colors"
-                >
-                  <span className="font-semibold text-foreground block">[신주소] 06779 서울특별시 서초구 강남대로16길 22-6</span>
-                  <span className="text-[11px] text-muted-foreground block mt-0.5">[구주소] 서울특별시 서초구 양재동 232 빌딩</span>
-                </button>
-              </div>
+            <div className="p-2 sm:p-4">
+              <DaumPostcode
+                onComplete={handleCompleteAddress}
+                style={{ height: "450px", width: "100%" }}
+              />
             </div>
             <div className="flex justify-end border-t border-border bg-card px-5 py-3">
               <button
