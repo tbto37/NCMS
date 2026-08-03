@@ -12,6 +12,9 @@ interface OrderLike {
   site?: string;
   templateId?: string | number;
   cardDataJson?: string;
+  createdAt?: string;
+  receivedAt?: string;
+  orderDate?: string;
 }
 
 function formatKoreanName(nameStr?: string): string {
@@ -190,10 +193,25 @@ export async function generateCardPrintPdf(order: OrderLike): Promise<void> {
       doc.addImage(backCanvas.toDataURL("image/png", 1.0), "PNG", 0, 0, 92, 52);
     }
 
-    // 파일 저장
+    // 파일 저장 (형식: YYYY-MM-DD-주문번호.pdf)
     const orderNo = order.orderNo || order.id || "ORDER";
-    const name = order.recipientName || order.name || "명함";
-    const filename = `NCMS_명함인쇄_${orderNo}_${name}.pdf`;
+    let dateStr = "";
+    const rawDate = order.createdAt || order.receivedAt || order.orderDate;
+    if (rawDate) {
+      const match = rawDate.match(/(\d{4})[./-]?(\d{2})[./-]?(\d{2})/);
+      if (match) {
+        dateStr = `${match[1]}-${match[2]}-${match[3]}`;
+      }
+    }
+    if (!dateStr) {
+      const now = new Date();
+      const yyyy = now.getFullYear();
+      const mm = String(now.getMonth() + 1).padStart(2, "0");
+      const dd = String(now.getDate()).padStart(2, "0");
+      dateStr = `${yyyy}-${mm}-${dd}`;
+    }
+
+    const filename = `${dateStr}-${orderNo}.pdf`;
 
     doc.save(filename);
   } catch (error) {
@@ -242,7 +260,7 @@ async function createSvgMarkupWithOutlines(
       : `<rect x="-10" y="283" width="550" height="20" fill="#004B96" />`
     : "";
 
-  // 슬로건 "Smiling Technology" -> a파도소리 8pt, K80 (#333333), -8deg skewX
+  // 슬로건 "Smiling Technology" -> a파도소리 8pt, K80 (#333333), -7deg skewX
   let sloganHtml = "";
   if (config.showSlogan) {
     const textStr = config.sloganText || '"Smiling Technology"';
@@ -250,9 +268,9 @@ async function createSvgMarkupWithOutlines(
       // 8pt ~ viewBox 환산 13.5px
       const path = fontPadosori.getPath(textStr, 34, 242, 13.5);
       path.fill = "#333333";
-      sloganHtml = `<g transform="translate(34, 230) skewX(-8) translate(-34, -230)">${path.toSVG(2)}</g>`;
+      sloganHtml = `<g transform="translate(34, 230) skewX(-7) translate(-34, -230)">${path.toSVG(2)}</g>`;
     } else {
-      sloganHtml = `<text x="34" y="230" font-size="13.5" font-weight="700" fill="#333333" font-family="'a파도소리', 'aPadosori', 'Georgia', serif" transform="translate(34, 230) skewX(-8) translate(-34, -230)" dominant-baseline="hanging">${textStr}</text>`;
+      sloganHtml = `<text x="34" y="230" font-size="13.5" font-weight="700" fill="#333333" font-family="'a파도소리', 'aPadosori', 'Georgia', serif" transform="translate(34, 230) skewX(-7) translate(-34, -230)" dominant-baseline="hanging">${textStr}</text>`;
     }
   }
 

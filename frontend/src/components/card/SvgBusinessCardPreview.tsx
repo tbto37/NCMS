@@ -167,7 +167,7 @@ export default function SvgBusinessCardPreview({
             />
           )}
 
-          {/* 좌측 하단: 슬로건 ("Smiling Technology" - a파도소리 13.5pt, K80 농도, -8deg skewX 세련된 기울임, X=34) */}
+          {/* 좌측 하단: 슬로건 ("Smiling Technology" - a파도소리 13.5pt, K80 농도, -7deg skewX 기울임, X=34) */}
           {config.showSlogan && (
             <text
               x="34"
@@ -176,7 +176,7 @@ export default function SvgBusinessCardPreview({
               fontWeight="700"
               fill="#333333"
               fontFamily="'a파도소리', 'aPadosori', 'Georgia', serif"
-              transform="translate(34, 230) skewX(-8) translate(-34, -230)"
+              transform="translate(34, 230) skewX(-7) translate(-34, -230)"
               dominantBaseline="hanging"
             >
               {config.sloganText || '"Smiling Technology"'}

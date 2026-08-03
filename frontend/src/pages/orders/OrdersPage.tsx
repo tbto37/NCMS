@@ -361,6 +361,7 @@ export default function OrdersPage() {
       site: order.site,
       templateId: order.templateId || "T_CHEIL",
       cardDataJson: order.cardDataJson,
+      createdAt: order.receivedAt,
     });
   }
 
