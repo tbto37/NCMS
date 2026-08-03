@@ -263,10 +263,10 @@ async function createSvgMarkupWithOutlines(
 
   const hasDirectTel = Boolean(currentData?.directTelephone && currentData.directTelephone.trim() !== "");
   const cheilY = {
-    directTel: !isBack ? 174 : 191,
-    mobile: !isBack ? (hasDirectTel ? 192 : 174) : (hasDirectTel ? 209 : 191),
-    email: !isBack ? (hasDirectTel ? 210 : 192) : (hasDirectTel ? 227 : 209),
-    website: !isBack ? (hasDirectTel ? 232 : 214) : (hasDirectTel ? 247 : 229),
+    directTel: !isBack ? 190 : 200,
+    mobile: !isBack ? (hasDirectTel ? 209 : 190) : (hasDirectTel ? 217 : 200),
+    email: !isBack ? (hasDirectTel ? 228 : 209) : (hasDirectTel ? 234 : 217),
+    website: !isBack ? (hasDirectTel ? 248 : 228) : (hasDirectTel ? 250 : 233),
   };
 
   const logoSpec = config.logoSpec || {
@@ -287,7 +287,7 @@ async function createSvgMarkupWithOutlines(
   let sloganHtml = "";
   if (config.showSlogan) {
     const src = sloganAssetBase64 || "/cheil/cheil_smile.jpg";
-    sloganHtml = `<image href="${src}" xlink:href="${src}" x="34" y="227" width="124" height="14" preserveAspectRatio="xMinYMin meet" />`;
+    sloganHtml = `<image href="${src}" xlink:href="${src}" x="38" y="232" width="124" height="14" preserveAspectRatio="xMinYMin meet" />`;
   }
 
   const nameText = !isBack

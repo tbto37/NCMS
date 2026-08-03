@@ -158,10 +158,10 @@ export default function SvgBusinessCardPreview({
   // 제일엔지니어링 직통번호 유무에 따른 수직 줄간격(Line Spacing) 동적 연산
   const hasDirectTel = Boolean(currentData?.directTelephone && currentData.directTelephone.trim() !== "");
   const cheilY = {
-    directTel: !isBack ? 174 : 191,
-    mobile: !isBack ? (hasDirectTel ? 192 : 174) : (hasDirectTel ? 209 : 191),
-    email: !isBack ? (hasDirectTel ? 210 : 192) : (hasDirectTel ? 227 : 209),
-    website: !isBack ? (hasDirectTel ? 232 : 214) : (hasDirectTel ? 247 : 229),
+    directTel: !isBack ? 190 : 200,
+    mobile: !isBack ? (hasDirectTel ? 209 : 190) : (hasDirectTel ? 217 : 200),
+    email: !isBack ? (hasDirectTel ? 228 : 209) : (hasDirectTel ? 234 : 217),
+    website: !isBack ? (hasDirectTel ? 248 : 228) : (hasDirectTel ? 250 : 233),
   };
 
   // 웨일 광고 차단기 및 로컬 네트워크 필터 우회용 Base64 인라인 데이터 URL
@@ -261,8 +261,8 @@ export default function SvgBusinessCardPreview({
             <image
               href="/cheil/cheil_smile.jpg"
               xlinkHref="/cheil/cheil_smile.jpg"
-              x="34"
-              y="227"
+              x="38"
+              y="232"
               width="124"
               height="14"
               preserveAspectRatio="xMinYMin meet"
