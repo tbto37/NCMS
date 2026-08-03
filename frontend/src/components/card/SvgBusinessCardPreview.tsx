@@ -256,20 +256,17 @@ export default function SvgBusinessCardPreview({
             />
           )}
 
-          {/* 좌측 하단: 슬로건 ("Smiling Technology" - a파도소리 13.5pt, K80 농도, -7deg skewX 기울임, X=34) */}
+          {/* 좌측 하단: 슬로건 ("Smiling Technology" -> /cheil/cheil_smile.jpg 이미지 교체) */}
           {config.showSlogan && (
-            <text
+            <image
+              href="/cheil/cheil_smile.jpg"
+              xlinkHref="/cheil/cheil_smile.jpg"
               x="34"
-              y="230"
-              fontSize="13.5"
-              fontWeight="700"
-              fill="#333333"
-              fontFamily="'a파도소리', 'aPadosori', 'Georgia', serif"
-              transform="translate(34, 230) skewX(-7) translate(-34, -230)"
-              dominantBaseline="hanging"
-            >
-              {config.sloganText || '"Smiling Technology"'}
-            </text>
+              y="227"
+              width="124"
+              height="14"
+              preserveAspectRatio="xMinYMin meet"
+            />
           )}
 
           {/* 중앙 세로 구분선 (필요시에만) */}
@@ -367,11 +364,12 @@ export default function SvgBusinessCardPreview({
             </>
           )}
 
-          {/* 3. 회사명 (제일엔지니어링: HY울릉도M 지정 폰트, 한미글로벌: 고객 아웃라인 자산 이미지) */}
+          {/* 3. 회사명 (제일엔지니어링 & 한미글로벌 고객 아웃라인 자산 이미지) */}
           {config.fields.companyName && (
             key === "hanmi" ? (
               <image
-                href={!isBack ? "/hanmi_front_name.jpg" : "/hanmi_back_name.jpg"}
+                href={!isBack ? "/hanmi/hanmi_front_name.jpg" : "/hanmi/hanmi_back_name.jpg"}
+                xlinkHref={!isBack ? "/hanmi/hanmi_front_name.jpg" : "/hanmi/hanmi_back_name.jpg"}
                 x={config.fields.companyName.x}
                 y={config.fields.companyName.y - 2}
                 width={!isBack ? 143.7 : 159.9}
@@ -379,17 +377,15 @@ export default function SvgBusinessCardPreview({
                 preserveAspectRatio="xMinYMin meet"
               />
             ) : (
-              <text
+              <image
+                href={!isBack ? "/cheil/cheil_build_front_name.jpg" : "/cheil/cheil_back_name.jpg"}
+                xlinkHref={!isBack ? "/cheil/cheil_build_front_name.jpg" : "/cheil/cheil_back_name.jpg"}
                 x={config.fields.companyName.x}
-                y={config.fields.companyName.y}
-                fontSize={config.fields.companyName.fontSize}
-                fontWeight={config.fields.companyName.fontWeight || "700"}
-                fill={config.fields.companyName.fill || "#0f172a"}
-                fontFamily={config.fields.companyName.fontFamily || "'HY울릉도M', HYUlsungdoM, 'HYPMokGak-Medium', serif"}
-                dominantBaseline="hanging"
-              >
-                {!isBack ? "(주)제일엔지니어링종합건축사사무소" : "CHEIL ENGINEERING CO.,LTD."}
-              </text>
+                y={!isBack ? config.fields.companyName.y - 1 : config.fields.companyName.y}
+                width={!isBack ? 217.6 : 216.5}
+                height={!isBack ? 13.8 : 8.8}
+                preserveAspectRatio="xMinYMin meet"
+              />
             )
           )}
 

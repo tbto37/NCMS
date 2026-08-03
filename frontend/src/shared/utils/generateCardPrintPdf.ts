@@ -8,6 +8,7 @@ interface OrderLike {
   id?: string;
   orderNo?: string;
   recipientName?: string;
+  applicantName?: string;
   name?: string;
   site?: string;
   templateId?: string | number;
@@ -107,7 +108,11 @@ export async function generateCardPrintPdf(order: OrderLike): Promise<void> {
 
     // --- Page 1: 앞면 (국문 순수 Vector SVG PDF + Outline + CMYK) ---
     const frontLogoBase64 = await fetchLogoBase64(specGroup.front.logoUrl);
-    const hanmiFrontNameBase64 = key === "hanmi" ? await fetchLogoBase64("/hanmi_front_name.jpg") : "";
+    const companyNameFrontAssetBase64 = key === "hanmi"
+      ? await fetchLogoBase64("/hanmi/hanmi_front_name.jpg")
+      : await fetchLogoBase64("/cheil/cheil_build_front_name.jpg");
+    const cheilSmileBase64 = key === "cheil" ? await fetchLogoBase64("/cheil/cheil_smile.jpg") : "";
+
     container.innerHTML = await createSvgMarkupWithOutlines(
       key,
       specGroup.front,
@@ -117,7 +122,8 @@ export async function generateCardPrintPdf(order: OrderLike): Promise<void> {
       fontUlsungdo,
       fontPadosori,
       fontNanumSquare,
-      hanmiFrontNameBase64
+      companyNameFrontAssetBase64,
+      cheilSmileBase64
     );
     await new Promise((res) => setTimeout(res, 50));
 
@@ -155,7 +161,10 @@ export async function generateCardPrintPdf(order: OrderLike): Promise<void> {
     // --- Page 2: 뒷면 (영문 순수 Vector SVG PDF + Outline + CMYK) ---
     doc.addPage([92, 52], "landscape");
     const backLogoBase64 = await fetchLogoBase64(specGroup.back.logoUrl);
-    const hanmiBackNameBase64 = key === "hanmi" ? await fetchLogoBase64("/hanmi_back_name.jpg") : "";
+    const companyNameBackAssetBase64 = key === "hanmi"
+      ? await fetchLogoBase64("/hanmi/hanmi_back_name.jpg")
+      : await fetchLogoBase64("/cheil/cheil_back_name.jpg");
+
     container.innerHTML = await createSvgMarkupWithOutlines(
       key,
       specGroup.back,
@@ -165,7 +174,8 @@ export async function generateCardPrintPdf(order: OrderLike): Promise<void> {
       fontUlsungdo,
       fontPadosori,
       fontNanumSquare,
-      hanmiBackNameBase64
+      companyNameBackAssetBase64,
+      cheilSmileBase64
     );
     await new Promise((res) => setTimeout(res, 50));
 
@@ -200,14 +210,14 @@ export async function generateCardPrintPdf(order: OrderLike): Promise<void> {
       doc.addImage(backCanvas.toDataURL("image/png", 1.0), "PNG", 0, 0, 92, 52);
     }
 
-    // 파일 저장 (형식: YYYY-MM-DD-주문번호.pdf)
+    // 파일 저장 (형식: YYYYMMDD-주문번호-고객사명(한미 혹은 제일)-이름.pdf)
     const orderNo = order.orderNo || order.id || "ORDER";
     let dateStr = "";
     const rawDate = order.createdAt || order.receivedAt || order.orderDate;
     if (rawDate) {
       const match = rawDate.match(/(\d{4})[./-]?(\d{2})[./-]?(\d{2})/);
       if (match) {
-        dateStr = `${match[1]}-${match[2]}-${match[3]}`;
+        dateStr = `${match[1]}${match[2]}${match[3]}`;
       }
     }
     if (!dateStr) {
@@ -215,10 +225,13 @@ export async function generateCardPrintPdf(order: OrderLike): Promise<void> {
       const yyyy = now.getFullYear();
       const mm = String(now.getMonth() + 1).padStart(2, "0");
       const dd = String(now.getDate()).padStart(2, "0");
-      dateStr = `${yyyy}-${mm}-${dd}`;
+      dateStr = `${yyyy}${mm}${dd}`;
     }
 
-    const filename = `${dateStr}-${orderNo}.pdf`;
+    const companyLabel = key === "hanmi" ? "한미" : "제일";
+    const nameStr = (cardData?.front?.name || order.recipientName || order.applicantName || "명함").trim().replace(/\s+/g, "");
+
+    const filename = `${dateStr}-${orderNo}-${companyLabel}-${nameStr}.pdf`;
 
     doc.save(filename);
   } catch (error) {
@@ -241,7 +254,8 @@ async function createSvgMarkupWithOutlines(
   fontUlsungdo: opentype.Font | null,
   fontPadosori: opentype.Font | null,
   fontNanumSquare: opentype.Font | null = null,
-  hanmiNameBase64: string = ""
+  companyNameAssetBase64: string = "",
+  sloganAssetBase64: string = ""
 ): Promise<string> {
   const front = cardData.front || {};
   const back = cardData.back || {};
@@ -269,18 +283,11 @@ async function createSvgMarkupWithOutlines(
       : `<rect x="-10" y="283" width="550" height="20" fill="#004B96" />`
     : "";
 
-  // 슬로건 "Smiling Technology" -> a파도소리 8pt, K80 (#333333), -7deg skewX
+  // 슬로건 ("Smiling Technology" -> /cheil/cheil_smile.jpg 이미지 교체)
   let sloganHtml = "";
   if (config.showSlogan) {
-    const textStr = config.sloganText || '"Smiling Technology"';
-    if (fontPadosori) {
-      // 8pt ~ viewBox 환산 13.5px
-      const path = fontPadosori.getPath(textStr, 34, 242, 13.5);
-      path.fill = "#333333";
-      sloganHtml = `<g transform="translate(34, 230) skewX(-7) translate(-34, -230)">${path.toSVG(2)}</g>`;
-    } else {
-      sloganHtml = `<text x="34" y="230" font-size="13.5" font-weight="700" fill="#333333" font-family="'a파도소리', 'aPadosori', 'Georgia', serif" transform="translate(34, 230) skewX(-7) translate(-34, -230)" dominant-baseline="hanging">${textStr}</text>`;
-    }
+    const src = sloganAssetBase64 || "/cheil/cheil_smile.jpg";
+    sloganHtml = `<image href="${src}" xlink:href="${src}" x="34" y="227" width="124" height="14" preserveAspectRatio="xMinYMin meet" />`;
   }
 
   const nameText = !isBack
@@ -293,29 +300,15 @@ async function createSvgMarkupWithOutlines(
       : [front.position1, front.department].filter(Boolean).join(" / ")
     : "";
 
-  const companyText = !isBack
-    ? key === "cheil"
-      ? "(주)제일엔지니어링종합건축사사무소"
-      : "한미글로벌 주식회사"
-    : key === "cheil"
-    ? "CHEIL ENGINEERING CO.,LTD."
-    : "HanmiGlobal Co.,Ltd.";
-
-  // 제일엔지니어링(HY울릉도M) & 한미글로벌(아웃라인 이미지 자산) 상호
+  // 제일엔지니어링 & 한미글로벌 지정 이미지 자산 상호명
   let companyHtml = "";
   if (config.fields.companyName) {
-    if (key === "cheil" && fontUlsungdo && !isBack) {
-      const path = fontUlsungdo.getPath(companyText, config.fields.companyName.x, config.fields.companyName.y + 12, config.fields.companyName.fontSize || 14);
-      path.fill = config.fields.companyName.fill || "#0f172a";
-      companyHtml = path.toSVG(2);
-    } else if (key === "hanmi" && hanmiNameBase64) {
-      companyHtml = `<image href="${hanmiNameBase64}" xlink:href="${hanmiNameBase64}" x="${config.fields.companyName.x}" y="${config.fields.companyName.y - 2}" width="${!isBack ? 143.7 : 159.9}" height="14.2" preserveAspectRatio="xMinYMin meet" />`;
-    } else if (key === "hanmi" && fontNanumSquare) {
-      const path = fontNanumSquare.getPath(companyText, config.fields.companyName.x, config.fields.companyName.y + 12, config.fields.companyName.fontSize || 14.2);
-      path.fill = config.fields.companyName.fill || "#0f172a";
-      companyHtml = path.toSVG(2);
+    if (key === "hanmi") {
+      const src = companyNameAssetBase64 || (!isBack ? "/hanmi/hanmi_front_name.jpg" : "/hanmi/hanmi_back_name.jpg");
+      companyHtml = `<image href="${src}" xlink:href="${src}" x="${config.fields.companyName.x}" y="${config.fields.companyName.y - 2}" width="${!isBack ? 143.7 : 159.9}" height="14.2" preserveAspectRatio="xMinYMin meet" />`;
     } else {
-      companyHtml = `<text x="${config.fields.companyName.x}" y="${config.fields.companyName.y}" font-size="${config.fields.companyName.fontSize}" font-weight="700" fill="${config.fields.companyName.fill || "#0f172a"}" font-family="${config.fields.companyName?.fontFamily || "'HY울릉도M', serif"}" dominant-baseline="hanging">${!isBack ? companyText : (key === "cheil" ? "CHEIL ENGINEERING CO.,LTD." : '<tspan font-weight="700" fill="#0f172a">Hanmi</tspan><tspan font-weight="400" fill="#334155">Global Co.,Ltd.</tspan>')}</text>`;
+      const src = companyNameAssetBase64 || (!isBack ? "/cheil/cheil_build_front_name.jpg" : "/cheil/cheil_back_name.jpg");
+      companyHtml = `<image href="${src}" xlink:href="${src}" x="${config.fields.companyName.x}" y="${!isBack ? config.fields.companyName.y - 1 : config.fields.companyName.y}" width="${!isBack ? 217.6 : 216.5}" height="${!isBack ? 13.8 : 8.8}" preserveAspectRatio="xMinYMin meet" />`;
     }
   }
 
