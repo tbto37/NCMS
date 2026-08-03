@@ -61,6 +61,7 @@ export const HANMI_COMPANY_DATA: CompanyData = {
     { ko: "하이테크사업부", en: "High-Tech Division" },
     { ko: "글로벌사업부", en: "Global Division" },
     { ko: "엔지니어링실", en: "Engineering Division" },
+    { ko: "경영지원", en: "Management Support" },
   ],
   positions: [
     { ko: "사장", en: "President" },

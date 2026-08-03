@@ -402,7 +402,9 @@ export default function TemplateEditModal({
 
                   {/* 6. 전화번호 */}
                   <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
-                    <label className="text-xs font-medium text-muted-foreground">대표번호</label>
+                    <label className="text-xs font-medium text-muted-foreground">
+                      {isHanmi ? "전화번호" : "대표번호"}
+                    </label>
                     <input
                       value={cardData.front.telephone}
                       onChange={(e) => handleFrontChange("telephone", e.target.value)}
@@ -552,7 +554,9 @@ export default function TemplateEditModal({
 
                   {/* 8. 전화번호 */}
                   <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
-                    <label className="text-xs font-medium text-muted-foreground">대표번호</label>
+                    <label className="text-xs font-medium text-muted-foreground">
+                      {isHanmi ? "전화번호" : "대표번호"}
+                    </label>
                     <input
                       value={cardData.back.telephone}
                       onChange={(e) => handleBackChange("telephone", e.target.value)}

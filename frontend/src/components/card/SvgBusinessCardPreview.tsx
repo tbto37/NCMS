@@ -26,13 +26,13 @@ function formatKoreanName(nameStr?: string): string {
 export function getHanmiFrontAddressLines(front: any): [string, string] {
   if (front?.address1 || front?.address2) {
     return [
-      front?.address1 || "06164, 서울시 강남구 테헤란로 87길",
-      front?.address2 || "36 도심공항타워",
+      front?.address1 || "",
+      front?.address2 || "",
     ];
   }
   const raw = (front?.address || "").trim();
   if (!raw) {
-    return ["06164, 서울시 강남구 테헤란로 87길", "36 도심공항타워"];
+    return ["", ""];
   }
   if (raw.includes("\n")) {
     const lines = raw.split("\n").map((l: string) => l.trim()).filter(Boolean);
@@ -58,7 +58,7 @@ export function getCheilBackAddressLines(back: any, maxChars = 38): [string, str
   const raw2 = (back?.address2 || "").trim();
 
   if (!raw1 && !raw2) {
-    return ["22-6, Gangnamdaero 16gil, Seocho-gu,", "Seoul, Korea (06779)"];
+    return ["", ""];
   }
 
   if (raw1.length <= maxChars && raw2.length <= maxChars) {
@@ -89,7 +89,7 @@ export function getCheilBackAddressLines(back: any, maxChars = 38): [string, str
     }
   }
 
-  return [lines[0] || "22-6, Gangnamdaero 16gil, Seocho-gu,", lines[1] || "Seoul, Korea (06779)"];
+  return [lines[0] || "", lines[1] || ""];
 }
 
 // 한미글로벌 영문 뒷면 주소 (3줄) 스마트 래핑 및 동적 분할 처리
@@ -99,11 +99,7 @@ export function getHanmiBackAddressLines(back: any, maxChars = 37): [string, str
   const raw3 = (back?.address3 || "").trim();
 
   if (!raw1 && !raw2 && !raw3) {
-    return [
-      "City Air Tower Bldg., 36, Teheran-ro",
-      "87-gil, Gangnam-gu, Seoul, 06164,",
-      "Korea",
-    ];
+    return ["", "", ""];
   }
 
   // 각 행이 37자 이하로 안전하면 유저가 직접 나눈 줄바꿈 그대로 보존
@@ -137,9 +133,9 @@ export function getHanmiBackAddressLines(back: any, maxChars = 37): [string, str
   }
 
   return [
-    lines[0] || "City Air Tower Bldg., 36, Teheran-ro",
-    lines[1] || "87-gil, Gangnam-gu, Seoul, 06164,",
-    lines[2] || "Korea",
+    lines[0] || "",
+    lines[1] || "",
+    lines[2] || "",
   ];
 }
 
@@ -293,15 +289,15 @@ export default function SvgBusinessCardPreview({
               dominantBaseline="hanging"
             >
               {!isBack
-                ? formatKoreanName(front.name) || "백    승    연"
-                : back.name || "Rosy Baek"}
+                ? formatKoreanName(front.name)
+                : back.name || ""}
             </text>
           )}
 
           {/* 2. 부서 및 직급 */}
           {!isBack ? (
             <>
-              {config.fields.departmentPosition && (
+              {config.fields.departmentPosition && (front.department || front.position1) && (
                 <text
                   x={config.fields.departmentPosition.x}
                   y={config.fields.departmentPosition.y}
@@ -311,11 +307,11 @@ export default function SvgBusinessCardPreview({
                   dominantBaseline="hanging"
                 >
                   {key === "cheil"
-                    ? [front.department, front.position1].filter(Boolean).join(" / ") || "도로사업부 / 이사"
-                    : [front.position1, front.department].filter(Boolean).join(" / ") || "프로 / 경영지원팀"}
+                    ? [front.department, front.position1].filter(Boolean).join(" / ")
+                    : [front.position1, front.department].filter(Boolean).join(" / ")}
                 </text>
               )}
-              {config.fields.position2 && (
+              {config.fields.position2 && front.position2 && (
                 <text
                   x={config.fields.position2.x}
                   y={config.fields.position2.y}
@@ -324,13 +320,13 @@ export default function SvgBusinessCardPreview({
                   fill={config.fields.position2.fill || "#475569"}
                   dominantBaseline="hanging"
                 >
-                  {front.position2 || "도로 및 공항 기술사"}
+                  {front.position2}
                 </text>
               )}
             </>
           ) : (
             <>
-              {config.fields.position1 && (
+              {config.fields.position1 && back.position1 && (
                 <text
                   x={config.fields.position1.x}
                   y={config.fields.position1.y}
@@ -339,16 +335,12 @@ export default function SvgBusinessCardPreview({
                   fill={config.fields.position1.fill || "#1e293b"}
                   dominantBaseline="hanging"
                 >
-                  {back.position1
-                    ? back.position1.endsWith("/")
-                      ? back.position1
-                      : `${back.position1} /`
-                    : key === "cheil"
-                    ? "Director / P.E."
-                    : "Professional /"}
+                  {back.position1.endsWith("/")
+                    ? back.position1
+                    : `${back.position1} /`}
                 </text>
               )}
-              {config.fields.department && (
+              {config.fields.department && back.department && (
                 <text
                   x={config.fields.department.x}
                   y={config.fields.department.y}
@@ -357,7 +349,7 @@ export default function SvgBusinessCardPreview({
                   fill={config.fields.department.fill || "#1e293b"}
                   dominantBaseline="hanging"
                 >
-                  {back.department || (key === "cheil" ? "Highway Eng. Business Div." : "Management Support Team")}
+                  {back.department}
                 </text>
               )}
             </>
@@ -390,7 +382,7 @@ export default function SvgBusinessCardPreview({
           )}
 
           {/* 4. 대표전화 & 팩스 한 줄 렌더링 (제일엔지니어링 전용) */}
-          {key === "cheil" && config.fields.telAndFax && (
+          {key === "cheil" && config.fields.telAndFax && (currentData.telephone || currentData.fax) && (
             <text
               x={config.fields.telAndFax.x}
               y={config.fields.telAndFax.y}
@@ -400,13 +392,13 @@ export default function SvgBusinessCardPreview({
               dominantBaseline="hanging"
             >
               {!isBack
-                ? `대표 : ${currentData.telephone || "02-000-0000"}   팩스 : ${currentData.fax || "02-000-0000"}`
-                : `Tel: ${currentData.telephone || "82-2-000-0000"}   Fax: ${currentData.fax || "82-2-000-0000"}`}
+                ? `${currentData.telephone ? `대표 : ${currentData.telephone}` : ""}${currentData.telephone && currentData.fax ? "   " : ""}${currentData.fax ? `팩스 : ${currentData.fax}` : ""}`
+                : `${currentData.telephone ? `Tel: ${currentData.telephone}` : ""}${currentData.telephone && currentData.fax ? "   " : ""}${currentData.fax ? `Fax: ${currentData.fax}` : ""}`}
             </text>
           )}
 
           {/* 5. 한미글로벌 전용 대표전화 (+82 국가번호 반영 및 X=301 칼선 정렬) */}
-          {key === "hanmi" && config.fields.telephone && (
+          {key === "hanmi" && config.fields.telephone && currentData.telephone && (
             <text
               x={config.fields.telephone.x}
               y={config.fields.telephone.y}
@@ -419,17 +411,15 @@ export default function SvgBusinessCardPreview({
                 T
               </tspan>
               <tspan x={config.fields.telephone.x + 16}>
-                {currentData.telephone
-                  ? currentData.telephone.startsWith("+82")
-                    ? currentData.telephone
-                    : `+82 (0)${currentData.telephone.replace(/^0/, "")}`
-                  : "+82 (0)10-6379-1882"}
+                {currentData.telephone.startsWith("+82")
+                  ? currentData.telephone
+                  : `+82 (0)${currentData.telephone.replace(/^0/, "")}`}
               </tspan>
             </text>
           )}
 
           {/* 6. 직통번호 (Dir) */}
-          {config.fields.directTelephone && (key === "cheil" ? hasDirectTel : currentData.directTelephone) && (
+          {config.fields.directTelephone && currentData.directTelephone && (
             <text
               x={config.fields.directTelephone.x}
               y={key === "cheil" ? cheilY.directTel : config.fields.directTelephone.y}
@@ -442,12 +432,12 @@ export default function SvgBusinessCardPreview({
                 ? !isBack
                   ? `직통 : ${currentData.directTelephone}`
                   : `Dir: ${currentData.directTelephone}`
-                : `Dir ${currentData.directTelephone || "02-3498-2662"}`}
+                : `Dir ${currentData.directTelephone}`}
             </text>
           )}
 
           {/* 7. 핸드폰 (Mobile - regular weight & X=301 칼선 정렬) */}
-          {config.fields.mobile && (
+          {config.fields.mobile && currentData.mobile && (
             <text
               x={config.fields.mobile.x}
               y={key === "cheil" ? cheilY.mobile : config.fields.mobile.y}
@@ -458,19 +448,17 @@ export default function SvgBusinessCardPreview({
             >
               {key === "cheil" ? (
                 !isBack
-                  ? `핸드폰 : ${currentData.mobile || "010-1234-5678"}`
-                  : `Mobile: ${currentData.mobile || "82-10-1234-5678"}`
+                  ? `핸드폰 : ${currentData.mobile}`
+                  : `Mobile: ${currentData.mobile}`
               ) : (
                 <>
                   <tspan x={config.fields.mobile.x} fontWeight="400" fill="#1e293b">
                     M
                   </tspan>
                   <tspan x={config.fields.mobile.x + 16}>
-                    {currentData.mobile
-                      ? currentData.mobile.startsWith("+82")
-                        ? currentData.mobile
-                        : `+82 (0)${currentData.mobile.replace(/^0/, "")}`
-                      : "+82 (0)70-7188-2199"}
+                    {currentData.mobile.startsWith("+82")
+                      ? currentData.mobile
+                      : `+82 (0)${currentData.mobile.replace(/^0/, "")}`}
                   </tspan>
                 </>
               )}
@@ -478,7 +466,7 @@ export default function SvgBusinessCardPreview({
           )}
 
           {/* 8. 이메일 (E-mail - regular weight & X=301 칼선 정렬) */}
-          {config.fields.email && (
+          {config.fields.email && currentData.email && (
             <text
               x={config.fields.email.x}
               y={key === "cheil" ? cheilY.email : config.fields.email.y}
@@ -488,14 +476,14 @@ export default function SvgBusinessCardPreview({
               dominantBaseline="hanging"
             >
               {key === "cheil" ? (
-                `E-mail: ${currentData.email || "00000@naver.com"}`
+                `E-mail: ${currentData.email}`
               ) : (
                 <>
                   <tspan x={config.fields.email.x} fontWeight="400" fill="#1e293b">
                     E
                   </tspan>
                   <tspan x={config.fields.email.x + 16}>
-                    {currentData.email || "baeksy@hanmiglobal.com"}
+                    {currentData.email}
                   </tspan>
                 </>
               )}
@@ -503,7 +491,7 @@ export default function SvgBusinessCardPreview({
           )}
 
           {/* 9. 웹사이트 (Website) */}
-          {config.fields.website && (
+          {config.fields.website && currentData.website && (
             <text
               x={config.fields.website.x}
               y={key === "cheil" ? cheilY.website : config.fields.website.y}
@@ -512,12 +500,12 @@ export default function SvgBusinessCardPreview({
               fill={config.fields.website.fill || "#004B96"}
               dominantBaseline="hanging"
             >
-              {currentData.website || (key === "cheil" ? "www.cheileng.com" : "www.hanmiglobal.com")}
+              {currentData.website}
             </text>
           )}
 
           {/* 10. 주소 (Address) */}
-          {key === "cheil" && config.fields.address && (
+          {key === "cheil" && config.fields.address && front.address && (
             <text
               x={config.fields.address.x}
               y={config.fields.address.y}
@@ -526,7 +514,7 @@ export default function SvgBusinessCardPreview({
               fill="#334155"
               dominantBaseline="hanging"
             >
-              {front.address || "06779 서울시 서초구 강남대로16길 22-6(양재동)"}
+              {front.address}
             </text>
           )}
 

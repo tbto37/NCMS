@@ -284,13 +284,13 @@ async function createSvgMarkupWithOutlines(
   }
 
   const nameText = !isBack
-    ? formatKoreanName(front.name) || "백    승    연"
-    : back.name || "Rosy Baek";
+    ? formatKoreanName(front.name) || ""
+    : back.name || "";
 
   const deptPosText = !isBack
     ? key === "cheil"
-      ? [front.department, front.position1].filter(Boolean).join(" / ") || "상하수도사업부 / 부장"
-      : [front.position1, front.department].filter(Boolean).join(" / ") || "프로 / 경영지원팀"
+      ? [front.department, front.position1].filter(Boolean).join(" / ")
+      : [front.position1, front.department].filter(Boolean).join(" / ")
     : "";
 
   const companyText = !isBack
@@ -323,13 +323,13 @@ async function createSvgMarkupWithOutlines(
     ? currentData.telephone.startsWith("+82")
       ? currentData.telephone
       : `+82 (0)${currentData.telephone.replace(/^0/, "")}`
-    : "+82 (0)10-6379-1882";
+    : "";
 
   const mobileText = currentData.mobile
     ? currentData.mobile.startsWith("+82")
       ? currentData.mobile
       : `+82 (0)${currentData.mobile.replace(/^0/, "")}`
-    : "+82 (0)70-7188-2199";
+    : "";
 
   return `
     <svg viewBox="-5.767 -5.767 530.533 299.866" width="530.533" height="299.866" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="background:#ffffff; font-family:${key === "hanmi" ? "'NanumSquare', 'Pretendard Variable', Pretendard, sans-serif" : "'Pretendard Variable', Pretendard, -apple-system, sans-serif"}; display:block;">
@@ -343,40 +343,40 @@ async function createSvgMarkupWithOutlines(
       ${logoBase64 ? `<image href="${logoBase64}" xlink:href="${logoBase64}" x="${logoSpec.x}" y="${logoSpec.y}" width="${logoSpec.width}" height="${logoSpec.height}" preserveAspectRatio="xMinYMin meet" />` : ""}
       ${sloganHtml}
 
-      ${config.fields.name ? `<text x="${config.fields.name.x}" y="${config.fields.name.y}" font-size="${config.fields.name.fontSize}" font-weight="${config.fields.name.fontWeight || "700"}" fill="${config.fields.name.fill || "#0f172a"}" letter-spacing="${!isBack && key === "cheil" ? "0.35em" : !isBack ? "0.25em" : "normal"}" dominant-baseline="hanging">${nameText}</text>` : ""}
+      ${config.fields.name && nameText ? `<text x="${config.fields.name.x}" y="${config.fields.name.y}" font-size="${config.fields.name.fontSize}" font-weight="${config.fields.name.fontWeight || "700"}" fill="${config.fields.name.fill || "#0f172a"}" letter-spacing="${!isBack && key === "cheil" ? "0.35em" : !isBack ? "0.25em" : "normal"}" dominant-baseline="hanging">${nameText}</text>` : ""}
 
-      ${!isBack && config.fields.departmentPosition ? `<text x="${config.fields.departmentPosition.x}" y="${config.fields.departmentPosition.y}" font-size="${config.fields.departmentPosition.fontSize}" font-weight="500" fill="#1e293b" dominant-baseline="hanging">${deptPosText}</text>` : ""}
+      ${!isBack && config.fields.departmentPosition && deptPosText ? `<text x="${config.fields.departmentPosition.x}" y="${config.fields.departmentPosition.y}" font-size="${config.fields.departmentPosition.fontSize}" font-weight="500" fill="#1e293b" dominant-baseline="hanging">${deptPosText}</text>` : ""}
 
-      ${!isBack && config.fields.position2 ? `<text x="${config.fields.position2.x}" y="${config.fields.position2.y}" font-size="${config.fields.position2.fontSize}" font-weight="${config.fields.position2.fontWeight || "400"}" fill="${config.fields.position2.fill || "#475569"}" dominant-baseline="hanging">${front.position2 || (key === "cheil" ? "상하수도기술사" : "")}</text>` : ""}
+      ${!isBack && config.fields.position2 && front.position2 ? `<text x="${config.fields.position2.x}" y="${config.fields.position2.y}" font-size="${config.fields.position2.fontSize}" font-weight="${config.fields.position2.fontWeight || "400"}" fill="${config.fields.position2.fill || "#475569"}" dominant-baseline="hanging">${front.position2}</text>` : ""}
 
-      ${isBack && config.fields.position1 ? `<text x="${config.fields.position1.x}" y="${config.fields.position1.y}" font-size="${config.fields.position1.fontSize}" font-weight="400" fill="#1e293b" dominant-baseline="hanging">${back.position1 ? (back.position1.endsWith("/") ? back.position1 : back.position1 + " /") : (key === "cheil" ? "General Manager /" : "Professional /")}</text>` : ""}
+      ${isBack && config.fields.position1 && back.position1 ? `<text x="${config.fields.position1.x}" y="${config.fields.position1.y}" font-size="${config.fields.position1.fontSize}" font-weight="400" fill="#1e293b" dominant-baseline="hanging">${back.position1.endsWith("/") ? back.position1 : back.position1 + " /"}</text>` : ""}
 
-      ${isBack && config.fields.department ? `<text x="${config.fields.department.x}" y="${config.fields.department.y}" font-size="${config.fields.department.fontSize}" font-weight="500" fill="#1e293b" dominant-baseline="hanging">${back.department || (key === "cheil" ? "Water Supply & Sewerage Business Div." : "Management Support Team")}</text>` : ""}
+      ${isBack && config.fields.department && back.department ? `<text x="${config.fields.department.x}" y="${config.fields.department.y}" font-size="${config.fields.department.fontSize}" font-weight="500" fill="#1e293b" dominant-baseline="hanging">${back.department}</text>` : ""}
 
       ${companyHtml}
 
-      ${key === "cheil" && config.fields.telAndFax ? `<text x="${config.fields.telAndFax.x}" y="${config.fields.telAndFax.y}" font-size="${config.fields.telAndFax.fontSize}" font-weight="400" fill="#1e293b" dominant-baseline="hanging">${!isBack ? `대표 : ${currentData.telephone || "02-000-0000"}   팩스 : ${currentData.fax || "02-000-0000"}` : `Tel: ${currentData.telephone || "82-2-000-0000"}   Fax: ${currentData.fax || "82-2-000-0000"}`}</text>` : ""}
+      ${key === "cheil" && config.fields.telAndFax && (currentData.telephone || currentData.fax) ? `<text x="${config.fields.telAndFax.x}" y="${config.fields.telAndFax.y}" font-size="${config.fields.telAndFax.fontSize}" font-weight="400" fill="#1e293b" dominant-baseline="hanging">${!isBack ? `${currentData.telephone ? `대표 : ${currentData.telephone}` : ""}${currentData.telephone && currentData.fax ? "   " : ""}${currentData.fax ? `팩스 : ${currentData.fax}` : ""}` : `${currentData.telephone ? `Tel: ${currentData.telephone}` : ""}${currentData.telephone && currentData.fax ? "   " : ""}${currentData.fax ? `Fax: ${currentData.fax}` : ""}`}</text>` : ""}
 
-      ${key === "hanmi" && config.fields.telephone ? `<text x="${config.fields.telephone.x}" y="${config.fields.telephone.y}" font-size="${config.fields.telephone.fontSize}" font-weight="400" fill="#1e293b" dominant-baseline="hanging"><tspan x="${config.fields.telephone.x}" font-weight="400" fill="#1e293b">T</tspan><tspan x="${config.fields.telephone.x + 16}">${telephoneText}</tspan></text>` : ""}
+      ${key === "hanmi" && config.fields.telephone && currentData.telephone ? `<text x="${config.fields.telephone.x}" y="${config.fields.telephone.y}" font-size="${config.fields.telephone.fontSize}" font-weight="400" fill="#1e293b" dominant-baseline="hanging"><tspan x="${config.fields.telephone.x}" font-weight="400" fill="#1e293b">T</tspan><tspan x="${config.fields.telephone.x + 16}">${telephoneText}</tspan></text>` : ""}
 
-      ${config.fields.directTelephone && (key === "cheil" ? hasDirectTel : currentData.directTelephone) ? `<text x="${config.fields.directTelephone.x}" y="${key === "cheil" ? cheilY.directTel : config.fields.directTelephone.y}" font-size="${config.fields.directTelephone.fontSize}" font-weight="400" fill="#1e293b" dominant-baseline="hanging">${key === "cheil" ? (!isBack ? `직통 : ${currentData.directTelephone || "02-0000-0000"}` : `Dir: ${currentData.directTelephone || "02-0000-0000"}`) : `Dir ${currentData.directTelephone || "02-3498-2662"}`}</text>` : ""}
+      ${config.fields.directTelephone && currentData.directTelephone ? `<text x="${config.fields.directTelephone.x}" y="${key === "cheil" ? cheilY.directTel : config.fields.directTelephone.y}" font-size="${config.fields.directTelephone.fontSize}" font-weight="400" fill="#1e293b" dominant-baseline="hanging">${key === "cheil" ? (!isBack ? `직통 : ${currentData.directTelephone}` : `Dir: ${currentData.directTelephone}`) : `Dir ${currentData.directTelephone}`}</text>` : ""}
 
-      ${config.fields.mobile ? `<text x="${config.fields.mobile.x}" y="${key === "cheil" ? cheilY.mobile : config.fields.mobile.y}" font-size="${config.fields.mobile.fontSize}" font-weight="400" fill="#1e293b" dominant-baseline="hanging">${key === "cheil" ? (!isBack ? `핸드폰 : ${currentData.mobile || "010-1234-5678"}` : `Mobile: ${currentData.mobile || "82-10-1234-5678"}`) : `<tspan x="${config.fields.mobile.x}" font-weight="400" fill="#1e293b">M</tspan><tspan x="${config.fields.mobile.x + 16}">${mobileText}</tspan>`}</text>` : ""}
+      ${config.fields.mobile && currentData.mobile ? `<text x="${config.fields.mobile.x}" y="${key === "cheil" ? cheilY.mobile : config.fields.mobile.y}" font-size="${config.fields.mobile.fontSize}" font-weight="400" fill="#1e293b" dominant-baseline="hanging">${key === "cheil" ? (!isBack ? `핸드폰 : ${currentData.mobile}` : `Mobile: ${currentData.mobile}`) : `<tspan x="${config.fields.mobile.x}" font-weight="400" fill="#1e293b">M</tspan><tspan x="${config.fields.mobile.x + 16}">${mobileText}</tspan>`}</text>` : ""}
 
-      ${config.fields.email ? `<text x="${config.fields.email.x}" y="${key === "cheil" ? cheilY.email : config.fields.email.y}" font-size="${config.fields.email.fontSize}" font-weight="400" fill="#1e293b" dominant-baseline="hanging">${key === "cheil" ? (!isBack ? `E-mail: ${currentData.email || "00000@naver.com"}` : `E-mail: ${currentData.email || "00000@naver.com"}`) : `<tspan x="${config.fields.email.x}" font-weight="400" fill="#1e293b">E</tspan><tspan x="${config.fields.email.x + 16}">${currentData.email || "baeksy@hanmiglobal.com"}</tspan>`}</text>` : ""}
+      ${config.fields.email && currentData.email ? `<text x="${config.fields.email.x}" y="${key === "cheil" ? cheilY.email : config.fields.email.y}" font-size="${config.fields.email.fontSize}" font-weight="400" fill="#1e293b" dominant-baseline="hanging">${key === "cheil" ? `E-mail: ${currentData.email}` : `<tspan x="${config.fields.email.x}" font-weight="400" fill="#1e293b">E</tspan><tspan x="${config.fields.email.x + 16}">${currentData.email}</tspan>`}</text>` : ""}
 
-      ${config.fields.website ? `<text x="${config.fields.website.x}" y="${key === "cheil" ? cheilY.website : config.fields.website.y}" font-size="${config.fields.website.fontSize}" font-weight="700" fill="${key === "cheil" ? "#0f172a" : "#004B96"}" dominant-baseline="hanging">${currentData.website || (key === "cheil" ? "www.cheileng.com" : "www.hanmiglobal.com")}</text>` : ""}
+      ${config.fields.website && currentData.website ? `<text x="${config.fields.website.x}" y="${key === "cheil" ? cheilY.website : config.fields.website.y}" font-size="${config.fields.website.fontSize}" font-weight="700" fill="${key === "cheil" ? "#0f172a" : "#004B96"}" dominant-baseline="hanging">${currentData.website}</text>` : ""}
 
       ${key === "hanmi" && !isBack ? (() => {
         const [addr1, addr2] = getHanmiFrontAddressLines(front);
         return `
-          <text x="${config.fields.address1?.x}" y="${config.fields.address1?.y}" font-size="${config.fields.address1?.fontSize}" font-weight="400" fill="#334155" dominant-baseline="hanging">${addr1}</text>
+          ${addr1 ? `<text x="${config.fields.address1?.x}" y="${config.fields.address1?.y}" font-size="${config.fields.address1?.fontSize}" font-weight="400" fill="#334155" dominant-baseline="hanging">${addr1}</text>` : ""}
           ${addr2 ? `<text x="${config.fields.address2?.x}" y="${config.fields.address2?.y}" font-size="${config.fields.address2?.fontSize}" font-weight="400" fill="#334155" dominant-baseline="hanging">${addr2}</text>` : ""}
         `;
       })() : ""}
 
-      ${key === "cheil" && !isBack ? `
-        <text x="${config.fields.address?.x}" y="${config.fields.address?.y}" font-size="${config.fields.address?.fontSize}" font-weight="400" fill="#334155" dominant-baseline="hanging">${front.address || "06779 서울시 서초구 강남대로16길 22-6(양재동)"}</text>
+      ${key === "cheil" && !isBack && front.address ? `
+        <text x="${config.fields.address?.x}" y="${config.fields.address?.y}" font-size="${config.fields.address?.fontSize}" font-weight="400" fill="#334155" dominant-baseline="hanging">${front.address}</text>
       ` : ""}
 
       ${isBack && key === "cheil" ? (() => {
