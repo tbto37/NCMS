@@ -272,32 +272,30 @@ export default function SvgBusinessCardPreview({
             </>
           )}
 
-          {/* 3. 회사명 (제일엔지니어링: HY울릉도M 지정 폰트, 한미글로벌: Hanmi(Bold)+Global Co.,Ltd.(Regular)) */}
+          {/* 3. 회사명 (제일엔지니어링: HY울릉도M 지정 폰트, 한미글로벌: 고객 아웃라인 자산 이미지) */}
           {config.fields.companyName && (
-            <text
-              x={config.fields.companyName.x}
-              y={config.fields.companyName.y}
-              fontSize={config.fields.companyName.fontSize}
-              fontWeight={config.fields.companyName.fontWeight || "700"}
-              fill={config.fields.companyName.fill || "#0f172a"}
-              fontFamily={config.fields.companyName.fontFamily || (key === "cheil" ? "'HY울릉도M', HYUlsungdoM, 'HYPMokGak-Medium', serif" : "inherit")}
-              dominantBaseline="hanging"
-            >
-              {!isBack ? (
-                key === "cheil" ? "(주)제일엔지니어링종합건축사사무소" : "한미글로벌 주식회사"
-              ) : key === "cheil" ? (
-                "CHEIL ENGINEERING CO.,LTD."
-              ) : (
-                <>
-                  <tspan fontWeight="700" fill="#0f172a">
-                    Hanmi
-                  </tspan>
-                  <tspan fontWeight="400" fill="#334155">
-                    Global Co.,Ltd.
-                  </tspan>
-                </>
-              )}
-            </text>
+            key === "hanmi" ? (
+              <image
+                href={!isBack ? "/hanmi_front_name.jpg" : "/hanmi_back_name.jpg"}
+                x={config.fields.companyName.x}
+                y={config.fields.companyName.y - 2}
+                width={!isBack ? 143.7 : 159.9}
+                height={14.2}
+                preserveAspectRatio="xMinYMin meet"
+              />
+            ) : (
+              <text
+                x={config.fields.companyName.x}
+                y={config.fields.companyName.y}
+                fontSize={config.fields.companyName.fontSize}
+                fontWeight={config.fields.companyName.fontWeight || "700"}
+                fill={config.fields.companyName.fill || "#0f172a"}
+                fontFamily={config.fields.companyName.fontFamily || "'HY울릉도M', HYUlsungdoM, 'HYPMokGak-Medium', serif"}
+                dominantBaseline="hanging"
+              >
+                {!isBack ? "(주)제일엔지니어링종합건축사사무소" : "CHEIL ENGINEERING CO.,LTD."}
+              </text>
+            )
           )}
 
           {/* 4. 대표전화 & 팩스 한 줄 렌더링 (제일엔지니어링 전용) */}

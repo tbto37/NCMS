@@ -245,7 +245,7 @@ export const CARD_TEMPLATE_SPECS: Record<string, { front: CardTemplateConfig; ba
           fontSize: 26.4, // 13pt
           fontWeight: "800",
           fill: "#0f172a",
-          letterSpacing: "0.25em",
+          letterSpacing: "0.1em", // Illustrator Tracking 100
           fontFamily: "'나눔스퀘어OTF_ac', 'NanumSquareOTF_ac', 'NanumSquare', sans-serif",
         },
         departmentPosition: {
@@ -322,6 +322,7 @@ export const CARD_TEMPLATE_SPECS: Record<string, { front: CardTemplateConfig; ba
           fontSize: 26.4, // 13pt
           fontWeight: "800",
           fill: "#0f172a",
+          letterSpacing: "0.1em", // Illustrator Tracking 100
           fontFamily: "'나눔스퀘어OTF_ac', 'NanumSquareOTF_ac', 'NanumSquare', sans-serif",
         },
         position1: {

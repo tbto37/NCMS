@@ -107,6 +107,7 @@ export async function generateCardPrintPdf(order: OrderLike): Promise<void> {
 
     // --- Page 1: 앞면 (국문 순수 Vector SVG PDF + Outline + CMYK) ---
     const frontLogoBase64 = await fetchLogoBase64(specGroup.front.logoUrl);
+    const hanmiFrontNameBase64 = key === "hanmi" ? await fetchLogoBase64("/hanmi_front_name.jpg") : "";
     container.innerHTML = await createSvgMarkupWithOutlines(
       key,
       specGroup.front,
@@ -115,7 +116,8 @@ export async function generateCardPrintPdf(order: OrderLike): Promise<void> {
       frontLogoBase64,
       fontUlsungdo,
       fontPadosori,
-      fontNanumSquare
+      fontNanumSquare,
+      hanmiFrontNameBase64
     );
     await new Promise((res) => setTimeout(res, 50));
 
@@ -153,6 +155,7 @@ export async function generateCardPrintPdf(order: OrderLike): Promise<void> {
     // --- Page 2: 뒷면 (영문 순수 Vector SVG PDF + Outline + CMYK) ---
     doc.addPage([92, 52], "landscape");
     const backLogoBase64 = await fetchLogoBase64(specGroup.back.logoUrl);
+    const hanmiBackNameBase64 = key === "hanmi" ? await fetchLogoBase64("/hanmi_back_name.jpg") : "";
     container.innerHTML = await createSvgMarkupWithOutlines(
       key,
       specGroup.back,
@@ -161,7 +164,8 @@ export async function generateCardPrintPdf(order: OrderLike): Promise<void> {
       backLogoBase64,
       fontUlsungdo,
       fontPadosori,
-      fontNanumSquare
+      fontNanumSquare,
+      hanmiBackNameBase64
     );
     await new Promise((res) => setTimeout(res, 50));
 
@@ -236,7 +240,8 @@ async function createSvgMarkupWithOutlines(
   logoBase64: string,
   fontUlsungdo: opentype.Font | null,
   fontPadosori: opentype.Font | null,
-  fontNanumSquare: opentype.Font | null = null
+  fontNanumSquare: opentype.Font | null = null,
+  hanmiNameBase64: string = ""
 ): Promise<string> {
   const front = cardData.front || {};
   const back = cardData.back || {};
@@ -296,13 +301,15 @@ async function createSvgMarkupWithOutlines(
     ? "CHEIL ENGINEERING CO.,LTD."
     : "HanmiGlobal Co.,Ltd.";
 
-  // 제일엔지니어링(HY울릉도M) & 한미글로벌(NanumSquare) 상호 -> Outline Path 변환
+  // 제일엔지니어링(HY울릉도M) & 한미글로벌(아웃라인 이미지 자산) 상호
   let companyHtml = "";
   if (config.fields.companyName) {
     if (key === "cheil" && fontUlsungdo && !isBack) {
       const path = fontUlsungdo.getPath(companyText, config.fields.companyName.x, config.fields.companyName.y + 12, config.fields.companyName.fontSize || 14);
       path.fill = config.fields.companyName.fill || "#0f172a";
       companyHtml = path.toSVG(2);
+    } else if (key === "hanmi" && hanmiNameBase64) {
+      companyHtml = `<image href="${hanmiNameBase64}" xlink:href="${hanmiNameBase64}" x="${config.fields.companyName.x}" y="${config.fields.companyName.y - 2}" width="${!isBack ? 143.7 : 159.9}" height="14.2" preserveAspectRatio="xMinYMin meet" />`;
     } else if (key === "hanmi" && fontNanumSquare) {
       const path = fontNanumSquare.getPath(companyText, config.fields.companyName.x, config.fields.companyName.y + 12, config.fields.companyName.fontSize || 14.2);
       path.fill = config.fields.companyName.fill || "#0f172a";
