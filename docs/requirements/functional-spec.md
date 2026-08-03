@@ -125,8 +125,8 @@ flowchart TD
 
 ### 4.8 고객사 맞춤형 메뉴 & 이용가이드 & 실데이터 매핑 (Tenant Guide & Data) - [완료]
 - **GUI-001 테넌트(cheil/hanmi) 전용 이용가이드 메뉴 및 모달**: `siteCode`가 `cheil` 또는 `hanmi`인 경우 좌측 사이드바/모바일 네비게이션의 `주문 관리` 바로 아래에 `이용가이드` 메뉴 노출. 클릭 시 페이지 이동 없이 이용가이드 모달(`UserGuideModal`)이 팝업되어 템플릿 선택, 템플릿 편집, 교정 승인, 주문서 작성 절차, FAQ 및 주문리스트 액션 팁 안내 정보 제공.
-- **DAT-001 제일엔지니어링 & 한미글로벌 부서/직책/자격사항 테넌트별 동적 셀렉트박스 분리 및 라벨/필드 커스텀 최적화**: 템플릿 편집 모달(`TemplateEditModal.tsx`)에서 선택된 고객사에 맞게 라벨 및 필드를 정밀 조정(한미글로벌: 부서 내 `개발사업부`/`경영지원팀` 제거, 앞/뒷면 `직책` 라벨 적용, `직급2` 필드 완전 숨김 / 제일엔지니어링: 부서 내 `수자원사업부`/`도시계획사업부`/`감리사업부` 제거, 앞/뒷면 `직급` 및 `자격사항` 라벨 적용). 국문 선택 시 1:1 영문이 완벽하게 자동 완성되도록 동적 연결 구현.
-- **DAT-002 향후 DB 부서/직급 마스터 연동 대비 표준화**: 명함 데이터(`card_data` JSONB)는 기존 텍스트 자유 입력을 100% 보존하면서, 표준 인터페이스(`StandardCardFieldData`: `departmentName`, `departmentId`, `positionName`, `positionId`) 적용 및 DB `departments` 마스터 시드 데이터 보강(`V7__add_standard_department_seeds.sql`)을 통해 향후 DB 연동 시 단 1건의 데이터 손실 없이 마이그레이션이 가능하도록 호환성 구조 완료.
+- **DAT-001 제일엔지니어링 & 한미글로벌 부서/직책/자격사항 테넌트별 동적 셀렉트박스 분리 및 라벨/필드 커스텀 최적화**: 템플릿 편집 모달(`TemplateEditModal.tsx`)에서 선택된 고객사에 맞게 라벨 및 필드를 정밀 조정(한미글로벌: 부서 4개 `국내사업부`/`하이테크사업부`/`글로벌사업부`/`엔지니어링실` 세팅, 앞/뒷면 `직책` 라벨 적용, `직급2` 필드 숨김 / 제일엔지니어링: 부서 14개, 직급 10개, 자격사항 13개 세팅, 앞/뒷면 `직급` 및 `자격사항` 라벨 적용). 국문 선택 시 1:1 영문이 완벽하게 자동 완성되도록 동적 연결 구현.
+- **DAT-002 향후 DB 부서/직급 마스터 연동 대비 표준화**: 명함 데이터(`card_data` JSONB)는 기존 자유 입력을 100% 보존하면서, 표준 인터페이스(`StandardCardFieldData`: `departmentName`, `departmentId`, `positionName`, `positionId`) 적용 및 DB `departments` 마스터 시드 데이터([V7__add_standard_department_seeds.sql](file:///c:/NCMS/backend/src/main/resources/db/migration/V7__add_standard_department_seeds.sql))를 최신 `companyData` 데이터셋(제일엔지니어링 14개 부서, 한미글로벌 4개 부서)과 100% 동기화 보강 완료.
 
 
 ---

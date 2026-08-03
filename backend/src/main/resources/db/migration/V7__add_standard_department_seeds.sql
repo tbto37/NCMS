@@ -1,6 +1,6 @@
--- NCMS Migration V7: 주요 고객사 부서 마스터 시드 데이터 보강 (엑셀 데이터셋 100% 매칭)
+-- NCMS Migration V7: 주요 고객사 부서 마스터 시드 데이터 보강 (최신 companyData 데이터셋 100% 매칭)
 
--- 1. 제일엔지니어링 (company_id: 2) 주요 사업부 및 부서 보강
+-- 1. 제일엔지니어링 (company_id: 2) 주요 사업부 및 부서 보강 (14개)
 INSERT INTO departments (id, company_id, name, sort_order, status) VALUES
     (10, 2, '상하수도사업부', 3, 'ACTIVE'),
     (11, 2, '관리본부', 4, 'ACTIVE'),
@@ -15,20 +15,15 @@ INSERT INTO departments (id, company_id, name, sort_order, status) VALUES
     (20, 2, '철도사업부(지반팀)', 13, 'ACTIVE'),
     (21, 2, '교통·ITS사업부', 14, 'ACTIVE'),
     (22, 2, '토목구조사업부', 15, 'ACTIVE'),
-    (23, 2, '경영기획본부', 16, 'ACTIVE'),
-    (24, 2, '수자원사업부', 17, 'ACTIVE'),
-    (25, 2, '도시계획사업부', 18, 'ACTIVE'),
-    (26, 2, '감리사업부', 19, 'ACTIVE')
+    (23, 2, '경영기획본부', 16, 'ACTIVE')
 ON CONFLICT (id) DO NOTHING;
 
--- 2. 한미글로벌 (company_id: 3) 주요 사업부 및 부서 보강
+-- 2. 한미글로벌 (company_id: 3) 주요 사업부 및 부서 보강 (4개)
 INSERT INTO departments (id, company_id, name, sort_order, status) VALUES
-    (27, 3, '국내사업부', 6, 'ACTIVE'),
-    (28, 3, '하이테크사업부', 7, 'ACTIVE'),
-    (29, 3, '글로벌사업부', 8, 'ACTIVE'),
-    (30, 3, '엔지니어링실', 9, 'ACTIVE'),
-    (31, 3, '개발사업부', 10, 'ACTIVE'),
-    (32, 3, '경영지원팀', 11, 'ACTIVE')
+    (24, 3, '국내사업부', 6, 'ACTIVE'),
+    (25, 3, '하이테크사업부', 7, 'ACTIVE'),
+    (26, 3, '글로벌사업부', 8, 'ACTIVE'),
+    (27, 3, '엔지니어링실', 9, 'ACTIVE')
 ON CONFLICT (id) DO NOTHING;
 
 -- 3. 부서 PK 시퀀스 값 갱신
