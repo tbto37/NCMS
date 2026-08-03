@@ -26,38 +26,7 @@ interface TemplateEditModalProps {
   onNext?: (cardData: BusinessCardInputData) => void;
 }
 
-// 부서 매핑 테이블 (한글 -> 영문)
-const DEPARTMENT_MAPPINGS: Record<string, string> = {
-  "경영지원팀": "Management Support Team",
-  "비즈니스개발실": "Business Development Division",
-  "국내사업부": "Domestic Division",
-  "하이테크사업부": "High-Tech Division",
-  "글로벌사업부": "Global Division",
-  "엔지니어링실": "Engineering Division",
-  "도로사업부": "Highway Eng. Business Div.",
-  "상하수도사업부": "Water Supply & Sewerage Eng. Div.",
-};
-
-// 직급 매핑 테이블 (한글 -> 영문)
-const POSITION_MAPPINGS: Record<string, string> = {
-  "사장": "President",
-  "부사장": "Senior Vice President",
-  "전무": "Vice President",
-  "이사": "Director",
-  "시니어 매니저": "Senior Manager",
-  "매니저": "Manager",
-  "프로": "Professional",
-  "국내사업부장": "Head of Domestic Division",
-  "하이테크사업부장": "Head of High-Tech Division",
-  "개발사업부장": "Head of Development Division",
-  "글로벌사업부장": "Head of Global Division",
-  "기술총괄": "Head of Engineering Division",
-  "엔지니어링실장": "Division Leader",
-  "실장": "Team Leader",
-  "팀장": "Team Leader",
-  "단장": "Project Manager",
-  "부장": "General Manager",
-};
+import { CHEIL_COMPANY_DATA, HANMI_COMPANY_DATA } from "@/shared/constants/companyData";
 
 // 영문 전화번호 변환 (+82- (0) 제거 및 국문 번호 기반 자동 포맷팅)
 function formatEnglishPhone(val: string): string {
@@ -173,6 +142,8 @@ export default function TemplateEditModal({
     cardData.front.address?.includes("테헤란로") ||
     cardData.back.website?.includes("hanmiglobal");
 
+  const companyData = isHanmi ? HANMI_COMPANY_DATA : CHEIL_COMPANY_DATA;
+
   const isDeptDirect = !cardData.front.departmentOption || cardData.front.departmentOption === "직접입력";
   const isPos1Direct = !cardData.front.position1Option || cardData.front.position1Option === "직접입력";
   const isPos2Direct = !cardData.front.position2Option || cardData.front.position2Option === "직접입력";
@@ -210,10 +181,11 @@ export default function TemplateEditModal({
     }));
   };
 
-  // 부서 셀렉트 변경 시 레거시 동일 한/영 동시 매핑
+  // 부서 셀렉트 변경 시 고객사별 한/영 동시 매핑
   const handleDeptSelectChange = (e: ChangeEvent<HTMLSelectElement>) => {
     const selectedKor = e.target.value;
-    const mappedEng = DEPARTMENT_MAPPINGS[selectedKor] || "";
+    const found = companyData.departments.find((d) => d.ko === selectedKor);
+    const mappedEng = found ? found.en : "";
 
     setCardData((prev) => ({
       front: {
@@ -228,10 +200,11 @@ export default function TemplateEditModal({
     }));
   };
 
-  // 직급1 셀렉트 변경 시 레거시 동일 한/영 동시 매핑
+  // 직급1 셀렉트 변경 시 고객사별 한/영 동시 매핑
   const handlePosition1SelectChange = (e: ChangeEvent<HTMLSelectElement>) => {
     const selectedKor = e.target.value;
-    const mappedEng = POSITION_MAPPINGS[selectedKor] || "";
+    const found = companyData.positions.find((p) => p.ko === selectedKor);
+    const mappedEng = found ? found.en : "";
 
     setCardData((prev) => ({
       front: {
@@ -241,15 +214,17 @@ export default function TemplateEditModal({
       },
       back: {
         ...prev.back,
-        position1: selectedKor === "직접입력" ? prev.back.position1 : mappedEng,
+        position1: selectedKor === "직접입력" ? prev.back.position1 : (isHanmi ? mappedEng : (mappedEng ? `${mappedEng} /` : "")),
       },
     }));
   };
 
-  // 직급2 셀렉트 변경 시 레거시 동일 한/영 동시 매핑
+  // 직급2/자격사항 셀렉트 변경 시 고객사별 한/영 동시 매핑
   const handlePosition2SelectChange = (e: ChangeEvent<HTMLSelectElement>) => {
     const selectedKor = e.target.value;
-    const mappedEng = POSITION_MAPPINGS[selectedKor] || "";
+    const list = companyData.qualifications || companyData.positions;
+    const found = list.find((item) => item.ko === selectedKor);
+    const mappedEng = found ? found.en : "";
 
     setCardData((prev) => ({
       front: {
@@ -342,8 +317,8 @@ export default function TemplateEditModal({
                       className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
                     >
                       <option value="직접입력">직접입력</option>
-                      {Object.keys(DEPARTMENT_MAPPINGS).map((dept) => (
-                        <option key={dept} value={dept}>{dept}</option>
+                      {companyData.departments.map((dept) => (
+                        <option key={dept.ko} value={dept.ko}>{dept.ko}</option>
                       ))}
                     </select>
                   </div>
@@ -367,8 +342,8 @@ export default function TemplateEditModal({
                       className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
                     >
                       <option value="직접입력">직접입력</option>
-                      {Object.keys(POSITION_MAPPINGS).map((pos) => (
-                        <option key={pos} value={pos}>{pos}</option>
+                      {companyData.positions.map((pos) => (
+                        <option key={pos.ko} value={pos.ko}>{pos.ko}</option>
                       ))}
                     </select>
                   </div>
@@ -385,15 +360,15 @@ export default function TemplateEditModal({
 
                   {/* 4. 직급2 선택 & 직급2 */}
                   <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
-                    <label className="text-xs font-medium text-muted-foreground">직급2 선택</label>
+                    <label className="text-xs font-medium text-muted-foreground">{isHanmi ? "직급2 선택" : "자격사항 선택"}</label>
                     <select
                       value={cardData.front.position2Option || "직접입력"}
                       onChange={handlePosition2SelectChange}
                       className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
                     >
                       <option value="직접입력">직접입력</option>
-                      {Object.keys(POSITION_MAPPINGS).map((pos) => (
-                        <option key={pos} value={pos}>{pos}</option>
+                      {(companyData.qualifications || companyData.positions).map((pos) => (
+                        <option key={pos.ko} value={pos.ko}>{pos.ko}</option>
                       ))}
                     </select>
                   </div>
