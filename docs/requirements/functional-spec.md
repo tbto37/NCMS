@@ -125,7 +125,7 @@ flowchart TD
 
 ### 4.8 고객사 맞춤형 메뉴 & 이용가이드 & 실데이터 매핑 (Tenant Guide & Data) - [완료]
 - **GUI-001 테넌트(cheil/hanmi) 전용 이용가이드 메뉴 및 모달**: `siteCode`가 `cheil` 또는 `hanmi`인 경우 좌측 사이드바/모바일 네비게이션의 `주문 관리` 바로 아래에 `이용가이드` 메뉴 노출. 클릭 시 페이지 이동 없이 이용가이드 모달(`UserGuideModal`)이 팝업되어 템플릿 선택, 템플릿 편집, 교정 승인, 주문서 작성 절차, FAQ 및 주문리스트 액션 팁 안내 정보 제공.
-- **DAT-001 제일엔지니어링 & 한미글로벌 부서/직책/자격사항 테넌트별 동적 셀렉트박스 분리 및 라벨/필드 커스텀 최적화**: 템플릿 편집 모달(`TemplateEditModal.tsx`)에서 선택된 고객사에 맞게 라벨 및 필드를 정밀 조정(한미글로벌: 부서 4개 `국내사업부`/`하이테크사업부`/`글로벌사업부`/`엔지니어링실` 세팅, 앞/뒷면 `직책` 라벨 적용, `직급2` 필드 숨김 / 제일엔지니어링: 부서 14개, 직급 10개, 자격사항 13개 세팅, 앞/뒷면 `직급` 및 `자격사항` 라벨 적용). 국문 선택 시 1:1 영문이 완벽하게 자동 완성되도록 동적 연결 구현.
+- **DAT-001 제일엔지니어링 & 한미글로벌 부서/직책/자격사항 테넌트별 동적 셀렉트박스 분리 및 동적 주소 스마트 래핑 엔진**: 템플릿 편집 모달(`TemplateEditModal.tsx`)에서 선택된 고객사에 맞게 라벨 및 필드를 정밀 조정하고, 사용자가 임의의 긴 영문 주소를 직접 입력하거나 수정하더라도 단어/공백/쉼표 단위로 최대 글자 수(한미 37자, 제일 38자) 기준 자동 래핑하는 동적 주소 엔진(`getHanmiBackAddressLines`, `getCheilBackAddressLines`)을 실시간 미리보기(`SvgBusinessCardPreview.tsx`)와 PDF 인쇄 렌더러(`generateCardPrintPdf.ts`)에 공통 구현하여 어떠한 임의 주소 입력 시에도 우측 텍스트 잘림 현상을 근본적으로 차단.
 - **DAT-002 향후 DB 부서/직급 마스터 연동 대비 표준화**: 명함 데이터(`card_data` JSONB)는 기존 자유 입력을 100% 보존하면서, 표준 인터페이스(`StandardCardFieldData`: `departmentName`, `departmentId`, `positionName`, `positionId`) 적용 및 DB `departments` 마스터 시드 데이터([V7__add_standard_department_seeds.sql](file:///c:/NCMS/backend/src/main/resources/db/migration/V7__add_standard_department_seeds.sql))를 최신 `companyData` 데이터셋(제일엔지니어링 14개 부서, 한미글로벌 4개 부서)과 100% 동기화 보강 완료.
 
 

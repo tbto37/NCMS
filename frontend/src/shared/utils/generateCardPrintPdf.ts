@@ -2,7 +2,7 @@ import { jsPDF } from "jspdf";
 import * as opentype from "opentype.js";
 import type { BusinessCardInputData } from "@/shared/types/businessCard";
 import { CARD_TEMPLATE_SPECS } from "@/shared/constants/cardTemplates";
-import { getHanmiFrontAddressLines } from "@/components/card/SvgBusinessCardPreview";
+import { getHanmiFrontAddressLines, getHanmiBackAddressLines, getCheilBackAddressLines } from "@/components/card/SvgBusinessCardPreview";
 
 interface OrderLike {
   id?: string;
@@ -379,16 +379,22 @@ async function createSvgMarkupWithOutlines(
         <text x="${config.fields.address?.x}" y="${config.fields.address?.y}" font-size="${config.fields.address?.fontSize}" font-weight="400" fill="#334155" dominant-baseline="hanging">${front.address || "06779 서울시 서초구 강남대로16길 22-6(양재동)"}</text>
       ` : ""}
 
-      ${isBack && key === "cheil" ? `
-        <text x="${config.fields.address1?.x}" y="${config.fields.address1?.y}" font-size="${config.fields.address1?.fontSize}" fill="#334155" dominant-baseline="hanging">${back.address1 || "22-6, Gangnamdaero 16gil, Seocho-gu,"}</text>
-        <text x="${config.fields.address2?.x}" y="${config.fields.address2?.y}" font-size="${config.fields.address2?.fontSize}" fill="#334155" dominant-baseline="hanging">${back.address2 || "Seoul, Korea (06779)"}</text>
-      ` : ""}
+      ${isBack && key === "cheil" ? (() => {
+        const [cAddr1, cAddr2] = getCheilBackAddressLines(back);
+        return `
+          <text x="${config.fields.address1?.x}" y="${config.fields.address1?.y}" font-size="${config.fields.address1?.fontSize}" fill="#334155" dominant-baseline="hanging">${cAddr1}</text>
+          <text x="${config.fields.address2?.x}" y="${config.fields.address2?.y}" font-size="${config.fields.address2?.fontSize}" fill="#334155" dominant-baseline="hanging">${cAddr2}</text>
+        `;
+      })() : ""}
 
-      ${isBack && key === "hanmi" ? `
-        <text x="${config.fields.address1?.x}" y="${config.fields.address1?.y}" font-size="${config.fields.address1?.fontSize}" fill="#334155" dominant-baseline="hanging">${back.address1 || "City Air Tower Bldg., 36, Teheran-ro"}</text>
-        <text x="${config.fields.address2?.x}" y="${config.fields.address2?.y}" font-size="${config.fields.address2?.fontSize}" fill="#334155" dominant-baseline="hanging">${back.address2 || "87-gil, Gangnam-gu, Seoul, 06164,"}</text>
-        <text x="${config.fields.address3?.x}" y="${config.fields.address3?.y}" font-size="${config.fields.address3?.fontSize}" fill="#334155" dominant-baseline="hanging">${back.address3 || "Korea"}</text>
-      ` : ""}
+      ${isBack && key === "hanmi" ? (() => {
+        const [bAddr1, bAddr2, bAddr3] = getHanmiBackAddressLines(back);
+        return `
+          <text x="${config.fields.address1?.x}" y="${config.fields.address1?.y}" font-size="${config.fields.address1?.fontSize}" fill="#334155" dominant-baseline="hanging">${bAddr1}</text>
+          <text x="${config.fields.address2?.x}" y="${config.fields.address2?.y}" font-size="${config.fields.address2?.fontSize}" fill="#334155" dominant-baseline="hanging">${bAddr2}</text>
+          <text x="${config.fields.address3?.x}" y="${config.fields.address3?.y}" font-size="${config.fields.address3?.fontSize}" fill="#334155" dominant-baseline="hanging">${bAddr3}</text>
+        `;
+      })() : ""}
     </svg>
   `;
 }

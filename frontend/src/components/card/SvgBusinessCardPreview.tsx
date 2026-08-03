@@ -52,6 +52,97 @@ export function getHanmiFrontAddressLines(front: any): [string, string] {
   return [raw, ""];
 }
 
+// 제일엔지니어링 영문 뒷면 주소 (2줄) 스마트 래핑 및 동적 분할 처리
+export function getCheilBackAddressLines(back: any, maxChars = 38): [string, string] {
+  const raw1 = (back?.address1 || "").trim();
+  const raw2 = (back?.address2 || "").trim();
+
+  if (!raw1 && !raw2) {
+    return ["22-6, Gangnamdaero 16gil, Seocho-gu,", "Seoul, Korea (06779)"];
+  }
+
+  if (raw1.length <= maxChars && raw2.length <= maxChars) {
+    return [raw1, raw2];
+  }
+
+  const fullText = [raw1, raw2].filter(Boolean).join(" ").replace(/\s+/g, " ");
+  const words = fullText.split(" ");
+  const lines: string[] = ["", ""];
+  let currentLineIdx = 0;
+
+  for (const word of words) {
+    if (currentLineIdx >= 2) break;
+
+    const testLine = lines[currentLineIdx]
+      ? `${lines[currentLineIdx]} ${word}`
+      : word;
+
+    if (testLine.length <= maxChars) {
+      lines[currentLineIdx] = testLine;
+    } else {
+      if (currentLineIdx < 1) {
+        currentLineIdx++;
+        lines[currentLineIdx] = word;
+      } else {
+        lines[currentLineIdx] = testLine;
+      }
+    }
+  }
+
+  return [lines[0] || "22-6, Gangnamdaero 16gil, Seocho-gu,", lines[1] || "Seoul, Korea (06779)"];
+}
+
+// 한미글로벌 영문 뒷면 주소 (3줄) 스마트 래핑 및 동적 분할 처리
+export function getHanmiBackAddressLines(back: any, maxChars = 37): [string, string, string] {
+  const raw1 = (back?.address1 || "").trim();
+  const raw2 = (back?.address2 || "").trim();
+  const raw3 = (back?.address3 || "").trim();
+
+  if (!raw1 && !raw2 && !raw3) {
+    return [
+      "City Air Tower Bldg., 36, Teheran-ro",
+      "87-gil, Gangnam-gu, Seoul, 06164,",
+      "Korea",
+    ];
+  }
+
+  // 각 행이 37자 이하로 안전하면 유저가 직접 나눈 줄바꿈 그대로 보존
+  if (raw1.length <= maxChars && raw2.length <= maxChars && raw3.length <= maxChars) {
+    return [raw1, raw2, raw3];
+  }
+
+  // 37자 초과 길거나 1개 필드에 붙어들어온 경우 단어 단위 자동 스마트 래핑
+  const fullText = [raw1, raw2, raw3].filter(Boolean).join(" ").replace(/\s+/g, " ");
+  const words = fullText.split(" ");
+  const lines: string[] = ["", "", ""];
+  let currentLineIdx = 0;
+
+  for (const word of words) {
+    if (currentLineIdx >= 3) break;
+
+    const testLine = lines[currentLineIdx]
+      ? `${lines[currentLineIdx]} ${word}`
+      : word;
+
+    if (testLine.length <= maxChars) {
+      lines[currentLineIdx] = testLine;
+    } else {
+      if (currentLineIdx < 2) {
+        currentLineIdx++;
+        lines[currentLineIdx] = word;
+      } else {
+        lines[currentLineIdx] = testLine;
+      }
+    }
+  }
+
+  return [
+    lines[0] || "City Air Tower Bldg., 36, Teheran-ro",
+    lines[1] || "87-gil, Gangnam-gu, Seoul, 06164,",
+    lines[2] || "Korea",
+  ];
+}
+
 export default function SvgBusinessCardPreview({
   templateId = "T_CHEIL",
   cardData,
@@ -471,58 +562,64 @@ export default function SvgBusinessCardPreview({
 
           {/* 영문 주소 (address1, address2, address3) */}
           {isBack && (
-            key === "cheil" ? (
-              <>
-                <text
-                  x={config.fields.address1?.x}
-                  y={config.fields.address1?.y}
-                  fontSize={config.fields.address1?.fontSize}
-                  fill="#334155"
-                  dominantBaseline="hanging"
-                >
-                  {back.address1 || "22-6, Gangnamdaero 16gil, Seocho-gu,"}
-                </text>
-                <text
-                  x={config.fields.address2?.x}
-                  y={config.fields.address2?.y}
-                  fontSize={config.fields.address2?.fontSize}
-                  fill="#334155"
-                  dominantBaseline="hanging"
-                >
-                  {back.address2 || "Seoul, Korea (06779)"}
-                </text>
-              </>
-            ) : (
-              <>
-                <text
-                  x={config.fields.address1?.x}
-                  y={config.fields.address1?.y}
-                  fontSize={config.fields.address1?.fontSize}
-                  fill="#334155"
-                  dominantBaseline="hanging"
-                >
-                  City Air Tower Bldg., 36, Teheran-ro
-                </text>
-                <text
-                  x={config.fields.address2?.x}
-                  y={config.fields.address2?.y}
-                  fontSize={config.fields.address2?.fontSize}
-                  fill="#334155"
-                  dominantBaseline="hanging"
-                >
-                  87-gil, Gangnam-gu, Seoul, 06164,
-                </text>
-                <text
-                  x={config.fields.address3?.x}
-                  y={config.fields.address3?.y}
-                  fontSize={config.fields.address3?.fontSize}
-                  fill="#334155"
-                  dominantBaseline="hanging"
-                >
-                  Korea
-                </text>
-              </>
-            )
+            key === "cheil" ? (() => {
+              const [c1, c2] = getCheilBackAddressLines(back);
+              return (
+                <>
+                  <text
+                    x={config.fields.address1?.x}
+                    y={config.fields.address1?.y}
+                    fontSize={config.fields.address1?.fontSize}
+                    fill="#334155"
+                    dominantBaseline="hanging"
+                  >
+                    {c1}
+                  </text>
+                  <text
+                    x={config.fields.address2?.x}
+                    y={config.fields.address2?.y}
+                    fontSize={config.fields.address2?.fontSize}
+                    fill="#334155"
+                    dominantBaseline="hanging"
+                  >
+                    {c2}
+                  </text>
+                </>
+              );
+            })() : (() => {
+              const [b1, b2, b3] = getHanmiBackAddressLines(back);
+              return (
+                <>
+                  <text
+                    x={config.fields.address1?.x}
+                    y={config.fields.address1?.y}
+                    fontSize={config.fields.address1?.fontSize}
+                    fill="#334155"
+                    dominantBaseline="hanging"
+                  >
+                    {b1}
+                  </text>
+                  <text
+                    x={config.fields.address2?.x}
+                    y={config.fields.address2?.y}
+                    fontSize={config.fields.address2?.fontSize}
+                    fill="#334155"
+                    dominantBaseline="hanging"
+                  >
+                    {b2}
+                  </text>
+                  <text
+                    x={config.fields.address3?.x}
+                    y={config.fields.address3?.y}
+                    fontSize={config.fields.address3?.fontSize}
+                    fill="#334155"
+                    dominantBaseline="hanging"
+                  >
+                    {b3}
+                  </text>
+                </>
+              );
+            })()
           )}
         </svg>
       </div>

@@ -62,8 +62,9 @@ const defaultCardData: BusinessCardInputData = {
     department: "Business Development Division",
     position1: "Senior Manager",
     position2: "",
-    address1: "City Air Tower Bldg., 36, Teheran-ro 87-gil,",
-    address2: "Gangnam-gu, Seoul, 06164, Korea",
+    address1: "City Air Tower Bldg., 36, Teheran-ro",
+    address2: "87-gil, Gangnam-gu, Seoul, 06164,",
+    address3: "Korea",
     telephone: "+82-70-1234-5678",
     fax: "",
     directTelephone: "",
@@ -522,7 +523,7 @@ export default function TemplateEditModal({
                     <input
                       value={cardData.back.address1}
                       onChange={(e) => handleBackChange("address1", e.target.value)}
-                      placeholder="City Air Tower Bldg., 36, Teheran-ro 87-gil,"
+                      placeholder="City Air Tower Bldg., 36, Teheran-ro"
                       className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
                     />
                   </div>
@@ -533,7 +534,7 @@ export default function TemplateEditModal({
                     <input
                       value={cardData.back.address2}
                       onChange={(e) => handleBackChange("address2", e.target.value)}
-                      placeholder="Gangnam-gu, Seoul, 06164,"
+                      placeholder="87-gil, Gangnam-gu, Seoul, 06164,"
                       className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
                     />
                   </div>
