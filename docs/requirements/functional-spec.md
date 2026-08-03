@@ -125,7 +125,7 @@ flowchart TD
 
 ### 4.8 고객사 맞춤형 메뉴 & 이용가이드 & 실데이터 매핑 (Tenant Guide & Data) - [완료]
 - **GUI-001 테넌트(cheil/hanmi) 전용 이용가이드 메뉴 및 모달**: `siteCode`가 `cheil` 또는 `hanmi`인 경우 좌측 사이드바/모바일 네비게이션의 `주문 관리` 바로 아래에 `이용가이드` 메뉴 노출. 클릭 시 페이지 이동 없이 이용가이드 모달(`UserGuideModal`)이 팝업되어 템플릿 선택, 템플릿 편집, 교정 승인, 주문서 작성 절차, FAQ 및 주문리스트 액션 팁 안내 정보 제공.
-- **DAT-001 테넌트별 레이아웃 정밀 조정 및 자산 아웃라인 전환**: `/public/hanmi/` 및 `/public/cheil/` 하위로 자산 폴더 구조 정형화. 제일엔지니어링 앞면 상호(y: 130) 및 하단 블록(y: 152~248) 정밀 정렬, 뒷면 전체 필드 +1pt 하향 정밀 조정(y: 31~250), 슬로건 위치 우하단 정밀 이동(x: 38, y: 232) 완료.
+- **DAT-001 테넌트별 레이아웃 정밀 조정 및 자산 아웃라인 전환**: `/public/hanmi/` 및 `/public/cheil/` 하위로 자산 폴더 구조 정형화. 제일엔지니어링 앞면 상호(y: 136) 및 뒷면 상호(y: 137) 추가 수직 하강 배치, 슬로건 위치 수직 추가 이동(x: 38, y: 237) 완료.
 - **DAT-002 향후 DB 부서/직급 마스터 연동 대비 표준화**: 명함 데이터(`card_data` JSONB)는 기존 자유 입력을 100% 보존하면서, 표준 인터페이스(`StandardCardFieldData`: `departmentName`, `departmentId`, `positionName`, `positionId`) 적용 및 DB `departments` 마스터 시드 데이터([V7__add_standard_department_seeds.sql](file:///c:/NCMS/backend/src/main/resources/db/migration/V7__add_standard_department_seeds.sql))를 최신 `companyData` 데이터셋과 100% 동기화 보강 완료.
 
 

@@ -287,7 +287,7 @@ async function createSvgMarkupWithOutlines(
   let sloganHtml = "";
   if (config.showSlogan) {
     const src = sloganAssetBase64 || "/cheil/cheil_smile.jpg";
-    sloganHtml = `<image href="${src}" xlink:href="${src}" x="38" y="232" width="124" height="14" preserveAspectRatio="xMinYMin meet" />`;
+    sloganHtml = `<image href="${src}" xlink:href="${src}" x="38" y="237" width="124" height="14" preserveAspectRatio="xMinYMin meet" />`;
   }
 
   const nameText = !isBack

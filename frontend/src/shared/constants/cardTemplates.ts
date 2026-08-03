@@ -107,7 +107,7 @@ export const CARD_TEMPLATE_SPECS: Record<string, { front: CardTemplateConfig; ba
         },
         companyName: {
           x: 220,
-          y: 130,
+          y: 136,
           fontSize: 14,
           fontWeight: "700",
           fill: "#0f172a",
@@ -191,7 +191,7 @@ export const CARD_TEMPLATE_SPECS: Record<string, { front: CardTemplateConfig; ba
         },
         companyName: {
           x: 220,
-          y: 131,
+          y: 137,
           fontSize: 13.5,
           fontWeight: "700",
           fill: "#0f172a",
