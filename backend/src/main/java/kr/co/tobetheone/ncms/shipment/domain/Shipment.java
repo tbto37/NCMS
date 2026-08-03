@@ -31,4 +31,9 @@ public class Shipment {
     @Column(name = "shipped_at", nullable = false, updatable = false)
     @Builder.Default
     private LocalDateTime shippedAt = LocalDateTime.now();
+
+    public void updateShipmentInfo(String carrierCode, String trackingNumber) {
+        this.carrierCode = carrierCode;
+        this.trackingNumber = trackingNumber;
+    }
 }

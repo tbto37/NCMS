@@ -142,32 +142,59 @@ public class OrderService {
             String trackingNumber = row.getTrackingNumber() != null ? row.getTrackingNumber().trim() : "";
             String carrierCode = row.getCarrierCode() != null && !row.getCarrierCode().isBlank() ? row.getCarrierCode().trim() : "롯데택배";
 
-            if (orderNo.isBlank() || trackingNumber.isBlank()) {
-                failures.add(new kr.co.tobetheone.ncms.order.api.dto.ExcelUploadResultDto.UploadFailure(orderNo, name, "주문번호 또는 송장번호가 누락되었습니다."));
+            if (name.isBlank() || trackingNumber.isBlank()) {
+                failures.add(new kr.co.tobetheone.ncms.order.api.dto.ExcelUploadResultDto.UploadFailure(orderNo, name, "수령인 이름 또는 송장번호가 누락되었습니다."));
                 continue;
             }
 
-            java.util.Optional<Order> orderOpt = orderRepository.findByOrderNo(orderNo);
+            java.util.Optional<Order> orderOpt = java.util.Optional.empty();
+
+            // 1. 주문번호가 명시되어 있는 경우 우선 조회
+            if (!orderNo.isBlank()) {
+                orderOpt = orderRepository.findByOrderNo(orderNo);
+            }
+
+            // 2. 주문번호가 없거나 찾지 못한 경우 -> 수령인/주문자 이름(name)으로 DB의 진행 중인 주문 자동 탐색
             if (orderOpt.isEmpty()) {
-                failures.add(new kr.co.tobetheone.ncms.order.api.dto.ExcelUploadResultDto.UploadFailure(orderNo, name, "존재하지 않는 주문번호입니다."));
-                continue;
+                List<Order> allOrders = orderRepository.findAll();
+                List<Order> activeMatches = allOrders.stream()
+                        .filter(o -> !"CANCELLED".equals(o.getStatus()) && !"DELIVERED".equals(o.getStatus()))
+                        .filter(o -> {
+                            String rName = o.getRecipientName() != null ? o.getRecipientName().trim().replace(" ", "") : "";
+                            String mName = o.getMember() != null && o.getMember().getName() != null ? o.getMember().getName().trim().replace(" ", "") : "";
+                            return name.equalsIgnoreCase(rName) || name.equalsIgnoreCase(mName);
+                        })
+                        .collect(java.util.stream.Collectors.toList());
+
+                if (activeMatches.isEmpty()) {
+                    failures.add(new kr.co.tobetheone.ncms.order.api.dto.ExcelUploadResultDto.UploadFailure(orderNo, name, "'" + name + "' 수령인의 진행 중인 주문을 시스템 DB에서 찾을 수 없습니다."));
+                    continue;
+                } else if (activeMatches.size() == 1) {
+                    orderOpt = java.util.Optional.of(activeMatches.get(0));
+                } else {
+                    // 동일 수령인의 진행 중 주문이 다수일 경우 가장 최근 접수 주문 선택
+                    orderOpt = java.util.Optional.of(activeMatches.get(activeMatches.size() - 1));
+                }
             }
 
             Order order = orderOpt.get();
-            String recipientName = order.getRecipientName() != null ? order.getRecipientName().trim().replace(" ", "") : "";
-            String memberName = order.getMember() != null && order.getMember().getName() != null ? order.getMember().getName().trim().replace(" ", "") : "";
 
-            // 주문번호 + 이름 2가지 조건 동시 검증
-            boolean nameMatches = name.equalsIgnoreCase(recipientName) || name.equalsIgnoreCase(memberName);
-            if (!nameMatches) {
-                failures.add(new kr.co.tobetheone.ncms.order.api.dto.ExcelUploadResultDto.UploadFailure(orderNo, name, "주문번호와 이름이 일치하지 않습니다. (시스템 기록 수령인: " + order.getRecipientName() + ")"));
-                continue;
+            // 주문번호가 명시되었던 경우 이름 2차 검증
+            if (!orderNo.isBlank()) {
+                String recipientName = order.getRecipientName() != null ? order.getRecipientName().trim().replace(" ", "") : "";
+                String memberName = order.getMember() != null && order.getMember().getName() != null ? order.getMember().getName().trim().replace(" ", "") : "";
+                boolean nameMatches = name.equalsIgnoreCase(recipientName) || name.equalsIgnoreCase(memberName);
+                if (!nameMatches) {
+                    failures.add(new kr.co.tobetheone.ncms.order.api.dto.ExcelUploadResultDto.UploadFailure(orderNo, name, "주문번호와 이름이 일치하지 않습니다. (시스템 기록 수령인: " + order.getRecipientName() + ")"));
+                    continue;
+                }
             }
 
             order.updateStatus("SHIPPED");
 
             Shipment shipment = shipmentRepository.findByOrderId(order.getId())
                     .orElseGet(() -> Shipment.builder().order(order).carrierCode(carrierCode).trackingNumber(trackingNumber).build());
+            shipment.updateShipmentInfo(carrierCode, trackingNumber);
             shipmentRepository.save(shipment);
 
             successCount++;

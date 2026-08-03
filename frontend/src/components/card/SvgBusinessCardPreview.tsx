@@ -131,7 +131,9 @@ export default function SvgBusinessCardPreview({
           height="288.333"
           className="w-full max-w-[519px] aspect-[90/50] rounded bg-white shadow-xl ring-1 ring-slate-900/10 select-none"
           style={{
-            fontFamily: "'Pretendard Variable', Pretendard, -apple-system, sans-serif",
+            fontFamily: key === "hanmi"
+              ? "'NanumSquare', 'Pretendard Variable', Pretendard, sans-serif"
+              : "'Pretendard Variable', Pretendard, -apple-system, sans-serif",
             colorScheme: "light",
             forcedColorAdjust: "none",
           }}

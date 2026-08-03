@@ -32,3 +32,37 @@
   font-weight: normal;
   font-style: normal;
 }
+
+/* 한미글로벌 명함 전용 폰트 (나눔스퀘어 NanumSquare) 매핑 */
+@font-face {
+  font-family: 'NanumSquare';
+  src: url('/fonts/NanumSquareR.ttf') format('truetype'),
+       url('/fonts/NanumSquareR.otf') format('opentype'),
+       url('/fonts/NanumSquare.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'NanumSquare';
+  src: url('/fonts/NanumSquareB_1.ttf') format('truetype'),
+       url('/fonts/NanumSquareB.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'NanumSquare';
+  src: url('/fonts/NanumSquareEB.ttf') format('truetype'),
+       url('/fonts/NanumSquareEB.otf') format('opentype');
+  font-weight: 800;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'NanumSquare';
+  src: url('/fonts/NanumSquareL.ttf') format('truetype'),
+       url('/fonts/NanumSquareL.otf') format('opentype');
+  font-weight: 300;
+  font-style: normal;
+}

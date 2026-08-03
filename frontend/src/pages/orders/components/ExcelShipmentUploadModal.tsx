@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Upload, X, CheckCircle, AlertTriangle, FileSpreadsheet } from "lucide-react";
+import * as XLSX from "xlsx";
 import { API_BASE_URL } from "@/shared/constants/api";
 
 interface ExcelShipmentUploadModalProps {
@@ -42,32 +43,77 @@ export function ExcelShipmentUploadModal({
     }
   }
 
-  async function parseCsvOrText(file: File): Promise<any[]> {
-    const text = await file.text();
-    const lines = text.split(/\r?\n/).filter((l) => l.trim().length > 0);
-    if (lines.length <= 1) return [];
+  async function parseExcelFile(file: File): Promise<any[]> {
+    const arrayBuffer = await file.arrayBuffer();
+    const workbook = XLSX.read(arrayBuffer, { type: "array" });
+    const sheetName = workbook.SheetNames[0];
+    if (!sheetName) return [];
 
-    const headers = lines[0].split(",").map((h) => h.trim().replace(/^"|"$/g, ""));
-    
-    // 컬럼 인덱스 찾기
-    const orderNoIdx = headers.findIndex((h) => h.includes("주문번호") || h.toLowerCase().includes("orderno") || h.includes("주문 ID"));
-    const nameIdx = headers.findIndex((h) => h.includes("이름") || h.includes("수령인") || h.includes("주문자") || h.toLowerCase().includes("name"));
-    const trackingIdx = headers.findIndex((h) => h.includes("송장") || h.includes("운송장") || h.toLowerCase().includes("tracking"));
-    const carrierIdx = headers.findIndex((h) => h.includes("택배") || h.toLowerCase().includes("carrier"));
+    const worksheet = workbook.Sheets[sheetName];
+    const jsonRows: any[][] = XLSX.utils.sheet_to_json(worksheet, {
+      header: 1,
+      defval: "",
+      raw: false,
+    });
+
+    if (jsonRows.length <= 1) return [];
+
+    // 1. 헤더 행 탐색 ('운송장'/'송장'/'받는분'/'수령인'/'이름' 등이 포함된 첫 행)
+    let headerRowIdx = 0;
+    for (let i = 0; i < Math.min(15, jsonRows.length); i++) {
+      const rowStr = (jsonRows[i] || []).join(" ").toLowerCase();
+      if (
+        rowStr.includes("운송장") ||
+        rowStr.includes("송장") ||
+        rowStr.includes("받는분") ||
+        rowStr.includes("수령인") ||
+        rowStr.includes("이름")
+      ) {
+        headerRowIdx = i;
+        break;
+      }
+    }
+
+    const headers = (jsonRows[headerRowIdx] || []).map((h: any) =>
+      String(h || "").trim().toLowerCase()
+    );
+
+    // 2. 컬럼 인덱스 매칭
+    const nameIdx = headers.findIndex((h) =>
+      ["받는분", "수령인", "이름", "받는 사람", "수하인", "주문자", "성명", "name", "recipient"].some((k) =>
+        h.includes(k)
+      )
+    );
+
+    const trackingIdx = headers.findIndex((h) =>
+      ["운송장번호", "송장번호", "운송장", "송장", "등기번호", "tracking", "invoice"].some((k) =>
+        h.includes(k)
+      )
+    );
+
+    const carrierIdx = headers.findIndex((h) =>
+      ["택배사", "택배사명", "배송업체", "carrier"].some((k) => h.includes(k))
+    );
+
+    const orderNoIdx = headers.findIndex((h) =>
+      ["주문번호", "고객주문번호", "orderno", "주문 id"].some((k) => h.includes(k))
+    );
 
     const rows: any[] = [];
-    for (let i = 1; i < lines.length; i++) {
-      const cols = lines[i].split(",").map((c) => c.trim().replace(/^"|"$/g, ""));
-      const orderNo = orderNoIdx >= 0 ? cols[orderNoIdx] : cols[0];
-      const name = nameIdx >= 0 ? cols[nameIdx] : (cols[1] || "");
-      const trackingNumber = trackingIdx >= 0 ? cols[trackingIdx] : (cols[2] || "");
-      const carrierCode = carrierIdx >= 0 ? cols[carrierIdx] : "롯데택배";
+    for (let i = headerRowIdx + 1; i < jsonRows.length; i++) {
+      const row = jsonRows[i];
+      if (!row || row.length === 0) continue;
 
-      if (orderNo && trackingNumber) {
+      const name = nameIdx >= 0 ? String(row[nameIdx] || "").trim() : "";
+      const trackingNumber = trackingIdx >= 0 ? String(row[trackingIdx] || "").trim() : "";
+      const carrierCode = carrierIdx >= 0 ? String(row[carrierIdx] || "").trim() : "롯데택배";
+      const orderNo = orderNoIdx >= 0 ? String(row[orderNoIdx] || "").trim() : "";
+
+      if (name && trackingNumber) {
         rows.push({
-          orderNo,
+          orderNo: orderNo || "",
           name,
-          carrierCode,
+          carrierCode: carrierCode || "롯데택배",
           trackingNumber,
         });
       }
@@ -77,7 +123,7 @@ export function ExcelShipmentUploadModal({
 
   async function handleUpload() {
     if (!file) {
-      setErrorMsg("엑셀(CSV) 파일을 선택해 주세요.");
+      setErrorMsg("송장 엑셀(.xlsx, .xls, .csv) 파일을 선택해 주세요.");
       return;
     }
 
@@ -86,10 +132,11 @@ export function ExcelShipmentUploadModal({
     setResult(null);
 
     try {
-      // 텍스트/CSV 파싱
-      const rows = await parseCsvOrText(file);
+      const rows = await parseExcelFile(file);
       if (rows.length === 0) {
-        throw new Error("파싱 가능한 주문 및 송장 데이터가 엑셀 파일에 없습니다. (헤더: 주문번호, 이름, 송장번호 필요)");
+        throw new Error(
+          "파싱 가능한 송장 및 수령인(받는분) 데이터가 엑셀 파일에 없습니다. (헤더: [운송장번호 / 송장번호] 및 [받는분 / 수령인 / 이름] 필수)"
+        );
       }
 
       const res = await fetch(`${API_BASE_URL}/api/v1/operator/orders/shipments/excel-upload`, {
@@ -138,23 +185,23 @@ export function ExcelShipmentUploadModal({
         {/* Content */}
         <div className="p-6 space-y-4">
           <div className="rounded-lg bg-blue-50/50 dark:bg-blue-950/30 p-3.5 border border-blue-200/50 dark:border-blue-800/50 text-xs text-blue-800 dark:text-blue-200 leading-relaxed">
-            💡 **매칭 규칙 (주문번호 + 이름)**
+            💡 <strong>스마트 매칭 규칙 (송장번호 + 받는분/이름)</strong>
             <br />
-            엑셀 내 <strong>[주문번호]</strong>와 <strong>[이름(수령인/주문자)]</strong> 2가지 조건이 모두 일치하는 주문건만 송장번호가 매칭되고 <strong>발송완료(`SHIPPED`)</strong> 상태로 자동 전환됩니다.
+            엑셀 내 <strong>[운송장번호]</strong>와 <strong>[받는분/수령인 이름]</strong>을 기반으로 시스템 DB의 진행 중인 주문을 자동 매칭하여 <strong>발송완료(`SHIPPED`)</strong> 상태로 일괄 전환합니다.
           </div>
 
           <div className="space-y-2">
             <label className="block text-xs font-medium text-muted-foreground">
-              송장 엑셀(CSV) 파일 선택
+              송장 엑셀 파일 선택 (.xlsx, .xls, .csv)
             </label>
             <input
               type="file"
-              accept=".csv, .xlsx, .xls, .txt"
+              accept=".xlsx, .xls, .csv, .txt"
               onChange={handleFileChange}
               className="block w-full text-xs text-foreground file:mr-3 file:rounded-md file:border-0 file:bg-primary/10 file:px-3 file:py-2 file:text-xs file:font-medium file:text-primary hover:file:bg-primary/20 cursor-pointer"
             />
             <p className="text-[11px] text-muted-foreground">
-              ※ 첫번째 행에 `주문번호`, `이름`, `송장번호` 컬럼명이 포함되어야 합니다.
+              ※ 헤더 행에 `운송장번호`(또는 `송장번호`)와 `받는분`(또는 `수령인`, `이름`)이 포함되어야 합니다.
             </p>
           </div>
 
@@ -181,7 +228,7 @@ export function ExcelShipmentUploadModal({
                   <p className="font-semibold text-destructive mb-1">실패 내역 상세:</p>
                   {result.failures.map((f, idx) => (
                     <div key={idx} className="flex justify-between border-b border-border/50 py-0.5 last:border-0 text-muted-foreground">
-                      <span>[{f.orderNo}] {f.name}</span>
+                      <span>{f.name || f.orderNo || "대상명 미상"}</span>
                       <span className="text-destructive font-mono">{f.reason}</span>
                     </div>
                   ))}
