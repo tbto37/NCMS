@@ -122,6 +122,27 @@ export async function generateCardPrintPdf(order: OrderLike): Promise<void> {
         width: 92,
         height: 52,
       });
+    } else {
+      const frontCanvas = document.createElement("canvas");
+      frontCanvas.width = 1840;
+      frontCanvas.height = 1040;
+      const ctx = frontCanvas.getContext("2d");
+      const img = new Image();
+      const svgBlob = new Blob([container.innerHTML], { type: "image/svg+xml;charset=utf-8" });
+      const url = URL.createObjectURL(svgBlob);
+      await new Promise((resolve) => {
+        img.onload = () => {
+          if (ctx) ctx.drawImage(img, 0, 0, 1840, 1040);
+          URL.revokeObjectURL(url);
+          resolve(true);
+        };
+        img.onerror = () => {
+          URL.revokeObjectURL(url);
+          resolve(false);
+        };
+        img.src = url;
+      });
+      doc.addImage(frontCanvas.toDataURL("image/png", 1.0), "PNG", 0, 0, 92, 52);
     }
 
     // --- Page 2: 뒷면 (영문 순수 Vector SVG PDF + Outline + CMYK) ---
@@ -146,6 +167,27 @@ export async function generateCardPrintPdf(order: OrderLike): Promise<void> {
         width: 92,
         height: 52,
       });
+    } else {
+      const backCanvas = document.createElement("canvas");
+      backCanvas.width = 1840;
+      backCanvas.height = 1040;
+      const ctx = backCanvas.getContext("2d");
+      const img = new Image();
+      const svgBlob = new Blob([container.innerHTML], { type: "image/svg+xml;charset=utf-8" });
+      const url = URL.createObjectURL(svgBlob);
+      await new Promise((resolve) => {
+        img.onload = () => {
+          if (ctx) ctx.drawImage(img, 0, 0, 1840, 1040);
+          URL.revokeObjectURL(url);
+          resolve(true);
+        };
+        img.onerror = () => {
+          URL.revokeObjectURL(url);
+          resolve(false);
+        };
+        img.src = url;
+      });
+      doc.addImage(backCanvas.toDataURL("image/png", 1.0), "PNG", 0, 0, 92, 52);
     }
 
     // 파일 저장
