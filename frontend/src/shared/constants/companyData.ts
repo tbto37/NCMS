@@ -37,10 +37,6 @@ export const CHEIL_COMPANY_DATA: CompanyData = {
     { ko: "주임", en: "Assistant Manager" },
     { ko: "차장", en: "Deputy General Manager" },
     { ko: "전무", en: "Executive Director" },
-    { ko: "회장", en: "Chairman" },
-    { ko: "사장", en: "President" },
-    { ko: "과장", en: "Manager" },
-    { ko: "대리", en: "Assistant Manager" },
   ],
   qualifications: [
     { ko: "상하수도기술사", en: "Chief Engineer" },
