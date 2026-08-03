@@ -333,9 +333,9 @@ export default function TemplateEditModal({
                     />
                   </div>
 
-                  {/* 3. 직급1 선택 & 직급1 */}
+                  {/* 3. 직급/직책 선택 & 직급/직책 */}
                   <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
-                    <label className="text-xs font-medium text-muted-foreground">직급1 선택</label>
+                    <label className="text-xs font-medium text-muted-foreground">{isHanmi ? "직책 선택" : "직급 선택"}</label>
                     <select
                       value={cardData.front.position1Option || "직접입력"}
                       onChange={handlePosition1SelectChange}
@@ -353,35 +353,39 @@ export default function TemplateEditModal({
                     <input
                       value={cardData.front.position1}
                       onChange={(e) => handleFrontChange("position1", e.target.value)}
-                      placeholder="직급명 직접 입력 가능"
+                      placeholder={isHanmi ? "직책명 직접 입력 가능" : "직급명 직접 입력 가능"}
                       className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
                     />
                   </div>
 
-                  {/* 4. 직급2 선택 & 직급2 */}
-                  <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
-                    <label className="text-xs font-medium text-muted-foreground">{isHanmi ? "직급2 선택" : "자격사항 선택"}</label>
-                    <select
-                      value={cardData.front.position2Option || "직접입력"}
-                      onChange={handlePosition2SelectChange}
-                      className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
-                    >
-                      <option value="직접입력">직접입력</option>
-                      {(companyData.qualifications || companyData.positions).map((pos) => (
-                        <option key={pos.ko} value={pos.ko}>{pos.ko}</option>
-                      ))}
-                    </select>
-                  </div>
+                  {/* 4. 자격사항 선택 (제일엔지니어링 전용, 한미글로벌 제외) */}
+                  {!isHanmi && (
+                    <>
+                      <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
+                        <label className="text-xs font-medium text-muted-foreground">자격사항 선택</label>
+                        <select
+                          value={cardData.front.position2Option || "직접입력"}
+                          onChange={handlePosition2SelectChange}
+                          className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
+                        >
+                          <option value="직접입력">직접입력</option>
+                          {(companyData.qualifications || companyData.positions).map((pos) => (
+                            <option key={pos.ko} value={pos.ko}>{pos.ko}</option>
+                          ))}
+                        </select>
+                      </div>
 
-                  <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
-                    <div />
-                    <input
-                      value={cardData.front.position2}
-                      onChange={(e) => handleFrontChange("position2", e.target.value)}
-                      placeholder="직급2 직접 입력 가능"
-                      className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
-                    />
-                  </div>
+                      <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
+                        <div />
+                        <input
+                          value={cardData.front.position2}
+                          onChange={(e) => handleFrontChange("position2", e.target.value)}
+                          placeholder="자격사항 직접 입력 가능"
+                          className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
+                        />
+                      </div>
+                    </>
+                  )}
 
                   {/* 5. 주소 */}
                   <div className="grid grid-cols-[108px_minmax(0,1fr)] items-start gap-3">
@@ -490,9 +494,9 @@ export default function TemplateEditModal({
                     />
                   </div>
 
-                  {/* 3. 직급1 (영문) */}
+                  {/* 3. 직급/직책 (영문) */}
                   <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
-                    <label className="text-xs font-medium text-muted-foreground">직급1</label>
+                    <label className="text-xs font-medium text-muted-foreground">{isHanmi ? "직책" : "직급"}</label>
                     <input
                       value={cardData.back.position1}
                       onChange={(e) => handleBackChange("position1", e.target.value)}
@@ -500,15 +504,17 @@ export default function TemplateEditModal({
                     />
                   </div>
 
-                  {/* 4. 직급2 (영문) */}
-                  <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
-                    <label className="text-xs font-medium text-muted-foreground">직급2</label>
-                    <input
-                      value={cardData.back.position2}
-                      onChange={(e) => handleBackChange("position2", e.target.value)}
-                      className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
-                    />
-                  </div>
+                  {/* 4. 자격사항 (영문, 제일엔지니어링 전용) */}
+                  {!isHanmi && (
+                    <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
+                      <label className="text-xs font-medium text-muted-foreground">자격사항</label>
+                      <input
+                        value={cardData.back.position2}
+                        onChange={(e) => handleBackChange("position2", e.target.value)}
+                        className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
+                      />
+                    </div>
+                  )}
 
                   {/* 5. 주소 1행 (영문) */}
                   <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">

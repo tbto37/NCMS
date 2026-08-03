@@ -25,9 +25,6 @@ export const CHEIL_COMPANY_DATA: CompanyData = {
     { ko: "교통·ITS사업부", en: "Traffic Eng · ITS Business Div." },
     { ko: "토목구조사업부", en: "Civil Structural Eng. Business Div." },
     { ko: "경영기획본부", en: "Management planning Headquarter" },
-    { ko: "수자원사업부", en: "Water Resources Business Div." },
-    { ko: "도시계획사업부", en: "Urban Planning Business Div." },
-    { ko: "감리사업부", en: "Supervision Business Div." },
   ],
   positions: [
     { ko: "부장", en: "General Manager" },
@@ -68,8 +65,6 @@ export const HANMI_COMPANY_DATA: CompanyData = {
     { ko: "하이테크사업부", en: "High-Tech Division" },
     { ko: "글로벌사업부", en: "Global Division" },
     { ko: "엔지니어링실", en: "Engineering Division" },
-    { ko: "개발사업부", en: "Development Division" },
-    { ko: "경영지원팀", en: "Management Support Team" },
   ],
   positions: [
     { ko: "사장", en: "President" },
