@@ -10,6 +10,27 @@ export interface FieldSpec {
   fontFamily?: string;
 }
 
+// 미래 DB 부서/직급 마스터 연동 대비 표준 명함 입력 폼 인터페이스
+export interface StandardCardFieldData {
+  name?: string;
+  department?: string;
+  departmentName?: string;
+  departmentId?: number | null; // 향후 DB departments 테이블 PK 매핑용
+  position1?: string;
+  position2?: string;
+  positionName?: string;
+  positionId?: number | null;   // 향후 DB positions 테이블 PK 매핑용
+  companyName?: string;
+  telephone?: string;
+  mobile?: string;
+  email?: string;
+  address1?: string;
+  address2?: string;
+  address3?: string;
+  website?: string;
+  [key: string]: any;
+}
+
 export interface LogoSpec {
   x: number;
   y: number;
