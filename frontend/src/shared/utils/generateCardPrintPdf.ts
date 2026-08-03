@@ -347,11 +347,13 @@ async function createSvgMarkupWithOutlines(
 
       ${!isBack && config.fields.departmentPosition && deptPosText ? `<text x="${config.fields.departmentPosition.x}" y="${config.fields.departmentPosition.y}" font-size="${config.fields.departmentPosition.fontSize}" font-weight="500" fill="#1e293b" dominant-baseline="hanging">${deptPosText}</text>` : ""}
 
-      ${!isBack && config.fields.position2 && front.position2 ? `<text x="${config.fields.position2.x}" y="${config.fields.position2.y}" font-size="${config.fields.position2.fontSize}" font-weight="${config.fields.position2.fontWeight || "400"}" fill="${config.fields.position2.fill || "#475569"}" dominant-baseline="hanging">${front.position2}</text>` : ""}
+      ${!isBack && front.position2 ? `<text x="${config.fields.position2?.x || 268}" y="${config.fields.position2?.y || 94}" font-size="${config.fields.position2?.fontSize || 12.2}" font-weight="${config.fields.position2?.fontWeight || "700"}" fill="${config.fields.position2?.fill || "#1e293b"}" dominant-baseline="hanging">${front.position2}</text>` : ""}
 
       ${isBack && config.fields.position1 && back.position1 ? `<text x="${config.fields.position1.x}" y="${config.fields.position1.y}" font-size="${config.fields.position1.fontSize}" font-weight="400" fill="#1e293b" dominant-baseline="hanging">${back.position1.endsWith("/") ? back.position1 : back.position1 + " /"}</text>` : ""}
 
-      ${isBack && config.fields.department && back.department ? `<text x="${config.fields.department.x}" y="${config.fields.department.y}" font-size="${config.fields.department.fontSize}" font-weight="500" fill="#1e293b" dominant-baseline="hanging">${back.department}</text>` : ""}
+      ${isBack && key === "hanmi" && back.position2 ? `<text x="268" y="92" font-size="12.2" font-weight="700" fill="#1e293b" dominant-baseline="hanging">${back.position2}</text>` : ""}
+
+      ${isBack && config.fields.department && back.department ? `<text x="${config.fields.department.x}" y="${key === "hanmi" && back.position2 ? 108 : config.fields.department.y}" font-size="${config.fields.department.fontSize}" font-weight="500" fill="#1e293b" dominant-baseline="hanging">${back.department}</text>` : ""}
 
       ${companyHtml}
 

@@ -311,13 +311,13 @@ export default function SvgBusinessCardPreview({
                     : [front.position1, front.department].filter(Boolean).join(" / ")}
                 </text>
               )}
-              {config.fields.position2 && front.position2 && (
+              {front.position2 && (
                 <text
-                  x={config.fields.position2.x}
-                  y={config.fields.position2.y}
-                  fontSize={config.fields.position2.fontSize}
-                  fontWeight={config.fields.position2.fontWeight || "400"}
-                  fill={config.fields.position2.fill || "#475569"}
+                  x={config.fields.position2?.x || 268}
+                  y={config.fields.position2?.y || 94}
+                  fontSize={config.fields.position2?.fontSize || 12.2}
+                  fontWeight={config.fields.position2?.fontWeight || "700"}
+                  fill={config.fields.position2?.fill || "#1e293b"}
                   dominantBaseline="hanging"
                 >
                   {front.position2}
@@ -340,10 +340,22 @@ export default function SvgBusinessCardPreview({
                     : `${back.position1} /`}
                 </text>
               )}
+              {key === "hanmi" && back.position2 && (
+                <text
+                  x={268}
+                  y={92}
+                  fontSize={12.2}
+                  fontWeight="700"
+                  fill="#1e293b"
+                  dominantBaseline="hanging"
+                >
+                  {back.position2}
+                </text>
+              )}
               {config.fields.department && back.department && (
                 <text
                   x={config.fields.department.x}
-                  y={config.fields.department.y}
+                  y={key === "hanmi" && back.position2 ? 108 : config.fields.department.y}
                   fontSize={config.fields.department.fontSize}
                   fontWeight={config.fields.department.fontWeight || "400"}
                   fill={config.fields.department.fill || "#1e293b"}

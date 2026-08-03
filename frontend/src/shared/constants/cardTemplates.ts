@@ -277,6 +277,14 @@ export const CARD_TEMPLATE_SPECS: Record<string, { front: CardTemplateConfig; ba
           fill: "#1e293b",
           fontFamily: "'나눔스퀘어OTF_ac', 'NanumSquareOTF_ac', 'NanumSquare', sans-serif",
         },
+        position2: {
+          x: 268,
+          y: 94,
+          fontSize: 12.2, // 6pt
+          fontWeight: "700",
+          fill: "#1e293b",
+          fontFamily: "'나눔스퀘어OTF_ac', 'NanumSquareOTF_ac', 'NanumSquare', sans-serif",
+        },
         companyName: {
           x: 268,
           y: 136,
@@ -349,6 +357,14 @@ export const CARD_TEMPLATE_SPECS: Record<string, { front: CardTemplateConfig; ba
         position1: {
           x: 268,
           y: 76,
+          fontSize: 12.2, // 6pt
+          fontWeight: "700",
+          fill: "#1e293b",
+          fontFamily: "'나눔스퀘어OTF_ac', 'NanumSquareOTF_ac', 'NanumSquare', sans-serif",
+        },
+        position2: {
+          x: 268,
+          y: 92,
           fontSize: 12.2, // 6pt
           fontWeight: "700",
           fill: "#1e293b",
