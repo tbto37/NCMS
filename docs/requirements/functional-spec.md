@@ -125,7 +125,7 @@ flowchart TD
 
 ### 4.8 고객사 맞춤형 메뉴 & 이용가이드 & 실데이터 매핑 (Tenant Guide & Data) - [완료]
 - **GUI-001 테넌트(cheil/hanmi) 전용 이용가이드 메뉴 및 모달**: `siteCode`가 `cheil` 또는 `hanmi`인 경우 좌측 사이드바/모바일 네비게이션의 `주문 관리` 바로 아래에 `이용가이드` 메뉴 노출. 클릭 시 페이지 이동 없이 이용가이드 모달(`UserGuideModal`)이 팝업되어 템플릿 선택, 템플릿 편집, 교정 승인, 주문서 작성 절차, FAQ 및 주문리스트 액션 팁 안내 정보 제공.
-- **DAT-001 제일엔지니어링 & 한미글로벌 부서/직책/자격사항 테넌트별 동적 셀렉트박스 분리 및 직책2 수기입력 지원**: 템플릿 편집 모달(`TemplateEditModal.tsx`)에서 한미글로벌 테넌트 명함 편집 시 앞면/뒷면 모두 `직책2 (수기입력)` 필드를 지원하도록 확장. 수기입력된 직책2는 기존 직책1의 하단 라인(앞면 `y:94`, 뒷면 `y:92`)에 정밀하게 이어서 배치되며, 부서 텍스트 위치 또한 자동으로 아래로 밀려 겹침 없이 깔끔하게 표시되도록 실시간 미리보기(`SvgBusinessCardPreview.tsx`) 및 PDF 렌더러(`generateCardPrintPdf.ts`)에 100% 동기화 반영.
+- **DAT-001 제일엔지니어링 & 한미글로벌 부서/직책/자격사항 테넌트별 동적 셀렉트박스 분리 및 직책2 수기입력 지원**: 템플릿 편집 모달(`TemplateEditModal.tsx`)에서 한미글로벌 테넌트 명함 편집 시 앞면/뒷면 모두 `직책2 (수기입력)` 필드를 지원하도록 확장. 수기입력된 직책2는 앞면의 경우 직책1/부서 하단(`y:94`), 뒷면의 경우 부서 하단(`y:108`)에 정밀하게 배치되며 기존 직책1 및 부서 텍스트(`y:92`) 위치를 그대로 유지하여 실시간 미리보기(`SvgBusinessCardPreview.tsx`) 및 PDF 렌더러(`generateCardPrintPdf.ts`)에 100% 동기화 반영.
 - **DAT-002 향후 DB 부서/직급 마스터 연동 대비 표준화**: 명함 데이터(`card_data` JSONB)는 기존 자유 입력을 100% 보존하면서, 표준 인터페이스(`StandardCardFieldData`: `departmentName`, `departmentId`, `positionName`, `positionId`) 적용 및 DB `departments` 마스터 시드 데이터([V7__add_standard_department_seeds.sql](file:///c:/NCMS/backend/src/main/resources/db/migration/V7__add_standard_department_seeds.sql))를 최신 `companyData` 데이터셋과 100% 동기화 보강 완료.
 
 

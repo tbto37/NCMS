@@ -351,9 +351,9 @@ async function createSvgMarkupWithOutlines(
 
       ${isBack && config.fields.position1 && back.position1 ? `<text x="${config.fields.position1.x}" y="${config.fields.position1.y}" font-size="${config.fields.position1.fontSize}" font-weight="400" fill="#1e293b" dominant-baseline="hanging">${back.position1.endsWith("/") ? back.position1 : back.position1 + " /"}</text>` : ""}
 
-      ${isBack && key === "hanmi" && back.position2 ? `<text x="268" y="92" font-size="12.2" font-weight="700" fill="#1e293b" dominant-baseline="hanging">${back.position2}</text>` : ""}
+      ${isBack && config.fields.department && back.department ? `<text x="${config.fields.department.x}" y="${config.fields.department.y}" font-size="${config.fields.department.fontSize}" font-weight="500" fill="#1e293b" dominant-baseline="hanging">${back.department}</text>` : ""}
 
-      ${isBack && config.fields.department && back.department ? `<text x="${config.fields.department.x}" y="${key === "hanmi" && back.position2 ? 108 : config.fields.department.y}" font-size="${config.fields.department.fontSize}" font-weight="500" fill="#1e293b" dominant-baseline="hanging">${back.department}</text>` : ""}
+      ${isBack && key === "hanmi" && back.position2 ? `<text x="268" y="108" font-size="12.2" font-weight="700" fill="#1e293b" dominant-baseline="hanging">${back.position2}</text>` : ""}
 
       ${companyHtml}
 

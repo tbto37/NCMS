@@ -340,28 +340,28 @@ export default function SvgBusinessCardPreview({
                     : `${back.position1} /`}
                 </text>
               )}
-              {key === "hanmi" && back.position2 && (
-                <text
-                  x={268}
-                  y={92}
-                  fontSize={12.2}
-                  fontWeight="700"
-                  fill="#1e293b"
-                  dominantBaseline="hanging"
-                >
-                  {back.position2}
-                </text>
-              )}
               {config.fields.department && back.department && (
                 <text
                   x={config.fields.department.x}
-                  y={key === "hanmi" && back.position2 ? 108 : config.fields.department.y}
+                  y={config.fields.department.y}
                   fontSize={config.fields.department.fontSize}
                   fontWeight={config.fields.department.fontWeight || "400"}
                   fill={config.fields.department.fill || "#1e293b"}
                   dominantBaseline="hanging"
                 >
                   {back.department}
+                </text>
+              )}
+              {key === "hanmi" && back.position2 && (
+                <text
+                  x={268}
+                  y={108}
+                  fontSize={12.2}
+                  fontWeight="700"
+                  fill="#1e293b"
+                  dominantBaseline="hanging"
+                >
+                  {back.position2}
                 </text>
               )}
             </>

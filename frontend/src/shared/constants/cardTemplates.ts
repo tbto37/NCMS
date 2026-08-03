@@ -364,7 +364,7 @@ export const CARD_TEMPLATE_SPECS: Record<string, { front: CardTemplateConfig; ba
         },
         position2: {
           x: 268,
-          y: 92,
+          y: 108,
           fontSize: 12.2, // 6pt
           fontWeight: "700",
           fill: "#1e293b",
