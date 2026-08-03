@@ -1,0 +1,160 @@
+[
+  [
+    "직급",
+    "영문직급",
+    "부서(소속)",
+    "영문부서(소속)",
+    "자격사항(국문)",
+    "자격사항(영문)"
+  ],
+  [
+    "부장",
+    "Sewerage Business Div.",
+    "상하수도사업부",
+    "Water Supply & Sewerage Business Div.",
+    "상하수도기술사",
+    "Chief Engineer"
+  ],
+  [
+    "부사장",
+    "Executive Vice President",
+    "관리본부",
+    "Management Division",
+    "토목구조기술사",
+    "Civil Business Div."
+  ],
+  [
+    "감리단장",
+    "",
+    "건설교통연구원/도로 · 교통연구팀",
+    "Technical Institute of E&C",
+    "Management planning Headquarter",
+    "Vice-president"
+  ],
+  [
+    "상무",
+    "Managing Director",
+    "해외본부",
+    "Overseas Business Division",
+    "토목시공기술사",
+    "철도기술사"
+  ],
+  [
+    "사원",
+    "Assistant Section Head.",
+    "안전진단사업부",
+    "Inspection Div.",
+    "공학박사",
+    "Ph.D"
+  ],
+  [
+    "부장",
+    "General Manager",
+    "스마트 시티 사업단",
+    "Smart City Division",
+    "토목시공기술사",
+    "기술사",
+    "Professional Engineer "
+  ],
+  [
+    "이사",
+    "Director",
+    "도로사업부",
+    "Highway Eng. Business Div.",
+    "토질 및 기초기술사",
+    "기술사",
+    ""
+  ],
+  [
+    "부회장",
+    "Executive Vice Chairman",
+    "지반사업부",
+    "Highway Eng. Business Div.",
+    "철도사업부",
+    "P.E. \n",
+    ""
+  ],
+  [
+    "상무",
+    "Managing Director",
+    "도로사업부",
+    "Professional Engineer Civil Engineering ",
+    "·",
+    " ITS사업부",
+    ""
+  ],
+  [
+    "주임",
+    "Engineer Railway",
+    "(영문 이름 옆 입력요청)",
+    "Assistant Manager ",
+    "Traffic Eng  · ITS Business Div.",
+    "P.E. \n",
+    ""
+  ],
+  [
+    "차장",
+    "폐기물처리기술사",
+    "환경플랜트사업부",
+    "Environmental Plant Div. ",
+    "상하수도기술사",
+    "P.E. \n",
+    ""
+  ],
+  [
+    "Ph.D, P.E.\n(영문 이름 옆 입력요청)",
+    "공항 및 \n공항기술사",
+    "관리본부",
+    "Management Division",
+    "Civil Structural Eng. Business Div",
+    "전무",
+    ""
+  ],
+  [
+    "차장",
+    "Assistant Chief Engineer.",
+    "Deputy General Manager",
+    "Assistant Manager ",
+    "Executive Director",
+    "전무",
+    ""
+  ],
+  [
+    "Ph.D, P.E.\n(영문 이름 옆 입력요청)",
+    "공항 및 \n공항기술사",
+    "철도사업부(지반팀)",
+    "긴거는 통일해 주세요",
+    "P.E.\n(영문 이름 옆 입력요청)",
+    "책임기술사/기술사"
+  ],
+  [
+    "부사장",
+    "교통기술사",
+    "도로사업부",
+    "Highway Eng. Business Div.",
+    "",
+    ""
+  ],
+  [
+    "",
+    "",
+    "교통공학박사/\n",
+    "교통기술사"
+  ],
+  [
+    "토목구조사업부",
+    "교통 "
+  ],
+  [
+    "환경플랜트사업부",
+    "Environmental Plant Div. "
+  ],
+  [
+    "경영기획본부",
+    "교통 · ITS사업부"
+  ],
+  [
+    "",
+    "P.E"
+  ]
+]

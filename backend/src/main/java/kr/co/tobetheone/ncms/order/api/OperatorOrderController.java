@@ -42,6 +42,12 @@ public class OperatorOrderController {
                 request.getTrackingNumber()));
     }
 
+    @PostMapping("/shipments/excel-upload")
+    public ApiResponse<kr.co.tobetheone.ncms.order.api.dto.ExcelUploadResultDto> uploadShipmentExcel(
+            @RequestBody List<kr.co.tobetheone.ncms.order.api.dto.ShipmentExcelRowDto> request) {
+        return ApiResponse.success(orderService.processExcelShipmentUpload(request));
+    }
+
     @DeleteMapping("/{id}")
     public ApiResponse<Void> deleteOrder(@PathVariable Long id) {
         orderService.deleteOrder(id);

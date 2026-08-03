@@ -29,27 +29,27 @@ const defaultCardData: BusinessCardInputData = {
     position1Option: "직접입력",
     position1: "부장",
     position2Option: "직접입력",
-    position2: "",
+    position2: "상하수도기술사",
     address: "06779 서울시 서초구 강남대로16길 22-6(양재동)",
-    telephone: "02-3498-2600",
-    fax: "02-572-3112",
-    directTelephone: "02-3498-2441",
-    mobile: "010-9142-9719",
-    email: "hong@logcom.co.kr",
+    telephone: "02-000-0000",
+    fax: "02-000-0000",
+    directTelephone: "02-0000-0000",
+    mobile: "010-1234-5678",
+    email: "00000@naver.com",
     website: "www.cheileng.com",
   },
   back: {
     name: "Hong Gil-dong",
-    department: "Water Supply & Sewerage Eng. Div.",
-    position1: "General Manager",
-    position2: "",
+    department: "Water Supply & Sewerage Business Div.",
+    position1: "General Manager /",
+    position2: "Chief Engineer",
     address1: "22-6, Gangnamdaero 16gil, Seocho-gu,",
     address2: "Seoul, Korea (06779)",
-    telephone: "+82-2-3498-2600",
-    fax: "+82-2-572-3112",
-    directTelephone: "+82-2-3498-2441",
-    mobile: "+82-10-9142-9719",
-    email: "hong@logcom.co.kr",
+    telephone: "+82-2-000-0000",
+    fax: "+82-2-000-0000",
+    directTelephone: "+82-2-0000-0000",
+    mobile: "+82-10-1234-5678",
+    email: "00000@naver.com",
     website: "www.cheileng.com",
   },
 };
@@ -403,13 +403,13 @@ export default function OrderFormPage() {
 
             <div>
               <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
-                전화번호
+                대표번호
               </label>
               <input
                 className={inputClassName}
                 value={recipientPhone}
                 onChange={(e) => setRecipientPhone(e.target.value)}
-                placeholder="전화번호를 입력해 주세요."
+                placeholder="대표번호를 입력해 주세요."
               />
             </div>
 

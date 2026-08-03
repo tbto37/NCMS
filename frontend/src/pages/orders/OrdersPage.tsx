@@ -45,6 +45,7 @@ import ShipmentTrackingModal, {
   type ShipmentTrackingOrder,
   type ShipmentTrackingSubmitPayload,
 } from "./components/ShipmentTrackingModal";
+import { ExcelShipmentUploadModal } from "@/pages/orders/components/ExcelShipmentUploadModal";
 import RejectReasonModal from "./components/RejectReasonModal";
 import TemplateEditModal from "@/pages/templates/components/TemplateEditModal";
 import ProofCheckModal from "@/pages/templates/components/ProofCheckModal";
@@ -296,6 +297,7 @@ export default function OrdersPage() {
   const [reorderProofModalOpen, setReorderProofModalOpen] = useState(false);
   const [selectedReorderOrder, setSelectedReorderOrder] = useState<Order | null>(null);
   const [pendingReorderCardData, setPendingReorderCardData] = useState<BusinessCardInputData | null>(null);
+  const [isExcelUploadModalOpen, setIsExcelUploadModalOpen] = useState(false);
 
   const [dbCompanies, setDbCompanies] = useState<string[]>([]);
 
@@ -771,6 +773,17 @@ export default function OrdersPage() {
             embedded={true}
           />
 
+          {isOperator && (
+            <button
+              type="button"
+              onClick={() => setIsExcelUploadModalOpen(true)}
+              className="flex h-10 items-center gap-1.5 rounded-lg border border-primary/30 bg-primary/10 px-3 text-xs font-semibold text-primary transition-colors hover:bg-primary/20 shrink-0"
+            >
+              <FileSpreadsheet size={14} />
+              <span>송장 엑셀 업로드</span>
+            </button>
+          )}
+
           <button
             type="button"
             onClick={handleExcelDownload}
@@ -1101,6 +1114,15 @@ export default function OrdersPage() {
           setPendingReorderCardData(null);
 
           navigate(targetUrl, { state: { reorderData } });
+        }}
+      />
+
+      <ExcelShipmentUploadModal
+        open={isExcelUploadModalOpen}
+        token={accessToken}
+        onClose={() => setIsExcelUploadModalOpen(false)}
+        onSuccess={() => {
+          setReloadKey((prev) => prev + 1);
         }}
       />
     </div>

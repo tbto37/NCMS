@@ -132,6 +132,55 @@ public class OrderService {
     }
 
     @Transactional
+    public kr.co.tobetheone.ncms.order.api.dto.ExcelUploadResultDto processExcelShipmentUpload(List<kr.co.tobetheone.ncms.order.api.dto.ShipmentExcelRowDto> rows) {
+        int successCount = 0;
+        List<kr.co.tobetheone.ncms.order.api.dto.ExcelUploadResultDto.UploadFailure> failures = new java.util.ArrayList<>();
+
+        for (kr.co.tobetheone.ncms.order.api.dto.ShipmentExcelRowDto row : rows) {
+            String orderNo = row.getOrderNo() != null ? row.getOrderNo().trim() : "";
+            String name = row.getName() != null ? row.getName().trim().replace(" ", "") : "";
+            String trackingNumber = row.getTrackingNumber() != null ? row.getTrackingNumber().trim() : "";
+            String carrierCode = row.getCarrierCode() != null && !row.getCarrierCode().isBlank() ? row.getCarrierCode().trim() : "롯데택배";
+
+            if (orderNo.isBlank() || trackingNumber.isBlank()) {
+                failures.add(new kr.co.tobetheone.ncms.order.api.dto.ExcelUploadResultDto.UploadFailure(orderNo, name, "주문번호 또는 송장번호가 누락되었습니다."));
+                continue;
+            }
+
+            java.util.Optional<Order> orderOpt = orderRepository.findByOrderNo(orderNo);
+            if (orderOpt.isEmpty()) {
+                failures.add(new kr.co.tobetheone.ncms.order.api.dto.ExcelUploadResultDto.UploadFailure(orderNo, name, "존재하지 않는 주문번호입니다."));
+                continue;
+            }
+
+            Order order = orderOpt.get();
+            String recipientName = order.getRecipientName() != null ? order.getRecipientName().trim().replace(" ", "") : "";
+            String memberName = order.getMember() != null && order.getMember().getName() != null ? order.getMember().getName().trim().replace(" ", "") : "";
+
+            // 주문번호 + 이름 2가지 조건 동시 검증
+            boolean nameMatches = name.equalsIgnoreCase(recipientName) || name.equalsIgnoreCase(memberName);
+            if (!nameMatches) {
+                failures.add(new kr.co.tobetheone.ncms.order.api.dto.ExcelUploadResultDto.UploadFailure(orderNo, name, "주문번호와 이름이 일치하지 않습니다. (시스템 기록 수령인: " + order.getRecipientName() + ")"));
+                continue;
+            }
+
+            order.updateStatus("SHIPPED");
+
+            Shipment shipment = shipmentRepository.findByOrderId(order.getId())
+                    .orElseGet(() -> Shipment.builder().order(order).carrierCode(carrierCode).trackingNumber(trackingNumber).build());
+            shipmentRepository.save(shipment);
+
+            successCount++;
+        }
+
+        return kr.co.tobetheone.ncms.order.api.dto.ExcelUploadResultDto.builder()
+                .successCount(successCount)
+                .failCount(failures.size())
+                .failures(failures)
+                .build();
+    }
+
+    @Transactional
     public void deleteOrder(Long orderId) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new CustomException("주문을 찾을 수 없습니다.", HttpStatus.NOT_FOUND));

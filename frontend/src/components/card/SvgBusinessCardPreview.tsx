@@ -309,8 +309,8 @@ export default function SvgBusinessCardPreview({
               dominantBaseline="hanging"
             >
               {!isBack
-                ? `대표 : ${currentData.telephone || "02-3498-2600"}   팩스 : ${currentData.fax || "02-572-8970"}`
-                : `Tel: ${currentData.telephone || "82-2-3498-2600"}   Fax: ${currentData.fax || "82-2-572-8970"}`}
+                ? `대표 : ${currentData.telephone || "02-000-0000"}   팩스 : ${currentData.fax || "02-000-0000"}`
+                : `Tel: ${currentData.telephone || "82-2-000-0000"}   Fax: ${currentData.fax || "82-2-000-0000"}`}
             </text>
           )}
 
@@ -397,7 +397,7 @@ export default function SvgBusinessCardPreview({
               dominantBaseline="hanging"
             >
               {key === "cheil" ? (
-                `E-mail: ${currentData.email || "youremail@email.com"}`
+                `E-mail: ${currentData.email || "00000@naver.com"}`
               ) : (
                 <>
                   <tspan x={config.fields.email.x} fontWeight="400" fill="#1e293b">

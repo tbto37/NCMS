@@ -314,7 +314,7 @@ export default function OrderDetailModal({
                 />
 
                 <DetailItem
-                  label="전화번호"
+                  label="대표번호"
                   value={
                     <span className="inline-flex items-center gap-1.5">
                       <Phone size={12} className="text-muted-foreground" />
