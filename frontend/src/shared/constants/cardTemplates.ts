@@ -242,59 +242,67 @@ export const CARD_TEMPLATE_SPECS: Record<string, { front: CardTemplateConfig; ba
         name: {
           x: 268,
           y: 44,
-          fontSize: 24,
-          fontWeight: "700",
+          fontSize: 26.4, // 13pt
+          fontWeight: "800",
           fill: "#0f172a",
           letterSpacing: "0.25em",
+          fontFamily: "'나눔스퀘어OTF_ac', 'NanumSquareOTF_ac', 'NanumSquare', sans-serif",
         },
         departmentPosition: {
           x: 268,
           y: 78,
-          fontSize: 12.5,
-          fontWeight: "500",
+          fontSize: 12.2, // 6pt
+          fontWeight: "700",
           fill: "#1e293b",
+          fontFamily: "'나눔스퀘어OTF_ac', 'NanumSquareOTF_ac', 'NanumSquare', sans-serif",
         },
         companyName: {
           x: 268,
           y: 136,
-          fontSize: 14,
+          fontSize: 14.2, // 7pt
           fontWeight: "700",
           fill: "#0f172a",
+          fontFamily: "'나눔스퀘어OTF_ac', 'NanumSquareOTF_ac', 'NanumSquare', sans-serif",
         },
         telephone: {
           x: 268,
           y: 158,
-          fontSize: 12,
-          fontWeight: "500",
+          fontSize: 14.2, // 7pt
+          fontWeight: "700",
           fill: "#1e293b",
+          fontFamily: "'나눔스퀘어OTF_ac', 'NanumSquareOTF_ac', 'NanumSquare', sans-serif",
         },
         mobile: {
           x: 268,
           y: 177,
-          fontSize: 12,
-          fontWeight: "500",
+          fontSize: 14.2, // 7pt
+          fontWeight: "700",
           fill: "#1e293b",
+          fontFamily: "'나눔스퀘어OTF_ac', 'NanumSquareOTF_ac', 'NanumSquare', sans-serif",
         },
         email: {
           x: 268,
           y: 196,
-          fontSize: 12,
-          fontWeight: "500",
+          fontSize: 14.2, // 7pt
+          fontWeight: "700",
           fill: "#1e293b",
+          fontFamily: "'나눔스퀘어OTF_ac', 'NanumSquareOTF_ac', 'NanumSquare', sans-serif",
         },
         address1: {
           x: 268,
           y: 218,
-          fontSize: 11.5,
-          fontWeight: "400",
+          fontSize: 14.2, // 7pt
+          fontWeight: "700",
           fill: "#334155",
+          fontFamily: "'나눔스퀘어OTF_ac', 'NanumSquareOTF_ac', 'NanumSquare', sans-serif",
         },
         address2: {
           x: 268,
-          y: 234,
-          fontSize: 11.5,
-          fontWeight: "400",
+          y: 236,
+          fontSize: 14.2, // 7pt
+          fontWeight: "700",
           fill: "#334155",
+          fontFamily: "'나눔스퀘어OTF_ac', 'NanumSquareOTF_ac', 'NanumSquare', sans-serif",
         },
       },
     },
@@ -311,58 +319,66 @@ export const CARD_TEMPLATE_SPECS: Record<string, { front: CardTemplateConfig; ba
         name: {
           x: 268,
           y: 44,
-          fontSize: 23,
-          fontWeight: "700",
+          fontSize: 26.4, // 13pt
+          fontWeight: "800",
           fill: "#0f172a",
+          fontFamily: "'나눔스퀘어OTF_ac', 'NanumSquareOTF_ac', 'NanumSquare', sans-serif",
         },
         position1: {
           x: 268,
           y: 76,
-          fontSize: 12,
-          fontWeight: "400",
+          fontSize: 12.2, // 6pt
+          fontWeight: "700",
           fill: "#1e293b",
+          fontFamily: "'나눔스퀘어OTF_ac', 'NanumSquareOTF_ac', 'NanumSquare', sans-serif",
         },
         department: {
           x: 268,
           y: 92,
-          fontSize: 12,
-          fontWeight: "400",
+          fontSize: 12.2, // 6pt
+          fontWeight: "700",
           fill: "#1e293b",
+          fontFamily: "'나눔스퀘어OTF_ac', 'NanumSquareOTF_ac', 'NanumSquare', sans-serif",
         },
         companyName: {
           x: 268,
           y: 168,
-          fontSize: 14,
+          fontSize: 14.2, // 7pt
           fontWeight: "700",
           fill: "#0f172a",
+          fontFamily: "'나눔스퀘어OTF_ac', 'NanumSquareOTF_ac', 'NanumSquare', sans-serif",
         },
         website: {
           x: 268,
           y: 186,
-          fontSize: 12.5,
-          fontWeight: "500",
+          fontSize: 14.2, // 7pt
+          fontWeight: "700",
           fill: "#004B96",
+          fontFamily: "'나눔스퀘어OTF_ac', 'NanumSquareOTF_ac', 'NanumSquare', sans-serif",
         },
         address1: {
           x: 268,
           y: 206,
-          fontSize: 11.2,
-          fontWeight: "400",
+          fontSize: 14.2, // 7pt
+          fontWeight: "700",
           fill: "#334155",
+          fontFamily: "'나눔스퀘어OTF_ac', 'NanumSquareOTF_ac', 'NanumSquare', sans-serif",
         },
         address2: {
           x: 268,
-          y: 222,
-          fontSize: 11.2,
-          fontWeight: "400",
+          y: 224,
+          fontSize: 14.2, // 7pt
+          fontWeight: "700",
           fill: "#334155",
+          fontFamily: "'나눔스퀘어OTF_ac', 'NanumSquareOTF_ac', 'NanumSquare', sans-serif",
         },
         address3: {
           x: 268,
-          y: 238,
-          fontSize: 11.2,
-          fontWeight: "400",
+          y: 242,
+          fontSize: 14.2, // 7pt
+          fontWeight: "700",
           fill: "#334155",
+          fontFamily: "'나눔스퀘어OTF_ac', 'NanumSquareOTF_ac', 'NanumSquare', sans-serif",
         },
       },
     },

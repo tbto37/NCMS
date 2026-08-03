@@ -84,6 +84,7 @@ export async function generateCardPrintPdf(order: OrderLike): Promise<void> {
   // 폰트 파일 미리 로드
   const fontUlsungdo = await loadFontFile("/fonts/HYWULM.TTF");
   const fontPadosori = await loadFontFile("/fonts/a파도소리_3.otf");
+  const fontNanumSquare = await loadFontFile("/fonts/NanumSquareEB.ttf") || await loadFontFile("/fonts/NanumSquareB_1.ttf");
 
   // 오프스크린 렌더링 컨테이너
   const container = document.createElement("div");
@@ -113,7 +114,8 @@ export async function generateCardPrintPdf(order: OrderLike): Promise<void> {
       false,
       frontLogoBase64,
       fontUlsungdo,
-      fontPadosori
+      fontPadosori,
+      fontNanumSquare
     );
     await new Promise((res) => setTimeout(res, 50));
 
@@ -158,7 +160,8 @@ export async function generateCardPrintPdf(order: OrderLike): Promise<void> {
       true,
       backLogoBase64,
       fontUlsungdo,
-      fontPadosori
+      fontPadosori,
+      fontNanumSquare
     );
     await new Promise((res) => setTimeout(res, 50));
 
@@ -232,7 +235,8 @@ async function createSvgMarkupWithOutlines(
   isBack: boolean,
   logoBase64: string,
   fontUlsungdo: opentype.Font | null,
-  fontPadosori: opentype.Font | null
+  fontPadosori: opentype.Font | null,
+  fontNanumSquare: opentype.Font | null = null
 ): Promise<string> {
   const front = cardData.front || {};
   const back = cardData.back || {};
@@ -292,11 +296,15 @@ async function createSvgMarkupWithOutlines(
     ? "CHEIL ENGINEERING CO.,LTD."
     : "HanmiGlobal Co.,Ltd.";
 
-  // 제일엔지니어링 상호 -> HY울릉도M 폰트 Outline Path 변환
+  // 제일엔지니어링(HY울릉도M) & 한미글로벌(NanumSquare) 상호 -> Outline Path 변환
   let companyHtml = "";
   if (config.fields.companyName) {
     if (key === "cheil" && fontUlsungdo && !isBack) {
       const path = fontUlsungdo.getPath(companyText, config.fields.companyName.x, config.fields.companyName.y + 12, config.fields.companyName.fontSize || 14);
+      path.fill = config.fields.companyName.fill || "#0f172a";
+      companyHtml = path.toSVG(2);
+    } else if (key === "hanmi" && fontNanumSquare) {
+      const path = fontNanumSquare.getPath(companyText, config.fields.companyName.x, config.fields.companyName.y + 12, config.fields.companyName.fontSize || 14.2);
       path.fill = config.fields.companyName.fill || "#0f172a";
       companyHtml = path.toSVG(2);
     } else {
