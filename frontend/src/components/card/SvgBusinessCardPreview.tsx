@@ -378,8 +378,8 @@ export default function SvgBusinessCardPreview({
               />
             ) : (
               <image
-                href={!isBack ? "/cheil/cheil_build_front_name.jpg" : "/cheil/cheil_back_name.jpg"}
-                xlinkHref={!isBack ? "/cheil/cheil_build_front_name.jpg" : "/cheil/cheil_back_name.jpg"}
+                href={!isBack ? (tidStr === "4" || tidStr.includes("cheil_front_name") ? "/cheil/cheil_front_name.jpg" : "/cheil/cheil_build_front_name.jpg") : "/cheil/cheil_back_name.jpg"}
+                xlinkHref={!isBack ? (tidStr === "4" || tidStr.includes("cheil_front_name") ? "/cheil/cheil_front_name.jpg" : "/cheil/cheil_build_front_name.jpg") : "/cheil/cheil_back_name.jpg"}
                 x={config.fields.companyName.x}
                 y={!isBack ? config.fields.companyName.y - 1 : config.fields.companyName.y}
                 width={!isBack ? 217.6 : 216.5}

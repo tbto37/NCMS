@@ -49,11 +49,11 @@ interface TemplateCardData {
 
 const MOCK_CARD_DETAILS = [
   {
-    category: "회원증",
+    category: "제일엔지니어링 종합건축사 사무소용",
     accent: "bg-accent",
   },
   {
-    category: "출입증",
+    category: "제일엔지니어링 용",
     accent: "bg-primary",
   },
   {
@@ -94,7 +94,7 @@ function mapTemplateResponse(
 
   // 한미글로벌 템플릿의 경우 템플릿 목록 카드 썸네일로 hanmi_template.jpg 사용
   if (idStr === "3" || idStr.includes("hanmi") || nameStr.includes("한미")) {
-    previewFrontUrl = "/hanmi_template.jpg";
+    previewFrontUrl = "/hanmi/hanmi_template.jpg";
   }
 
   return {
