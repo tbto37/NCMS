@@ -95,7 +95,7 @@ export default function TemplateEditModal({
     }
     // 템플릿에 따라 초기 렌더 데이터 조정 (이름 홍길동 통일, 전화번호 +82 제거 및 영문 자동완성 포맷팅)
     const tidStr = String(templateId || "").toLowerCase();
-    if (tidStr.includes("cheil") || tidStr === "2") {
+    if (tidStr.includes("cheil") || tidStr === "2" || tidStr === "4") {
       setCardData({
         front: {
           name: "홍길동",

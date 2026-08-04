@@ -108,9 +108,12 @@ export async function generateCardPrintPdf(order: OrderLike): Promise<void> {
 
     // --- Page 1: 앞면 (국문 순수 Vector SVG PDF + Outline + CMYK) ---
     const frontLogoBase64 = await fetchLogoBase64(specGroup.front.logoUrl);
+    const cheilFrontAssetUrl = (tidStr === "4" || tidStr.includes("cheil_front_name"))
+      ? "/cheil/cheil_front_name.jpg"
+      : "/cheil/cheil_build_front_name.jpg";
     const companyNameFrontAssetBase64 = key === "hanmi"
       ? await fetchLogoBase64("/hanmi/hanmi_front_name.jpg")
-      : await fetchLogoBase64("/cheil/cheil_build_front_name.jpg");
+      : await fetchLogoBase64(cheilFrontAssetUrl);
     const cheilSmileBase64 = key === "cheil" ? await fetchLogoBase64("/cheil/cheil_smile.jpg") : "";
 
     container.innerHTML = await createSvgMarkupWithOutlines(
@@ -123,7 +126,8 @@ export async function generateCardPrintPdf(order: OrderLike): Promise<void> {
       fontPadosori,
       fontNanumSquare,
       companyNameFrontAssetBase64,
-      cheilSmileBase64
+      cheilSmileBase64,
+      tidStr
     );
     await new Promise((res) => setTimeout(res, 50));
 
@@ -175,7 +179,8 @@ export async function generateCardPrintPdf(order: OrderLike): Promise<void> {
       fontPadosori,
       fontNanumSquare,
       companyNameBackAssetBase64,
-      cheilSmileBase64
+      cheilSmileBase64,
+      tidStr
     );
     await new Promise((res) => setTimeout(res, 50));
 
@@ -255,7 +260,8 @@ async function createSvgMarkupWithOutlines(
   fontPadosori: opentype.Font | null,
   fontNanumSquare: opentype.Font | null = null,
   companyNameAssetBase64: string = "",
-  sloganAssetBase64: string = ""
+  sloganAssetBase64: string = "",
+  tidStr: string = ""
 ): Promise<string> {
   const front = cardData.front || {};
   const back = cardData.back || {};
@@ -307,7 +313,8 @@ async function createSvgMarkupWithOutlines(
       const src = companyNameAssetBase64 || (!isBack ? "/hanmi/hanmi_front_name.jpg" : "/hanmi/hanmi_back_name.jpg");
       companyHtml = `<image href="${src}" xlink:href="${src}" x="${config.fields.companyName.x}" y="${config.fields.companyName.y - 2}" width="${!isBack ? 143.7 : 159.9}" height="14.2" preserveAspectRatio="xMinYMin meet" />`;
     } else {
-      const src = companyNameAssetBase64 || (!isBack ? "/cheil/cheil_build_front_name.jpg" : "/cheil/cheil_back_name.jpg");
+      const defaultCheilFront = (tidStr === "4" || tidStr.includes("cheil_front_name")) ? "/cheil/cheil_front_name.jpg" : "/cheil/cheil_build_front_name.jpg";
+      const src = companyNameAssetBase64 || (!isBack ? defaultCheilFront : "/cheil/cheil_back_name.jpg");
       companyHtml = `<image href="${src}" xlink:href="${src}" x="${config.fields.companyName.x}" y="${!isBack ? config.fields.companyName.y - 1 : config.fields.companyName.y}" width="${!isBack ? 217.6 : 216.5}" height="${!isBack ? 13.8 : 8.8}" preserveAspectRatio="xMinYMin meet" />`;
     }
   }

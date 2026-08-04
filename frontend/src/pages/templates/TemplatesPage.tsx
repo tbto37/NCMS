@@ -49,11 +49,11 @@ interface TemplateCardData {
 
 const MOCK_CARD_DETAILS = [
   {
-    category: "회원증",
+    category: "제일엔지니어링 종합건축사 사무소용",
     accent: "bg-accent",
   },
   {
-    category: "출입증",
+    category: "제일엔지니어링 용",
     accent: "bg-primary",
   },
   {
