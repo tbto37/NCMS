@@ -325,9 +325,9 @@ export default function TemplatesPage() {
             >
               <div className="border-b border-border bg-secondary/30 p-3">
                 <div className="mb-3 flex items-center justify-between">
-                  <span className="font-mono text-xs text-muted-foreground">
+                  {/* <span className="font-mono text-xs text-muted-foreground">
                     {template.id}
-                  </span>
+                  </span> */}
                   {/* <button
                     className="rounded p-1 text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground"
                     aria-label="템플릿 메뉴"
