@@ -37,25 +37,20 @@ flowchart LR
 시스템 관리자 화면(`/admin/companies`)에 접속하거나, DB `companies` 테이블에 행(Row)을 추가합니다.
 
 #### 필수 입력 항목
-* **고객사 코드 (`site_code`)**: URL 경로 세그먼트로 사용될 영문 소문자/숫자 조합의 고유 식별자 (예: `kakao`, `samsung`, `hyundai`)
+* **고객사 코드 (`site_code`)**: URL 경로 세그먼트로 사용될 영문 소문자/숫자 조합의 고유 식별자 (예: `kakao`, `samsung`, `cheil`, `hanmi`)
 * **회사명 (`name`)**: 화면 상단 및 주문서에 표기될 공식 회사명 (예: `(주)카카오`)
-* **로고 이미지 키/URL (`logo_file_key`)**: 상단 헤더에 노출될 고객사 로고 이미지 경로
+* **로고 이미지 URL (`logo_url`)**: 상단 헤더에 노출될 고객사 로고 이미지 경로 (예: `https://cdn.logcom.co.kr/logos/kakao.png`)
 * **대표 브랜드 색상 (`primary_color`)**: 화면 버튼, 강조 색상에 적용될 6자리 HEX 색상 코드 (예: `#FEE500`)
-* **운영 정책**:
-  * 명함 검수 정책 (`approval_policy`): `NOT_REQUIRED` (고객사 내부 승인 절차 없음, 로그컴 운영자가 명함 검수)
-  * 배송지 정책 (`shipping_address_policy`): `FIXED` (기본 배송지 고정) / `USER_INPUT` (개인 입력) / `BOTH` (선택 가능)
-  * 가격 노출 정책 (`price_visibility`): `VISIBLE` (금액 노출) / `HIDDEN` (금액 숨김)
+* **상태 (`status`)**: `ACTIVE` (활성) / `INACTIVE` (비활성)
 
-#### DB SQL 실행 예시
+#### DB SQL 실행 예시 (Flyway / PostgreSQL)
 ```sql
 INSERT INTO companies (
-    id, site_code, name, logo_file_key, primary_color, 
-    approval_policy, shipping_address_policy, price_visibility, status
+    id, site_code, name, logo_url, primary_color, status
 ) VALUES (
-    gen_random_uuid(), 'kakao', '(주)카카오', 
-    'https://cdn.logcom.co.kr/logos/kakao.png', '#FEE500', 
-    'NOT_REQUIRED', 'BOTH', 'HIDDEN', 'ACTIVE'
-);
+    4, 'kakao', '(주)카카오', 
+    'https://cdn.logcom.co.kr/logos/kakao.png', '#FEE500', 'ACTIVE'
+) ON CONFLICT (site_code) DO NOTHING;
 ```
 
 ---
@@ -67,11 +62,10 @@ INSERT INTO companies (
 * 시스템 관리자 화면(`/admin/companies/{companyId}/departments`) 또는 기업 관리자 화면에서 진행할 수 있습니다.
 
 ```sql
-INSERT INTO departments (id, company_id, name, depth, sort_order) 
+INSERT INTO departments (company_id, name, sort_order, status) 
 VALUES (
-    gen_random_uuid(), 
     (SELECT id FROM companies WHERE site_code = 'kakao'), 
-    '플랫폼개발팀', 1, 1
+    '플랫폼개발팀', 1, 'ACTIVE'
 );
 ```
 
@@ -91,8 +85,8 @@ VALUES (
 
 신규 고객사의 AI(Adobe Illustrator) 원본 명함 시안을 파싱하여 **0.001pt 정밀 SVG 동적 미리보기 메타데이터**를 세팅하고 템플릿을 등록합니다.
 
-#### 1) 로고 이미지 파일 등록
-* 신규 업체의 국문/영문 로고 이미지를 `c:\NCMS\frontend\public\logos\` 경로에 저장합니다.
+#### 1) 로고 이미지 파일 및 지정 브랜드 자산 등록
+* 신규 업체의 국문/영문 로고 이미지 및 상호 자산 이미지를 `c:\NCMS\frontend\public\{site_code}\` 경로(예: `/hanmi/`, `/cheil/`, `/logos/`)에 저장합니다.
   - 예: `company_front_logo.png` (국문 앞면), `company_back_logo.png` (영문 뒷면)
 
 #### 2) AI 원본 좌표 파싱 및 메타데이터 세팅

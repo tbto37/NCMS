@@ -33,21 +33,23 @@ NCMS/
 kr.co.tobetheone.ncms/
 ├── global/          # Security, Exception, Common DTO/Response
 ├── auth/            # 인증 (Login, Token)
-├── company/         # 고객사 및 부서 관리
+├── company/         # 고객사 메타 관리
+├── department/      # 부서 관리
 ├── member/          # 회원 및 권한 관리
 ├── template/        # 명함 템플릿 및 상품 옵션
 ├── order/           # 명함 주문 및 스냅샷
-├── operator/        # 로그컴 운영자 검수/인쇄/발송 처리
-└── shipment/        # 배송 관리
+├── shipment/        # 배송 관리
+└── health/          # 헬스 체크
 ```
 
 ### 2.1 주요 도메인 책임
 - `auth`: 로그인, JWT Access Token 발급
-- `company`: 고객사 메타(로고, 색상) 및 부서 관리
+- `company`: 고객사 메타(로고, 색상) 관리
+- `department`: 부서 목록 및 순서 관리
 - `member`: 회원(임직원/기업관리자) 등록, 수정, 상태 관리
 - `template`: 명함 템플릿 및 재질/수량 옵션 관리
-- `order`: 명함 입력, 미리보기 동의, 주문 접수 및 스냅샷 생성
-- `operator`: 로그컴 운영자 검수 승인/반려 및 제작/배송 상태 전환
+- `order`: 명함 입력, 미리보기 동의, 주문 접수, 검수/승인/반려 및 스냅샷 생성
+- `shipment`: 배송 관리 및 송장 엑셀 스마트 매칭
 
 ### 2.2 테넌트 및 권한 검증 간소화
 - 과도한 이중 서블릿 인터셉터 대신, JWT 토큰 내의 `company_id` 및 `role` 정보를 Spring Security Context 및 Service 계층에서 대조하여 데이터 격리를 수행합니다.
@@ -56,19 +58,27 @@ kr.co.tobetheone.ncms/
 
 ## 3. Frontend 패키지 아키텍처 (React + TypeScript)
 
-단일 React 애플리케이션에서 로그인한 사용자의 역할에 따라 라우트를 분기합니다.
+단일 React 애플리케이션에서 로그인한 사용자의 역할과 접속 경로(`/:siteCode`)에 따라 화면 및 라우트를 동적으로 분기합니다.
 
 ```text
 frontend/src/
-├── app/             # Router, Provider, Auth Guard
-├── components/      # Layout, Header, Common UI Component
-├── pages/
-│   ├── employee/    # 임직원: 템플릿 선택, 명함 편집, 주문, 내 주문 목록
-│   ├── company/     # 기업 관리자: 임직원 계정 관리, 소속 주문 조회
-│   ├── operator/    # 로그컴 운영자: 명함 검수, 제작/발송 상태 관리
-│   └── admin/       # 시스템 관리자: 고객사, 템플릿 등록
-├── api/             # Axios API Client 및 엔드포인트 모듈
-└── types/           # TS 타입 정의
+├── app/             # Router, Provider (Auth, Tenant), App Layout Guard
+├── components/      # UI Layout, Header, Card Preview (SvgBusinessCardPreview 등), Modal
+├── pages/           # 도메인/기능 단위 레이아웃 및 페이지
+│   ├── auth/        # 로그인 페이지
+│   ├── dashboard/   # 메인 대시보드
+│   ├── orders/      # 명함 주문 목록, 재주문, 상세 모달
+│   ├── members/     # 임직원/회원 관리
+│   ├── templates/   # 명함 템플릿 목록, 편집 모달, 시안 교정
+│   ├── settings/    # 고객사/부서/계정 설정
+│   ├── analytics/   # 발주 통계 분석
+│   └── error/       # 404 및 유효하지 않은 테넌트 예외 처리 페이지
+├── shared/          # 공통 모듈 및 자산
+│   ├── constants/   # API, Navigation, CardTemplates 메타데이터
+│   ├── types/       # TypeScript 인터페이스 & DTO 타입
+│   ├── utils/       # PDF 생성 엔진 (generateCardPrintPdf) 및 헬퍼 함수
+│   └── hooks/       # 커스텀 훅
+└── styles/          # Tailwind 및 글로벌 CSS
 ```
 
 ### 3.1 경로 기반 동적 브랜딩 및 테넌트 진입 차단
