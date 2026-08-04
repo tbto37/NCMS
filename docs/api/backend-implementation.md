@@ -47,6 +47,7 @@
 
 | Method | Endpoint | 권한 제한 | 설명 |
 |---|---|---|---|
+| `GET` | `/api/v1/public/companies` | Anyone | 전체 활성 고객사 목록 조회 |
 | `GET` | `/api/v1/public/companies/{siteCode}` | Anyone | 공개 브랜딩 API (로고, 대표색상, 회사명) |
 | `GET` | `/api/v1/admin/companies/{id}` | `SYSTEM_ADMIN` | 고객사 상세 조회 |
 | `POST` | `/api/v1/admin/companies` | `SYSTEM_ADMIN` | 신규 고객사 등록 |
@@ -73,6 +74,7 @@
 |---|---|---|---|
 | `GET` | `/api/v1/company/templates` | `EMPLOYEE`, `COMPANY_ADMIN` | 소속 고객사 배정 명함 템플릿 목록 조회 |
 | `POST` | `/api/v1/admin/templates` | `SYSTEM_ADMIN` | 명함 템플릿 신규 등록 |
+| `GET` | `/api/v1/product-options` | Anyone / Authenticated | 명함 상품 옵션 (용지 재질, 수량) 목록 조회 |
 
 ---
 
@@ -94,4 +96,14 @@
 | `POST` | `/api/v1/operator/orders/{id}/approve` | `OPERATOR`, `SYSTEM_ADMIN` | 오타/오류 검수 승인 (`APPROVED`) |
 | `POST` | `/api/v1/operator/orders/{id}/reject` | `OPERATOR`, `SYSTEM_ADMIN` | 명함 검수 반려 및 반려 사유 기록 (`REJECTED`) |
 | `PATCH` | `/api/v1/operator/orders/{id}/status` | `OPERATOR`, `SYSTEM_ADMIN` | 제작/배송 상태 변경 (`PRINTING`, `SHIPPED`, `DELIVERED`, `CANCELLED`, `PENDING`) 및 송장 등록 |
+| `POST` | `/api/v1/operator/orders/shipments/excel-upload` | `OPERATOR`, `SYSTEM_ADMIN` | 택배사 송장 엑셀 스마트 매칭 업로드 및 `SHIPPED` 일괄 자동 변경 |
 | `DELETE` | `/api/v1/operator/orders/{id}` | `OPERATOR`, `SYSTEM_ADMIN` | 주문 내역 영구 삭제 (스냅샷 및 배송 정보 연쇄 삭제) |
+
+---
+
+### 2.7 시스템 헬스 체크 (Health)
+
+| Method | Endpoint | 권한 제한 | 설명 |
+|---|---|---|---|
+| `GET` | `/api/v1/health` | Anyone | 백엔드 시스템 가동 상태 헬스 체크 |
+
