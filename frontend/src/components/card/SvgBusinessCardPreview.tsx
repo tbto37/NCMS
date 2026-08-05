@@ -155,83 +155,172 @@ export default function SvgBusinessCardPreview({
 
   const currentData = isBack ? back : front;
 
-  // 제일엔지니어링 하단 기준 동적 정렬 (Bottom-Up Stacking)
-  // 웹사이트(y=255)부터 역순으로 위로 차곡차곡 배치하여 빈 공간 제거
-  const cheilY = (() => {
-    let currentY = 255;
-    const res = {
+  // 하단 기준 동적 정렬 (Bottom-Up Stacking)
+  // 입력된 텍스트 필드가 빠져있을 때 빈 공간 없이 아래 기준으로 차곡차곡 밀착 배치
+  const cardY = (() => {
+    if (key === "cheil") {
+      let currentY = 255;
+      const res = {
+        website: 255,
+        email: 236,
+        mobile: 217,
+        directTel: 198,
+        telAndFax: 179,
+        address: 160,
+        address1: 153,
+        address2: 170,
+        address3: 242,
+        telephone: 158,
+        companyName: !isBack ? 141 : 136,
+      };
+
+      const step = !isBack ? 19 : 17;
+      res.website = currentY;
+
+      if (config.fields.email && currentData.email) {
+        currentY -= step;
+        res.email = currentY;
+      }
+      if (config.fields.mobile && currentData.mobile) {
+        currentY -= step;
+        res.mobile = currentY;
+      }
+      if (config.fields.directTelephone && currentData.directTelephone) {
+        currentY -= step;
+        res.directTel = currentY;
+      }
+      const hasTelAndFax = Boolean(
+        config.fields.telAndFax && (currentData.telephone || currentData.fax)
+      );
+      if (hasTelAndFax) {
+        currentY -= step;
+        res.telAndFax = currentY;
+      }
+      if (!isBack) {
+        if (config.fields.address && front.address) {
+          currentY -= step;
+          res.address = currentY;
+        }
+      } else {
+        const [c1, c2] = getCheilBackAddressLines(back);
+        if (c2) {
+          currentY -= step;
+          res.address2 = currentY;
+        }
+        if (c1) {
+          currentY -= step;
+          res.address1 = currentY;
+        }
+      }
+      if (config.fields.companyName) {
+        currentY -= step;
+        res.companyName = currentY;
+      }
+      return res;
+    }
+
+    if (key === "hanmi") {
+      if (!isBack) {
+        // 한미글로벌 앞면 (국문): 최하단 주소 기준 Y = 236
+        const [addr1, addr2] = getHanmiFrontAddressLines(front);
+        const addr2Y = 236;
+        const addr1Y = addr2 ? 218 : 236;
+
+        let currentY = addr2 ? 218 : 236;
+        const step = 19;
+
+        let emailY = config.fields.email?.y || 196;
+        if (config.fields.email && front.email) {
+          currentY -= step;
+          emailY = currentY;
+        }
+
+        let mobileY = config.fields.mobile?.y || 177;
+        if (config.fields.mobile && front.mobile) {
+          currentY -= step;
+          mobileY = currentY;
+        }
+
+        let telephoneY = config.fields.telephone?.y || 158;
+        if (config.fields.telephone && front.telephone) {
+          currentY -= step;
+          telephoneY = currentY;
+        }
+
+        let companyNameY = config.fields.companyName?.y || 136;
+        if (config.fields.companyName) {
+          currentY -= 22;
+          companyNameY = currentY;
+        }
+
+        return {
+          website: 255,
+          email: emailY,
+          mobile: mobileY,
+          directTel: 198,
+          telAndFax: 179,
+          telephone: telephoneY,
+          address: addr1Y,
+          address1: addr1Y,
+          address2: addr2Y,
+          address3: 242,
+          companyName: companyNameY,
+        };
+      } else {
+        // 한미글로벌 뒷면 (영문): 최하단 주소 기준 Y = 242
+        const [b1, b2, b3] = getHanmiBackAddressLines(back);
+        const validLines = [b1, b2, b3].filter(Boolean);
+        const lineCount = validLines.length || 1;
+
+        const b3Y = 242;
+        const b2Y = lineCount >= 3 ? 224 : (lineCount === 2 ? 242 : 242);
+        const b1Y = lineCount === 3 ? 206 : (lineCount === 2 ? 224 : 242);
+
+        let currentY = b1Y;
+
+        let websiteY = config.fields.website?.y || 186;
+        if (config.fields.website && back.website) {
+          currentY -= 20;
+          websiteY = currentY;
+        }
+
+        let companyNameY = config.fields.companyName?.y || 168;
+        if (config.fields.companyName) {
+          currentY -= 18;
+          companyNameY = currentY;
+        }
+
+        return {
+          website: websiteY,
+          email: 236,
+          mobile: 217,
+          directTel: 198,
+          telAndFax: 179,
+          telephone: 158,
+          address: b1Y,
+          address1: b1Y,
+          address2: b2Y,
+          address3: b3Y,
+          companyName: companyNameY,
+        };
+      }
+    }
+
+    return {
       website: 255,
       email: 236,
       mobile: 217,
       directTel: 198,
       telAndFax: 179,
+      telephone: 158,
       address: 160,
       address1: 153,
       address2: 170,
-      companyName: !isBack ? 141 : 136,
+      address3: 242,
+      companyName: 141,
     };
-
-    if (key !== "cheil") return res;
-
-    const step = !isBack ? 19 : 17;
-
-    // 1. 웹사이트 (y=255 고정)
-    res.website = currentY;
-
-    // 2. 이메일
-    if (config.fields.email && currentData.email) {
-      currentY -= step;
-      res.email = currentY;
-    }
-
-    // 3. 핸드폰
-    if (config.fields.mobile && currentData.mobile) {
-      currentY -= step;
-      res.mobile = currentY;
-    }
-
-    // 4. 직통전화
-    if (config.fields.directTelephone && currentData.directTelephone) {
-      currentY -= step;
-      res.directTel = currentY;
-    }
-
-    // 5. 대표전화 & 팩스
-    const hasTelAndFax = Boolean(
-      config.fields.telAndFax && (currentData.telephone || currentData.fax)
-    );
-    if (hasTelAndFax) {
-      currentY -= step;
-      res.telAndFax = currentY;
-    }
-
-    if (!isBack) {
-      // 6. 국문 주소
-      if (config.fields.address && front.address) {
-        currentY -= step;
-        res.address = currentY;
-      }
-    } else {
-      // 6. 영문 주소 2줄
-      const [c1, c2] = getCheilBackAddressLines(back);
-      if (c2) {
-        currentY -= step;
-        res.address2 = currentY;
-      }
-      if (c1) {
-        currentY -= step;
-        res.address1 = currentY;
-      }
-    }
-
-    // 7. 회사명 이미지
-    if (config.fields.companyName) {
-      currentY -= step;
-      res.companyName = currentY;
-    }
-
-    return res;
   })();
+  const cheilY = cardY;
 
   // 웨일 광고 차단기 및 로컬 네트워크 필터 우회용 Base64 인라인 데이터 URL
   const [logoBase64, setLogoBase64] = useState<string>(config.logoUrl || "");
@@ -440,7 +529,7 @@ export default function SvgBusinessCardPreview({
                 href={!isBack ? "/hanmi/hanmi_front_name.jpg" : "/hanmi/hanmi_back_name.jpg"}
                 xlinkHref={!isBack ? "/hanmi/hanmi_front_name.jpg" : "/hanmi/hanmi_back_name.jpg"}
                 x={config.fields.companyName.x}
-                y={config.fields.companyName.y - 2}
+                y={cardY.companyName}
                 width={!isBack ? 143.7 : 159.9}
                 height={14.2}
                 preserveAspectRatio="xMinYMin meet"
@@ -478,7 +567,7 @@ export default function SvgBusinessCardPreview({
           {key === "hanmi" && config.fields.telephone && currentData.telephone && (
             <text
               x={config.fields.telephone.x}
-              y={config.fields.telephone.y}
+              y={cardY.telephone}
               fontSize={config.fields.telephone.fontSize}
               fontWeight="400"
               fill="#1e293b"
@@ -517,7 +606,7 @@ export default function SvgBusinessCardPreview({
           {config.fields.mobile && currentData.mobile && (
             <text
               x={config.fields.mobile.x}
-              y={key === "cheil" ? cheilY.mobile : config.fields.mobile.y}
+              y={key === "cheil" ? cheilY.mobile : (key === "hanmi" ? cardY.mobile : config.fields.mobile.y)}
               fontSize={config.fields.mobile.fontSize}
               fontWeight="400"
               fill="#1e293b"
@@ -546,7 +635,7 @@ export default function SvgBusinessCardPreview({
           {config.fields.email && currentData.email && (
             <text
               x={config.fields.email.x}
-              y={key === "cheil" ? cheilY.email : config.fields.email.y}
+              y={key === "cheil" ? cheilY.email : (key === "hanmi" ? cardY.email : config.fields.email.y)}
               fontSize={config.fields.email.fontSize}
               fontWeight="400"
               fill="#1e293b"
@@ -571,7 +660,7 @@ export default function SvgBusinessCardPreview({
           {config.fields.website && currentData.website && (
             <text
               x={config.fields.website.x}
-              y={key === "cheil" ? cheilY.website : config.fields.website.y}
+              y={key === "cheil" ? cheilY.website : (key === "hanmi" ? cardY.website : config.fields.website.y)}
               fontSize={config.fields.website.fontSize}
               fontWeight={key === "cheil" ? "700" : "500"}
               fill={config.fields.website.fill || "#004B96"}
@@ -601,7 +690,7 @@ export default function SvgBusinessCardPreview({
               <>
                 <text
                   x={config.fields.address1?.x}
-                  y={config.fields.address1?.y}
+                  y={cardY.address1}
                   fontSize={config.fields.address1?.fontSize}
                   fontWeight="400"
                   fill="#334155"
@@ -612,7 +701,7 @@ export default function SvgBusinessCardPreview({
                 {addr2 && (
                   <text
                     x={config.fields.address2?.x}
-                    y={config.fields.address2?.y}
+                    y={cardY.address2}
                     fontSize={config.fields.address2?.fontSize}
                     fontWeight="400"
                     fill="#334155"
@@ -657,31 +746,35 @@ export default function SvgBusinessCardPreview({
                 <>
                   <text
                     x={config.fields.address1?.x}
-                    y={config.fields.address1?.y}
+                    y={cardY.address1}
                     fontSize={config.fields.address1?.fontSize}
                     fill="#334155"
                     dominantBaseline="hanging"
                   >
                     {b1}
                   </text>
-                  <text
-                    x={config.fields.address2?.x}
-                    y={config.fields.address2?.y}
-                    fontSize={config.fields.address2?.fontSize}
-                    fill="#334155"
-                    dominantBaseline="hanging"
-                  >
-                    {b2}
-                  </text>
-                  <text
-                    x={config.fields.address3?.x}
-                    y={config.fields.address3?.y}
-                    fontSize={config.fields.address3?.fontSize}
-                    fill="#334155"
-                    dominantBaseline="hanging"
-                  >
-                    {b3}
-                  </text>
+                  {b2 && (
+                    <text
+                      x={config.fields.address2?.x}
+                      y={cardY.address2}
+                      fontSize={config.fields.address2?.fontSize}
+                      fill="#334155"
+                      dominantBaseline="hanging"
+                    >
+                      {b2}
+                    </text>
+                  )}
+                  {b3 && (
+                    <text
+                      x={config.fields.address3?.x}
+                      y={cardY.address3}
+                      fontSize={config.fields.address3?.fontSize}
+                      fill="#334155"
+                      dominantBaseline="hanging"
+                    >
+                      {b3}
+                    </text>
+                  )}
                 </>
               );
             })()
