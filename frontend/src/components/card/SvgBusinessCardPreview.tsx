@@ -420,7 +420,7 @@ export default function SvgBusinessCardPreview({
               href="/cheil/cheil_smile.jpg"
               xlinkHref="/cheil/cheil_smile.jpg"
               x="38"
-              y="237"
+              y="242"
               width="124"
               height="14"
               preserveAspectRatio="xMinYMin meet"
