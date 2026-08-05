@@ -267,13 +267,83 @@ async function createSvgMarkupWithOutlines(
   const back = cardData.back || {};
   const currentData = isBack ? back : front;
 
-  const hasDirectTel = Boolean(currentData?.directTelephone && currentData.directTelephone.trim() !== "");
-  const cheilY = {
-    directTel: !isBack ? 190 : 200,
-    mobile: !isBack ? (hasDirectTel ? 209 : 190) : (hasDirectTel ? 217 : 200),
-    email: !isBack ? (hasDirectTel ? 228 : 209) : (hasDirectTel ? 234 : 217),
-    website: !isBack ? (hasDirectTel ? 248 : 228) : (hasDirectTel ? 250 : 233),
-  };
+  // 제일엔지니어링 하단 기준 동적 정렬 (Bottom-Up Stacking)
+  // 웹사이트(y=255)부터 역순으로 위로 차곡차곡 배치하여 빈 공간 제거
+  const cheilY = (() => {
+    let currentY = 255;
+    const res = {
+      website: 255,
+      email: 236,
+      mobile: 217,
+      directTel: 198,
+      telAndFax: 179,
+      address: 160,
+      address1: 153,
+      address2: 170,
+      companyName: !isBack ? 141 : 136,
+    };
+
+    if (key !== "cheil") return res;
+
+    const step = !isBack ? 19 : 17;
+
+    // 1. 웹사이트 (y=255 고정)
+    res.website = currentY;
+
+    // 2. 이메일
+    if (config.fields.email && currentData.email) {
+      currentY -= step;
+      res.email = currentY;
+    }
+
+    // 3. 핸드폰
+    if (config.fields.mobile && currentData.mobile) {
+      currentY -= step;
+      res.mobile = currentY;
+    }
+
+    // 4. 직통전화
+    if (config.fields.directTelephone && currentData.directTelephone) {
+      currentY -= step;
+      res.directTel = currentY;
+    }
+
+    // 5. 대표전화 & 팩스
+    const hasTelAndFax = Boolean(
+      config.fields.telAndFax && (currentData.telephone || currentData.fax)
+    );
+    if (hasTelAndFax) {
+      currentY -= step;
+      res.telAndFax = currentY;
+    }
+
+    if (!isBack) {
+      // 6. 국문 주소
+      if (config.fields.address && front.address) {
+        currentY -= step;
+        res.address = currentY;
+      }
+    } else {
+      // 6. 영문 주소 2줄
+      const [c1, c2] = getCheilBackAddressLines(back);
+      if (c2) {
+        currentY -= step;
+        res.address2 = currentY;
+      }
+      if (c1) {
+        currentY -= step;
+        res.address1 = currentY;
+      }
+    }
+
+    // 7. 회사명 이미지
+    if (config.fields.companyName) {
+      currentY -= step;
+      res.companyName = currentY;
+    }
+
+    return res;
+  })();
 
   const logoSpec = config.logoSpec || {
     x: key === "cheil" ? 32 : 30,
@@ -315,7 +385,7 @@ async function createSvgMarkupWithOutlines(
     } else {
       const defaultCheilFront = (tidStr === "4" || tidStr.includes("cheil_front_name")) ? "/cheil/cheil_front_name.jpg" : "/cheil/cheil_build_front_name.jpg";
       const src = companyNameAssetBase64 || (!isBack ? defaultCheilFront : "/cheil/cheil_back_name.jpg");
-      companyHtml = `<image href="${src}" xlink:href="${src}" x="${config.fields.companyName.x}" y="${!isBack ? config.fields.companyName.y - 1 : config.fields.companyName.y}" width="${!isBack ? 217.6 : 216.5}" height="${!isBack ? 13.8 : 8.8}" preserveAspectRatio="xMinYMin meet" />`;
+      companyHtml = `<image href="${src}" xlink:href="${src}" x="${config.fields.companyName.x}" y="${key === "cheil" ? cheilY.companyName : (!isBack ? config.fields.companyName.y - 1 : config.fields.companyName.y)}" width="${!isBack ? 217.6 : 216.5}" height="${!isBack ? 13.8 : 8.8}" preserveAspectRatio="xMinYMin meet" />`;
     }
   }
 
@@ -349,7 +419,7 @@ async function createSvgMarkupWithOutlines(
 
       ${!isBack && front.position2 ? `<text x="${config.fields.position2?.x || 268}" y="${config.fields.position2?.y || 94}" font-size="${config.fields.position2?.fontSize || 12.2}" font-weight="${config.fields.position2?.fontWeight || "700"}" fill="${config.fields.position2?.fill || "#1e293b"}" dominant-baseline="hanging">${front.position2}</text>` : ""}
 
-      ${isBack && config.fields.position1 && back.position1 ? `<text x="${config.fields.position1.x}" y="${config.fields.position1.y}" font-size="${config.fields.position1.fontSize}" font-weight="400" fill="#1e293b" dominant-baseline="hanging">${back.position1.endsWith("/") ? back.position1 : back.position1 + " /"}</text>` : ""}
+      ${isBack && config.fields.position1 && back.position1 ? `<text x="${config.fields.position1.x}" y="${config.fields.position1.y}" font-size="${config.fields.position1.fontSize}" font-weight="400" fill="#1e293b" dominant-baseline="hanging">${(back.department && back.department.trim() !== "") ? (back.position1.endsWith("/") ? back.position1 : back.position1 + " /") : back.position1.replace(/\/$/, "").trim()}</text>` : ""}
 
       ${isBack && config.fields.department && back.department ? `<text x="${config.fields.department.x}" y="${config.fields.department.y}" font-size="${config.fields.department.fontSize}" font-weight="500" fill="#1e293b" dominant-baseline="hanging">${back.department}</text>` : ""}
 
@@ -357,7 +427,7 @@ async function createSvgMarkupWithOutlines(
 
       ${companyHtml}
 
-      ${key === "cheil" && config.fields.telAndFax && (currentData.telephone || currentData.fax) ? `<text x="${config.fields.telAndFax.x}" y="${config.fields.telAndFax.y}" font-size="${config.fields.telAndFax.fontSize}" font-weight="400" fill="#1e293b" dominant-baseline="hanging">${!isBack ? `${currentData.telephone ? `대표 : ${currentData.telephone}` : ""}${currentData.telephone && currentData.fax ? "   " : ""}${currentData.fax ? `팩스 : ${currentData.fax}` : ""}` : `${currentData.telephone ? `Tel: ${currentData.telephone}` : ""}${currentData.telephone && currentData.fax ? "   " : ""}${currentData.fax ? `Fax: ${currentData.fax}` : ""}`}</text>` : ""}
+      ${key === "cheil" && config.fields.telAndFax && (currentData.telephone || currentData.fax) ? `<text x="${config.fields.telAndFax.x}" y="${cheilY.telAndFax}" font-size="${config.fields.telAndFax.fontSize}" font-weight="400" fill="#1e293b" dominant-baseline="hanging">${!isBack ? `${currentData.telephone ? `대표 : ${currentData.telephone}` : ""}${currentData.telephone && currentData.fax ? "   " : ""}${currentData.fax ? `팩스 : ${currentData.fax}` : ""}` : `${currentData.telephone ? `Tel: ${currentData.telephone}` : ""}${currentData.telephone && currentData.fax ? "   " : ""}${currentData.fax ? `Fax: ${currentData.fax}` : ""}`}</text>` : ""}
 
       ${key === "hanmi" && config.fields.telephone && currentData.telephone ? `<text x="${config.fields.telephone.x}" y="${config.fields.telephone.y}" font-size="${config.fields.telephone.fontSize}" font-weight="400" fill="#1e293b" dominant-baseline="hanging"><tspan x="${config.fields.telephone.x}" font-weight="400" fill="#1e293b">T</tspan><tspan x="${config.fields.telephone.x + 16}">${telephoneText}</tspan></text>` : ""}
 
@@ -378,14 +448,14 @@ async function createSvgMarkupWithOutlines(
       })() : ""}
 
       ${key === "cheil" && !isBack && front.address ? `
-        <text x="${config.fields.address?.x}" y="${config.fields.address?.y}" font-size="${config.fields.address?.fontSize}" font-weight="400" fill="#334155" dominant-baseline="hanging">${front.address}</text>
+        <text x="${config.fields.address?.x}" y="${cheilY.address}" font-size="${config.fields.address?.fontSize}" font-weight="400" fill="#334155" dominant-baseline="hanging">${front.address}</text>
       ` : ""}
 
       ${isBack && key === "cheil" ? (() => {
         const [cAddr1, cAddr2] = getCheilBackAddressLines(back);
         return `
-          <text x="${config.fields.address1?.x}" y="${config.fields.address1?.y}" font-size="${config.fields.address1?.fontSize}" fill="#334155" dominant-baseline="hanging">${cAddr1}</text>
-          <text x="${config.fields.address2?.x}" y="${config.fields.address2?.y}" font-size="${config.fields.address2?.fontSize}" fill="#334155" dominant-baseline="hanging">${cAddr2}</text>
+          <text x="${config.fields.address1?.x}" y="${cheilY.address1}" font-size="${config.fields.address1?.fontSize}" fill="#334155" dominant-baseline="hanging">${cAddr1}</text>
+          <text x="${config.fields.address2?.x}" y="${cheilY.address2}" font-size="${config.fields.address2?.fontSize}" fill="#334155" dominant-baseline="hanging">${cAddr2}</text>
         `;
       })() : ""}
 

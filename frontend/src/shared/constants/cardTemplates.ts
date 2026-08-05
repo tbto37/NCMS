@@ -150,7 +150,7 @@ export const CARD_TEMPLATE_SPECS: Record<string, { front: CardTemplateConfig; ba
         },
         website: {
           x: 220,
-          y: 248,
+          y: 255,
           fontSize: 13.5,
           fontWeight: "700",
           fill: "#0f172a",
@@ -241,7 +241,7 @@ export const CARD_TEMPLATE_SPECS: Record<string, { front: CardTemplateConfig; ba
         },
         website: {
           x: 220,
-          y: 250,
+          y: 255,
           fontSize: 13.5,
           fontWeight: "700",
           fill: "#0f172a",

@@ -155,14 +155,83 @@ export default function SvgBusinessCardPreview({
 
   const currentData = isBack ? back : front;
 
-  // 제일엔지니어링 직통번호 유무에 따른 수직 줄간격(Line Spacing) 동적 연산
-  const hasDirectTel = Boolean(currentData?.directTelephone && currentData.directTelephone.trim() !== "");
-  const cheilY = {
-    directTel: !isBack ? 190 : 200,
-    mobile: !isBack ? (hasDirectTel ? 209 : 190) : (hasDirectTel ? 217 : 200),
-    email: !isBack ? (hasDirectTel ? 228 : 209) : (hasDirectTel ? 234 : 217),
-    website: !isBack ? (hasDirectTel ? 248 : 228) : (hasDirectTel ? 250 : 233),
-  };
+  // 제일엔지니어링 하단 기준 동적 정렬 (Bottom-Up Stacking)
+  // 웹사이트(y=255)부터 역순으로 위로 차곡차곡 배치하여 빈 공간 제거
+  const cheilY = (() => {
+    let currentY = 255;
+    const res = {
+      website: 255,
+      email: 236,
+      mobile: 217,
+      directTel: 198,
+      telAndFax: 179,
+      address: 160,
+      address1: 153,
+      address2: 170,
+      companyName: !isBack ? 141 : 136,
+    };
+
+    if (key !== "cheil") return res;
+
+    const step = !isBack ? 19 : 17;
+
+    // 1. 웹사이트 (y=255 고정)
+    res.website = currentY;
+
+    // 2. 이메일
+    if (config.fields.email && currentData.email) {
+      currentY -= step;
+      res.email = currentY;
+    }
+
+    // 3. 핸드폰
+    if (config.fields.mobile && currentData.mobile) {
+      currentY -= step;
+      res.mobile = currentY;
+    }
+
+    // 4. 직통전화
+    if (config.fields.directTelephone && currentData.directTelephone) {
+      currentY -= step;
+      res.directTel = currentY;
+    }
+
+    // 5. 대표전화 & 팩스
+    const hasTelAndFax = Boolean(
+      config.fields.telAndFax && (currentData.telephone || currentData.fax)
+    );
+    if (hasTelAndFax) {
+      currentY -= step;
+      res.telAndFax = currentY;
+    }
+
+    if (!isBack) {
+      // 6. 국문 주소
+      if (config.fields.address && front.address) {
+        currentY -= step;
+        res.address = currentY;
+      }
+    } else {
+      // 6. 영문 주소 2줄
+      const [c1, c2] = getCheilBackAddressLines(back);
+      if (c2) {
+        currentY -= step;
+        res.address2 = currentY;
+      }
+      if (c1) {
+        currentY -= step;
+        res.address1 = currentY;
+      }
+    }
+
+    // 7. 회사명 이미지
+    if (config.fields.companyName) {
+      currentY -= step;
+      res.companyName = currentY;
+    }
+
+    return res;
+  })();
 
   // 웨일 광고 차단기 및 로컬 네트워크 필터 우회용 Base64 인라인 데이터 URL
   const [logoBase64, setLogoBase64] = useState<string>(config.logoUrl || "");
@@ -332,9 +401,9 @@ export default function SvgBusinessCardPreview({
                   fill={config.fields.position1.fill || "#1e293b"}
                   dominantBaseline="hanging"
                 >
-                  {back.position1.endsWith("/")
-                    ? back.position1
-                    : `${back.position1} /`}
+                  {back.department && back.department.trim() !== ""
+                    ? (back.position1.endsWith("/") ? back.position1 : `${back.position1} /`)
+                    : back.position1.replace(/\/$/, "").trim()}
                 </text>
               )}
               {config.fields.department && back.department && (
@@ -381,7 +450,7 @@ export default function SvgBusinessCardPreview({
                 href={!isBack ? (tidStr === "4" || tidStr.includes("cheil_front_name") ? "/cheil/cheil_front_name.jpg" : "/cheil/cheil_build_front_name.jpg") : "/cheil/cheil_back_name.jpg"}
                 xlinkHref={!isBack ? (tidStr === "4" || tidStr.includes("cheil_front_name") ? "/cheil/cheil_front_name.jpg" : "/cheil/cheil_build_front_name.jpg") : "/cheil/cheil_back_name.jpg"}
                 x={config.fields.companyName.x}
-                y={!isBack ? config.fields.companyName.y - 1 : config.fields.companyName.y}
+                y={key === "cheil" ? cheilY.companyName : (!isBack ? (tidStr === "4" || tidStr.includes("cheil_front_name") ? config.fields.companyName.y - 1 : config.fields.companyName.y) : config.fields.companyName.y)}
                 width={!isBack ? 217.6 : 216.5}
                 height={!isBack ? 13.8 : 8.8}
                 preserveAspectRatio="xMinYMin meet"
@@ -393,7 +462,7 @@ export default function SvgBusinessCardPreview({
           {key === "cheil" && config.fields.telAndFax && (currentData.telephone || currentData.fax) && (
             <text
               x={config.fields.telAndFax.x}
-              y={config.fields.telAndFax.y}
+              y={key === "cheil" ? cheilY.telAndFax : config.fields.telAndFax.y}
               fontSize={config.fields.telAndFax.fontSize}
               fontWeight="400"
               fill="#1e293b"
@@ -516,7 +585,7 @@ export default function SvgBusinessCardPreview({
           {key === "cheil" && config.fields.address && front.address && (
             <text
               x={config.fields.address.x}
-              y={config.fields.address.y}
+              y={cheilY.address}
               fontSize={config.fields.address.fontSize}
               fontWeight="400"
               fill="#334155"
@@ -564,7 +633,7 @@ export default function SvgBusinessCardPreview({
                 <>
                   <text
                     x={config.fields.address1?.x}
-                    y={config.fields.address1?.y}
+                    y={cheilY.address1}
                     fontSize={config.fields.address1?.fontSize}
                     fill="#334155"
                     dominantBaseline="hanging"
@@ -573,7 +642,7 @@ export default function SvgBusinessCardPreview({
                   </text>
                   <text
                     x={config.fields.address2?.x}
-                    y={config.fields.address2?.y}
+                    y={cheilY.address2}
                     fontSize={config.fields.address2?.fontSize}
                     fill="#334155"
                     dominantBaseline="hanging"
