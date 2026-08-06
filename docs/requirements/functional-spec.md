@@ -124,7 +124,7 @@ flowchart TD
 - **EXC-001 주문 목록 엑셀 다운로드**: 주문 관리 화면 상단 `[엑셀 다운로드]` 버튼 클릭 시, 신규 9컬럼 양식 및 폰트/셀 스타일(`260731.xlsx` 기반: 헤더 굴림 9pt bold 배경 `#F0F0F0` 테두리 `1px solid #000`, 데이터행 맑은고딕 11pt, 컬럼 너비 A:180px, B:130px, C:450px 등)에 맞춰 데이터를 매핑한 `.xls` 파일 (`[siteCode]_order_list_[YYYY-MM-DD].xls`) 즉시 다운로드.
 
 ### 4.8 고객사 맞춤형 메뉴 & 이용가이드 & 실데이터 매핑 (Tenant Guide & Data) - [완료]
-- **GUI-001 테넌트(cheil/hanmi) 전용 이용가이드 메뉴 및 모달**: `siteCode`가 `cheil` 또는 `hanmi`인 경우 좌측 사이드바/모바일 네비게이션의 `주문 관리` 바로 아래에 `이용가이드` 메뉴 노출. 클릭 시 페이지 이동 없이 이용가이드 모달(`UserGuideModal`)이 팝업되어 템플릿 선택, 템플릿 편집, 교정 승인, 주문서 작성 절차, FAQ 및 주문리스트 액션 팁 안내 정보 제공.
+- **GUI-001 테넌트(cheil/hanmi) 전용 이용가이드 및 커스텀 로그인 브랜드 로고/타이틀**: `siteCode`가 `cheil` 또는 `hanmi`인 경우 로그인 화면([LoginPage.tsx](file:///c:/NCMS/frontend/src/pages/auth/LoginPage.tsx)) 상단 아이콘 대신 각 테넌트 브랜드 로고(`cheil_logo.png`, `hanmi_logo.png`)를 렌더링하고, 로그인 제목을 `제일엔지니어링 로그인` 및 `한미글로벌 로그인`으로 정형화. 또한 사이드바 `이용가이드` 메뉴 및 가이드 모달(`UserGuideModal`) 연동 완료.
 - **DAT-001 테넌트별 레이아웃 정밀 조정 및 미리보기-PDF 100% 동기화**: `/public/hanmi/` 및 `/public/cheil/` 하위 자산 구조 정형화. 제일엔지니어링 앞면 상호(y: 133) 및 뒷면 상호(y: 136), 슬로건 위치(x: 38, y: 237) 등 모든 수직/수평 좌표 체계를 공통 명함 스펙(`CARD_TEMPLATE_SPECS`)과 `cheilY` 연산 객체로 통합 관리하여 웹 미리보기(`SvgBusinessCardPreview.tsx`)와 고해상도 인쇄용 PDF 다운로드 엔진(`generateCardPrintPdf.ts`)에 100% 동일하게 일치 적용 완료.
 - **DAT-002 향후 DB 부서/직급 마스터 연동 대비 표준화**: 명함 데이터(`card_data` JSONB)는 기존 자유 입력을 100% 보존하면서, 표준 인터페이스(`StandardCardFieldData`: `departmentName`, `departmentId`, `positionName`, `positionId`) 적용 및 DB `departments` 마스터 시드 데이터([V7__add_standard_department_seeds.sql](file:///c:/NCMS/backend/src/main/resources/db/migration/V7__add_standard_department_seeds.sql))를 최신 `companyData` 데이터셋과 100% 동기화 보강 완료.
 

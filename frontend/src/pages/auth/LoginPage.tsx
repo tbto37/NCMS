@@ -76,15 +76,36 @@ export default function LoginPage() {
     }
   }
 
+  const code = companyCode?.toLowerCase();
+  const tenantLogo = code === "cheil" ? "/logos/cheil_logo.png" : code === "hanmi" ? "/logos/hanmi_logo.png" : "";
+
+  const tenantTitle = !isTenantLogin
+    ? "로그컴 관리자 로그인"
+    : code === "cheil"
+    ? "제일엔지니어링 로그인"
+    : code === "hanmi"
+    ? "한미글로벌 로그인"
+    : `${companyCode?.toUpperCase()} 로그인`;
+
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
         <div className="flex flex-col items-center mb-8">
-          <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center mb-4">
-            <Package size={18} className="text-primary-foreground" />
-          </div>
+          {tenantLogo ? (
+            <div className="h-14 flex items-center justify-center mb-4 px-2">
+              <img
+                src={tenantLogo}
+                alt={`${companyCode?.toUpperCase()} 로고`}
+                className="h-full max-w-[220px] object-contain"
+              />
+            </div>
+          ) : (
+            <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center mb-4">
+              <Package size={18} className="text-primary-foreground" />
+            </div>
+          )}
           <h1 className="text-2xl font-semibold text-foreground">
-            {isTenantLogin ? `${companyCode?.toUpperCase()} 로그인` : "로그컴 관리자 로그인"}
+            {tenantTitle}
           </h1>
           <p className="text-xs text-muted-foreground mt-1">
             {isTenantLogin ? "고객사 명함 관리 시스템" : "로그컴 백오피스 시스템"}
