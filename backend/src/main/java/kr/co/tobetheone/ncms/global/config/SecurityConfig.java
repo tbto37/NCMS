@@ -26,7 +26,7 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    @Value("${cors.allowed-origins:http://localhost:5173,https://ncms-production.up.railway.app,http://ncms-production.up.railway.app,https://ncms-omega.vercel.app}")
+    @Value("${cors.allowed-origins:http://localhost:5173,https://api.logcom.co.kr,http://api.logcom.co.kr,https://ncms-omega.vercel.app}")
     private String allowedOriginsConfig;
 
     @Bean

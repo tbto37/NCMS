@@ -30,7 +30,7 @@ server:
 
 # CORS Configuration
 cors:
-  allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173,https://ncms-production.up.railway.app,http://ncms-production.up.railway.app,https://ncms-omega.vercel.app}
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:5173,https://api.logcom.co.kr,http://api.logcom.co.kr,https://ncms-omega.vercel.app}
 
 # Logging
 logging:

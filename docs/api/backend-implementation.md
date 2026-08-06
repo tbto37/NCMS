@@ -3,7 +3,7 @@
 | 항목 | 내용 |
 |---|---|
 | 문서명 | NCMS Spring Boot 백엔드 구현 가이드 및 API 명세서 |
-| 프로덕션 도메인 | `https://ncms-production.up.railway.app` |
+| 프로덕션 도메인 | `https://api.logcom.co.kr` |
 | 버전 | v0.3 (MVP 간소화) |
 | 작성일 | 2026-07-29 |
 | 개발 스택 | Spring Boot 3.3+ / Spring Security / Spring Data JPA / PostgreSQL |
@@ -13,10 +13,10 @@
 
 ## 1. 개요 및 인증 방식
 
-- **프로덕션 API 서버**: `https://ncms-production.up.railway.app`
+- **프로덕션 API 서버**: `https://api.logcom.co.kr`
 - **인증 방식**: JWT 기반 (HTTP Request Header: `Authorization: Bearer <Access_Token>`)
 - **공통 응답**: 표준 JSON 응답 및 에러 코드 전달
-- **CORS 허용**: `CORS_ALLOWED_ORIGINS` 환경변수 지원 (`https://ncms-production.up.railway.app` 등)
+- **CORS 허용**: `CORS_ALLOWED_ORIGINS` 환경변수 지원 (`https://api.logcom.co.kr` 등)
 
 ---
 
