@@ -28,5 +28,5 @@ logging:
 
 # CORS Configuration
 cors:
-  allowed-origins: ${CORS_ALLOWED_ORIGINS:https://api.logcom.co.kr,http://api.logcom.co.kr,https://ncms-omega.vercel.app,http://localhost:5173}
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:https://logcom.co.kr,http://logcom.co.kr,https://*.logcom.co.kr,http://*.logcom.co.kr,https://api.logcom.co.kr,http://api.logcom.co.kr,https://ncms-omega.vercel.app,https://*.vercel.app,http://localhost:5173,http://localhost:3000}
 

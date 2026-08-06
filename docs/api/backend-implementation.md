@@ -16,7 +16,7 @@
 - **프로덕션 API 서버**: `https://api.logcom.co.kr`
 - **인증 방식**: JWT 기반 (HTTP Request Header: `Authorization: Bearer <Access_Token>`)
 - **공통 응답**: 표준 JSON 응답 및 에러 코드 전달
-- **CORS 허용**: `CORS_ALLOWED_ORIGINS` 환경변수 지원 (`https://api.logcom.co.kr` 등)
+- **CORS 허용**: `CORS_ALLOWED_ORIGINS` 환경변수 및 패턴 지원 (`https://logcom.co.kr`, `https://*.logcom.co.kr`, `https://api.logcom.co.kr` 등)
 
 ---
 
