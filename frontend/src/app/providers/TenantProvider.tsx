@@ -44,10 +44,19 @@ export function TenantProvider({ children }: TenantProviderProps) {
           throw new Error(`Invalid tenant data received from backend: ${companyCode}`);
         }
 
+        const code = (body.data.siteCode || "").toLowerCase();
+        let logoUrl = body.data.logoUrl || "";
+        if (code === "cheil") {
+          logoUrl = "/logos/cheil_logo.png";
+        } else if (code === "hanmi") {
+          logoUrl = "/logos/hanmi_logo.png";
+        }
+
         const tenantData: TenantInfo = {
           id: body.data.id,
           siteCode: body.data.siteCode,
           name: body.data.name,
+          logoUrl: logoUrl,
           primaryColor: body.data.primaryColor || "#0052CC",
           status: body.data.status || "ACTIVE",
         };

@@ -23,7 +23,8 @@ export function Sidebar({
   const { logout, user } = useAuth();
 
   const sidebarTitle = user?.companyName?.trim() || "ADMIN";
-  const siteCode = companyCode || user?.companySiteCode || undefined;
+  const siteCode = (companyCode || user?.companySiteCode || "").toLowerCase();
+  const tenantLogo = siteCode === "cheil" ? "/logos/cheil_logo.png" : siteCode === "hanmi" ? "/logos/hanmi_logo.png" : "";
 
   const basePath = getLayoutBasePath(location.pathname, companyCode);
   const navItems = getNavItems(basePath, siteCode, user?.roles);
@@ -45,19 +46,39 @@ export function Sidebar({
       `}
     >
       <div className={`flex items-center gap-2.5 px-4 py-4 border-b border-border h-12 ${collapsed ? "md:justify-center md:px-0" : ""}`}>
-        <div className="w-6 h-6 bg-primary rounded-md flex items-center justify-center shrink-0">
-          <Package size={13} className="text-primary-foreground" />
-        </div>
-        <span
-          className={`text-xs font-semibold tracking-wide flex-1 truncate ${collapsed ? "md:hidden" : ""}`}
-          title={sidebarTitle}
-        >
-          {sidebarTitle}
-        </span>
+        {tenantLogo ? (
+          collapsed ? (
+            <img
+              src={tenantLogo}
+              alt={sidebarTitle}
+              className="h-6 w-auto max-w-[36px] object-contain shrink-0 hidden md:block"
+            />
+          ) : (
+            <div className="flex items-center gap-2 flex-1 min-w-0">
+              <img
+                src={tenantLogo}
+                alt={sidebarTitle}
+                className="h-6 max-w-[135px] object-contain shrink-0"
+              />
+            </div>
+          )
+        ) : (
+          <>
+            <div className="w-6 h-6 bg-primary rounded-md flex items-center justify-center shrink-0">
+              <Package size={13} className="text-primary-foreground" />
+            </div>
+            <span
+              className={`text-xs font-semibold tracking-wide flex-1 truncate ${collapsed ? "md:hidden" : ""}`}
+              title={sidebarTitle}
+            >
+              {sidebarTitle}
+            </span>
+          </>
+        )}
         <button
           type="button"
           onClick={onClose}
-          className="md:hidden text-muted-foreground hover:text-foreground"
+          className="md:hidden text-muted-foreground hover:text-foreground shrink-0 ml-auto"
           aria-label="메뉴 닫기"
         >
           <X size={14} />
