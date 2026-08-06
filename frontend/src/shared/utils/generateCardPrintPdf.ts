@@ -448,11 +448,18 @@ async function createSvgMarkupWithOutlines(
       : `<rect x="-10" y="283" width="550" height="20" fill="#004B96" />`
     : "";
 
+  const sloganSpec = config.sloganSpec || {
+    x: 35,
+    y: 239,
+    width: 152,
+    height: 17.5,
+  };
+
   // 슬로건 ("Smiling Technology" -> /cheil/cheil_smile.jpg 이미지 교체)
   let sloganHtml = "";
   if (config.showSlogan) {
     const src = sloganAssetBase64 || "/cheil/cheil_smile.jpg";
-    sloganHtml = `<image href="${src}" xlink:href="${src}" x="38" y="242" width="124" height="14" preserveAspectRatio="xMinYMin meet" />`;
+    sloganHtml = `<image href="${src}" xlink:href="${src}" x="${sloganSpec.x}" y="${sloganSpec.y}" width="${sloganSpec.width}" height="${sloganSpec.height}" preserveAspectRatio="xMinYMin meet" />`;
   }
 
   const nameText = !isBack

@@ -365,6 +365,13 @@ export default function SvgBusinessCardPreview({
     height: 50,
   };
 
+  const sloganSpec = config.sloganSpec || {
+    x: 35,
+    y: 239,
+    width: 152,
+    height: 17.5,
+  };
+
   const imageSrc = logoBase64 || config.logoUrl;
 
   return (
@@ -419,10 +426,10 @@ export default function SvgBusinessCardPreview({
             <image
               href="/cheil/cheil_smile.jpg"
               xlinkHref="/cheil/cheil_smile.jpg"
-              x="38"
-              y="242"
-              width="124"
-              height="14"
+              x={sloganSpec.x}
+              y={sloganSpec.y}
+              width={sloganSpec.width}
+              height={sloganSpec.height}
               preserveAspectRatio="xMinYMin meet"
             />
           )}
