@@ -165,8 +165,11 @@ export default function OrderFormPage() {
             }
           }
         }
+        if (isHanmi) {
+          papers = papers.filter((p) => !p.name.includes("휘라레"));
+        }
         setPaperOptions(papers);
-        setSelectedPaper(isHanmi ? "아르미230" : papers[0].name);
+        setSelectedPaper(isHanmi ? "아르미230" : papers[0]?.name || "아르미230");
 
         let qtys: ProductOptionItem[] = [
           { id: "OPT_Q1", category: "QTY", name: "100매", sortOrder: 1 },
@@ -186,13 +189,16 @@ export default function OrderFormPage() {
         setSelectedQty(isHanmi ? "300매" : "200매");
       } catch (e) {
         console.warn("ProductOption DB 조회 실패 - 가라데이터 표시:", e);
-        const fallbackPapers = [
+        let fallbackPapers = [
           { id: "OPT_P0", category: "PAPER", name: "아르미230", sortOrder: 0 },
           { id: "OPT_P1", category: "PAPER", name: "휘라레 216g", sortOrder: 1 },
           { id: "OPT_P2", category: "PAPER", name: "스노우지 250g", sortOrder: 2 },
           { id: "OPT_P3", category: "PAPER", name: "랑데뷰 240g", sortOrder: 3 },
           { id: "OPT_P4", category: "PAPER", name: "띤또레또 250g", sortOrder: 4 },
         ];
+        if (isHanmi) {
+          fallbackPapers = fallbackPapers.filter((p) => !p.name.includes("휘라레"));
+        }
         const fallbackQtys = [
           { id: "OPT_Q1", category: "QTY", name: "100매", sortOrder: 1 },
           { id: "OPT_Q2", category: "QTY", name: "200매", sortOrder: 2 },

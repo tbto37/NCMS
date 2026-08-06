@@ -26,7 +26,7 @@ public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    @Value("${cors.allowed-origins:http://localhost:5173,https://ncms-production.up.railway.app,http://ncms-production.up.railway.app,https://ncms-omega.vercel.app}")
+    @Value("${cors.allowed-origins:https://logcom.co.kr,http://logcom.co.kr,https://*.logcom.co.kr,http://*.logcom.co.kr,https://api.logcom.co.kr,http://api.logcom.co.kr,https://ncms-omega.vercel.app,https://*.vercel.app,http://localhost:5173,http://localhost:3000}")
     private String allowedOriginsConfig;
 
     @Bean
@@ -80,7 +80,7 @@ public class SecurityConfig {
                 .filter(s -> !s.isEmpty())
                 .collect(Collectors.toList());
 
-        configuration.setAllowedOrigins(origins);
+        configuration.setAllowedOriginPatterns(origins);
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "Accept", "X-Requested-With"));
         configuration.setAllowCredentials(true);

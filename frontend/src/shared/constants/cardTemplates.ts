@@ -38,6 +38,13 @@ export interface LogoSpec {
   height: number;
 }
 
+export interface SloganSpec {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
 export interface CardTemplateConfig {
   viewBox: string;
   width: number;
@@ -46,6 +53,7 @@ export interface CardTemplateConfig {
   logoSpec?: LogoSpec;
   showSlogan?: boolean;
   sloganText?: string;
+  sloganSpec?: SloganSpec;
   showCenterLine?: boolean;
   showBottomBar?: boolean;
   fields: {
@@ -80,6 +88,7 @@ export const CARD_TEMPLATE_SPECS: Record<string, { front: CardTemplateConfig; ba
       logoSpec: { x: 32, y: 36, width: 155, height: 48 },
       showSlogan: true,
       sloganText: '"Smiling Technology"',
+      sloganSpec: { x: 35, y: 239, width: 152, height: 17.5 },
       showCenterLine: false,
       showBottomBar: true,
       fields: {
@@ -150,7 +159,7 @@ export const CARD_TEMPLATE_SPECS: Record<string, { front: CardTemplateConfig; ba
         },
         website: {
           x: 220,
-          y: 248,
+          y: 255,
           fontSize: 13.5,
           fontWeight: "700",
           fill: "#0f172a",
@@ -165,6 +174,7 @@ export const CARD_TEMPLATE_SPECS: Record<string, { front: CardTemplateConfig; ba
       logoSpec: { x: 32, y: 36, width: 155, height: 48 },
       showSlogan: true,
       sloganText: '"Smiling Technology"',
+      sloganSpec: { x: 35, y: 239, width: 152, height: 17.5 },
       showCenterLine: false,
       showBottomBar: true,
       fields: {
@@ -241,7 +251,7 @@ export const CARD_TEMPLATE_SPECS: Record<string, { front: CardTemplateConfig; ba
         },
         website: {
           x: 220,
-          y: 250,
+          y: 255,
           fontSize: 13.5,
           fontWeight: "700",
           fill: "#0f172a",
