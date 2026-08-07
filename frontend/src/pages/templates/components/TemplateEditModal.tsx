@@ -151,7 +151,7 @@ export default function TemplateEditModal({
         back: {
           name: "Hong Gil-dong",
           department: "Water & Wastewater 1",
-          position1: "General Manager /",
+          position1: "General Manager",
           position2: "Chief Engineer",
           address1: "22-6, Gangnamdaero 16gil, Seocho-gu,",
           address2: "Seoul, Korea (06779)",
@@ -239,7 +239,7 @@ export default function TemplateEditModal({
     }));
   };
 
-  // 직급1 셀렉트 변경 시 고객사별 한/영 동시 매핑
+  // 직책 셀렉트 변경 시 고객사별 한/영 동시 매핑
   const handlePosition1SelectChange = (e: ChangeEvent<HTMLSelectElement>) => {
     const selectedKor = e.target.value;
     const found = companyData.positions.find((p) => p.ko === selectedKor);
@@ -253,7 +253,7 @@ export default function TemplateEditModal({
       },
       back: {
         ...prev.back,
-        position1: selectedKor === "직접입력" ? prev.back.position1 : (isHanmi ? mappedEng : (mappedEng ? `${mappedEng} /` : "")),
+        position1: selectedKor === "직접입력" ? prev.back.position1 : mappedEng,
       },
     }));
   };

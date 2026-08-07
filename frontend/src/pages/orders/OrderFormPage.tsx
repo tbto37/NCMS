@@ -42,7 +42,7 @@ const defaultCardData: BusinessCardInputData = {
   back: {
     name: "Hong Gil-dong",
     department: "Water Supply & Sewerage Business Div.",
-    position1: "General Manager /",
+    position1: "General Manager",
     position2: "Chief Engineer",
     address1: "22-6, Gangnamdaero 16gil, Seocho-gu,",
     address2: "Seoul, Korea (06779)",
