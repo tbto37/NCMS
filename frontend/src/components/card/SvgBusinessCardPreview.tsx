@@ -152,6 +152,10 @@ export default function SvgBusinessCardPreview({
   const isCheilOffice = isCheilOfficeTemplate(templateId);
   const isSingleSided = isSingleSidedTemplate(templateId);
 
+  if (isSingleSided && isBack) {
+    return null;
+  }
+
   const key = tidStr.includes("hanmi") || tidStr === "3" ? "hanmi" : "cheil";
   const specGroup = CARD_TEMPLATE_SPECS[key] || CARD_TEMPLATE_SPECS.cheil;
   const config = isBack ? specGroup.back : specGroup.front;
@@ -509,34 +513,63 @@ export default function SvgBusinessCardPreview({
 
           {/* 2. 부서 및 직급 */}
           {!isBack ? (
-            <>
-              {config.fields.departmentPosition && (front.department || front.position1) && (
-                <text
-                  x={config.fields.departmentPosition.x}
-                  y={config.fields.departmentPosition.y}
-                  fontSize={config.fields.departmentPosition.fontSize}
-                  fontWeight={config.fields.departmentPosition.fontWeight || "500"}
-                  fill={config.fields.departmentPosition.fill || "#1e293b"}
-                  dominantBaseline="hanging"
-                >
-                  {key === "cheil"
-                    ? [front.department, front.position1].filter(Boolean).join(" / ")
-                    : [front.position1, front.department].filter(Boolean).join(" / ")}
-                </text>
-              )}
-              {front.position2 && (
-                <text
-                  x={config.fields.position2?.x || 268}
-                  y={config.fields.position2?.y || 94}
-                  fontSize={config.fields.position2?.fontSize || 12.2}
-                  fontWeight={config.fields.position2?.fontWeight || "700"}
-                  fill={config.fields.position2?.fill || "#1e293b"}
-                  dominantBaseline="hanging"
-                >
-                  {front.position2}
-                </text>
-              )}
-            </>
+            isCheilOffice ? (
+              <>
+                {front.department && (
+                  <text
+                    x={220}
+                    y={60}
+                    fontSize={10.5}
+                    fontWeight="500"
+                    fill="#1e293b"
+                    dominantBaseline="hanging"
+                  >
+                    {front.department}
+                  </text>
+                )}
+                {(front.position1 || front.position2) && (
+                  <text
+                    x={220}
+                    y={front.department ? 73 : 60}
+                    fontSize={10.5}
+                    fontWeight="500"
+                    fill="#1e293b"
+                    dominantBaseline="hanging"
+                  >
+                    {[front.position1, front.position2].filter(Boolean).join(" / ")}
+                  </text>
+                )}
+              </>
+            ) : (
+              <>
+                {config.fields.departmentPosition && (front.department || front.position1) && (
+                  <text
+                    x={config.fields.departmentPosition.x}
+                    y={config.fields.departmentPosition.y}
+                    fontSize={config.fields.departmentPosition.fontSize}
+                    fontWeight={config.fields.departmentPosition.fontWeight || "500"}
+                    fill={config.fields.departmentPosition.fill || "#1e293b"}
+                    dominantBaseline="hanging"
+                  >
+                    {key === "cheil"
+                      ? [front.department, front.position1].filter(Boolean).join(" / ")
+                      : [front.position1, front.department].filter(Boolean).join(" / ")}
+                  </text>
+                )}
+                {front.position2 && (
+                  <text
+                    x={config.fields.position2?.x || 268}
+                    y={config.fields.position2?.y || 94}
+                    fontSize={config.fields.position2?.fontSize || 12.2}
+                    fontWeight={config.fields.position2?.fontWeight || "700"}
+                    fill={config.fields.position2?.fill || "#1e293b"}
+                    dominantBaseline="hanging"
+                  >
+                    {front.position2}
+                  </text>
+                )}
+              </>
+            )
           ) : (
             <>
               {config.fields.position1 && back.position1 && (
@@ -616,7 +649,7 @@ export default function SvgBusinessCardPreview({
               dominantBaseline="hanging"
             >
               {!isBack
-                ? `${currentData.telephone ? `대표 : ${currentData.telephone}` : ""}${currentData.telephone && currentData.fax ? "   " : ""}${currentData.fax ? `팩스 : ${currentData.fax}` : ""}`
+                ? `${currentData.telephone ? `${isCheilOffice ? "전화 :" : "대표 :"} ${currentData.telephone}` : ""}${currentData.telephone && currentData.fax ? "   " : ""}${currentData.fax ? `팩스 : ${currentData.fax}` : ""}`
                 : `${currentData.telephone ? `Tel: ${currentData.telephone}` : ""}${currentData.telephone && currentData.fax ? "   " : ""}${currentData.fax ? `Fax: ${currentData.fax}` : ""}`}
             </text>
           )}

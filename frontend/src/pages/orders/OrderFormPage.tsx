@@ -10,6 +10,7 @@ import type {
   BusinessCardInputData,
 } from "@/shared/types/businessCard";
 import DynamicBusinessCardPreview from "@/components/card/DynamicBusinessCardPreview";
+import { isSingleSidedTemplate } from "@/shared/constants/cardTemplates";
 
 const inputClassName =
   "h-10 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition placeholder:text-muted-foreground focus:border-ring focus:ring-2 focus:ring-ring/15";
@@ -333,31 +334,38 @@ export default function OrderFormPage() {
             </button>
           </div>
 
-          <div className="grid gap-4 p-4 lg:grid-cols-2">
-            <div>
-              <div className="mb-2 flex items-center justify-between">
-                <span className="text-xs font-semibold text-foreground">앞면 (한글)</span>
-                <span className="text-[11px] text-muted-foreground">Korean</span>
-              </div>
-              <DynamicBusinessCardPreview
-                templateId={orderDraft?.template?.id || "T_CHEIL"}
-                cardData={cardData}
-                isBack={false}
-              />
-            </div>
+          {(() => {
+            const isSingle = isSingleSidedTemplate(orderDraft?.template?.id);
+            return (
+              <div className={`grid gap-4 p-4 ${isSingle ? "grid-cols-1 max-w-[530px] mx-auto" : "lg:grid-cols-2"}`}>
+                <div>
+                  <div className="mb-2 flex items-center justify-between">
+                    <span className="text-xs font-semibold text-foreground">앞면 {isSingle ? "(단면)" : "(한글)"}</span>
+                    <span className="text-[11px] text-muted-foreground">Korean</span>
+                  </div>
+                  <DynamicBusinessCardPreview
+                    templateId={orderDraft?.template?.id || "T_CHEIL"}
+                    cardData={cardData}
+                    isBack={false}
+                  />
+                </div>
 
-            <div>
-              <div className="mb-2 flex items-center justify-between">
-                <span className="text-xs font-semibold text-foreground">뒷면 (영문)</span>
-                <span className="text-[11px] text-muted-foreground">English</span>
+                {!isSingle && (
+                  <div>
+                    <div className="mb-2 flex items-center justify-between">
+                      <span className="text-xs font-semibold text-foreground">뒷면 (영문)</span>
+                      <span className="text-[11px] text-muted-foreground">English</span>
+                    </div>
+                    <DynamicBusinessCardPreview
+                      templateId={orderDraft?.template?.id || "T_CHEIL"}
+                      cardData={cardData}
+                      isBack={true}
+                    />
+                  </div>
+                )}
               </div>
-              <DynamicBusinessCardPreview
-                templateId={orderDraft?.template?.id || "T_CHEIL"}
-                cardData={cardData}
-                isBack={true}
-              />
-            </div>
-          </div>
+            );
+          })()}
         </section>
 
         {/* 배송지 주소 섹션 */}

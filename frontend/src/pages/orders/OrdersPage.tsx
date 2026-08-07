@@ -33,6 +33,7 @@ import {
 } from "@/components/ui/hover-card";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import DynamicBusinessCardPreview from "@/components/card/DynamicBusinessCardPreview";
+import { isSingleSidedTemplate } from "@/shared/constants/cardTemplates";
 import { useAuth } from "@/app/providers/AuthProvider";
 import { API_BASE_URL } from "@/shared/constants/api";
 import OrderDetailModal, {
@@ -157,17 +158,19 @@ function BusinessCardPreview({ order }: { order: Order }) {
             />
           </div>
 
-          <div className="space-y-1">
-            <span className="text-[10px] font-semibold text-muted-foreground">
-              [뒷면]
-            </span>
-            <DynamicBusinessCardPreview
-              templateId={templateId}
-              cardData={parsed}
-              isBack={true}
-              scale={1.0}
-            />
-          </div>
+          {!isSingleSidedTemplate(templateId) && (
+            <div className="space-y-1">
+              <span className="text-[10px] font-semibold text-muted-foreground">
+                [뒷면]
+              </span>
+              <DynamicBusinessCardPreview
+                templateId={templateId}
+                cardData={parsed}
+                isBack={true}
+                scale={1.0}
+              />
+            </div>
+          )}
         </div>
       ) : (
         <div className="aspect-[1.75/1] flex items-center justify-center rounded-lg border border-border bg-white p-4 text-xs text-muted-foreground">

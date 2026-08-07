@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { getCarrierTrackingUrl } from "@/shared/utils/shipmentTracking";
 import DynamicBusinessCardPreview from "@/components/card/DynamicBusinessCardPreview";
+import { isSingleSidedTemplate } from "@/shared/constants/cardTemplates";
 import type { BusinessCardInputData } from "@/shared/types/businessCard";
 import { formatOrderDate } from "@/shared/constants/orders";
 
@@ -203,32 +204,37 @@ export default function OrderDetailModal({
           </div>
 
           <div className="space-y-4">
-            {parsedCardData && (
-              <section className="rounded-xl border border-border bg-card p-4 sm:p-5">
-                <SectionTitle
-                  icon={<ReceiptText size={14} />}
-                  title="명함 실물 미리보기"
-                />
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div>
-                    <span className="mb-1.5 block text-xs font-medium text-muted-foreground">앞면 (한글)</span>
-                    <DynamicBusinessCardPreview
-                      templateId={order.templateId || "T_CHEIL"}
-                      cardData={parsedCardData}
-                      isBack={false}
-                    />
+            {parsedCardData && (() => {
+              const isSingle = isSingleSidedTemplate(order.templateId);
+              return (
+                <section className="rounded-xl border border-border bg-card p-4 sm:p-5">
+                  <SectionTitle
+                    icon={<ReceiptText size={14} />}
+                    title="명함 실물 미리보기"
+                  />
+                  <div className={`grid gap-4 ${isSingle ? "grid-cols-1 max-w-[500px] mx-auto" : "sm:grid-cols-2"}`}>
+                    <div>
+                      <span className="mb-1.5 block text-xs font-medium text-muted-foreground">앞면 {isSingle ? "(단면)" : "(한글)"}</span>
+                      <DynamicBusinessCardPreview
+                        templateId={order.templateId || "T_CHEIL"}
+                        cardData={parsedCardData}
+                        isBack={false}
+                      />
+                    </div>
+                    {!isSingle && (
+                      <div>
+                        <span className="mb-1.5 block text-xs font-medium text-muted-foreground">뒷면 (영문)</span>
+                        <DynamicBusinessCardPreview
+                          templateId={order.templateId || "T_CHEIL"}
+                          cardData={parsedCardData}
+                          isBack={true}
+                        />
+                      </div>
+                    )}
                   </div>
-                  <div>
-                    <span className="mb-1.5 block text-xs font-medium text-muted-foreground">뒷면 (영문)</span>
-                    <DynamicBusinessCardPreview
-                      templateId={order.templateId || "T_CHEIL"}
-                      cardData={parsedCardData}
-                      isBack={true}
-                    />
-                  </div>
-                </div>
-              </section>
-            )}
+                </section>
+              );
+            })()}
 
             <section className="rounded-xl border border-border bg-card p-4 sm:p-5">
               <SectionTitle

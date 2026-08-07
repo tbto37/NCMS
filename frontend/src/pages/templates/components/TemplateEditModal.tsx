@@ -392,23 +392,23 @@ export default function TemplateEditModal({
                   )}
 
                   <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
-                    <label className="text-xs font-medium text-muted-foreground">{isCheilOffice ? "직책/직급" : ""}</label>
+                    <label className="text-xs font-medium text-muted-foreground">{isCheilOffice ? "직책" : ""}</label>
                     <input
                       value={cardData.front.position1}
                       onChange={(e) => handleFrontChange("position1", e.target.value)}
-                      placeholder={isHanmi || isCheilOffice ? "직책명 직접 입력 가능" : "직급명 직접 입력 가능"}
+                      placeholder={isCheilOffice ? "직책 직접 입력 (예: (2단계)외 2건 건설사업관리단)" : isHanmi ? "직책명 직접 입력 가능" : "직급명 직접 입력 가능"}
                       className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
                     />
                   </div>
 
-                  {/* 4. 직책2 (한미글로벌 수기입력) / 자격사항 (제일엔지니어링) */}
+                  {/* 4. 직급 (제일 본사현장사무실 수기입력) / 직책2 (한미글로벌 수기입력) / 자격사항 (제일엔지니어링 표준) */}
                   {isCheilOffice ? (
                     <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
-                      <label className="text-xs font-medium text-muted-foreground">자격사항</label>
+                      <label className="text-xs font-medium text-muted-foreground">직급</label>
                       <input
                         value={cardData.front.position2 || ""}
                         onChange={(e) => handleFrontChange("position2", e.target.value)}
-                        placeholder="자격사항 수기 입력 가능"
+                        placeholder="직급 수기 입력 (예: 단장)"
                         className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
                       />
                     </div>
@@ -747,10 +747,10 @@ export default function TemplateEditModal({
                 <X size={18} />
               </button>
             </div>
-            <div className="grid gap-6 p-6 md:grid-cols-2">
+            <div className={`grid gap-6 p-6 ${isSingleSided ? "grid-cols-1 max-w-[500px] mx-auto" : "md:grid-cols-2"}`}>
               <div>
                 <span className="mb-2 block text-xs font-semibold text-foreground">
-                  앞면 (국문)
+                  앞면 {isSingleSided ? "(단면)" : "(국문)"}
                 </span>
                 <DynamicBusinessCardPreview
                   templateId={templateId}
@@ -758,16 +758,18 @@ export default function TemplateEditModal({
                   isBack={false}
                 />
               </div>
-              <div>
-                <span className="mb-2 block text-xs font-semibold text-foreground">
-                  뒷면 (영문)
-                </span>
-                <DynamicBusinessCardPreview
-                  templateId={templateId}
-                  cardData={cardData}
-                  isBack={true}
-                />
-              </div>
+              {!isSingleSided && (
+                <div>
+                  <span className="mb-2 block text-xs font-semibold text-foreground">
+                    뒷면 (영문)
+                  </span>
+                  <DynamicBusinessCardPreview
+                    templateId={templateId}
+                    cardData={cardData}
+                    isBack={true}
+                  />
+                </div>
+              )}
             </div>
             <div className="flex justify-end border-t border-border bg-card px-5 py-3">
               <button

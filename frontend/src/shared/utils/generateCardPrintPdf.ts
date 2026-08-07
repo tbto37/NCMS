@@ -565,9 +565,15 @@ async function createSvgMarkupWithOutlines(
 
       ${config.fields.name && nameText ? `<text x="${config.fields.name.x}" y="${config.fields.name.y}" font-size="${config.fields.name.fontSize}" font-weight="${config.fields.name.fontWeight || "700"}" fill="${config.fields.name.fill || "#0f172a"}" letter-spacing="${!isBack && key === "cheil" ? "0.35em" : !isBack ? "0.25em" : "normal"}" dominant-baseline="hanging">${nameText}</text>` : ""}
 
-      ${!isBack && config.fields.departmentPosition && deptPosText ? `<text x="${config.fields.departmentPosition.x}" y="${config.fields.departmentPosition.y}" font-size="${config.fields.departmentPosition.fontSize}" font-weight="500" fill="#1e293b" dominant-baseline="hanging">${deptPosText}</text>` : ""}
-
-      ${!isBack && front.position2 ? `<text x="${config.fields.position2?.x || 268}" y="${config.fields.position2?.y || 94}" font-size="${config.fields.position2?.fontSize || 12.2}" font-weight="${config.fields.position2?.fontWeight || "700"}" fill="${config.fields.position2?.fill || "#1e293b"}" dominant-baseline="hanging">${front.position2}</text>` : ""}
+      ${!isBack ? (
+        isCheilOffice ? `
+          ${front.department ? `<text x="220" y="60" font-size="10.5" font-weight="500" fill="#1e293b" dominant-baseline="hanging">${front.department}</text>` : ""}
+          ${(front.position1 || front.position2) ? `<text x="220" y="${front.department ? 73 : 60}" font-size="10.5" font-weight="500" fill="#1e293b" dominant-baseline="hanging">${[front.position1, front.position2].filter(Boolean).join(" / ")}</text>` : ""}
+        ` : `
+          ${config.fields.departmentPosition && deptPosText ? `<text x="${config.fields.departmentPosition.x}" y="${config.fields.departmentPosition.y}" font-size="${config.fields.departmentPosition.fontSize}" font-weight="500" fill="#1e293b" dominant-baseline="hanging">${deptPosText}</text>` : ""}
+          ${front.position2 ? `<text x="${config.fields.position2?.x || 268}" y="${config.fields.position2?.y || 94}" font-size="${config.fields.position2?.fontSize || 12.2}" font-weight="${config.fields.position2?.fontWeight || "700"}" fill="${config.fields.position2?.fill || "#1e293b"}" dominant-baseline="hanging">${front.position2}</text>` : ""}
+        `
+      ) : ""}
 
       ${isBack && config.fields.position1 && back.position1 ? `<text x="${config.fields.position1.x}" y="${config.fields.position1.y}" font-size="${config.fields.position1.fontSize}" font-weight="400" fill="#1e293b" dominant-baseline="hanging">${(back.department && back.department.trim() !== "") ? (back.position1.endsWith("/") ? back.position1 : back.position1 + " /") : back.position1.replace(/\/$/, "").trim()}</text>` : ""}
 
@@ -577,7 +583,7 @@ async function createSvgMarkupWithOutlines(
 
       ${companyHtml}
 
-      ${key === "cheil" && config.fields.telAndFax && (currentData.telephone || currentData.fax) ? `<text x="${config.fields.telAndFax.x}" y="${cheilY.telAndFax}" font-size="${config.fields.telAndFax.fontSize}" font-weight="400" fill="#1e293b" dominant-baseline="hanging">${!isBack ? `${currentData.telephone ? `대표 : ${currentData.telephone}` : ""}${currentData.telephone && currentData.fax ? "   " : ""}${currentData.fax ? `팩스 : ${currentData.fax}` : ""}` : `${currentData.telephone ? `Tel: ${currentData.telephone}` : ""}${currentData.telephone && currentData.fax ? "   " : ""}${currentData.fax ? `Fax: ${currentData.fax}` : ""}`}</text>` : ""}
+      ${key === "cheil" && config.fields.telAndFax && (currentData.telephone || currentData.fax) ? `<text x="${config.fields.telAndFax.x}" y="${cheilY.telAndFax}" font-size="${config.fields.telAndFax.fontSize}" font-weight="400" fill="#1e293b" dominant-baseline="hanging">${!isBack ? `${currentData.telephone ? `${isCheilOffice ? "전화 :" : "대표 :"} ${currentData.telephone}` : ""}${currentData.telephone && currentData.fax ? "   " : ""}${currentData.fax ? `팩스 : ${currentData.fax}` : ""}` : `${currentData.telephone ? `Tel: ${currentData.telephone}` : ""}${currentData.telephone && currentData.fax ? "   " : ""}${currentData.fax ? `Fax: ${currentData.fax}` : ""}`}</text>` : ""}
 
       ${key === "hanmi" && config.fields.telephone && currentData.telephone ? `<text x="${config.fields.telephone.x}" y="${cardY.telephone}" font-size="${config.fields.telephone.fontSize}" font-weight="400" fill="#1e293b" dominant-baseline="hanging"><tspan x="${config.fields.telephone.x}" font-weight="400" fill="#1e293b">T</tspan><tspan x="${config.fields.telephone.x + 16}">${telephoneText}</tspan></text>` : ""}
 
