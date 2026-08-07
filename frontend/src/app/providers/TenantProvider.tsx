@@ -50,6 +50,8 @@ export function TenantProvider({ children }: TenantProviderProps) {
           logoUrl = "/logos/cheil_logo.png";
         } else if (code === "hanmi") {
           logoUrl = "/logos/hanmi_logo.png";
+        } else if (code === "logcom" || !code) {
+          logoUrl = "/logos/logcom_logo.jpg";
         }
 
         const tenantData: TenantInfo = {

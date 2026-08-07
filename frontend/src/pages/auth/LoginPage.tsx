@@ -77,7 +77,7 @@ export default function LoginPage() {
   }
 
   const code = companyCode?.toLowerCase();
-  const tenantLogo = code === "cheil" ? "/logos/cheil_logo.png" : code === "hanmi" ? "/logos/hanmi_logo.png" : "";
+  const tenantLogo = code === "cheil" ? "/logos/cheil_logo.png" : code === "hanmi" ? "/logos/hanmi_logo.png" : "/logos/logcom_logo.jpg";
 
   const tenantTitle = !isTenantLogin
     ? "로그컴 관리자"

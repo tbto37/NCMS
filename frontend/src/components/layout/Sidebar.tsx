@@ -24,7 +24,7 @@ export function Sidebar({
 
   const sidebarTitle = user?.companyName?.trim() || "ADMIN";
   const siteCode = (companyCode || user?.companySiteCode || "").toLowerCase();
-  const tenantLogo = siteCode === "cheil" ? "/logos/cheil_logo.png" : siteCode === "hanmi" ? "/logos/hanmi_logo.png" : "";
+  const tenantLogo = siteCode === "cheil" ? "/logos/cheil_logo.png" : siteCode === "hanmi" ? "/logos/hanmi_logo.png" : "/logos/logcom_logo.jpg";
 
   const basePath = getLayoutBasePath(location.pathname, companyCode);
   const navItems = getNavItems(basePath, siteCode, user?.roles);
