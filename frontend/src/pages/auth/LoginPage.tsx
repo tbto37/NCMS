@@ -171,9 +171,11 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <p className="text-center text-xs text-muted-foreground mt-4">
-          문의: <span className="text-foreground">admin@example.com</span>
-        </p>
+        <div className="mt-5 pt-4 border-t border-border text-center text-xs text-muted-foreground space-y-1">
+          <p className="font-medium text-foreground">문의</p>
+          <p>이메일 : <span className="text-foreground font-medium">logcom2@naver.com</span></p>
+          <p>전화 : <span className="text-foreground font-medium">02-552-7942</span></p>
+        </div>
       </div>
     </div>
   );
