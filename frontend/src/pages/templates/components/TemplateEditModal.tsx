@@ -100,7 +100,7 @@ export default function TemplateEditModal({
         front: {
           name: "홍길동",
           departmentOption: "직접입력",
-          department: "상하수도사업부",
+          department: "상하수도사업1부",
           position1Option: "직접입력",
           position1: "부장",
           position2Option: "직접입력",
@@ -115,7 +115,7 @@ export default function TemplateEditModal({
         },
         back: {
           name: "Hong Gil-dong",
-          department: "Water Supply & Sewerage Business Div.",
+          department: "Water & Wastewater 1",
           position1: "General Manager /",
           position2: "Chief Engineer",
           address1: "22-6, Gangnamdaero 16gil, Seocho-gu,",
