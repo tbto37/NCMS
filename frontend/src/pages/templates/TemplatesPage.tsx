@@ -92,9 +92,12 @@ function mapTemplateResponse(
   const nameStr = (template.name || "").toLowerCase();
   const idStr = String(template.id || "").toLowerCase();
 
-  // 한미글로벌 템플릿의 경우 템플릿 목록 카드 썸네일로 hanmi_template.jpg 사용
+  let category: string = mockDetail.category;
+
+  // 한미글로벌 템플릿의 경우 템플릿 목록 카드 썸네일로 hanmi_template.jpg 사용 및 문구 적용
   if (idStr === "3" || idStr.includes("hanmi") || nameStr.includes("한미")) {
     previewFrontUrl = "/hanmi/hanmi_template.jpg";
+    category = "한미글로벌 표준명함";
   }
 
   return {
@@ -103,7 +106,7 @@ function mapTemplateResponse(
     previewFrontUrl: previewFrontUrl,
     previewBackUrl: template.previewBackUrl ?? null,
     status: getStatusLabel(template.status),
-    category: mockDetail.category,
+    category: category,
     accent: mockDetail.accent,
   };
 }
