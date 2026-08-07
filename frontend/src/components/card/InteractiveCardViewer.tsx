@@ -3,6 +3,8 @@ import { Minus, Plus, RotateCcw, Hand } from "lucide-react";
 import type { BusinessCardInputData } from "@/shared/types/businessCard";
 import SvgBusinessCardPreview from "./SvgBusinessCardPreview";
 
+import { isSingleSidedTemplate } from "@/shared/constants/cardTemplates";
+
 interface InteractiveCardViewerProps {
   templateId?: number | string;
   cardData: BusinessCardInputData;
@@ -16,6 +18,8 @@ export default function InteractiveCardViewer({
   const [pan, setPan] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState<boolean>(false);
   const dragStartRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
+
+  const isSingleSided = isSingleSidedTemplate(templateId);
 
   // 마우스 드래그 시작
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -79,15 +83,17 @@ export default function InteractiveCardViewer({
           }}
           className="flex h-full w-full items-center justify-center p-4 transition-transform duration-75 ease-out"
         >
-          <div className="grid w-full max-w-[1060px] grid-cols-1 gap-6 md:grid-cols-2">
+          <div className={`grid w-full gap-6 ${isSingleSided ? "max-w-[530px] grid-cols-1" : "max-w-[1060px] grid-cols-1 md:grid-cols-2"}`}>
             <div>
-              <div className="mb-1.5 text-center text-xs font-semibold text-slate-700">앞면 (한글)</div>
+              <div className="mb-1.5 text-center text-xs font-semibold text-slate-700">앞면 {isSingleSided ? "(단면)" : "(한글)"}</div>
               <SvgBusinessCardPreview templateId={templateId} cardData={cardData} isBack={false} scale={1.0} />
             </div>
-            <div>
-              <div className="mb-1.5 text-center text-xs font-semibold text-slate-700">뒷면 (영문)</div>
-              <SvgBusinessCardPreview templateId={templateId} cardData={cardData} isBack={true} scale={1.0} />
-            </div>
+            {!isSingleSided && (
+              <div>
+                <div className="mb-1.5 text-center text-xs font-semibold text-slate-700">뒷면 (영문)</div>
+                <SvgBusinessCardPreview templateId={templateId} cardData={cardData} isBack={true} scale={1.0} />
+              </div>
+            )}
           </div>
         </div>
       </div>

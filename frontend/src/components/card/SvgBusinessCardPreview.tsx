@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import type { BusinessCardInputData } from "@/shared/types/businessCard";
-import { CARD_TEMPLATE_SPECS } from "@/shared/constants/cardTemplates";
+import { CARD_TEMPLATE_SPECS, isCheilOfficeTemplate, isSingleSidedTemplate, wrapTextLines } from "@/shared/constants/cardTemplates";
 
 interface SvgBusinessCardPreviewProps {
   templateId?: number | string;
@@ -149,6 +149,9 @@ export default function SvgBusinessCardPreview({
   const back = cardData.back || {};
 
   const tidStr = String(templateId || "").toLowerCase();
+  const isCheilOffice = isCheilOfficeTemplate(templateId);
+  const isSingleSided = isSingleSidedTemplate(templateId);
+
   const key = tidStr.includes("hanmi") || tidStr === "3" ? "hanmi" : "cheil";
   const specGroup = CARD_TEMPLATE_SPECS[key] || CARD_TEMPLATE_SPECS.cheil;
   const config = isBack ? specGroup.back : specGroup.front;
@@ -158,6 +161,50 @@ export default function SvgBusinessCardPreview({
   // 하단 기준 동적 정렬 (Bottom-Up Stacking)
   // 입력된 텍스트 필드가 빠져있을 때 빈 공간 없이 아래 기준으로 차곡차곡 밀착 배치
   const cardY = (() => {
+    if (isCheilOffice) {
+      let currentY = 255;
+      const res = {
+        website: 255,
+        email: 237,
+        mobile: 219,
+        directTel: 198,
+        telAndFax: 201,
+        fieldAddress: 183,
+        address: 165,
+        address1: 165,
+        address2: 183,
+        address3: 242,
+        telephone: 201,
+        companyName: 145,
+      };
+      const step = 18;
+      res.website = currentY;
+
+      if (front.email) {
+        currentY -= step;
+        res.email = currentY;
+      }
+      if (front.mobile) {
+        currentY -= step;
+        res.mobile = currentY;
+      }
+      if (front.telephone || front.fax) {
+        currentY -= step;
+        res.telAndFax = currentY;
+      }
+      if (front.fieldAddress) {
+        currentY -= step;
+        res.fieldAddress = currentY;
+      }
+      if (front.address) {
+        currentY -= step;
+        res.address = currentY;
+      }
+      currentY -= 20;
+      res.companyName = currentY;
+      return res;
+    }
+
     if (key === "cheil") {
       let currentY = 255;
       const res = {
@@ -166,6 +213,7 @@ export default function SvgBusinessCardPreview({
         mobile: 217,
         directTel: 198,
         telAndFax: 179,
+        fieldAddress: 183,
         address: 160,
         address1: 153,
         address2: 170,
@@ -259,6 +307,7 @@ export default function SvgBusinessCardPreview({
           mobile: mobileY,
           directTel: 198,
           telAndFax: 179,
+          fieldAddress: 183,
           telephone: telephoneY,
           address: addr1Y,
           address1: addr1Y,
@@ -296,6 +345,7 @@ export default function SvgBusinessCardPreview({
           mobile: 217,
           directTel: 198,
           telAndFax: 179,
+          fieldAddress: 183,
           telephone: 158,
           address: b1Y,
           address1: b1Y,
@@ -312,6 +362,7 @@ export default function SvgBusinessCardPreview({
       mobile: 217,
       directTel: 198,
       telAndFax: 179,
+      fieldAddress: 183,
       telephone: 158,
       address: 160,
       address1: 153,
@@ -677,8 +728,35 @@ export default function SvgBusinessCardPreview({
             </text>
           )}
 
-          {/* 10. 주소 (Address) */}
-          {key === "cheil" && config.fields.address && front.address && (
+          {/* 10. 주소 (Address & Field Address) */}
+          {isCheilOffice && !isBack ? (
+            <>
+              {front.address && (
+                <text
+                  x={config.fields.address?.x || 220}
+                  y={cheilY.address}
+                  fontSize={config.fields.address?.fontSize || 10}
+                  fontWeight="400"
+                  fill="#334155"
+                  dominantBaseline="hanging"
+                >
+                  {front.address.startsWith("본사") ? front.address : `본사 : ${front.address}`}
+                </text>
+              )}
+              {front.fieldAddress && (
+                <text
+                  x={config.fields.address?.x || 220}
+                  y={cheilY.fieldAddress}
+                  fontSize={config.fields.address?.fontSize || 10}
+                  fontWeight="400"
+                  fill="#334155"
+                  dominantBaseline="hanging"
+                >
+                  {front.fieldAddress.startsWith("현장") ? front.fieldAddress : `현장 : ${front.fieldAddress}`}
+                </text>
+              )}
+            </>
+          ) : key === "cheil" && config.fields.address && front.address && (
             <text
               x={config.fields.address.x}
               y={cheilY.address}

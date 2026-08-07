@@ -162,9 +162,12 @@ export async function generateCardPrintPdf(order: OrderLike): Promise<void> {
       doc.addImage(frontCanvas.toDataURL("image/png", 1.0), "PNG", 0, 0, 92, 52);
     }
 
-    // --- Page 2: 뒷면 (영문 순수 Vector SVG PDF + Outline + CMYK) ---
-    doc.addPage([92, 52], "landscape");
-    const backLogoBase64 = await fetchLogoBase64(specGroup.back.logoUrl);
+    const isSingleSided = tidStr === "5" || tidStr.includes("cheil_build_office") || tidStr.includes("본사 현장사무실");
+
+    if (!isSingleSided) {
+      // --- Page 2: 뒷면 (영문 순수 Vector SVG PDF + Outline + CMYK) ---
+      doc.addPage([92, 52], "landscape");
+      const backLogoBase64 = await fetchLogoBase64(specGroup.back.logoUrl);
     const companyNameBackAssetBase64 = key === "hanmi"
       ? await fetchLogoBase64("/hanmi/hanmi_back_name.jpg")
       : await fetchLogoBase64("/cheil/cheil_back_name.jpg");
@@ -214,6 +217,7 @@ export async function generateCardPrintPdf(order: OrderLike): Promise<void> {
       });
       doc.addImage(backCanvas.toDataURL("image/png", 1.0), "PNG", 0, 0, 92, 52);
     }
+  }
 
     // 파일 저장 (형식: YYYYMMDD-주문번호-고객사명(한미 혹은 제일)-이름.pdf)
     const orderNo = order.orderNo || order.id || "ORDER";
@@ -267,9 +271,55 @@ async function createSvgMarkupWithOutlines(
   const back = cardData.back || {};
   const currentData = isBack ? back : front;
 
+  const isCheilOffice = tidStr === "5" || tidStr.includes("cheil_build_office") || tidStr.includes("본사 현장사무실");
+
   // 하단 기준 동적 정렬 (Bottom-Up Stacking)
   // 입력된 텍스트 필드가 빠져있을 때 빈 공간 없이 아래 기준으로 차곡차곡 밀착 배치
   const cardY = (() => {
+    if (isCheilOffice) {
+      let currentY = 255;
+      const res = {
+        website: 255,
+        email: 237,
+        mobile: 219,
+        directTel: 198,
+        telAndFax: 201,
+        fieldAddress: 183,
+        address: 165,
+        address1: 165,
+        address2: 183,
+        address3: 242,
+        telephone: 201,
+        companyName: 145,
+      };
+      const step = 18;
+      res.website = currentY;
+
+      if (front.email) {
+        currentY -= step;
+        res.email = currentY;
+      }
+      if (front.mobile) {
+        currentY -= step;
+        res.mobile = currentY;
+      }
+      if (front.telephone || front.fax) {
+        currentY -= step;
+        res.telAndFax = currentY;
+      }
+      if (front.fieldAddress) {
+        currentY -= step;
+        res.fieldAddress = currentY;
+      }
+      if (front.address) {
+        currentY -= step;
+        res.address = currentY;
+      }
+      currentY -= 20;
+      res.companyName = currentY;
+      return res;
+    }
+
     if (key === "cheil") {
       let currentY = 255;
       const res = {
@@ -278,6 +328,7 @@ async function createSvgMarkupWithOutlines(
         mobile: 217,
         directTel: 198,
         telAndFax: 179,
+        fieldAddress: 183,
         address: 160,
         address1: 153,
         address2: 170,
@@ -371,6 +422,7 @@ async function createSvgMarkupWithOutlines(
           mobile: mobileY,
           directTel: 198,
           telAndFax: 179,
+          fieldAddress: 183,
           telephone: telephoneY,
           address: addr1Y,
           address1: addr1Y,
@@ -408,6 +460,7 @@ async function createSvgMarkupWithOutlines(
           mobile: 217,
           directTel: 198,
           telAndFax: 179,
+          fieldAddress: 183,
           telephone: 158,
           address: b1Y,
           address1: b1Y,
@@ -424,6 +477,7 @@ async function createSvgMarkupWithOutlines(
       mobile: 217,
       directTel: 198,
       telAndFax: 179,
+      fieldAddress: 183,
       telephone: 158,
       address: 160,
       address1: 153,
@@ -543,9 +597,12 @@ async function createSvgMarkupWithOutlines(
         `;
       })() : ""}
 
-      ${key === "cheil" && !isBack && front.address ? `
+      ${isCheilOffice && !isBack ? `
+        ${front.address ? `<text x="${config.fields.address?.x || 220}" y="${cheilY.address}" font-size="${config.fields.address?.fontSize || 10}" font-weight="400" fill="#334155" dominant-baseline="hanging">${front.address.startsWith("본사") ? front.address : `본사 : ${front.address}`}</text>` : ""}
+        ${front.fieldAddress ? `<text x="${config.fields.address?.x || 220}" y="${cheilY.fieldAddress}" font-size="${config.fields.address?.fontSize || 10}" font-weight="400" fill="#334155" dominant-baseline="hanging">${front.fieldAddress.startsWith("현장") ? front.fieldAddress : `현장 : ${front.fieldAddress}`}</text>` : ""}
+      ` : (key === "cheil" && !isBack && front.address ? `
         <text x="${config.fields.address?.x}" y="${cheilY.address}" font-size="${config.fields.address?.fontSize}" font-weight="400" fill="#334155" dominant-baseline="hanging">${front.address}</text>
-      ` : ""}
+      ` : "")}
 
       ${isBack && key === "cheil" ? (() => {
         const [cAddr1, cAddr2] = getCheilBackAddressLines(back);

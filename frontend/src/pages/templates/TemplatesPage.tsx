@@ -98,6 +98,8 @@ function mapTemplateResponse(
   if (idStr === "3" || idStr.includes("hanmi") || nameStr.includes("한미")) {
     previewFrontUrl = "/hanmi/hanmi_template.jpg";
     category = "한미글로벌 표준명함";
+  } else if (idStr === "5" || idStr.includes("cheil_build_office") || nameStr.includes("본사 현장사무실")) {
+    category = "제일엔지니어링 본사 현장사무실 주소겸용";
   }
 
   return {

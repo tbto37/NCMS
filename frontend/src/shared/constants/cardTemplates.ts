@@ -31,6 +31,53 @@ export interface StandardCardFieldData {
   [key: string]: any;
 }
 
+export function isSingleSidedTemplate(templateId?: number | string | null): boolean {
+  if (!templateId) return false;
+  const tidStr = String(templateId).toLowerCase();
+  return tidStr === "5" || tidStr.includes("cheil_build_office") || tidStr.includes("본사 현장사무실");
+}
+
+export function isCheilOfficeTemplate(templateId?: number | string | null): boolean {
+  if (!templateId) return false;
+  const tidStr = String(templateId).toLowerCase();
+  return tidStr === "5" || tidStr.includes("cheil_build_office") || tidStr.includes("본사 현장사무실");
+}
+
+export function wrapTextLines(text: string, maxCharsPerLine: number = 28): string[] {
+  if (!text) return [];
+  const trimmed = text.trim();
+  if (!trimmed) return [];
+  if (trimmed.length <= maxCharsPerLine) return [trimmed];
+  
+  if (trimmed.includes("\n")) {
+    return trimmed.split("\n").flatMap((line) => wrapTextLines(line, maxCharsPerLine));
+  }
+
+  const words = trimmed.split(/\s+/);
+  const lines: string[] = [];
+  let currentLine = "";
+
+  for (const word of words) {
+    if ((currentLine + (currentLine ? " " : "") + word).length <= maxCharsPerLine) {
+      currentLine = currentLine + (currentLine ? " " : "") + word;
+    } else {
+      if (currentLine) lines.push(currentLine);
+      if (word.length > maxCharsPerLine) {
+        let i = 0;
+        while (i < word.length) {
+          lines.push(word.substring(i, i + maxCharsPerLine));
+          i += maxCharsPerLine;
+        }
+        currentLine = lines.pop() || "";
+      } else {
+        currentLine = word;
+      }
+    }
+  }
+  if (currentLine) lines.push(currentLine);
+  return lines;
+}
+
 export interface LogoSpec {
   x: number;
   y: number;

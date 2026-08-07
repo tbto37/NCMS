@@ -7,6 +7,7 @@ export interface FrontBusinessCardData {
   position2Option: string;
   position2: string;
   address: string;
+  fieldAddress?: string;
   telephone: string;
   fax: string;
   directTelephone: string;

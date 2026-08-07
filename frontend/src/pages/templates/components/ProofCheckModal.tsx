@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { CheckCircle2, X, Edit3 } from "lucide-react";
 import type { BusinessCardInputData } from "@/shared/types/businessCard";
 import DynamicBusinessCardPreview from "@/components/card/DynamicBusinessCardPreview";
+import { isSingleSidedTemplate } from "@/shared/constants/cardTemplates";
 
 interface ProofCheckModalProps {
   open: boolean;
@@ -103,35 +104,40 @@ export default function ProofCheckModal({
 
         <div className="max-h-[75vh] overflow-y-auto px-5 py-6 sm:px-7">
           {/* 실시간 렌더링 시안 영역 */}
-          {cardData && (
-            <div className="mb-6 rounded-lg border border-border bg-card p-4">
-              <h4 className="mb-3 text-xs font-semibold text-foreground">
-                📌 최종 교정 명함 시안 (실시간 렌더링)
-              </h4>
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <span className="mb-1 block text-[11px] font-medium text-muted-foreground">
-                    앞면 (국문)
-                  </span>
-                  <DynamicBusinessCardPreview
-                    templateId={templateId}
-                    cardData={cardData}
-                    isBack={false}
-                  />
-                </div>
-                <div>
-                  <span className="mb-1 block text-[11px] font-medium text-muted-foreground">
-                    뒷면 (영문)
-                  </span>
-                  <DynamicBusinessCardPreview
-                    templateId={templateId}
-                    cardData={cardData}
-                    isBack={true}
-                  />
+          {cardData && (() => {
+            const isSingle = isSingleSidedTemplate(templateId);
+            return (
+              <div className="mb-6 rounded-lg border border-border bg-card p-4">
+                <h4 className="mb-3 text-xs font-semibold text-foreground">
+                  📌 최종 교정 명함 시안 (실시간 렌더링)
+                </h4>
+                <div className={`grid gap-4 ${isSingle ? "grid-cols-1 max-w-[500px] mx-auto" : "sm:grid-cols-2"}`}>
+                  <div>
+                    <span className="mb-1 block text-[11px] font-medium text-muted-foreground">
+                      앞면 {isSingle ? "(단면)" : "(국문)"}
+                    </span>
+                    <DynamicBusinessCardPreview
+                      templateId={templateId}
+                      cardData={cardData}
+                      isBack={false}
+                    />
+                  </div>
+                  {!isSingle && (
+                    <div>
+                      <span className="mb-1 block text-[11px] font-medium text-muted-foreground">
+                        뒷면 (영문)
+                      </span>
+                      <DynamicBusinessCardPreview
+                        templateId={templateId}
+                        cardData={cardData}
+                        isBack={true}
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
-            </div>
-          )}
+            );
+          })()}
 
           <div className="text-center">
             <h3 className="text-base font-semibold text-foreground">

@@ -27,6 +27,7 @@ interface TemplateEditModalProps {
 }
 
 import { CHEIL_COMPANY_DATA, HANMI_COMPANY_DATA } from "@/shared/constants/companyData";
+import { isSingleSidedTemplate, isCheilOfficeTemplate } from "@/shared/constants/cardTemplates";
 
 // 영문 전화번호 변환 (+82- (0) 제거 및 국문 번호 기반 자동 포맷팅)
 function formatEnglishPhone(val: string): string {
@@ -95,7 +96,41 @@ export default function TemplateEditModal({
     }
     // 템플릿에 따라 초기 렌더 데이터 조정 (이름 홍길동 통일, 전화번호 +82 제거 및 영문 자동완성 포맷팅)
     const tidStr = String(templateId || "").toLowerCase();
-    if (tidStr.includes("cheil") || tidStr === "2" || tidStr === "4") {
+    if (isCheilOfficeTemplate(templateId)) {
+      setCardData({
+        front: {
+          name: "오인환",
+          departmentOption: "직접입력",
+          department: "하수도 정비 중점관리지역 침수예방사업",
+          position1Option: "직접입력",
+          position1: "(2단계)외 2건 건설사업관리단",
+          position2Option: "직접입력",
+          position2: "단장",
+          address: "서울시 서초구 강남대로16길 22-6(양재동)",
+          fieldAddress: "현장주소",
+          telephone: "061-755-9211",
+          fax: "061-755-9214",
+          directTelephone: "",
+          mobile: "010-6373-7500",
+          email: "oiw3030@naver.com",
+          website: "www.cheileng.com",
+        },
+        back: {
+          name: "",
+          department: "",
+          position1: "",
+          position2: "",
+          address1: "",
+          address2: "",
+          telephone: "",
+          fax: "",
+          directTelephone: "",
+          mobile: "",
+          email: "",
+          website: "",
+        },
+      });
+    } else if (tidStr.includes("cheil") || tidStr === "2" || tidStr === "4") {
       setCardData({
         front: {
           name: "홍길동",
@@ -142,6 +177,9 @@ export default function TemplateEditModal({
     cardData.front.email?.includes("hanmiglobal") ||
     cardData.front.address?.includes("테헤란로") ||
     cardData.back.website?.includes("hanmiglobal");
+
+  const isCheilOffice = isCheilOfficeTemplate(templateId);
+  const isSingleSided = isSingleSidedTemplate(templateId);
 
   const companyData = isHanmi ? HANMI_COMPANY_DATA : CHEIL_COMPANY_DATA;
 
@@ -291,7 +329,7 @@ export default function TemplateEditModal({
             </section>
 
             {/* 입력 폼 섹션 */}
-            <div className="grid items-start gap-5 xl:grid-cols-2">
+            <div className={`grid items-start gap-5 ${isSingleSided ? "grid-cols-1 max-w-[680px] mx-auto" : "xl:grid-cols-2"}`}>
               {/* 앞면 입력 폼 */}
               <section className="overflow-hidden rounded-xl border border-border bg-card">
                 <div className="border-b border-border px-5 py-4">
@@ -310,22 +348,24 @@ export default function TemplateEditModal({
                   </div>
 
                   {/* 2. 부서 선택 & 부서 */}
-                  <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
-                    <label className="text-xs font-medium text-muted-foreground">부서 선택</label>
-                    <select
-                      value={cardData.front.departmentOption || "직접입력"}
-                      onChange={handleDeptSelectChange}
-                      className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
-                    >
-                      <option value="직접입력">직접입력</option>
-                      {companyData.departments.map((dept) => (
-                        <option key={dept.ko} value={dept.ko}>{dept.ko}</option>
-                      ))}
-                    </select>
-                  </div>
+                  {!isCheilOffice && (
+                    <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
+                      <label className="text-xs font-medium text-muted-foreground">부서 선택</label>
+                      <select
+                        value={cardData.front.departmentOption || "직접입력"}
+                        onChange={handleDeptSelectChange}
+                        className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
+                      >
+                        <option value="직접입력">직접입력</option>
+                        {companyData.departments.map((dept) => (
+                          <option key={dept.ko} value={dept.ko}>{dept.ko}</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
 
                   <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
-                    <div />
+                    <label className="text-xs font-medium text-muted-foreground">{isCheilOffice ? "부서" : ""}</label>
                     <input
                       value={cardData.front.department}
                       onChange={(e) => handleFrontChange("department", e.target.value)}
@@ -335,32 +375,44 @@ export default function TemplateEditModal({
                   </div>
 
                   {/* 3. 직급/직책 선택 & 직급/직책 */}
-                  <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
-                    <label className="text-xs font-medium text-muted-foreground">{isHanmi ? "직책 선택" : "직급 선택"}</label>
-                    <select
-                      value={cardData.front.position1Option || "직접입력"}
-                      onChange={handlePosition1SelectChange}
-                      className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
-                    >
-                      <option value="직접입력">직접입력</option>
-                      {companyData.positions.map((pos) => (
-                        <option key={pos.ko} value={pos.ko}>{pos.ko}</option>
-                      ))}
-                    </select>
-                  </div>
+                  {!isCheilOffice && (
+                    <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
+                      <label className="text-xs font-medium text-muted-foreground">{isHanmi ? "직책 선택" : "직급 선택"}</label>
+                      <select
+                        value={cardData.front.position1Option || "직접입력"}
+                        onChange={handlePosition1SelectChange}
+                        className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
+                      >
+                        <option value="직접입력">직접입력</option>
+                        {companyData.positions.map((pos) => (
+                          <option key={pos.ko} value={pos.ko}>{pos.ko}</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
 
                   <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
-                    <div />
+                    <label className="text-xs font-medium text-muted-foreground">{isCheilOffice ? "직책/직급" : ""}</label>
                     <input
                       value={cardData.front.position1}
                       onChange={(e) => handleFrontChange("position1", e.target.value)}
-                      placeholder={isHanmi ? "직책명 직접 입력 가능" : "직급명 직접 입력 가능"}
+                      placeholder={isHanmi || isCheilOffice ? "직책명 직접 입력 가능" : "직급명 직접 입력 가능"}
                       className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
                     />
                   </div>
 
                   {/* 4. 직책2 (한미글로벌 수기입력) / 자격사항 (제일엔지니어링) */}
-                  {isHanmi ? (
+                  {isCheilOffice ? (
+                    <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
+                      <label className="text-xs font-medium text-muted-foreground">자격사항</label>
+                      <input
+                        value={cardData.front.position2 || ""}
+                        onChange={(e) => handleFrontChange("position2", e.target.value)}
+                        placeholder="자격사항 수기 입력 가능"
+                        className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
+                      />
+                    </div>
+                  ) : isHanmi ? (
                     <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
                       <label className="text-xs font-medium text-muted-foreground">직책2 (수기입력)</label>
                       <input
@@ -398,17 +450,29 @@ export default function TemplateEditModal({
                     </>
                   )}
 
-                  {/* 5. 주소 */}
+                  {/* 5. 주소 & 현장주소 */}
                   <div className="grid grid-cols-[108px_minmax(0,1fr)] items-start gap-3">
-                    <label className="mt-2 text-xs font-medium text-muted-foreground">주소</label>
+                    <label className="mt-2 text-xs font-medium text-muted-foreground">{isCheilOffice ? "본사 주소" : "주소"}</label>
                     <textarea
                       rows={2}
                       value={cardData.front.address}
                       onChange={(e) => handleFrontChange("address", e.target.value)}
-                      placeholder="06164, 서울시 강남구 테헤란로 87길&#10;36 도심공항타워"
+                      placeholder={isCheilOffice ? "서울시 서초구 강남대로16길 22-6(양재동)" : "06164, 서울시 강남구 테헤란로 87길&#10;36 도심공항타워"}
                       className="w-full resize-none rounded-md border border-border bg-background px-3 py-2 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
                     />
                   </div>
+
+                  {isCheilOffice && (
+                    <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
+                      <label className="text-xs font-medium text-muted-foreground">현장 주소</label>
+                      <input
+                        value={cardData.front.fieldAddress || ""}
+                        onChange={(e) => handleFrontChange("fieldAddress", e.target.value)}
+                        placeholder="현장주소 수기 입력 가능"
+                        className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
+                      />
+                    </div>
+                  )}
 
                   {/* 6. 전화번호 */}
                   <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
@@ -434,8 +498,8 @@ export default function TemplateEditModal({
                     </div>
                   )}
 
-                  {/* 8. 직통번호 (한미글로벌 제외) */}
-                  {!isHanmi && (
+                  {/* 8. 직통번호 (한미글로벌 및 제일 현장사무실 제외) */}
+                  {!isHanmi && !isCheilOffice && (
                     <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
                       <label className="text-xs font-medium text-muted-foreground">직통번호</label>
                       <input
@@ -480,8 +544,9 @@ export default function TemplateEditModal({
                 </div>
               </section>
 
-              {/* 뒷면 입력 폼 (모든 필드 일반 input) */}
-              <section className="overflow-hidden rounded-xl border border-border bg-card">
+              {/* 뒷면 입력 폼 (단면 템플릿의 경우 숨김) */}
+              {!isSingleSided && (
+                <section className="overflow-hidden rounded-xl border border-border bg-card">
                 <div className="border-b border-border px-5 py-4">
                   <h3 className="text-sm font-semibold text-foreground">뒷면 정보</h3>
                   <p className="mt-1 text-xs text-muted-foreground">영문 명함에 표시할 정보를 입력합니다.</p>
@@ -622,13 +687,14 @@ export default function TemplateEditModal({
                     <label className="text-xs font-medium text-muted-foreground">웹사이트</label>
                     <input
                       value={cardData.back.website}
-                      onChange={(e) => handleBackChange("website", e.target.value)}
-                      placeholder={isHanmi ? "www.hanmiglobal.com" : "www.cheileng.com"}
-                      className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
-                    />
+                        onChange={(e) => handleBackChange("website", e.target.value)}
+                        placeholder={isHanmi ? "www.hanmiglobal.com" : "www.cheileng.com"}
+                        className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
+                      />
+                    </div>
                   </div>
-                </div>
-              </section>
+                </section>
+              )}
             </div>
           </div>
         </main>

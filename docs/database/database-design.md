@@ -135,3 +135,4 @@ erDiagram
 - **`V6__add_auto_increment_sequences.sql`**: `members`, `orders`, `order_snapshots` 테이블의 `VARCHAR` PK를 유지하면서 숫자로만(`'1'`, `'2'`, `'3'`...) 자동 채번(Auto Increment)되는 DB 시퀀스(`members_id_seq`, `orders_id_seq`, `order_snapshots_id_seq`) 및 `DEFAULT` 생성.
 - **`V7__add_standard_department_seeds.sql`**: 부서 표준 시드 데이터 구성.
 - **`V8__add_cheil_second_template.sql`**: 제일엔지니어링 2번째 명함 템플릿 추가 (앞면 회사명 자산 `cheil_front_name.jpg` 적용).
+- **`V9__add_cheil_third_template.sql`**: 제일엔지니어링 3번째 명함 템플릿 추가 (`제일엔지니어링 본사 현장사무실 주소겸용`, 단면).
