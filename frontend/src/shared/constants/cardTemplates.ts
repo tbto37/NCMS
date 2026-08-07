@@ -141,8 +141,8 @@ export const CARD_TEMPLATE_SPECS: Record<string, { front: CardTemplateConfig; ba
       fields: {
         name: {
           x: 220,
-          y: 30,
-          fontSize: 22,
+          y: 28,
+          fontSize: 24.5,
           fontWeight: "700",
           fill: "#0f172a",
           letterSpacing: "0.35em",
@@ -150,14 +150,14 @@ export const CARD_TEMPLATE_SPECS: Record<string, { front: CardTemplateConfig; ba
         departmentPosition: {
           x: 220,
           y: 62,
-          fontSize: 11.5,
+          fontSize: 12.5,
           fontWeight: "500",
           fill: "#1e293b",
         },
         position2: {
           x: 220,
-          y: 78,
-          fontSize: 11.5,
+          y: 79,
+          fontSize: 12.5,
           fontWeight: "400",
           fill: "#475569",
         },

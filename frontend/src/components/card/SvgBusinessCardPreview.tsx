@@ -519,7 +519,7 @@ export default function SvgBusinessCardPreview({
                   <text
                     x={220}
                     y={60}
-                    fontSize={10.5}
+                    fontSize={12.5}
                     fontWeight="500"
                     fill="#1e293b"
                     dominantBaseline="hanging"
@@ -530,8 +530,8 @@ export default function SvgBusinessCardPreview({
                 {(front.position1 || front.position2) && (
                   <text
                     x={220}
-                    y={front.department ? 73 : 60}
-                    fontSize={10.5}
+                    y={front.department ? 77 : 60}
+                    fontSize={12.5}
                     fontWeight="500"
                     fill="#1e293b"
                     dominantBaseline="hanging"
@@ -773,7 +773,7 @@ export default function SvgBusinessCardPreview({
                   fill="#334155"
                   dominantBaseline="hanging"
                 >
-                  {front.address.startsWith("본사") ? front.address : `본사 : ${front.address}`}
+                  {front.address.startsWith("본사") ? (front.address.startsWith("본사 :") ? front.address : front.address.replace(/^본사\s*:?\s*/, "본사 : ")) : `본사 : ${front.address}`}
                 </text>
               )}
               {front.fieldAddress && (
@@ -785,7 +785,7 @@ export default function SvgBusinessCardPreview({
                   fill="#334155"
                   dominantBaseline="hanging"
                 >
-                  {front.fieldAddress.startsWith("현장") ? front.fieldAddress : `현장 : ${front.fieldAddress}`}
+                  {front.fieldAddress.startsWith("현장") ? (front.fieldAddress.startsWith("현장 :") ? front.fieldAddress : front.fieldAddress.replace(/^현장\s*:?\s*/, "현장 : ")) : `현장 : ${front.fieldAddress}`}
                 </text>
               )}
             </>

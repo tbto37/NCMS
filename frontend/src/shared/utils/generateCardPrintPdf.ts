@@ -567,8 +567,8 @@ async function createSvgMarkupWithOutlines(
 
       ${!isBack ? (
         isCheilOffice ? `
-          ${front.department ? `<text x="220" y="60" font-size="10.5" font-weight="500" fill="#1e293b" dominant-baseline="hanging">${front.department}</text>` : ""}
-          ${(front.position1 || front.position2) ? `<text x="220" y="${front.department ? 73 : 60}" font-size="10.5" font-weight="500" fill="#1e293b" dominant-baseline="hanging">${[front.position1, front.position2].filter(Boolean).join(" / ")}</text>` : ""}
+          ${front.department ? `<text x="220" y="60" font-size="12.5" font-weight="500" fill="#1e293b" dominant-baseline="hanging">${front.department}</text>` : ""}
+          ${(front.position1 || front.position2) ? `<text x="220" y="${front.department ? 77 : 60}" font-size="12.5" font-weight="500" fill="#1e293b" dominant-baseline="hanging">${[front.position1, front.position2].filter(Boolean).join(" / ")}</text>` : ""}
         ` : `
           ${config.fields.departmentPosition && deptPosText ? `<text x="${config.fields.departmentPosition.x}" y="${config.fields.departmentPosition.y}" font-size="${config.fields.departmentPosition.fontSize}" font-weight="500" fill="#1e293b" dominant-baseline="hanging">${deptPosText}</text>` : ""}
           ${front.position2 ? `<text x="${config.fields.position2?.x || 268}" y="${config.fields.position2?.y || 94}" font-size="${config.fields.position2?.fontSize || 12.2}" font-weight="${config.fields.position2?.fontWeight || "700"}" fill="${config.fields.position2?.fill || "#1e293b"}" dominant-baseline="hanging">${front.position2}</text>` : ""}
@@ -604,8 +604,8 @@ async function createSvgMarkupWithOutlines(
       })() : ""}
 
       ${isCheilOffice && !isBack ? `
-        ${front.address ? `<text x="${config.fields.address?.x || 220}" y="${cheilY.address}" font-size="${config.fields.address?.fontSize || 10}" font-weight="400" fill="#334155" dominant-baseline="hanging">${front.address.startsWith("본사") ? front.address : `본사 : ${front.address}`}</text>` : ""}
-        ${front.fieldAddress ? `<text x="${config.fields.address?.x || 220}" y="${cheilY.fieldAddress}" font-size="${config.fields.address?.fontSize || 10}" font-weight="400" fill="#334155" dominant-baseline="hanging">${front.fieldAddress.startsWith("현장") ? front.fieldAddress : `현장 : ${front.fieldAddress}`}</text>` : ""}
+        ${front.address ? `<text x="${config.fields.address?.x || 220}" y="${cheilY.address}" font-size="${config.fields.address?.fontSize || 10}" font-weight="400" fill="#334155" dominant-baseline="hanging">${front.address.startsWith("본사") ? (front.address.startsWith("본사 :") ? front.address : front.address.replace(/^본사\s*:?\s*/, "본사 : ")) : `본사 : ${front.address}`}</text>` : ""}
+        ${front.fieldAddress ? `<text x="${config.fields.address?.x || 220}" y="${cheilY.fieldAddress}" font-size="${config.fields.address?.fontSize || 10}" font-weight="400" fill="#334155" dominant-baseline="hanging">${front.fieldAddress.startsWith("현장") ? (front.fieldAddress.startsWith("현장 :") ? front.fieldAddress : front.fieldAddress.replace(/^현장\s*:?\s*/, "현장 : ")) : `현장 : ${front.fieldAddress}`}</text>` : ""}
       ` : (key === "cheil" && !isBack && front.address ? `
         <text x="${config.fields.address?.x}" y="${cheilY.address}" font-size="${config.fields.address?.fontSize}" font-weight="400" fill="#334155" dominant-baseline="hanging">${front.address}</text>
       ` : "")}
