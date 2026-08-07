@@ -99,7 +99,7 @@ export default function TemplateEditModal({
     if (isCheilOfficeTemplate(templateId)) {
       setCardData({
         front: {
-          name: "오인환",
+          name: "홍길동",
           departmentOption: "직접입력",
           department: "하수도 정비 중점관리지역 침수예방사업",
           position1Option: "직접입력",
@@ -108,11 +108,11 @@ export default function TemplateEditModal({
           position2: "단장",
           address: "서울시 서초구 강남대로16길 22-6(양재동)",
           fieldAddress: "현장주소",
-          telephone: "061-755-9211",
-          fax: "061-755-9214",
+          telephone: "02-000-0000",
+          fax: "02-000-0000",
           directTelephone: "",
-          mobile: "010-6373-7500",
-          email: "oiw3030@naver.com",
+          mobile: "010-1234-5678",
+          email: "00000@naver.com",
           website: "www.cheileng.com",
         },
         back: {
