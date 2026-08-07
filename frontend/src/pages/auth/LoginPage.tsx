@@ -80,12 +80,12 @@ export default function LoginPage() {
   const tenantLogo = code === "cheil" ? "/logos/cheil_logo.png" : code === "hanmi" ? "/logos/hanmi_logo.png" : "";
 
   const tenantTitle = !isTenantLogin
-    ? "로그컴 관리자 로그인"
+    ? "로그컴 관리자"
     : code === "cheil"
-    ? "제일엔지니어링 로그인"
-    : code === "hanmi"
-    ? "한미글로벌 로그인"
-    : `${companyCode?.toUpperCase()} 로그인`;
+      ? "제일엔지니어링"
+      : code === "hanmi"
+        ? "한미글로벌"
+        : `${companyCode?.toUpperCase()}`;
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-4">
