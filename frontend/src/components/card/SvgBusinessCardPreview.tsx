@@ -572,43 +572,74 @@ export default function SvgBusinessCardPreview({
             )
           ) : (
             <>
-              {config.fields.position1 && back.position1 && (
-                <text
-                  x={config.fields.position1.x}
-                  y={config.fields.position1.y}
-                  fontSize={config.fields.position1.fontSize}
-                  fontWeight={config.fields.position1.fontWeight || "400"}
-                  fill={config.fields.position1.fill || "#1e293b"}
-                  dominantBaseline="hanging"
-                >
-                  {back.department && back.department.trim() !== ""
-                    ? (back.position1.endsWith("/") ? back.position1 : `${back.position1} /`)
-                    : back.position1.replace(/\/$/, "").trim()}
-                </text>
-              )}
-              {config.fields.department && back.department && (
-                <text
-                  x={config.fields.department.x}
-                  y={config.fields.department.y}
-                  fontSize={config.fields.department.fontSize}
-                  fontWeight={config.fields.department.fontWeight || "400"}
-                  fill={config.fields.department.fill || "#1e293b"}
-                  dominantBaseline="hanging"
-                >
-                  {back.department}
-                </text>
-              )}
-              {key === "hanmi" && back.position2 && (
-                <text
-                  x={268}
-                  y={108}
-                  fontSize={12.2}
-                  fontWeight="700"
-                  fill="#1e293b"
-                  dominantBaseline="hanging"
-                >
-                  {back.position2}
-                </text>
+              {key === "cheil" ? (
+                <>
+                  {(back.department || back.position1) && (
+                    <text
+                      x={config.fields.departmentPosition?.x || 220}
+                      y={62}
+                      fontSize={12.5}
+                      fontWeight="500"
+                      fill="#1e293b"
+                      dominantBaseline="hanging"
+                    >
+                      {[back.department, back.position1?.replace(/\/$/, "").trim()].filter(Boolean).join(" / ")}
+                    </text>
+                  )}
+                  {back.position2 && (
+                    <text
+                      x={config.fields.position2?.x || 220}
+                      y={79}
+                      fontSize={12.5}
+                      fontWeight="400"
+                      fill="#475569"
+                      dominantBaseline="hanging"
+                    >
+                      {back.position2}
+                    </text>
+                  )}
+                </>
+              ) : (
+                <>
+                  {config.fields.position1 && back.position1 && (
+                    <text
+                      x={config.fields.position1.x}
+                      y={config.fields.position1.y}
+                      fontSize={config.fields.position1.fontSize}
+                      fontWeight={config.fields.position1.fontWeight || "400"}
+                      fill={config.fields.position1.fill || "#1e293b"}
+                      dominantBaseline="hanging"
+                    >
+                      {back.department && back.department.trim() !== ""
+                        ? (back.position1.endsWith("/") ? back.position1 : `${back.position1} /`)
+                        : back.position1.replace(/\/$/, "").trim()}
+                    </text>
+                  )}
+                  {config.fields.department && back.department && (
+                    <text
+                      x={config.fields.department.x}
+                      y={config.fields.department.y}
+                      fontSize={config.fields.department.fontSize}
+                      fontWeight={config.fields.department.fontWeight || "400"}
+                      fill={config.fields.department.fill || "#1e293b"}
+                      dominantBaseline="hanging"
+                    >
+                      {back.department}
+                    </text>
+                  )}
+                  {key === "hanmi" && back.position2 && (
+                    <text
+                      x={268}
+                      y={108}
+                      fontSize={12.2}
+                      fontWeight="700"
+                      fill="#1e293b"
+                      dominantBaseline="hanging"
+                    >
+                      {back.position2}
+                    </text>
+                  )}
+                </>
               )}
             </>
           )}

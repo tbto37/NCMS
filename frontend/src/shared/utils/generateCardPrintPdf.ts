@@ -575,11 +575,16 @@ async function createSvgMarkupWithOutlines(
         `
       ) : ""}
 
-      ${isBack && config.fields.position1 && back.position1 ? `<text x="${config.fields.position1.x}" y="${config.fields.position1.y}" font-size="${config.fields.position1.fontSize}" font-weight="400" fill="#1e293b" dominant-baseline="hanging">${(back.department && back.department.trim() !== "") ? (back.position1.endsWith("/") ? back.position1 : back.position1 + " /") : back.position1.replace(/\/$/, "").trim()}</text>` : ""}
-
-      ${isBack && config.fields.department && back.department ? `<text x="${config.fields.department.x}" y="${config.fields.department.y}" font-size="${config.fields.department.fontSize}" font-weight="500" fill="#1e293b" dominant-baseline="hanging">${back.department}</text>` : ""}
-
-      ${isBack && key === "hanmi" && back.position2 ? `<text x="268" y="108" font-size="12.2" font-weight="700" fill="#1e293b" dominant-baseline="hanging">${back.position2}</text>` : ""}
+      ${isBack ? (
+        key === "cheil" ? `
+          ${(back.department || back.position1) ? `<text x="220" y="62" font-size="12.5" font-weight="500" fill="#1e293b" dominant-baseline="hanging">${[back.department, back.position1?.replace(/\/$/, "").trim()].filter(Boolean).join(" / ")}</text>` : ""}
+          ${back.position2 ? `<text x="220" y="79" font-size="12.5" font-weight="400" fill="#475569" dominant-baseline="hanging">${back.position2}</text>` : ""}
+        ` : `
+          ${config.fields.position1 && back.position1 ? `<text x="${config.fields.position1.x}" y="${config.fields.position1.y}" font-size="${config.fields.position1.fontSize}" font-weight="400" fill="#1e293b" dominant-baseline="hanging">${(back.department && back.department.trim() !== "") ? (back.position1.endsWith("/") ? back.position1 : back.position1 + " /") : back.position1.replace(/\/$/, "").trim()}</text>` : ""}
+          ${config.fields.department && back.department ? `<text x="${config.fields.department.x}" y="${config.fields.department.y}" font-size="${config.fields.department.fontSize}" font-weight="500" fill="#1e293b" dominant-baseline="hanging">${back.department}</text>` : ""}
+          ${key === "hanmi" && back.position2 ? `<text x="268" y="108" font-size="12.2" font-weight="700" fill="#1e293b" dominant-baseline="hanging">${back.position2}</text>` : ""}
+        `
+      ) : ""}
 
       ${companyHtml}
 

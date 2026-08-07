@@ -374,10 +374,10 @@ export default function TemplateEditModal({
                     />
                   </div>
 
-                  {/* 3. 직급/직책 선택 & 직급/직책 */}
+                  {/* 3. 직책 선택 & 직책 */}
                   {!isCheilOffice && (
                     <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
-                      <label className="text-xs font-medium text-muted-foreground">{isHanmi ? "직책 선택" : "직급 선택"}</label>
+                      <label className="text-xs font-medium text-muted-foreground">직책 선택</label>
                       <select
                         value={cardData.front.position1Option || "직접입력"}
                         onChange={handlePosition1SelectChange}
@@ -396,7 +396,7 @@ export default function TemplateEditModal({
                     <input
                       value={cardData.front.position1}
                       onChange={(e) => handleFrontChange("position1", e.target.value)}
-                      placeholder={isCheilOffice ? "직책 직접 입력 (예: (2단계)외 2건 건설사업관리단)" : isHanmi ? "직책명 직접 입력 가능" : "직급명 직접 입력 가능"}
+                      placeholder={isCheilOffice ? "직책 직접 입력 (예: (2단계)외 2건 건설사업관리단)" : "직책명 직접 입력 가능"}
                       className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
                     />
                   </div>
@@ -572,9 +572,9 @@ export default function TemplateEditModal({
                     />
                   </div>
 
-                  {/* 3. 직급/직책 (영문) */}
+                  {/* 3. 직책 (영문) */}
                   <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
-                    <label className="text-xs font-medium text-muted-foreground">{isHanmi ? "직책" : "직급"}</label>
+                    <label className="text-xs font-medium text-muted-foreground">직책</label>
                     <input
                       value={cardData.back.position1}
                       onChange={(e) => handleBackChange("position1", e.target.value)}
