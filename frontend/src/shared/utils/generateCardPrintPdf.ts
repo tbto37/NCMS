@@ -134,16 +134,21 @@ function renderBackgroundGraphics(
     }
   }
 
-  // 2. 로고 이미지 (Logo - 세로 비율 좁히고 앞면 로고 스케일 키움)
+  // 2. 로고 이미지 (Logo - PDF 전용 사양 및 한미 로고 높이 축소 적용)
   if (logoBase64) {
-    let logoSpec = {
+    let logoSpec = config.logoSpec || {
       x: key === "cheil" ? 32 : (isBack ? 30 : 28),
       y: key === "cheil" ? 36 : (isBack ? 52 : 44),
       width: key === "cheil" ? 155 : (isBack ? 152 : 172),
       height: key === "cheil" ? 48 : (isBack ? 30 : 34),
     };
-    if (config.logoSpec && key === "cheil") {
-      logoSpec = { ...logoSpec, ...config.logoSpec };
+    if (key === "hanmi") {
+      logoSpec = {
+        x: logoSpec.x,
+        y: isBack ? 71 : 67,
+        width: logoSpec.width,
+        height: isBack ? 32 : 36,
+      };
     }
     try {
       doc.addImage(
@@ -189,7 +194,7 @@ function renderBackgroundGraphics(
     let companyH = (!isBack ? 13.8 : 8.8) * sy;
 
     if (key === "hanmi") {
-      companyY = (!isBack ? 136 : 168) * sy;
+      companyY = (!isBack ? 148 : 164) * sy;
       companyW = (!isBack ? 143.7 : 159.9) * sx;
       companyH = 14.2 * sy;
     }
@@ -281,36 +286,33 @@ function renderPureNativeTextStream(
 
     if (key === "hanmi") {
       if (!isBack) {
+        // 한미글로벌 앞면 (국문): 상호(148) 고정, 하단 항목간 줄 간격 +2씩 확장 (T: 172, M: 193, E: 214, Addr1: 238, Addr2: 258)
         const [addr1, addr2] = getHanmiFrontAddressLines(front);
-        const addr2Y = 236;
-        const addr1Y = addr2 ? 218 : 236;
+        const addr2Y = 258;
+        const addr1Y = addr2 ? 238 : 258;
 
-        let currentY = addr2 ? 218 : 236;
-        const step = 19;
+        let currentY = addr2 ? 238 : 258;
+        const step = 21;
 
-        let emailY = config.fields.email?.y || 196;
+        let emailY = 214;
         if (config.fields.email && front.email) {
           currentY -= step;
           emailY = currentY;
         }
 
-        let mobileY = config.fields.mobile?.y || 177;
+        let mobileY = 193;
         if (config.fields.mobile && front.mobile) {
           currentY -= step;
           mobileY = currentY;
         }
 
-        let telephoneY = config.fields.telephone?.y || 158;
+        let telephoneY = 172;
         if (config.fields.telephone && front.telephone) {
           currentY -= step;
           telephoneY = currentY;
         }
 
-        let companyNameY = config.fields.companyName?.y || 136;
-        if (config.fields.companyName) {
-          currentY -= 22;
-          companyNameY = currentY;
-        }
+        let companyNameY = 148;
 
         return {
           website: 255,
@@ -327,27 +329,17 @@ function renderPureNativeTextStream(
           companyName: companyNameY,
         };
       } else {
+        // 한미글로벌 뒷면 (영문): 상호명(164), 홈페이지(188 - 독립 2pt 상향), 주소(209/227/245)
         const [b1, b2, b3] = getHanmiBackAddressLines(back);
         const validLines = [b1, b2, b3].filter(Boolean);
         const lineCount = validLines.length || 1;
 
-        const b3Y = 242;
-        const b2Y = lineCount >= 3 ? 224 : (lineCount === 2 ? 242 : 242);
-        const b1Y = lineCount === 3 ? 206 : (lineCount === 2 ? 224 : 242);
+        const b3Y = 245;
+        const b2Y = lineCount >= 3 ? 227 : (lineCount === 2 ? 245 : 245);
+        const b1Y = lineCount === 3 ? 209 : (lineCount === 2 ? 227 : 245);
 
-        let currentY = b1Y;
-
-        let websiteY = config.fields.website?.y || 186;
-        if (config.fields.website && back.website) {
-          currentY -= 20;
-          websiteY = currentY;
-        }
-
-        let companyNameY = config.fields.companyName?.y || 168;
-        if (config.fields.companyName) {
-          currentY -= 18;
-          companyNameY = currentY;
-        }
+        const websiteY = 188;
+        const companyNameY = 164;
 
         return {
           website: websiteY,
@@ -452,6 +444,12 @@ function renderPureNativeTextStream(
         doc.setTextColor(30, 41, 59);
         doc.text(back.department, config.fields.department.x * sx, ((config.fields.department.y || 88) + 12.5 * 0.76) * sy);
       }
+      if (back.position2) {
+        doc.setFont("NanumSquareB", "normal");
+        doc.setFontSize(6);
+        doc.setTextColor(30, 41, 59);
+        doc.text(back.position2, 268 * sx, (110 + 12.5 * 0.76) * sy);
+      }
     }
   }
 
@@ -470,11 +468,13 @@ function renderPureNativeTextStream(
     const telVal = currentData.telephone.startsWith("+82")
       ? currentData.telephone
       : `+82 (0)${currentData.telephone.replace(/^0/, "")}`;
-    const text = `T  ${telVal}`;
+    const xBase = config.fields.telephone?.x || 268;
+    const yVal = (cardY.telephone + 7 * 0.76) * sy;
     doc.setFont("NanumSquareB", "normal");
     doc.setFontSize(7);
     doc.setTextColor(30, 41, 59);
-    doc.text(text, (config.fields.telephone?.x || 268) * sx, (cardY.telephone + 12.5 * 0.76) * sy);
+    doc.text("T", xBase * sx, yVal);
+    doc.text(telVal, (xBase + 20) * sx, yVal);
   }
 
   if (config.fields.directTelephone && currentData.directTelephone) {
@@ -484,37 +484,45 @@ function renderPureNativeTextStream(
     doc.setFont("NanumSquareB", "normal");
     doc.setFontSize(key === "hanmi" ? 7 : 12.5 * 0.35);
     doc.setTextColor(30, 41, 59);
-    doc.text(text, config.fields.directTelephone.x * sx, ((key === "cheil" ? cheilY.directTel : config.fields.directTelephone.y) + 12.5 * 0.76) * sy);
+    doc.text(text, config.fields.directTelephone.x * sx, ((key === "cheil" ? cheilY.directTel : config.fields.directTelephone.y) + (key === "hanmi" ? 7 : 12.5) * 0.76) * sy);
   }
 
   if (config.fields.mobile && currentData.mobile) {
     const mobileVal = currentData.mobile.startsWith("+82")
       ? currentData.mobile
       : `+82 (0)${currentData.mobile.replace(/^0/, "")}`;
-    const text = key === "cheil"
-      ? (!isBack ? `핸드폰 : ${currentData.mobile}` : `Mobile: ${currentData.mobile}`)
-      : `M  ${mobileVal}`;
+    const xBase = key === "hanmi" ? (config.fields.mobile?.x || 268) : config.fields.mobile.x;
+    const yVal = ((key === "cheil" ? cheilY.mobile : cardY.mobile) + (key === "hanmi" ? 7 : 12.5) * 0.76) * sy;
     doc.setFont("NanumSquareB", "normal");
     doc.setFontSize(key === "hanmi" ? 7 : 12.5 * 0.35);
     doc.setTextColor(30, 41, 59);
-    doc.text(text, (key === "hanmi" ? (config.fields.mobile.x || 268) : config.fields.mobile.x) * sx, ((key === "cheil" ? cheilY.mobile : cardY.mobile) + 12.5 * 0.76) * sy);
+    if (key === "hanmi") {
+      doc.text("M", xBase * sx, yVal);
+      doc.text(mobileVal, (xBase + 20) * sx, yVal);
+    } else {
+      doc.text(!isBack ? `핸드폰 : ${currentData.mobile}` : `Mobile: ${currentData.mobile}`, xBase * sx, yVal);
+    }
   }
 
   if (config.fields.email && currentData.email) {
-    const text = key === "cheil"
-      ? `E-mail: ${currentData.email}`
-      : `E  ${currentData.email}`;
+    const xBase = config.fields.email?.x || 268;
+    const yVal = ((key === "cheil" ? cheilY.email : cardY.email) + (key === "hanmi" ? 7 : 12.5) * 0.76) * sy;
     doc.setFont("NanumSquareB", "normal");
     doc.setFontSize(key === "hanmi" ? 7 : 12.5 * 0.35);
     doc.setTextColor(30, 41, 59);
-    doc.text(text, config.fields.email.x * sx, ((key === "cheil" ? cheilY.email : cardY.email) + 12.5 * 0.76) * sy);
+    if (key === "hanmi") {
+      doc.text("E", xBase * sx, yVal);
+      doc.text(currentData.email, (xBase + 20) * sx, yVal);
+    } else {
+      doc.text(`E-mail: ${currentData.email}`, xBase * sx, yVal);
+    }
   }
 
   if (config.fields.website && currentData.website) {
     doc.setFont("NanumSquareB", "normal");
     doc.setFontSize(key === "hanmi" ? 7 : 13.5 * 0.35);
     doc.setTextColor(key === "cheil" ? 15 : 0, key === "cheil" ? 23 : 75, key === "cheil" ? 42 : 150);
-    doc.text(currentData.website, config.fields.website.x * sx, ((key === "cheil" ? cheilY.website : cardY.website) + 13.5 * 0.76) * sy);
+    doc.text(currentData.website, config.fields.website.x * sx, ((key === "cheil" ? cheilY.website : cardY.website) + (key === "hanmi" ? 7 : 13.5) * 0.76) * sy);
   }
 
   // 5. 주소 (Address - 미리보기 1:1 연동)
@@ -527,8 +535,8 @@ function renderPureNativeTextStream(
       doc.text(front.address, (config.fields.address?.x || 220) * sx, (cheilY.address + 12.5 * 0.76) * sy);
     } else if (key === "hanmi") {
       const [addr1, addr2] = getHanmiFrontAddressLines(front);
-      if (addr1) doc.text(addr1, (config.fields.address1?.x || 268) * sx, (cardY.address1 + 12.5 * 0.76) * sy);
-      if (addr2) doc.text(addr2, (config.fields.address2?.x || 268) * sx, (cardY.address2 + 12.5 * 0.76) * sy);
+      if (addr1) doc.text(addr1, (config.fields.address1?.x || 268) * sx, (cardY.address1 + 7 * 0.76) * sy);
+      if (addr2) doc.text(addr2, (config.fields.address2?.x || 268) * sx, (cardY.address2 + 7 * 0.76) * sy);
     }
   } else {
     if (key === "cheil") {
@@ -537,9 +545,9 @@ function renderPureNativeTextStream(
       if (c2) doc.text(c2, (config.fields.address2?.x || 220) * sx, (cheilY.address2 + 12.5 * 0.76) * sy);
     } else if (key === "hanmi") {
       const [a1, a2, a3] = getHanmiBackAddressLines(back);
-      if (a1) doc.text(a1, (config.fields.address1?.x || 268) * sx, (cardY.address1 + 12.5 * 0.76) * sy);
-      if (a2) doc.text(a2, (config.fields.address2?.x || 268) * sx, (cardY.address2 + 12.5 * 0.76) * sy);
-      if (a3) doc.text(a3, (config.fields.address3?.x || 268) * sx, (cardY.address3 + 12.5 * 0.76) * sy);
+      if (a1) doc.text(a1, (config.fields.address1?.x || 268) * sx, (cardY.address1 + 7 * 0.76) * sy);
+      if (a2) doc.text(a2, (config.fields.address2?.x || 268) * sx, (cardY.address2 + 7 * 0.76) * sy);
+      if (a3) doc.text(a3, (config.fields.address3?.x || 268) * sx, (cardY.address3 + 7 * 0.76) * sy);
     }
   }
 }
@@ -826,37 +834,33 @@ async function createSvgMarkupWithOutlines(
 
     if (key === "hanmi") {
       if (!isBack) {
-        // 한미글로벌 앞면 (국문): 최하단 주소 기준 Y = 236
+        // 한미글로벌 앞면 (국문): 상호명(144) 하단 이격 조절 (T: 178, M: 197, E: 216, Addr1: 235, Addr2: 254)
         const [addr1, addr2] = getHanmiFrontAddressLines(front);
-        const addr2Y = 236;
-        const addr1Y = addr2 ? 218 : 236;
+        const addr2Y = 254;
+        const addr1Y = addr2 ? 235 : 254;
 
-        let currentY = addr2 ? 218 : 236;
+        let currentY = addr2 ? 235 : 254;
         const step = 19;
 
-        let emailY = config.fields.email?.y || 196;
+        let emailY = 216;
         if (config.fields.email && front.email) {
           currentY -= step;
           emailY = currentY;
         }
 
-        let mobileY = config.fields.mobile?.y || 177;
+        let mobileY = 197;
         if (config.fields.mobile && front.mobile) {
           currentY -= step;
           mobileY = currentY;
         }
 
-        let telephoneY = config.fields.telephone?.y || 158;
+        let telephoneY = 178;
         if (config.fields.telephone && front.telephone) {
           currentY -= step;
           telephoneY = currentY;
         }
 
-        let companyNameY = config.fields.companyName?.y || 136;
-        if (config.fields.companyName) {
-          currentY -= 22;
-          companyNameY = currentY;
-        }
+        let companyNameY = 144;
 
         return {
           website: 255,
@@ -873,28 +877,24 @@ async function createSvgMarkupWithOutlines(
           companyName: companyNameY,
         };
       } else {
-        // 한미글로벌 뒷면 (영문): 최하단 주소 기준 Y = 242
+        // 한미글로벌 뒷면 (영문): 상호명(160) 하단 이격 조절 (Website: 190, Addr1: 208, Addr2: 226, Addr3: 244)
         const [b1, b2, b3] = getHanmiBackAddressLines(back);
         const validLines = [b1, b2, b3].filter(Boolean);
         const lineCount = validLines.length || 1;
 
-        const b3Y = 242;
-        const b2Y = lineCount >= 3 ? 224 : (lineCount === 2 ? 242 : 242);
-        const b1Y = lineCount === 3 ? 206 : (lineCount === 2 ? 224 : 242);
+        const b3Y = 244;
+        const b2Y = lineCount >= 3 ? 226 : (lineCount === 2 ? 244 : 244);
+        const b1Y = lineCount === 3 ? 208 : (lineCount === 2 ? 226 : 244);
 
         let currentY = b1Y;
 
-        let websiteY = config.fields.website?.y || 186;
+        let websiteY = 190;
         if (config.fields.website && back.website) {
-          currentY -= 20;
+          currentY -= 18;
           websiteY = currentY;
         }
 
-        let companyNameY = config.fields.companyName?.y || 168;
-        if (config.fields.companyName) {
-          currentY -= 18;
-          companyNameY = currentY;
-        }
+        let companyNameY = 160;
 
         return {
           website: websiteY,
@@ -973,7 +973,7 @@ async function createSvgMarkupWithOutlines(
   if (config.fields.companyName) {
     if (key === "hanmi") {
       const src = companyNameAssetBase64 || (!isBack ? "/hanmi/hanmi_front_name.jpg" : "/hanmi/hanmi_back_name.jpg");
-      companyHtml = `<image href="${src}" xlink:href="${src}" x="${config.fields.companyName.x}" y="${cardY.companyName}" width="${!isBack ? 143.7 : 159.9}" height="14.2" preserveAspectRatio="xMinYMin meet" />`;
+      companyHtml = `<image href="${src}" xlink:href="${src}" x="${config.fields.companyName.x}" y="${!isBack ? 148 : 164}" width="${!isBack ? 143.7 : 159.9}" height="14.2" preserveAspectRatio="xMinYMin meet" />`;
     } else {
       const defaultCheilFront = (tidStr === "4" || tidStr.includes("cheil_front_name")) ? "/cheil/cheil_front_name.jpg" : "/cheil/cheil_build_front_name.jpg";
       const src = companyNameAssetBase64 || (!isBack ? defaultCheilFront : "/cheil/cheil_back_name.jpg");
@@ -1042,7 +1042,7 @@ async function createSvgMarkupWithOutlines(
         return `
           ${hBackPos1 ? `<text x="${config.fields.position1.x}" y="${config.fields.position1.y}" font-size="${config.fields.position1.fontSize}" font-weight="400" fill="#1e293b" letter-spacing="${getCondensedLetterSpacing(hBackPos1, 28) || "normal"}" dominant-baseline="hanging">${hBackPos1}</text>` : ""}
           ${hBackDept ? `<text x="${config.fields.department.x}" y="${config.fields.department.y}" font-size="${config.fields.department.fontSize}" font-weight="500" fill="#1e293b" letter-spacing="${getCondensedLetterSpacing(hBackDept, 28) || "normal"}" dominant-baseline="hanging">${hBackDept}</text>` : ""}
-          ${hBackPos2 ? `<text x="268" y="108" font-size="12.2" font-weight="700" fill="#1e293b" letter-spacing="${getCondensedLetterSpacing(hBackPos2, 28) || "normal"}" dominant-baseline="hanging">${hBackPos2}</text>` : ""}
+          ${hBackPos2 ? `<text x="268" y="110" font-size="12.2" font-weight="700" fill="#1e293b" letter-spacing="${getCondensedLetterSpacing(hBackPos2, 28) || "normal"}" dominant-baseline="hanging">${hBackPos2}</text>` : ""}
         `;
       })() : ""}
 
@@ -1050,13 +1050,13 @@ async function createSvgMarkupWithOutlines(
 
       ${key === "cheil" && config.fields.telAndFax && (currentData.telephone || currentData.fax) ? `<text x="${config.fields.telAndFax.x}" y="${cheilY.telAndFax}" font-size="${config.fields.telAndFax.fontSize}" font-weight="400" fill="#1e293b" dominant-baseline="hanging">${!isBack ? `${currentData.telephone ? `${isCheilOffice ? "전화 :" : "대표 :"} ${currentData.telephone}` : ""}${currentData.telephone && currentData.fax ? "   " : ""}${currentData.fax ? `팩스 : ${currentData.fax}` : ""}` : `${currentData.telephone ? `Tel: ${currentData.telephone}` : ""}${currentData.telephone && currentData.fax ? "   " : ""}${currentData.fax ? `Fax: ${currentData.fax}` : ""}`}</text>` : ""}
 
-      ${key === "hanmi" && config.fields.telephone && currentData.telephone ? `<text x="${config.fields.telephone.x}" y="${cardY.telephone}" font-size="${config.fields.telephone.fontSize}" font-weight="400" fill="#1e293b" dominant-baseline="hanging"><tspan x="${config.fields.telephone.x}" font-weight="400" fill="#1e293b">T</tspan><tspan x="${config.fields.telephone.x + 16}">${telephoneText}</tspan></text>` : ""}
+      ${key === "hanmi" && config.fields.telephone && currentData.telephone ? `<text x="${config.fields.telephone.x}" y="${cardY.telephone}" font-size="${config.fields.telephone.fontSize}" font-weight="400" fill="#1e293b" dominant-baseline="hanging"><tspan x="${config.fields.telephone.x}" font-weight="400" fill="#1e293b">T</tspan><tspan x="${config.fields.telephone.x + 20}">${telephoneText}</tspan></text>` : ""}
 
       ${config.fields.directTelephone && currentData.directTelephone ? `<text x="${config.fields.directTelephone.x}" y="${key === "cheil" ? cheilY.directTel : config.fields.directTelephone.y}" font-size="${config.fields.directTelephone.fontSize}" font-weight="400" fill="#1e293b" dominant-baseline="hanging">${key === "cheil" ? (!isBack ? `직통 : ${currentData.directTelephone}` : `Dir: ${currentData.directTelephone}`) : `Dir ${currentData.directTelephone}`}</text>` : ""}
 
-      ${config.fields.mobile && currentData.mobile ? `<text x="${config.fields.mobile.x}" y="${key === "cheil" ? cheilY.mobile : (key === "hanmi" ? cardY.mobile : config.fields.mobile.y)}" font-size="${config.fields.mobile.fontSize}" font-weight="400" fill="#1e293b" dominant-baseline="hanging">${key === "cheil" ? (!isBack ? `핸드폰 : ${currentData.mobile}` : `Mobile: ${currentData.mobile}`) : `<tspan x="${config.fields.mobile.x}" font-weight="400" fill="#1e293b">M</tspan><tspan x="${config.fields.mobile.x + 16}">${mobileText}</tspan>`}</text>` : ""}
+      ${config.fields.mobile && currentData.mobile ? (key === "hanmi" ? `<text y="${cardY.mobile}" font-size="12.2" font-weight="400" fill="#1e293b" dominant-baseline="hanging"><tspan x="${config.fields.mobile.x || 268}" font-weight="400" fill="#1e293b">M</tspan><tspan x="${(config.fields.mobile.x || 268) + 20}">${mobileText}</tspan></text>` : `<text x="${config.fields.mobile.x}" y="${key === "cheil" ? cheilY.mobile : config.fields.mobile.y}" font-size="${config.fields.mobile.fontSize}" font-weight="400" fill="#1e293b" dominant-baseline="hanging">${!isBack ? `핸드폰 : ${currentData.mobile}` : `Mobile: ${currentData.mobile}`}</text>`) : ""}
 
-      ${config.fields.email && currentData.email ? `<text x="${config.fields.email.x}" y="${key === "cheil" ? cheilY.email : (key === "hanmi" ? cardY.email : config.fields.email.y)}" font-size="${config.fields.email.fontSize}" font-weight="400" fill="#1e293b" dominant-baseline="hanging">${key === "cheil" ? `E-mail: ${currentData.email}` : `<tspan x="${config.fields.email.x}" font-weight="400" fill="#1e293b">E</tspan><tspan x="${config.fields.email.x + 16}">${currentData.email}</tspan>`}</text>` : ""}
+      ${config.fields.email && currentData.email ? (key === "hanmi" ? `<text y="${cardY.email}" font-size="12.2" font-weight="400" fill="#1e293b" dominant-baseline="hanging"><tspan x="${config.fields.email.x || 268}" font-weight="400" fill="#1e293b">E</tspan><tspan x="${(config.fields.email.x || 268) + 20}">${currentData.email}</tspan></text>` : `<text x="${config.fields.email.x}" y="${key === "cheil" ? cheilY.email : config.fields.email.y}" font-size="${config.fields.email.fontSize}" font-weight="400" fill="#1e293b" dominant-baseline="hanging">E-mail: ${currentData.email}</text>`) : ""}
 
       ${config.fields.website && currentData.website ? `<text x="${config.fields.website.x}" y="${key === "cheil" ? cheilY.website : (key === "hanmi" ? cardY.website : config.fields.website.y)}" font-size="${config.fields.website.fontSize}" font-weight="700" fill="${key === "cheil" ? "#0f172a" : "#004B96"}" dominant-baseline="hanging">${currentData.website}</text>` : ""}
 
