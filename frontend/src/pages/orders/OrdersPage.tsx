@@ -224,7 +224,6 @@ function OrderActions({
             title="명함 미리보기"
             onClick={(event) => {
               event.stopPropagation();
-              onOpenDetail(order);
             }}
             className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md border border-border bg-background text-muted-foreground transition-colors hover:border-primary/30 hover:bg-secondary hover:text-foreground"
           >
