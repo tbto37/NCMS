@@ -178,7 +178,7 @@ function renderBackgroundGraphics(
     }
   }
 
-  // 4. 상호 이미지 (Company Name Asset)
+  // 4. 상호 이미지 (Company Name Asset - 미리보기 SvgBusinessCardPreview와 1:1 동적 Y좌표 일치)
   if (config.fields.companyName && companyNameAssetBase64) {
     let companyX = config.fields.companyName.x * sx;
     let companyY = (!isBack ? 144 : 141) * sy;
@@ -186,7 +186,7 @@ function renderBackgroundGraphics(
     let companyH = (!isBack ? 13.8 : 8.8) * sy;
 
     if (key === "hanmi") {
-      companyY = (config.fields.companyName.y || 141) * sy;
+      companyY = (!isBack ? 136 : 168) * sy;
       companyW = (!isBack ? 143.7 : 159.9) * sx;
       companyH = 14.2 * sy;
     }
@@ -223,18 +223,176 @@ function renderPureNativeTextStream(
 
   const isCheilOffice = tidStr === "5" || tidStr.includes("cheil_build_office") || tidStr.includes("본사 현장사무실");
 
-  // 1. 성명 (Name - 도면 지침 나눔스퀘어 ExtraBold 13pt)
+  // 미리보기(SvgBusinessCardPreview)와 1:1 완벽 동기화되는 cardY 동적 위치 포지션 계산기
+  const cardY = (() => {
+    if (isCheilOffice) {
+      let currentY = 255;
+      const res: any = {
+        website: 255,
+        email: 237,
+        mobile: 219,
+        directTel: 198,
+        telAndFax: 201,
+        fieldAddress: 183,
+        address: 165,
+        address1: 165,
+        address2: 183,
+        address3: 242,
+        telephone: 201,
+        companyName: 145,
+      };
+      const step = 18;
+      res.website = currentY;
+
+      if (front.email) {
+        currentY -= step;
+        res.email = currentY;
+      }
+      if (front.mobile) {
+        currentY -= step;
+        res.mobile = currentY;
+      }
+      if (front.telephone || front.fax) {
+        currentY -= step;
+        res.telAndFax = currentY;
+      }
+      const c1 = front.address || "";
+      const c2 = front.fieldAddress || "";
+      if (c1 || c2) {
+        if (c2) {
+          currentY -= step;
+          res.fieldAddress = currentY;
+        }
+        if (c1) {
+          currentY -= step;
+          res.address = currentY;
+          res.address1 = currentY;
+        }
+      }
+      if (config.fields.companyName) {
+        currentY -= step;
+        res.companyName = currentY;
+      }
+      return res;
+    }
+
+    if (key === "hanmi") {
+      if (!isBack) {
+        const [addr1, addr2] = getHanmiFrontAddressLines(front);
+        const addr2Y = 236;
+        const addr1Y = addr2 ? 218 : 236;
+
+        let currentY = addr2 ? 218 : 236;
+        const step = 19;
+
+        let emailY = config.fields.email?.y || 196;
+        if (config.fields.email && front.email) {
+          currentY -= step;
+          emailY = currentY;
+        }
+
+        let mobileY = config.fields.mobile?.y || 177;
+        if (config.fields.mobile && front.mobile) {
+          currentY -= step;
+          mobileY = currentY;
+        }
+
+        let telephoneY = config.fields.telephone?.y || 158;
+        if (config.fields.telephone && front.telephone) {
+          currentY -= step;
+          telephoneY = currentY;
+        }
+
+        let companyNameY = config.fields.companyName?.y || 136;
+        if (config.fields.companyName) {
+          currentY -= 22;
+          companyNameY = currentY;
+        }
+
+        return {
+          website: 255,
+          email: emailY,
+          mobile: mobileY,
+          directTel: 198,
+          telAndFax: 179,
+          fieldAddress: 183,
+          telephone: telephoneY,
+          address: addr1Y,
+          address1: addr1Y,
+          address2: addr2Y,
+          address3: 242,
+          companyName: companyNameY,
+        };
+      } else {
+        const [b1, b2, b3] = getHanmiBackAddressLines(back);
+        const validLines = [b1, b2, b3].filter(Boolean);
+        const lineCount = validLines.length || 1;
+
+        const b3Y = 242;
+        const b2Y = lineCount >= 3 ? 224 : (lineCount === 2 ? 242 : 242);
+        const b1Y = lineCount === 3 ? 206 : (lineCount === 2 ? 224 : 242);
+
+        let currentY = b1Y;
+
+        let websiteY = config.fields.website?.y || 186;
+        if (config.fields.website && back.website) {
+          currentY -= 20;
+          websiteY = currentY;
+        }
+
+        let companyNameY = config.fields.companyName?.y || 168;
+        if (config.fields.companyName) {
+          currentY -= 18;
+          companyNameY = currentY;
+        }
+
+        return {
+          website: websiteY,
+          email: 236,
+          mobile: 217,
+          directTel: 198,
+          telAndFax: 179,
+          fieldAddress: 183,
+          telephone: 158,
+          address: b1Y,
+          address1: b1Y,
+          address2: b2Y,
+          address3: b3Y,
+          companyName: companyNameY,
+        };
+      }
+    }
+
+    return {
+      website: 255,
+      email: 236,
+      mobile: 217,
+      directTel: 198,
+      telAndFax: 179,
+      fieldAddress: 183,
+      telephone: 158,
+      address: 160,
+      address1: 153,
+      address2: 170,
+      address3: 242,
+      companyName: 141,
+    };
+  })();
+
+  const cheilY = cardY;
+
+  // 1. 성명 (Name - 미리보기 1:1 연동)
   const nameText = !isBack ? formatKoreanName(front.name) : back.name;
   if (config.fields.name && nameText) {
     const x = config.fields.name.x * sx;
-    const y = (config.fields.name.y + (config.fields.name.fontSize || 24.5) * 0.72) * sy;
+    const y = (config.fields.name.y + (config.fields.name.fontSize || 24.5) * 0.76) * sy;
     doc.setFont(!isBack && key === "cheil" ? "HYUlsungdoM" : "NanumSquareEB", "normal");
     doc.setFontSize(key === "hanmi" ? 13 : (config.fields.name.fontSize || 24.5) * 0.35);
-    doc.setTextColor(15, 23, 42);
+    doc.setTextColor(15, 23, 42); // #0f172a
     doc.text(nameText, x, y);
   }
 
-  // 2. 부서 / 직급 (도면 지침 나눔스퀘어 Bold 6pt)
+  // 2. 부서 / 직급 (미리보기 1:1 연동)
   const deptPosText = !isBack
     ? key === "cheil"
       ? [front.department, front.position1].filter(Boolean).join(" / ")
@@ -243,23 +401,23 @@ function renderPureNativeTextStream(
 
   if (!isBack && config.fields.departmentPosition && deptPosText) {
     const x = config.fields.departmentPosition.x * sx;
-    const y = (config.fields.departmentPosition.y + 12.5 * 0.72) * sy;
+    const y = (config.fields.departmentPosition.y + (config.fields.departmentPosition.fontSize || 12.5) * 0.76) * sy;
     doc.setFont("NanumSquareB", "normal");
-    doc.setFontSize(key === "hanmi" ? 6 : 12.5 * 0.35);
-    doc.setTextColor(30, 41, 59);
+    doc.setFontSize(key === "hanmi" ? 6 : (config.fields.departmentPosition.fontSize || 12.5) * 0.35);
+    doc.setTextColor(30, 41, 59); // #1e293b
     doc.text(deptPosText, x, y);
   }
 
   if (!isBack && front.position2) {
     const x = (config.fields.position2?.x || (key === "cheil" ? 220 : 268)) * sx;
-    const y = ((config.fields.position2?.y || (key === "cheil" ? 79 : 94)) + 12.5 * 0.72) * sy;
+    const y = ((config.fields.position2?.y || (key === "cheil" ? 79 : 94)) + 12.5 * 0.76) * sy;
     doc.setFont("NanumSquareB", "normal");
     doc.setFontSize(key === "hanmi" ? 6 : 12.5 * 0.35);
-    doc.setTextColor(71, 85, 105);
+    doc.setTextColor(key === "cheil" ? 71 : 30, key === "cheil" ? 85 : 41, key === "cheil" ? 105 : 59);
     doc.text(front.position2, x, y);
   }
 
-  // 3. 뒷면 영문 부서 / 직급 (도면 지침 6pt)
+  // 3. 뒷면 영문 부서 / 직급 (미리보기 1:1 연동)
   if (isBack) {
     if (key === "cheil") {
       const cBackText = [back.department, back.position1?.replace(/\/$/, "").trim()].filter(Boolean).join(" / ");
@@ -267,31 +425,34 @@ function renderPureNativeTextStream(
         doc.setFont("NanumSquareB", "normal");
         doc.setFontSize(12.5 * 0.35);
         doc.setTextColor(30, 41, 59);
-        doc.text(cBackText, 220 * sx, (62 + 12.5 * 0.72) * sy);
+        doc.text(cBackText, 220 * sx, (62 + 12.5 * 0.76) * sy);
       }
       if (back.position2) {
         doc.setFont("NanumSquareB", "normal");
         doc.setFontSize(12.5 * 0.35);
         doc.setTextColor(71, 85, 105);
-        doc.text(back.position2, 220 * sx, (79 + 12.5 * 0.72) * sy);
+        doc.text(back.position2, 220 * sx, (79 + 12.5 * 0.76) * sy);
       }
     } else {
       if (back.position1) {
+        const hBackPos1 = (back.department && back.department.trim() !== "")
+          ? (back.position1.endsWith("/") ? back.position1 : `${back.position1} /`)
+          : back.position1.replace(/\/$/, "").trim();
         doc.setFont("NanumSquareB", "normal");
         doc.setFontSize(6);
         doc.setTextColor(30, 41, 59);
-        doc.text(back.position1, config.fields.position1.x * sx, (config.fields.position1.y + 12.5 * 0.72) * sy);
+        doc.text(hBackPos1, config.fields.position1.x * sx, (config.fields.position1.y + 12.5 * 0.76) * sy);
       }
       if (back.department) {
         doc.setFont("NanumSquareB", "normal");
         doc.setFontSize(6);
         doc.setTextColor(30, 41, 59);
-        doc.text(back.department, config.fields.department.x * sx, ((config.fields.department.y || 88) + 12.5 * 0.72) * sy);
+        doc.text(back.department, config.fields.department.x * sx, ((config.fields.department.y || 88) + 12.5 * 0.76) * sy);
       }
     }
   }
 
-  // 4. 연락처 (T, M, E - 도면 지침 7pt)
+  // 4. 연락처 (T, M, E - 미리보기 1:1 연동)
   if (key === "cheil" && config.fields.telAndFax && (currentData.telephone || currentData.fax)) {
     const text = !isBack
       ? `${currentData.telephone ? `${isCheilOffice ? "전화 :" : "대표 :"} ${currentData.telephone}` : ""}${currentData.telephone && currentData.fax ? "   " : ""}${currentData.fax ? `팩스 : ${currentData.fax}` : ""}`
@@ -299,7 +460,7 @@ function renderPureNativeTextStream(
     doc.setFont("NanumSquareB", "normal");
     doc.setFontSize(12.5 * 0.35);
     doc.setTextColor(30, 41, 59);
-    doc.text(text, config.fields.telAndFax.x * sx, (179 + 12.5 * 0.72) * sy);
+    doc.text(text, config.fields.telAndFax.x * sx, (cheilY.telAndFax + 12.5 * 0.76) * sy);
   }
 
   if (key === "hanmi" && currentData.telephone) {
@@ -310,7 +471,7 @@ function renderPureNativeTextStream(
     doc.setFont("NanumSquareB", "normal");
     doc.setFontSize(7);
     doc.setTextColor(30, 41, 59);
-    doc.text(text, (config.fields.telephone?.x || 268) * sx, (158 + 12.5 * 0.72) * sy);
+    doc.text(text, (config.fields.telephone?.x || 268) * sx, (cardY.telephone + 12.5 * 0.76) * sy);
   }
 
   if (config.fields.directTelephone && currentData.directTelephone) {
@@ -320,7 +481,7 @@ function renderPureNativeTextStream(
     doc.setFont("NanumSquareB", "normal");
     doc.setFontSize(key === "hanmi" ? 7 : 12.5 * 0.35);
     doc.setTextColor(30, 41, 59);
-    doc.text(text, config.fields.directTelephone.x * sx, (198 + 12.5 * 0.72) * sy);
+    doc.text(text, config.fields.directTelephone.x * sx, ((key === "cheil" ? cheilY.directTel : config.fields.directTelephone.y) + 12.5 * 0.76) * sy);
   }
 
   if (config.fields.mobile && currentData.mobile) {
@@ -333,7 +494,7 @@ function renderPureNativeTextStream(
     doc.setFont("NanumSquareB", "normal");
     doc.setFontSize(key === "hanmi" ? 7 : 12.5 * 0.35);
     doc.setTextColor(30, 41, 59);
-    doc.text(text, (key === "hanmi" ? (config.fields.mobile.x || 268) : config.fields.mobile.x) * sx, (217 + 12.5 * 0.72) * sy);
+    doc.text(text, (key === "hanmi" ? (config.fields.mobile.x || 268) : config.fields.mobile.x) * sx, ((key === "cheil" ? cheilY.mobile : cardY.mobile) + 12.5 * 0.76) * sy);
   }
 
   if (config.fields.email && currentData.email) {
@@ -343,43 +504,39 @@ function renderPureNativeTextStream(
     doc.setFont("NanumSquareB", "normal");
     doc.setFontSize(key === "hanmi" ? 7 : 12.5 * 0.35);
     doc.setTextColor(30, 41, 59);
-    doc.text(text, config.fields.email.x * sx, (236 + 12.5 * 0.72) * sy);
+    doc.text(text, config.fields.email.x * sx, ((key === "cheil" ? cheilY.email : cardY.email) + 12.5 * 0.76) * sy);
   }
 
   if (config.fields.website && currentData.website) {
     doc.setFont("NanumSquareB", "normal");
     doc.setFontSize(key === "hanmi" ? 7 : 13.5 * 0.35);
-    doc.setTextColor(15, 23, 42);
-    doc.text(currentData.website, config.fields.website.x * sx, ((isBack ? 175 : 255) + 13.5 * 0.72) * sy);
+    doc.setTextColor(key === "cheil" ? 15 : 0, key === "cheil" ? 23 : 75, key === "cheil" ? 42 : 150);
+    doc.text(currentData.website, config.fields.website.x * sx, ((key === "cheil" ? cheilY.website : cardY.website) + 13.5 * 0.76) * sy);
   }
 
-  // 5. 주소 (Address - 도면 지침 7pt)
+  // 5. 주소 (Address - 미리보기 1:1 연동)
   doc.setFont("NanumSquareB", "normal");
   doc.setFontSize(7);
-  doc.setTextColor(51, 65, 85);
+  doc.setTextColor(51, 65, 85); // #334155
 
   if (!isBack) {
     if (key === "cheil" && front.address) {
-      doc.text(front.address, (config.fields.address?.x || 220) * sx, (160 + 12.5 * 0.72) * sy);
+      doc.text(front.address, (config.fields.address?.x || 220) * sx, (cheilY.address + 12.5 * 0.76) * sy);
     } else if (key === "hanmi") {
       const [addr1, addr2] = getHanmiFrontAddressLines(front);
-      const baseAddr1 = addr1 || "06164, 서울시 강남구 테헤란로 87길";
-      const baseAddr2 = addr2 || "36 도심공항타워";
-      doc.text(baseAddr1, (config.fields.address1?.x || 268) * sx, (153 + 12.5 * 0.72) * sy);
-      doc.text(baseAddr2, (config.fields.address2?.x || 268) * sx, (170 + 12.5 * 0.72) * sy);
+      if (addr1) doc.text(addr1, (config.fields.address1?.x || 268) * sx, (cardY.address1 + 12.5 * 0.76) * sy);
+      if (addr2) doc.text(addr2, (config.fields.address2?.x || 268) * sx, (cardY.address2 + 12.5 * 0.76) * sy);
     }
   } else {
     if (key === "cheil") {
       const [c1, c2] = getCheilBackAddressLines(back);
-      if (c1) doc.text(c1, (config.fields.address1?.x || 220) * sx, (153 + 12.5 * 0.72) * sy);
-      if (c2) doc.text(c2, (config.fields.address2?.x || 220) * sx, (170 + 12.5 * 0.72) * sy);
+      if (c1) doc.text(c1, (config.fields.address1?.x || 220) * sx, (cheilY.address1 + 12.5 * 0.76) * sy);
+      if (c2) doc.text(c2, (config.fields.address2?.x || 220) * sx, (cheilY.address2 + 12.5 * 0.76) * sy);
     } else if (key === "hanmi") {
-      const a1 = back.address1 || "City Air Tower Bldg., 36, Teheran-ro";
-      const a2 = back.address2 || "87-gil, Gangnam-gu, Seoul, 06164,";
-      const a3 = back.address3 || "Korea";
-      doc.text(a1, (config.fields.address1?.x || 268) * sx, (190 + 12.5 * 0.72) * sy);
-      doc.text(a2, (config.fields.address2?.x || 268) * sx, (207 + 12.5 * 0.72) * sy);
-      doc.text(a3, (config.fields.address3?.x || 268) * sx, (224 + 12.5 * 0.72) * sy);
+      const [a1, a2, a3] = getHanmiBackAddressLines(back);
+      if (a1) doc.text(a1, (config.fields.address1?.x || 268) * sx, (cardY.address1 + 12.5 * 0.76) * sy);
+      if (a2) doc.text(a2, (config.fields.address2?.x || 268) * sx, (cardY.address2 + 12.5 * 0.76) * sy);
+      if (a3) doc.text(a3, (config.fields.address3?.x || 268) * sx, (cardY.address3 + 12.5 * 0.76) * sy);
     }
   }
 }
