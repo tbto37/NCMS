@@ -134,17 +134,17 @@ function renderBackgroundGraphics(
     }
   }
 
-  // 2. 로고 이미지 (Logo - 세로 비율 좁혀 슬림화)
+  // 2. 로고 이미지 (Logo - 세로 비율 좁히고 앞면 로고 스케일 키움)
   if (logoBase64) {
-    const defaultLogoH = key === "cheil" ? 48 : 36;
-    const logoSpec = config.logoSpec
-      ? { ...config.logoSpec, height: key === "hanmi" ? 36 : config.logoSpec.height }
-      : {
-          x: key === "cheil" ? 32 : 30,
-          y: key === "cheil" ? 36 : (isBack ? 52 : 48),
-          width: key === "cheil" ? 155 : 150,
-          height: defaultLogoH,
-        };
+    let logoSpec = {
+      x: key === "cheil" ? 32 : (isBack ? 30 : 28),
+      y: key === "cheil" ? 36 : (isBack ? 52 : 44),
+      width: key === "cheil" ? 155 : (isBack ? 152 : 172),
+      height: key === "cheil" ? 48 : (isBack ? 30 : 34),
+    };
+    if (config.logoSpec && key === "cheil") {
+      logoSpec = { ...logoSpec, ...config.logoSpec };
+    }
     try {
       doc.addImage(
         logoBase64,
