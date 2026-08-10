@@ -53,23 +53,31 @@ export function getHanmiFrontAddressLines(front: any): [string, string] {
 }
 
 // 제일엔지니어링 본사 현장사무실 주소겸용 (템플릿 5) 스마트 래핑 분할 처리
-export function getCheilOfficeAddressLines(rawText?: string, prefix: "본사" | "현장" = "현장", maxChars = 38): string[] {
+export function getCheilOfficeAddressLines(rawText?: string, prefix: "본사" | "현장" = "현장", maxChars = 34): string[] {
   const trimmed = (rawText || "").trim();
 
-  const prefStr = `${prefix} : `;
-  // 사용자가 이미 "현장 :" 또는 "본사 :"와 같이 명시적인 콜론(:) 접두사를 입력한 경우에만 중복 제거
+  // 사용자가 이미 "현장 :" 또는 "본사 :"와 같이 명시적인 콜론(:) 접두사를 입력한 경우 중복 제거
   const regex = new RegExp(`^${prefix}\\s*:\\s*`);
   const cleanBody = trimmed.replace(regex, "");
 
   if (!cleanBody && prefix === "현장") {
-    return [`${prefix} : `];
+    return [""];
   }
   if (!cleanBody) {
     return [];
   }
 
-  const normalized = `${prefStr}${cleanBody}`;
-  return wrapTextLines(normalized, maxChars);
+  // 사용자가 엔터(\n)로 줄바꿈한 경우 각 줄 단위로 처리
+  const rawLines = cleanBody.split("\n").map((l) => l.trim()).filter(Boolean);
+  if (rawLines.length > 1) {
+    const result: string[] = [];
+    rawLines.forEach((line) => {
+      result.push(...wrapTextLines(line, maxChars));
+    });
+    return result;
+  }
+
+  return wrapTextLines(cleanBody, maxChars);
 }
 
 // 부서, 직책, 자격사항 텍스트가 길어질 경우 폰트 크기는 고정한 채 자간(letter-spacing)만 동적으로 축소하여 잘림 현상 방지
@@ -868,42 +876,93 @@ export default function SvgBusinessCardPreview({
           {/* 10. 주소 (Address & Field Address) */}
           {isCheilOffice && !isBack ? (
             <>
-              {(cheilY.addressLines && cheilY.addressLines.length > 0
-                ? cheilY.addressLines
-                : front.address
-                  ? getCheilOfficeAddressLines(front.address, "본사", 38).map((text, idx) => ({ text, y: cheilY.address + idx * 18 }))
-                  : []
-              ).map((lineObj: { text: string; y: number }, idx: number) => (
-                <text
-                  key={`cheil-office-addr-${idx}`}
-                  x={config.fields.address?.x || 220}
-                  y={lineObj.y}
-                  fontSize={config.fields.address?.fontSize || 10}
-                  fontWeight="400"
-                  fill="#334155"
-                  dominantBaseline="hanging"
-                >
-                  {lineObj.text}
-                </text>
-              ))}
-              {(cheilY.fieldAddressLines && cheilY.fieldAddressLines.length > 0
-                ? cheilY.fieldAddressLines
-                : front.fieldAddress
-                  ? getCheilOfficeAddressLines(front.fieldAddress, "현장", 38).map((text, idx) => ({ text, y: cheilY.fieldAddress + idx * 18 }))
-                  : []
-              ).map((lineObj: { text: string; y: number }, idx: number) => (
-                <text
-                  key={`cheil-office-field-addr-${idx}`}
-                  x={config.fields.address?.x || 220}
-                  y={lineObj.y}
-                  fontSize={config.fields.address?.fontSize || 10}
-                  fontWeight="400"
-                  fill="#334155"
-                  dominantBaseline="hanging"
-                >
-                  {lineObj.text}
-                </text>
-              ))}
+              {/* 본사 주소 */}
+              {(() => {
+                const lines = cheilY.addressLines && cheilY.addressLines.length > 0
+                  ? cheilY.addressLines
+                  : front.address
+                    ? getCheilOfficeAddressLines(front.address, "본사", 34).map((text, idx) => ({ text, y: cheilY.address + idx * 18 }))
+                    : [];
+                if (lines.length === 0) return null;
+                const labelX = config.fields.address?.x || 220;
+                const bodyX = labelX + 31;
+                const fontSize = config.fields.address?.fontSize || 10;
+
+                return lines.map((lineObj: { text: string; y: number }, idx: number) => {
+                  if (idx === 0) {
+                    return (
+                      <text
+                        key={`cheil-office-addr-0`}
+                        y={lineObj.y}
+                        fontSize={fontSize}
+                        fontWeight="400"
+                        fill="#334155"
+                        dominantBaseline="hanging"
+                      >
+                        <tspan x={labelX}>본사 : </tspan>
+                        <tspan x={bodyX}>{lineObj.text}</tspan>
+                      </text>
+                    );
+                  }
+                  return (
+                    <text
+                      key={`cheil-office-addr-${idx}`}
+                      x={bodyX}
+                      y={lineObj.y}
+                      fontSize={fontSize}
+                      fontWeight="400"
+                      fill="#334155"
+                      dominantBaseline="hanging"
+                    >
+                      {lineObj.text}
+                    </text>
+                  );
+                });
+              })()}
+
+              {/* 현장 주소 */}
+              {(() => {
+                const lines = cheilY.fieldAddressLines && cheilY.fieldAddressLines.length > 0
+                  ? cheilY.fieldAddressLines
+                  : front.fieldAddress
+                    ? getCheilOfficeAddressLines(front.fieldAddress, "현장", 34).map((text, idx) => ({ text, y: cheilY.fieldAddress + idx * 18 }))
+                    : [{ text: "", y: cheilY.fieldAddress }];
+                if (lines.length === 0) return null;
+                const labelX = config.fields.address?.x || 220;
+                const bodyX = labelX + 31;
+                const fontSize = config.fields.address?.fontSize || 10;
+
+                return lines.map((lineObj: { text: string; y: number }, idx: number) => {
+                  if (idx === 0) {
+                    return (
+                      <text
+                        key={`cheil-office-field-addr-0`}
+                        y={lineObj.y}
+                        fontSize={fontSize}
+                        fontWeight="400"
+                        fill="#334155"
+                        dominantBaseline="hanging"
+                      >
+                        <tspan x={labelX}>현장 : </tspan>
+                        <tspan x={bodyX}>{lineObj.text}</tspan>
+                      </text>
+                    );
+                  }
+                  return (
+                    <text
+                      key={`cheil-office-field-addr-${idx}`}
+                      x={bodyX}
+                      y={lineObj.y}
+                      fontSize={fontSize}
+                      fontWeight="400"
+                      fill="#334155"
+                      dominantBaseline="hanging"
+                    >
+                      {lineObj.text}
+                    </text>
+                  );
+                });
+              })()}
             </>
           ) : key === "cheil" && config.fields.address && front.address && (
             <text

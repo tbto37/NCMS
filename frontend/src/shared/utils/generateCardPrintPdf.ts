@@ -641,20 +641,32 @@ async function createSvgMarkupWithOutlines(
         `;
       })() : ""}
 
-      ${isCheilOffice && !isBack ? `
-        ${(cheilY.addressLines && cheilY.addressLines.length > 0
-          ? cheilY.addressLines
-          : front.address
-          ? getCheilOfficeAddressLines(front.address, "본사", 38).map((text, idx) => ({ text, y: cheilY.address + idx * 18 }))
-          : []
-        ).map((l: any) => `<text x="${config.fields.address?.x || 220}" y="${l.y}" font-size="${config.fields.address?.fontSize || 10}" font-weight="400" fill="#334155" dominant-baseline="hanging">${l.text}</text>`).join("")}
-        ${(cheilY.fieldAddressLines && cheilY.fieldAddressLines.length > 0
-          ? cheilY.fieldAddressLines
-          : front.fieldAddress
-          ? getCheilOfficeAddressLines(front.fieldAddress, "현장", 38).map((text, idx) => ({ text, y: cheilY.fieldAddress + idx * 18 }))
-          : []
-        ).map((l: any) => `<text x="${config.fields.address?.x || 220}" y="${l.y}" font-size="${config.fields.address?.fontSize || 10}" font-weight="400" fill="#334155" dominant-baseline="hanging">${l.text}</text>`).join("")}
-      ` : (key === "cheil" && !isBack && front.address ? `
+      ${isCheilOffice && !isBack ? (() => {
+        const labelX = config.fields.address?.x || 220;
+        const bodyX = labelX + 31;
+        const fontSize = config.fields.address?.fontSize || 10;
+
+        const addrLines = cheilY.addressLines && cheilY.addressLines.length > 0
+          ? cheilY.addressLines.map((l: any) => l.text)
+          : (front.address ? getCheilOfficeAddressLines(front.address, "본사", 34) : []);
+
+        const fieldLines = cheilY.fieldAddressLines && cheilY.fieldAddressLines.length > 0
+          ? cheilY.fieldAddressLines.map((l: any) => l.text)
+          : (front.fieldAddress ? getCheilOfficeAddressLines(front.fieldAddress, "현장", 34) : [""]);
+
+        const renderBlock = (lines: string[], prefix: string, startY: number) => {
+          if (lines.length === 0) return "";
+          return lines.map((text, idx) => {
+            const lineY = startY + idx * 18;
+            if (idx === 0) {
+              return `<text y="${lineY}" font-size="${fontSize}" font-weight="400" fill="#334155" dominant-baseline="hanging"><tspan x="${labelX}">${prefix} : </tspan><tspan x="${bodyX}">${text}</tspan></text>`;
+            }
+            return `<text x="${bodyX}" y="${lineY}" font-size="${fontSize}" font-weight="400" fill="#334155" dominant-baseline="hanging">${text}</text>`;
+          }).join("");
+        };
+
+        return renderBlock(addrLines, "본사", cheilY.address) + renderBlock(fieldLines, "현장", cheilY.fieldAddress);
+      })() : (key === "cheil" && !isBack && front.address ? `
         <text x="${config.fields.address?.x}" y="${cheilY.address}" font-size="${config.fields.address?.fontSize}" font-weight="400" fill="#334155" dominant-baseline="hanging">${front.address}</text>
       ` : "")}
 
