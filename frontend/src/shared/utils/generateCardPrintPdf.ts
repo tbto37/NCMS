@@ -64,8 +64,41 @@ async function fetchLogoBase64(url?: string): Promise<string> {
   }
 }
 
+async function fetchArrayBuffer(url: string): Promise<ArrayBuffer | null> {
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    return await res.arrayBuffer();
+  } catch (e) {
+    return null;
+  }
+}
+
+function arrayBufferToBase64(buffer: ArrayBuffer): string {
+  let binary = "";
+  const bytes = new Uint8Array(buffer);
+  const len = bytes.byteLength;
+  for (let i = 0; i < len; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return btoa(binary);
+}
+
+async function registerFontToDoc(doc: jsPDF, fontUrl: string, fontName: string, fontStyle = "normal") {
+  try {
+    const buffer = await fetchArrayBuffer(fontUrl);
+    if (!buffer) return;
+    const base64 = arrayBufferToBase64(buffer);
+    const fileName = `${fontName}.ttf`;
+    doc.addFileToVFS(fileName, base64);
+    doc.addFont(fileName, fontName, fontStyle);
+  } catch (e) {
+    console.warn(`Failed to register font ${fontName} to jsPDF VFS:`, e);
+  }
+}
+
 /**
- * Adobe Illustrator 100% 수정 가능 / 윤곽선(Outline Path) & Native CMYK 90mm x 50mm Pure Vector PDF 생성 및 다운로드
+ * Adobe Illustrator 100% 텍스트 직접 수정 지원 / 로고·상호 제외 살아있는 텍스트 Native PDF 생성 및 다운로드
  */
 export async function generateCardPrintPdf(order: OrderLike): Promise<void> {
   let cardData: any = { front: {}, back: {} };
@@ -106,7 +139,12 @@ export async function generateCardPrintPdf(order: OrderLike): Promise<void> {
       compress: true,
     });
 
-    // --- Page 1: 앞면 (국문 순수 Vector SVG PDF + Outline + CMYK) ---
+    // jsPDF VFS 폰트 등록 (살아있는 텍스트 렌더링 지원)
+    await registerFontToDoc(doc, "/fonts/HYWULM.TTF", "HY울릉도M");
+    await registerFontToDoc(doc, "/fonts/HYWULM.TTF", "HYUlsungdoM");
+    await registerFontToDoc(doc, "/fonts/NanumSquareEB.ttf", "NanumSquare");
+
+    // --- Page 1: 앞면 (국문 텍스트 100% 보존 Native Vector SVG PDF) ---
     const frontLogoBase64 = await fetchLogoBase64(specGroup.front.logoUrl);
     const cheilFrontAssetUrl = (tidStr === "4" || tidStr.includes("cheil_front_name"))
       ? "/cheil/cheil_front_name.jpg"
