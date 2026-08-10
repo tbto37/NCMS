@@ -448,31 +448,32 @@ export default function OrderFormPage() {
             </div>
 
             <div>
-              <div className="mb-1.5 flex items-center justify-between">
-                <label className="text-xs font-medium text-muted-foreground">
-                  주소 {isManualAddress && <span className="text-primary">(수기 직접 입력)</span>}
-                </label>
+              <label className="mb-1.5 block text-xs font-medium text-muted-foreground">
+                주소 {isManualAddress && <span className="text-primary">(수기 직접 입력)</span>}
+              </label>
+
+              <div className="relative flex items-center">
+                <input
+                  className={`${inputClassName} ${!isManualAddress ? "pr-10" : ""}`}
+                  value={recipientAddress}
+                  onChange={(e) => setRecipientAddress(e.target.value)}
+                  placeholder={
+                    isManualAddress
+                      ? "검색이 안 되는 현장 주소를 직접 수기로 입력하세요."
+                      : "주소를 입력해 주세요. (우측 돋보기 클릭 시 검색)"
+                  }
+                />
                 {!isManualAddress && (
                   <button
                     type="button"
                     onClick={() => setIsAddressSearchOpen(true)}
-                    className="flex items-center gap-1 text-[11px] text-primary hover:underline"
+                    className="absolute right-1.5 flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-secondary hover:text-primary active:scale-95"
+                    title="주소 검색"
                   >
-                    <Search size={11} />
-                    주소 검색
+                    <Search size={16} />
                   </button>
                 )}
               </div>
-              <input
-                className={inputClassName}
-                value={recipientAddress}
-                onChange={(e) => setRecipientAddress(e.target.value)}
-                placeholder={
-                  isManualAddress
-                    ? "검색이 안 되는 현장 주소를 직접 수기로 입력하세요."
-                    : "신주소/구주소 입력 및 검색"
-                }
-              />
             </div>
 
             <div>
