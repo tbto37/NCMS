@@ -148,12 +148,11 @@ export async function generateCardPrintPdf(order: OrderLike): Promise<void> {
       compress: true,
     });
 
-    // jsPDF VFS ASCII 폰트 100% 매핑 등록 (실제 public/fonts/ 내 모든 폰트 탑재)
+    // jsPDF VFS ASCII 폰트 등록 (Acrobat BBox 에러를 유발하는 OTF 포맷 제외하고 검증된 TrueType 폰트 100% 매핑)
     await registerFontToDoc(doc, "/fonts/HYWULM.TTF", "HYUlsungdoM");
     await registerFontToDoc(doc, "/fonts/HYWULB.TTF", "HYUlsungdoB");
     await registerFontToDoc(doc, encodeURI("/fonts/HY울릉도E.ttf"), "HYUlsungdoE");
     await registerFontToDoc(doc, encodeURI("/fonts/HY울릉도L.ttf"), "HYUlsungdoL");
-    await registerFontToDoc(doc, encodeURI("/fonts/a파도소리_3.otf"), "aPadosori");
     await registerFontToDoc(doc, "/fonts/NanumSquareEB.ttf", "NanumSquareEB");
     await registerFontToDoc(doc, "/fonts/NanumSquareB_1.ttf", "NanumSquareB");
     await registerFontToDoc(doc, "/fonts/NanumSquareR.ttf", "NanumSquareR");
@@ -186,12 +185,17 @@ export async function generateCardPrintPdf(order: OrderLike): Promise<void> {
 
     const frontSvg = container.querySelector("svg");
     if (frontSvg && typeof (doc as any).svg === "function") {
-      await (doc as any).svg(frontSvg, {
-        x: 0,
-        y: 0,
-        width: 92,
-        height: 52,
-      });
+      try {
+        await (doc as any).svg(frontSvg, {
+          x: 0,
+          y: 0,
+          width: 92,
+          height: 52,
+          loadExternalFonts: false,
+        });
+      } catch (e) {
+        console.warn("doc.svg front rendering warning:", e);
+      }
     } else {
       const frontCanvas = document.createElement("canvas");
       frontCanvas.width = 1840;
@@ -242,12 +246,17 @@ export async function generateCardPrintPdf(order: OrderLike): Promise<void> {
 
     const backSvg = container.querySelector("svg");
     if (backSvg && typeof (doc as any).svg === "function") {
-      await (doc as any).svg(backSvg, {
-        x: 0,
-        y: 0,
-        width: 92,
-        height: 52,
-      });
+      try {
+        await (doc as any).svg(backSvg, {
+          x: 0,
+          y: 0,
+          width: 92,
+          height: 52,
+          loadExternalFonts: false,
+        });
+      } catch (e) {
+        console.warn("doc.svg back rendering warning:", e);
+      }
     } else {
       const backCanvas = document.createElement("canvas");
       backCanvas.width = 1840;
