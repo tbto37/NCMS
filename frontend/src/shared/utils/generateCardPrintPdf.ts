@@ -108,7 +108,8 @@ async function registerFontToDoc(doc: jsPDF, fontUrl: string, fontName: string, 
 
 
 
-async function createBackgroundSvgMarkup(
+function renderBackgroundGraphics(
+  doc: jsPDF,
   key: string,
   config: any,
   isBack: boolean,
@@ -116,53 +117,93 @@ async function createBackgroundSvgMarkup(
   companyNameAssetBase64: string = "",
   sloganAssetBase64: string = "",
   tidStr: string = ""
-): Promise<string> {
-  const logoSpec = config.logoSpec || {
-    x: key === "cheil" ? 32 : 30,
-    y: key === "cheil" ? 36 : 48,
-    width: key === "cheil" ? 155 : 150,
-    height: 48,
-  };
+) {
+  const sx = 92 / 519;
+  const sy = 52 / 288.333;
 
-  const bottomBarHtml = config.showBottomBar
-    ? key === "cheil"
-      ? `<rect x="-10" y="278" width="550" height="25" fill="#003876" /><rect x="-10" y="278" width="88" height="25" fill="#55b936" />`
-      : `<rect x="-10" y="283" width="550" height="20" fill="#004B96" />`
-    : "";
-
-  const sloganSpec = config.sloganSpec || {
-    x: 35,
-    y: 239,
-    width: 152,
-    height: 17.5,
-  };
-
-  let sloganHtml = "";
-  if (config.showSlogan) {
-    const src = sloganAssetBase64 || "/cheil/cheil_smile.jpg";
-    sloganHtml = `<image href="${src}" xlink:href="${src}" x="${sloganSpec.x}" y="${sloganSpec.y}" width="${sloganSpec.width}" height="${sloganSpec.height}" preserveAspectRatio="xMinYMin meet" />`;
-  }
-
-  let companyHtml = "";
-  if (config.fields.companyName) {
-    if (key === "hanmi") {
-      const src = companyNameAssetBase64 || (!isBack ? "/hanmi/hanmi_front_name.jpg" : "/hanmi/hanmi_back_name.jpg");
-      companyHtml = `<image href="${src}" xlink:href="${src}" x="${config.fields.companyName.x}" y="${config.fields.companyName.y || 141}" width="${!isBack ? 143.7 : 159.9}" height="14.2" preserveAspectRatio="xMinYMin meet" />`;
+  // 1. 하단 색상 바 (Bottom Bar)
+  if (config.showBottomBar) {
+    if (key === "cheil") {
+      doc.setFillColor(0, 56, 118); // #003876
+      doc.rect(0, 48.2, 92, 3.8, "F");
+      doc.setFillColor(85, 185, 54); // #55b936
+      doc.rect(0, 48.2, 15.6, 3.8, "F");
     } else {
-      const defaultCheilFront = (tidStr === "4" || tidStr.includes("cheil_front_name")) ? "/cheil/cheil_front_name.jpg" : "/cheil/cheil_build_front_name.jpg";
-      const src = companyNameAssetBase64 || (!isBack ? defaultCheilFront : "/cheil/cheil_back_name.jpg");
-      companyHtml = `<image href="${src}" xlink:href="${src}" x="${config.fields.companyName.x}" y="${!isBack ? 144 : 141}" width="${!isBack ? 217.6 : 216.5}" height="${!isBack ? 13.8 : 8.8}" preserveAspectRatio="xMinYMin meet" />`;
+      doc.setFillColor(0, 75, 150); // #004B96
+      doc.rect(0, 49.0, 92, 3.0, "F");
     }
   }
 
-  return `
-    <svg viewBox="-5.767 -5.767 530.533 299.866" width="530.533" height="299.866" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="background:#ffffff; display:block;">
-      ${bottomBarHtml}
-      ${logoBase64 ? `<image href="${logoBase64}" xlink:href="${logoBase64}" x="${logoSpec.x}" y="${logoSpec.y}" width="${logoSpec.width}" height="${logoSpec.height}" preserveAspectRatio="xMinYMin meet" />` : ""}
-      ${sloganHtml}
-      ${companyHtml}
-    </svg>
-  `;
+  // 2. 로고 이미지 (Logo)
+  if (logoBase64) {
+    const logoSpec = config.logoSpec || {
+      x: key === "cheil" ? 32 : 30,
+      y: key === "cheil" ? 36 : 48,
+      width: key === "cheil" ? 155 : 150,
+      height: 48,
+    };
+    try {
+      doc.addImage(
+        logoBase64,
+        "PNG",
+        logoSpec.x * sx,
+        logoSpec.y * sy,
+        logoSpec.width * sx,
+        logoSpec.height * sy
+      );
+    } catch (e) {
+      console.warn("Logo addImage warn:", e);
+    }
+  }
+
+  // 3. 슬로건 이미지 ("Smiling Technology")
+  if (config.showSlogan && sloganAssetBase64) {
+    const sloganSpec = config.sloganSpec || {
+      x: 35,
+      y: 239,
+      width: 152,
+      height: 17.5,
+    };
+    try {
+      doc.addImage(
+        sloganAssetBase64,
+        "JPEG",
+        sloganSpec.x * sx,
+        sloganSpec.y * sy,
+        sloganSpec.width * sx,
+        sloganSpec.height * sy
+      );
+    } catch (e) {
+      console.warn("Slogan addImage warn:", e);
+    }
+  }
+
+  // 4. 상호 이미지 (Company Name Asset)
+  if (config.fields.companyName && companyNameAssetBase64) {
+    let companyX = config.fields.companyName.x * sx;
+    let companyY = (!isBack ? 144 : 141) * sy;
+    let companyW = (!isBack ? 217.6 : 216.5) * sx;
+    let companyH = (!isBack ? 13.8 : 8.8) * sy;
+
+    if (key === "hanmi") {
+      companyY = (config.fields.companyName.y || 141) * sy;
+      companyW = (!isBack ? 143.7 : 159.9) * sx;
+      companyH = 14.2 * sy;
+    }
+
+    try {
+      doc.addImage(
+        companyNameAssetBase64,
+        "JPEG",
+        companyX,
+        companyY,
+        companyW,
+        companyH
+      );
+    } catch (e) {
+      console.warn("CompanyName addImage warn:", e);
+    }
+  }
 }
 
 function renderPureNativeTextStream(
@@ -368,8 +409,9 @@ export async function generateCardPrintPdf(order: OrderLike): Promise<void> {
       : await fetchLogoBase64(cheilFrontAssetUrl);
     const cheilSmileBase64 = key === "cheil" ? await fetchLogoBase64("/cheil/cheil_smile.jpg") : "";
 
-    // 배경 요소만 렌더링하는 SVG 생성 (로고, 상호 이미지, 슬로건 이미지, 하단 바)
-    container.innerHTML = await createBackgroundSvgMarkup(
+    // 앞면 배경 그래픽 100% 신뢰성 직출력 (하단 바, 로고 이미지, 슬로건 이미지, 상호 이미지)
+    renderBackgroundGraphics(
+      doc,
       key,
       specGroup.front,
       false,
@@ -378,22 +420,6 @@ export async function generateCardPrintPdf(order: OrderLike): Promise<void> {
       cheilSmileBase64,
       tidStr
     );
-    await new Promise((res) => setTimeout(res, 50));
-
-    const frontSvg = container.querySelector("svg");
-    if (frontSvg && typeof (doc as any).svg === "function") {
-      try {
-        await (doc as any).svg(frontSvg, {
-          x: 0,
-          y: 0,
-          width: 92,
-          height: 52,
-          loadExternalFonts: false,
-        });
-      } catch (e) {
-        console.warn("doc.svg front rendering warning:", e);
-      }
-    }
 
     // 앞면 100% 살아있는 Pure Native Vector Text Stream 직접 출력
     renderPureNativeTextStream(doc, key, specGroup.front, cardData, false, tidStr);
@@ -408,7 +434,9 @@ export async function generateCardPrintPdf(order: OrderLike): Promise<void> {
         ? await fetchLogoBase64("/hanmi/hanmi_back_name.jpg")
         : await fetchLogoBase64("/cheil/cheil_back_name.jpg");
 
-      container.innerHTML = await createBackgroundSvgMarkup(
+      // 뒷면 배경 그래픽 100% 신뢰성 직출력 (하단 바, 로고 이미지, 슬로건 이미지, 상호 이미지)
+      renderBackgroundGraphics(
+        doc,
         key,
         specGroup.back,
         true,
@@ -417,22 +445,6 @@ export async function generateCardPrintPdf(order: OrderLike): Promise<void> {
         cheilSmileBase64,
         tidStr
       );
-      await new Promise((res) => setTimeout(res, 50));
-
-      const backSvg = container.querySelector("svg");
-      if (backSvg && typeof (doc as any).svg === "function") {
-        try {
-          await (doc as any).svg(backSvg, {
-            x: 0,
-            y: 0,
-            width: 92,
-            height: 52,
-            loadExternalFonts: false,
-          });
-        } catch (e) {
-          console.warn("doc.svg back rendering warning:", e);
-        }
-      }
 
       // 뒷면 100% 살아있는 Pure Native Vector Text Stream 직접 출력
       renderPureNativeTextStream(doc, key, specGroup.back, cardData, true, tidStr);
