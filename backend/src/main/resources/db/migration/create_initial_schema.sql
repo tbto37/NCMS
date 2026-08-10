@@ -64,7 +64,7 @@ COMMENT ON COLUMN members.id IS '회원 고유 식별자 (BIGINT, IDENTITY)';
 COMMENT ON COLUMN members.company_id IS '소속 고객사 ID (내부 운영자/시스템관리자는 NULL 가능)';
 COMMENT ON COLUMN members.department_id IS '소속 부서 ID';
 COMMENT ON COLUMN members.username IS '로그인 아이디';
-COMMENT ON COLUMN members.password IS '암호화된 비밀번호';
+COMMENT ON COLUMN members.password IS '암호화된 비밀번호 (참고 - 1234: MTIzNA==, 5678: NTY3OA==, admin: YWRtaW4=)';
 COMMENT ON COLUMN members.name IS '사용자 이름';
 COMMENT ON COLUMN members.email IS '이메일 주소';
 COMMENT ON COLUMN members.phone IS '연락처/휴대전화 번호';

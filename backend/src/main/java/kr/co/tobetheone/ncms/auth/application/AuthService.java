@@ -62,11 +62,13 @@ public class AuthService {
             }
 
             boolean isOperator = roles.contains("ROLE_OPERATOR");
-            if (!isOperator) {
-                String memberSiteCode = member.getCompany() != null ? member.getCompany().getSiteCode() : null;
-                if (memberSiteCode == null || !memberSiteCode.equalsIgnoreCase(request.getSiteCode())) {
-                    throw new CustomException("해당 고객사 사이트에 대한 접근 권한이 없습니다.", HttpStatus.FORBIDDEN);
-                }
+            if (isOperator) {
+                throw new CustomException("로그컴 어드민 전용 계정입니다. 로그컴 어드민 페이지(/login)에서 로그인해 주세요.", HttpStatus.FORBIDDEN);
+            }
+
+            String memberSiteCode = member.getCompany() != null ? member.getCompany().getSiteCode() : null;
+            if (memberSiteCode == null || !memberSiteCode.equalsIgnoreCase(request.getSiteCode())) {
+                throw new CustomException("해당 고객사 사이트에 대한 접근 권한이 없습니다.", HttpStatus.FORBIDDEN);
             }
         }
 

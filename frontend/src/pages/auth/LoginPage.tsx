@@ -35,13 +35,18 @@ export default function LoginPage() {
 
       if (isTenantLogin) {
         // 고객사 어드민/로그인 페이지 접속 시 (/:companyCode/login):
+        if (isOperator) {
+          logout();
+          setError(`현재 페이지는 ${companyCode?.toUpperCase()} 전용 사이트입니다. 로그컴 어드민 계정은 로그컴 어드민 로그인 페이지(/login)에서 로그인해 주세요.`);
+          return;
+        }
+
         const isMatch =
-          isOperator ||
-          (userSiteCode &&
-            targetSiteCode &&
-            (userSiteCode === targetSiteCode ||
-              userSiteCode.includes(targetSiteCode) ||
-              targetSiteCode.includes(userSiteCode)));
+          userSiteCode &&
+          targetSiteCode &&
+          (userSiteCode === targetSiteCode ||
+            userSiteCode.includes(targetSiteCode) ||
+            targetSiteCode.includes(userSiteCode));
 
         if (!isMatch) {
           logout();
@@ -49,11 +54,7 @@ export default function LoginPage() {
           return;
         }
 
-        if (isOperator) {
-          navigate("/operator/orders", { replace: true });
-        } else {
-          navigate(`/${companyCode}/templates`, { replace: true });
-        }
+        navigate(`/${companyCode}/templates`, { replace: true });
       } else {
         // 로그컴 대표 어드민 로그인 페이지 접속 시 (/login):
         if (!isOperator) {

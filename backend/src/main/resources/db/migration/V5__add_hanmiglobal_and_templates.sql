@@ -29,7 +29,7 @@ INSERT INTO company_templates (company_id, template_id) VALUES
     (3, 3)
 ON CONFLICT DO NOTHING;
 
--- 5. 한미글로벌 테스트 계정 추가 (비밀번호: 1234 엔코딩값 MTIzNA==)
+-- 5. 한미글로벌 테스트 계정 추가 (비밀번호 참고 - 1234: MTIzNA== / 5678: NTY3OA== / admin: YWRtaW4=)
 INSERT INTO members (id, company_id, department_id, username, password, name, email, phone, status) VALUES
     (6, 3, 5, 'hanmi_admin', 'MTIzNA==', '한미관리자', 'admin@hanmiglobal.com', '010-9999-8888', 'ACTIVE'),
     (7, 3, 5, 'hanmi_emp', 'MTIzNA==', '백승연', 'baeksy@hanmiglobal.com', '010-6379-1882', 'ACTIVE'),
