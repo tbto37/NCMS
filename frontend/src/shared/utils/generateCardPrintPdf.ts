@@ -106,6 +106,147 @@ async function registerFontToDoc(doc: jsPDF, fontUrl: string, fontName: string, 
   }
 }
 
+function renderNativeTextOverlay(
+  doc: jsPDF,
+  key: string,
+  config: any,
+  cardData: any,
+  isBack: boolean,
+  tidStr: string
+) {
+  const front = cardData.front || {};
+  const back = cardData.back || {};
+  const currentData = isBack ? back : front;
+
+  const sx = 92 / 519;
+  const sy = 52 / 288.333;
+
+  const isCheilOffice = tidStr === "5" || tidStr.includes("cheil_build_office") || tidStr.includes("본사 현장사무실");
+
+  // 1. 성명 (Name)
+  const nameText = !isBack ? formatKoreanName(front.name) : back.name;
+  if (config.fields.name && nameText) {
+    const x = config.fields.name.x * sx;
+    const y = (config.fields.name.y + (config.fields.name.fontSize || 24.5) * 0.75) * sy;
+    doc.setFont(!isBack && key === "cheil" ? "HYUlsungdoM" : "NanumSquare", "normal");
+    doc.setFontSize((config.fields.name.fontSize || 24.5) * 0.35);
+    doc.setTextColor(15, 23, 42);
+    doc.text(nameText, x, y);
+  }
+
+  // 2. 부서 / 직급
+  const deptPosText = !isBack
+    ? key === "cheil"
+      ? [front.department, front.position1].filter(Boolean).join(" / ")
+      : [front.position1, front.department].filter(Boolean).join(" / ")
+    : "";
+
+  if (!isBack && config.fields.departmentPosition && deptPosText) {
+    const x = config.fields.departmentPosition.x * sx;
+    const y = (config.fields.departmentPosition.y + 12.5 * 0.75) * sy;
+    doc.setFont("NanumSquare", "normal");
+    doc.setFontSize(12.5 * 0.35);
+    doc.setTextColor(30, 41, 59);
+    doc.text(deptPosText, x, y);
+  }
+
+  if (!isBack && front.position2) {
+    const x = (config.fields.position2?.x || (key === "cheil" ? 220 : 268)) * sx;
+    const y = ((config.fields.position2?.y || (key === "cheil" ? 79 : 94)) + 12.5 * 0.75) * sy;
+    doc.setFont("NanumSquare", "normal");
+    doc.setFontSize(12.5 * 0.35);
+    doc.setTextColor(71, 85, 105);
+    doc.text(front.position2, x, y);
+  }
+
+  // 3. 뒷면 영문 부서 / 직급
+  if (isBack) {
+    if (key === "cheil") {
+      const cBackText = [back.department, back.position1?.replace(/\/$/, "").trim()].filter(Boolean).join(" / ");
+      if (cBackText) {
+        doc.setFont("NanumSquare", "normal");
+        doc.setFontSize(12.5 * 0.35);
+        doc.setTextColor(30, 41, 59);
+        doc.text(cBackText, 220 * sx, (62 + 12.5 * 0.75) * sy);
+      }
+      if (back.position2) {
+        doc.setFont("NanumSquare", "normal");
+        doc.setFontSize(12.5 * 0.35);
+        doc.setTextColor(71, 85, 105);
+        doc.text(back.position2, 220 * sx, (79 + 12.5 * 0.75) * sy);
+      }
+    } else {
+      if (back.position1) {
+        doc.setFont("NanumSquare", "normal");
+        doc.setFontSize(12.5 * 0.35);
+        doc.setTextColor(30, 41, 59);
+        doc.text(back.position1, config.fields.position1.x * sx, (config.fields.position1.y + 12.5 * 0.75) * sy);
+      }
+      if (back.department) {
+        doc.setFont("NanumSquare", "normal");
+        doc.setFontSize(12.5 * 0.35);
+        doc.setTextColor(30, 41, 59);
+        doc.text(back.department, config.fields.department.x * sx, (config.fields.department.y + 12.5 * 0.75) * sy);
+      }
+    }
+  }
+
+  // 4. 대표 / 팩스 / 직통 / 핸드폰 / 이메일 / 주소 / 웹사이트
+  if (key === "cheil" && config.fields.telAndFax && (currentData.telephone || currentData.fax)) {
+    const text = !isBack
+      ? `${currentData.telephone ? `${isCheilOffice ? "전화 :" : "대표 :"} ${currentData.telephone}` : ""}${currentData.telephone && currentData.fax ? "   " : ""}${currentData.fax ? `팩스 : ${currentData.fax}` : ""}`
+      : `${currentData.telephone ? `Tel: ${currentData.telephone}` : ""}${currentData.telephone && currentData.fax ? "   " : ""}${currentData.fax ? `Fax: ${currentData.fax}` : ""}`;
+    doc.setFont("NanumSquare", "normal");
+    doc.setFontSize(12.5 * 0.35);
+    doc.setTextColor(30, 41, 59);
+    doc.text(text, config.fields.telAndFax.x * sx, (179 + 12.5 * 0.75) * sy);
+  }
+
+  if (config.fields.directTelephone && currentData.directTelephone) {
+    const text = key === "cheil"
+      ? (!isBack ? `직통 : ${currentData.directTelephone}` : `Dir: ${currentData.directTelephone}`)
+      : `Dir ${currentData.directTelephone}`;
+    doc.setFont("NanumSquare", "normal");
+    doc.setFontSize(12.5 * 0.35);
+    doc.setTextColor(30, 41, 59);
+    doc.text(text, config.fields.directTelephone.x * sx, (198 + 12.5 * 0.75) * sy);
+  }
+
+  if (config.fields.mobile && currentData.mobile) {
+    const text = key === "cheil"
+      ? (!isBack ? `핸드폰 : ${currentData.mobile}` : `Mobile: ${currentData.mobile}`)
+      : `M ${currentData.mobile}`;
+    doc.setFont("NanumSquare", "normal");
+    doc.setFontSize(12.5 * 0.35);
+    doc.setTextColor(30, 41, 59);
+    doc.text(text, config.fields.mobile.x * sx, (217 + 12.5 * 0.75) * sy);
+  }
+
+  if (config.fields.email && currentData.email) {
+    const text = key === "cheil"
+      ? `E-mail: ${currentData.email}`
+      : `E ${currentData.email}`;
+    doc.setFont("NanumSquare", "normal");
+    doc.setFontSize(12.5 * 0.35);
+    doc.setTextColor(30, 41, 59);
+    doc.text(text, config.fields.email.x * sx, (236 + 12.5 * 0.75) * sy);
+  }
+
+  if (config.fields.website && currentData.website) {
+    doc.setFont("NanumSquare", "normal");
+    doc.setFontSize(13.5 * 0.35);
+    doc.setTextColor(15, 23, 42);
+    doc.text(currentData.website, config.fields.website.x * sx, (255 + 13.5 * 0.75) * sy);
+  }
+
+  if (key === "cheil" && !isBack && front.address) {
+    doc.setFont("NanumSquare", "normal");
+    doc.setFontSize(12.5 * 0.35);
+    doc.setTextColor(51, 65, 85);
+    doc.text(front.address, (config.fields.address?.x || 220) * sx, (160 + 12.5 * 0.75) * sy);
+  }
+}
+
 /**
  * Adobe Illustrator 100% 텍스트 직접 수정 지원 / 로고·상호 제외 살아있는 텍스트 Native PDF 생성 및 다운로드
  */
@@ -219,67 +360,73 @@ export async function generateCardPrintPdf(order: OrderLike): Promise<void> {
       doc.addImage(frontCanvas.toDataURL("image/png", 1.0), "PNG", 0, 0, 92, 52);
     }
 
+    // --- 앞면 레거시 100% 동일 Native Text Layer 오버레이 ---
+    renderNativeTextOverlay(doc, key, specGroup.front, cardData, false, tidStr);
+
     const isSingleSided = tidStr === "5" || tidStr.includes("cheil_build_office") || tidStr.includes("본사 현장사무실");
 
     if (!isSingleSided) {
-      // --- Page 2: 뒷면 (영문 순수 Vector SVG PDF + Outline + CMYK) ---
+      // --- Page 2: 뒷면 ---
       doc.addPage([92, 52], "landscape");
       const backLogoBase64 = await fetchLogoBase64(specGroup.back.logoUrl);
-    const companyNameBackAssetBase64 = key === "hanmi"
-      ? await fetchLogoBase64("/hanmi/hanmi_back_name.jpg")
-      : await fetchLogoBase64("/cheil/cheil_back_name.jpg");
+      const companyNameBackAssetBase64 = key === "hanmi"
+        ? await fetchLogoBase64("/hanmi/hanmi_back_name.jpg")
+        : await fetchLogoBase64("/cheil/cheil_back_name.jpg");
 
-    container.innerHTML = await createSvgMarkupWithOutlines(
-      key,
-      specGroup.back,
-      cardData,
-      true,
-      backLogoBase64,
-      fontUlsungdo,
-      fontPadosori,
-      fontNanumSquare,
-      companyNameBackAssetBase64,
-      cheilSmileBase64,
-      tidStr
-    );
-    await new Promise((res) => setTimeout(res, 50));
+      container.innerHTML = await createSvgMarkupWithOutlines(
+        key,
+        specGroup.back,
+        cardData,
+        true,
+        backLogoBase64,
+        fontUlsungdo,
+        fontPadosori,
+        fontNanumSquare,
+        companyNameBackAssetBase64,
+        cheilSmileBase64,
+        tidStr
+      );
+      await new Promise((res) => setTimeout(res, 50));
 
-    const backSvg = container.querySelector("svg");
-    if (backSvg && typeof (doc as any).svg === "function") {
-      try {
-        await (doc as any).svg(backSvg, {
-          x: 0,
-          y: 0,
-          width: 92,
-          height: 52,
-          loadExternalFonts: false,
+      const backSvg = container.querySelector("svg");
+      if (backSvg && typeof (doc as any).svg === "function") {
+        try {
+          await (doc as any).svg(backSvg, {
+            x: 0,
+            y: 0,
+            width: 92,
+            height: 52,
+            loadExternalFonts: false,
+          });
+        } catch (e) {
+          console.warn("doc.svg back rendering warning:", e);
+        }
+      } else {
+        const backCanvas = document.createElement("canvas");
+        backCanvas.width = 1840;
+        backCanvas.height = 1040;
+        const ctx = backCanvas.getContext("2d");
+        const img = new Image();
+        const svgBlob = new Blob([container.innerHTML], { type: "image/svg+xml;charset=utf-8" });
+        const url = URL.createObjectURL(svgBlob);
+        await new Promise((resolve) => {
+          img.onload = () => {
+            if (ctx) ctx.drawImage(img, 0, 0, 1840, 1040);
+            URL.revokeObjectURL(url);
+            resolve(true);
+          };
+          img.onerror = () => {
+            URL.revokeObjectURL(url);
+            resolve(false);
+          };
+          img.src = url;
         });
-      } catch (e) {
-        console.warn("doc.svg back rendering warning:", e);
+        doc.addImage(backCanvas.toDataURL("image/png", 1.0), "PNG", 0, 0, 92, 52);
       }
-    } else {
-      const backCanvas = document.createElement("canvas");
-      backCanvas.width = 1840;
-      backCanvas.height = 1040;
-      const ctx = backCanvas.getContext("2d");
-      const img = new Image();
-      const svgBlob = new Blob([container.innerHTML], { type: "image/svg+xml;charset=utf-8" });
-      const url = URL.createObjectURL(svgBlob);
-      await new Promise((resolve) => {
-        img.onload = () => {
-          if (ctx) ctx.drawImage(img, 0, 0, 1840, 1040);
-          URL.revokeObjectURL(url);
-          resolve(true);
-        };
-        img.onerror = () => {
-          URL.revokeObjectURL(url);
-          resolve(false);
-        };
-        img.src = url;
-      });
-      doc.addImage(backCanvas.toDataURL("image/png", 1.0), "PNG", 0, 0, 92, 52);
+
+      // --- 뒷면 레거시 100% 동일 Native Text Layer 오버레이 ---
+      renderNativeTextOverlay(doc, key, specGroup.back, cardData, true, tidStr);
     }
-  }
 
     // 파일 저장 (형식: YYYYMMDD-주문번호-고객사명(한미 혹은 제일)-이름.pdf)
     const orderNo = order.orderNo || order.id || "ORDER";
