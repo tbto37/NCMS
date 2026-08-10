@@ -536,6 +536,17 @@ export default function OrdersPage() {
   const [rejectModalOrder, setRejectModalOrder] = useState<Order | null>(null);
 
   function handleOpenOrderDetail(order: Order) {
+    let cardEmail = "";
+    if (order.cardDataJson) {
+      try {
+        let temp = typeof order.cardDataJson === "string" ? JSON.parse(order.cardDataJson) : order.cardDataJson;
+        if (typeof temp === "string") temp = JSON.parse(temp);
+        cardEmail = temp?.front?.email || temp?.back?.email || "";
+      } catch (e) {
+        // ignore
+      }
+    }
+
     setSelectedOrder({
       id: order.rawId,
       orderNumber: order.id,
@@ -552,7 +563,7 @@ export default function OrdersPage() {
             : "",
       customerName: order.recipientName || order.name,
       phone: order.recipientPhone || order.phone,
-      email: order.email || "",
+      email: cardEmail || order.email || "",
       address: order.address || "",
       detailAddress: order.addressDetail || "",
       status: order.status,
