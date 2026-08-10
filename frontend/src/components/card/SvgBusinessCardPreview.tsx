@@ -81,11 +81,16 @@ export function getCheilOfficeAddressLines(rawText?: string, prefix: "본사" | 
 }
 
 // 부서, 직책, 자격사항 텍스트가 길어질 경우 폰트 크기는 고정한 채 자간(letter-spacing)만 동적으로 축소하여 잘림 현상 방지
+// 영문 텍스트인 경우 알파벳 너비가 한글보다 좁으므로 38자 이상부터 자간 축소 적용 (38자 이하 원본 자간 유지)
 export function getCondensedLetterSpacing(text?: string, threshold = 28): string | undefined {
   if (!text) return undefined;
+
+  const isEnglish = !/[가-힣]/.test(text);
+  const effectiveThreshold = isEnglish ? 38 : threshold;
+
   const len = text.length;
-  if (len <= threshold) return undefined;
-  const diff = len - threshold;
+  if (len <= effectiveThreshold) return undefined;
+  const diff = len - effectiveThreshold;
   if (diff <= 3) return "-0.03em";
   if (diff <= 6) return "-0.05em";
   if (diff <= 10) return "-0.08em";
