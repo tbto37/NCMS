@@ -45,9 +45,9 @@ const defaultCardData: BusinessCardInputData = {
   front: {
     name: "홍길동",
     departmentOption: "직접입력",
-    department: "비즈니스개발실",
+    department: "",
     position1Option: "직접입력",
-    position1: "시니어 매니저",
+    position1: "",
     position2Option: "직접입력",
     position2: "",
     address: "06164, 서울시 강남구 테헤란로 87길\n36 도심공항타워",
@@ -60,8 +60,8 @@ const defaultCardData: BusinessCardInputData = {
   },
   back: {
     name: "Hong Gil-dong",
-    department: "Business Development Division",
-    position1: "Senior Manager",
+    department: "",
+    position1: "",
     position2: "",
     address1: "City Air Tower Bldg., 36, Teheran-ro",
     address2: "87-gil, Gangnam-gu, Seoul, 06164,",
@@ -101,13 +101,13 @@ export default function TemplateEditModal({
         front: {
           name: "홍길동",
           departmentOption: "직접입력",
-          department: "하수도 정비 중점관리지역 침수예방사업",
+          department: "",
           position1Option: "직접입력",
-          position1: "(2단계)외 2건 건설사업관리단",
+          position1: "",
           position2Option: "직접입력",
-          position2: "단장",
+          position2: "",
           address: "서울시 서초구 강남대로16길 22-6(양재동)",
-          fieldAddress: "현장주소",
+          fieldAddress: "",
           telephone: "02-000-0000",
           fax: "02-000-0000",
           directTelephone: "",
@@ -135,11 +135,11 @@ export default function TemplateEditModal({
         front: {
           name: "홍길동",
           departmentOption: "직접입력",
-          department: "상하수도사업1부",
+          department: "",
           position1Option: "직접입력",
-          position1: "부장",
+          position1: "",
           position2Option: "직접입력",
-          position2: "상하수도기술사",
+          position2: "",
           address: "06779 서울시 서초구 강남대로16길 22-6(양재동)",
           telephone: "02-000-0000",
           fax: "02-000-0000",
@@ -150,9 +150,9 @@ export default function TemplateEditModal({
         },
         back: {
           name: "Hong Gil-dong",
-          department: "Water & Wastewater 1",
-          position1: "General Manager",
-          position2: "Chief Engineer",
+          department: "",
+          position1: "",
+          position2: "",
           address1: "22-6, Gangnamdaero 16gil, Seocho-gu,",
           address2: "Seoul, Korea (06779)",
           telephone: "+82-2-000-0000",
@@ -230,11 +230,11 @@ export default function TemplateEditModal({
       front: {
         ...prev.front,
         departmentOption: selectedKor,
-        department: selectedKor === "직접입력" ? prev.front.department : selectedKor,
+        department: selectedKor === "직접입력" ? "" : selectedKor,
       },
       back: {
         ...prev.back,
-        department: selectedKor === "직접입력" ? prev.back.department : mappedEng,
+        department: selectedKor === "직접입력" ? "" : mappedEng,
       },
     }));
   };
@@ -249,11 +249,11 @@ export default function TemplateEditModal({
       front: {
         ...prev.front,
         position1Option: selectedKor,
-        position1: selectedKor === "직접입력" ? prev.front.position1 : selectedKor,
+        position1: selectedKor === "직접입력" ? "" : selectedKor,
       },
       back: {
         ...prev.back,
-        position1: selectedKor === "직접입력" ? prev.back.position1 : mappedEng,
+        position1: selectedKor === "직접입력" ? "" : mappedEng,
       },
     }));
   };
@@ -269,11 +269,11 @@ export default function TemplateEditModal({
       front: {
         ...prev.front,
         position2Option: selectedKor,
-        position2: selectedKor === "직접입력" ? prev.front.position2 : selectedKor,
+        position2: selectedKor === "직접입력" ? "" : selectedKor,
       },
       back: {
         ...prev.back,
-        position2: selectedKor === "직접입력" ? prev.back.position2 : mappedEng,
+        position2: selectedKor === "직접입력" ? "" : mappedEng,
       },
     }));
   };

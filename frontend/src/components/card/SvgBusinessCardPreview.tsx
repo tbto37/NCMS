@@ -67,8 +67,8 @@ export function getCheilOfficeAddressLines(rawText?: string, prefix: "본사" | 
   return wrapTextLines(normalized, maxChars);
 }
 
-// 부서 및 직급 텍스트가 길어질 경우 자간(letter-spacing)을 동적으로 축소하여 잘림 현상 방지
-export function getCondensedLetterSpacing(text?: string, threshold = 22): string | undefined {
+// 부서, 직책, 자격사항 텍스트가 길어질 경우 폰트 크기는 고정한 채 자간(letter-spacing)만 동적으로 축소하여 잘림 현상 방지
+export function getCondensedLetterSpacing(text?: string, threshold = 28): string | undefined {
   if (!text) return undefined;
   const len = text.length;
   if (len <= threshold) return undefined;
@@ -77,7 +77,8 @@ export function getCondensedLetterSpacing(text?: string, threshold = 22): string
   if (diff <= 6) return "-0.05em";
   if (diff <= 10) return "-0.08em";
   if (diff <= 15) return "-0.11em";
-  return "-0.14em";
+  if (diff <= 22) return "-0.15em";
+  return "-0.18em";
 }
 
 // 제일엔지니어링 영문 뒷면 주소 (2줄) 스마트 래핑 및 동적 분할 처리
@@ -564,7 +565,7 @@ export default function SvgBusinessCardPreview({
                     fontSize={12.5}
                     fontWeight="500"
                     fill="#1e293b"
-                    letterSpacing={getCondensedLetterSpacing(front.department, 24)}
+                    letterSpacing={getCondensedLetterSpacing(front.department, 29)}
                     dominantBaseline="hanging"
                   >
                     {front.department}
@@ -579,7 +580,7 @@ export default function SvgBusinessCardPreview({
                       fontSize={12.5}
                       fontWeight="500"
                       fill="#1e293b"
-                      letterSpacing={getCondensedLetterSpacing(posText, 24)}
+                      letterSpacing={getCondensedLetterSpacing(posText, 29)}
                       dominantBaseline="hanging"
                     >
                       {posText}
@@ -593,7 +594,7 @@ export default function SvgBusinessCardPreview({
                   const deptPosText = key === "cheil"
                     ? [front.department, front.position1].filter(Boolean).join(" / ")
                     : [front.position1, front.department].filter(Boolean).join(" / ");
-                  const threshold = key === "cheil" ? 24 : 21;
+                  const threshold = key === "cheil" ? 29 : 26;
                   return (
                     <text
                       x={config.fields.departmentPosition.x}
@@ -609,7 +610,7 @@ export default function SvgBusinessCardPreview({
                   );
                 })()}
                 {front.position2 && (() => {
-                  const threshold = key === "cheil" ? 24 : 21;
+                  const threshold = key === "cheil" ? 29 : 26;
                   return (
                     <text
                       x={config.fields.position2?.x || (key === "cheil" ? 220 : 268)}
@@ -639,7 +640,7 @@ export default function SvgBusinessCardPreview({
                         fontSize={12.5}
                         fontWeight="500"
                         fill="#1e293b"
-                        letterSpacing={getCondensedLetterSpacing(cBackText, 25)}
+                        letterSpacing={getCondensedLetterSpacing(cBackText, 30)}
                         dominantBaseline="hanging"
                       >
                         {cBackText}
@@ -653,7 +654,7 @@ export default function SvgBusinessCardPreview({
                       fontSize={12.5}
                       fontWeight="400"
                       fill="#475569"
-                      letterSpacing={getCondensedLetterSpacing(back.position2, 25)}
+                      letterSpacing={getCondensedLetterSpacing(back.position2, 30)}
                       dominantBaseline="hanging"
                     >
                       {back.position2}
@@ -673,7 +674,7 @@ export default function SvgBusinessCardPreview({
                         fontSize={config.fields.position1.fontSize}
                         fontWeight={config.fields.position1.fontWeight || "400"}
                         fill={config.fields.position1.fill || "#1e293b"}
-                        letterSpacing={getCondensedLetterSpacing(hBackPos1, 22)}
+                        letterSpacing={getCondensedLetterSpacing(hBackPos1, 28)}
                         dominantBaseline="hanging"
                       >
                         {hBackPos1}
@@ -687,7 +688,7 @@ export default function SvgBusinessCardPreview({
                       fontSize={config.fields.department.fontSize}
                       fontWeight={config.fields.department.fontWeight || "400"}
                       fill={config.fields.department.fill || "#1e293b"}
-                      letterSpacing={getCondensedLetterSpacing(back.department, 22)}
+                      letterSpacing={getCondensedLetterSpacing(back.department, 28)}
                       dominantBaseline="hanging"
                     >
                       {back.department}
@@ -700,7 +701,7 @@ export default function SvgBusinessCardPreview({
                       fontSize={12.2}
                       fontWeight="700"
                       fill="#1e293b"
-                      letterSpacing={getCondensedLetterSpacing(back.position2, 22)}
+                      letterSpacing={getCondensedLetterSpacing(back.position2, 28)}
                       dominantBaseline="hanging"
                     >
                       {back.position2}

@@ -76,7 +76,18 @@ export default function OrderFormPage() {
 
   const tidStr = String(orderDraft?.template?.id || reorderData?.templateId || "").toLowerCase();
   const isHanmi = tidStr.includes("hanmi") || tidStr === "3" || companyCode === "hanmi";
-  const isCheilOffice = tidStr === "5" || tidStr.includes("cheil_build_office") || tidStr.includes("본사 현장사무실");
+  const isCheilOffice = tidStr === "5" || tidStr.includes("cheil_build_office") || tidStr.includes("본사 현장사무실") || tidStr.includes("현장사무실");
+
+  const getCleanAddr = (raw?: string) => {
+    if (!raw) return "";
+    return raw.replace(/^(현장|본사|현장사무소|현장사무실)\s*:\s*/, "").trim();
+  };
+
+  const initialDeliveryAddress = reorderData?.address
+    ? reorderData.address
+    : isCheilOffice
+    ? getCleanAddr(orderDraft?.front?.fieldAddress || orderDraft?.front?.address)
+    : (orderDraft?.front?.address || "");
 
   const [recipientName, setRecipientName] = useState(
     reorderData?.recipientName || orderDraft?.front?.name || "",
@@ -87,9 +98,7 @@ export default function OrderFormPage() {
       orderDraft?.front?.telephone ||
       "",
   );
-  const [recipientAddress, setRecipientAddress] = useState(
-    reorderData?.address || (isCheilOffice ? (orderDraft?.front?.fieldAddress || orderDraft?.front?.address || "") : (orderDraft?.front?.address || "")),
-  );
+  const [recipientAddress, setRecipientAddress] = useState(initialDeliveryAddress);
   const [recipientDetailAddress, setRecipientDetailAddress] = useState(
     reorderData?.addressDetail || "",
   );
@@ -116,8 +125,8 @@ export default function OrderFormPage() {
       if (phoneVal) setRecipientPhone(phoneVal);
       if (isCheilOffice) {
         setIsManualAddress(true);
-        const initAddr = orderDraft.front.fieldAddress || orderDraft.front.address || "";
-        if (initAddr) setRecipientAddress(initAddr);
+        const fieldAddr = getCleanAddr(orderDraft.front.fieldAddress || orderDraft.front.address);
+        if (fieldAddr) setRecipientAddress(fieldAddr);
       } else {
         if (orderDraft.front.address) setRecipientAddress(orderDraft.front.address);
       }
@@ -409,7 +418,15 @@ export default function OrderFormPage() {
 
               <button
                 type="button"
-                onClick={() => setIsManualAddress(true)}
+                onClick={() => {
+                  setIsManualAddress(true);
+                  if (recipientAddress.includes("본사입고")) {
+                    setRecipientAddress(initialDeliveryAddress);
+                  }
+                  if (recipientDetailAddress === "본사 수령") {
+                    setRecipientDetailAddress(reorderData?.addressDetail || "");
+                  }
+                }}
                 className={`flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-semibold transition ${
                   isManualAddress
                     ? "border-primary bg-primary text-primary-foreground"

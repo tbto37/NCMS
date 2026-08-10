@@ -584,11 +584,11 @@ async function createSvgMarkupWithOutlines(
           const deptText = front.department || "";
           const posText = [front.position1, front.position2].filter(Boolean).join(" / ");
           return `
-            ${deptText ? `<text x="220" y="60" font-size="12.5" font-weight="500" fill="#1e293b" letter-spacing="${getCondensedLetterSpacing(deptText, 24) || "normal"}" dominant-baseline="hanging">${deptText}</text>` : ""}
-            ${posText ? `<text x="220" y="${deptText ? 77 : 60}" font-size="12.5" font-weight="500" fill="#1e293b" letter-spacing="${getCondensedLetterSpacing(posText, 24) || "normal"}" dominant-baseline="hanging">${posText}</text>` : ""}
+            ${deptText ? `<text x="220" y="60" font-size="12.5" font-weight="500" fill="#1e293b" letter-spacing="${getCondensedLetterSpacing(deptText, 29) || "normal"}" dominant-baseline="hanging">${deptText}</text>` : ""}
+            ${posText ? `<text x="220" y="${deptText ? 77 : 60}" font-size="12.5" font-weight="500" fill="#1e293b" letter-spacing="${getCondensedLetterSpacing(posText, 29) || "normal"}" dominant-baseline="hanging">${posText}</text>` : ""}
           `;
         }
-        const threshold = key === "cheil" ? 24 : 21;
+        const threshold = key === "cheil" ? 29 : 26;
         const deptPosFontSz = config.fields.departmentPosition?.fontSize || (key === "cheil" ? 12.5 : 12.2);
         const pos2Text = front.position2 || "";
         const pos2FontSz = config.fields.position2?.fontSize || (key === "cheil" ? 12.5 : 12.2);
@@ -603,8 +603,8 @@ async function createSvgMarkupWithOutlines(
           const cBackText = [back.department, back.position1?.replace(/\/$/, "").trim()].filter(Boolean).join(" / ");
           const pos2Text = back.position2 || "";
           return `
-            ${cBackText ? `<text x="220" y="62" font-size="12.5" font-weight="500" fill="#1e293b" letter-spacing="${getCondensedLetterSpacing(cBackText, 25) || "normal"}" dominant-baseline="hanging">${cBackText}</text>` : ""}
-            ${pos2Text ? `<text x="220" y="79" font-size="12.5" font-weight="400" fill="#475569" letter-spacing="${getCondensedLetterSpacing(pos2Text, 25) || "normal"}" dominant-baseline="hanging">${pos2Text}</text>` : ""}
+            ${cBackText ? `<text x="220" y="62" font-size="12.5" font-weight="500" fill="#1e293b" letter-spacing="${getCondensedLetterSpacing(cBackText, 30) || "normal"}" dominant-baseline="hanging">${cBackText}</text>` : ""}
+            ${pos2Text ? `<text x="220" y="79" font-size="12.5" font-weight="400" fill="#475569" letter-spacing="${getCondensedLetterSpacing(pos2Text, 30) || "normal"}" dominant-baseline="hanging">${pos2Text}</text>` : ""}
           `;
         }
         const hBackPos1 = (config.fields.position1 && back.position1)
@@ -613,9 +613,9 @@ async function createSvgMarkupWithOutlines(
         const hBackDept = back.department || "";
         const hBackPos2 = back.position2 || "";
         return `
-          ${hBackPos1 ? `<text x="${config.fields.position1.x}" y="${config.fields.position1.y}" font-size="${config.fields.position1.fontSize}" font-weight="400" fill="#1e293b" letter-spacing="${getCondensedLetterSpacing(hBackPos1, 22) || "normal"}" dominant-baseline="hanging">${hBackPos1}</text>` : ""}
-          ${hBackDept ? `<text x="${config.fields.department.x}" y="${config.fields.department.y}" font-size="${config.fields.department.fontSize}" font-weight="500" fill="#1e293b" letter-spacing="${getCondensedLetterSpacing(hBackDept, 22) || "normal"}" dominant-baseline="hanging">${hBackDept}</text>` : ""}
-          ${hBackPos2 ? `<text x="268" y="108" font-size="12.2" font-weight="700" fill="#1e293b" letter-spacing="${getCondensedLetterSpacing(hBackPos2, 22) || "normal"}" dominant-baseline="hanging">${hBackPos2}</text>` : ""}
+          ${hBackPos1 ? `<text x="${config.fields.position1.x}" y="${config.fields.position1.y}" font-size="${config.fields.position1.fontSize}" font-weight="400" fill="#1e293b" letter-spacing="${getCondensedLetterSpacing(hBackPos1, 28) || "normal"}" dominant-baseline="hanging">${hBackPos1}</text>` : ""}
+          ${hBackDept ? `<text x="${config.fields.department.x}" y="${config.fields.department.y}" font-size="${config.fields.department.fontSize}" font-weight="500" fill="#1e293b" letter-spacing="${getCondensedLetterSpacing(hBackDept, 28) || "normal"}" dominant-baseline="hanging">${hBackDept}</text>` : ""}
+          ${hBackPos2 ? `<text x="268" y="108" font-size="12.2" font-weight="700" fill="#1e293b" letter-spacing="${getCondensedLetterSpacing(hBackPos2, 28) || "normal"}" dominant-baseline="hanging">${hBackPos2}</text>` : ""}
         `;
       })() : ""}
 
