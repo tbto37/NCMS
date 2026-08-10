@@ -67,6 +67,19 @@ export function getCheilOfficeAddressLines(rawText?: string, prefix: "본사" | 
   return wrapTextLines(normalized, maxChars);
 }
 
+// 부서 및 직급 텍스트가 길어질 경우 자간(letter-spacing)을 동적으로 축소하여 잘림 현상 방지
+export function getCondensedLetterSpacing(text?: string, threshold = 22): string | undefined {
+  if (!text) return undefined;
+  const len = text.length;
+  if (len <= threshold) return undefined;
+  const diff = len - threshold;
+  if (diff <= 3) return "-0.03em";
+  if (diff <= 6) return "-0.05em";
+  if (diff <= 10) return "-0.08em";
+  if (diff <= 15) return "-0.11em";
+  return "-0.14em";
+}
+
 // 제일엔지니어링 영문 뒷면 주소 (2줄) 스마트 래핑 및 동적 분할 처리
 export function getCheilBackAddressLines(back: any, maxChars = 38): [string, string] {
   const raw1 = (back?.address1 || "").trim();
@@ -551,70 +564,88 @@ export default function SvgBusinessCardPreview({
                     fontSize={12.5}
                     fontWeight="500"
                     fill="#1e293b"
+                    letterSpacing={getCondensedLetterSpacing(front.department, 24)}
                     dominantBaseline="hanging"
                   >
                     {front.department}
                   </text>
                 )}
-                {(front.position1 || front.position2) && (
-                  <text
-                    x={220}
-                    y={front.department ? 77 : 60}
-                    fontSize={12.5}
-                    fontWeight="500"
-                    fill="#1e293b"
-                    dominantBaseline="hanging"
-                  >
-                    {[front.position1, front.position2].filter(Boolean).join(" / ")}
-                  </text>
-                )}
+                {(front.position1 || front.position2) && (() => {
+                  const posText = [front.position1, front.position2].filter(Boolean).join(" / ");
+                  return (
+                    <text
+                      x={220}
+                      y={front.department ? 77 : 60}
+                      fontSize={12.5}
+                      fontWeight="500"
+                      fill="#1e293b"
+                      letterSpacing={getCondensedLetterSpacing(posText, 24)}
+                      dominantBaseline="hanging"
+                    >
+                      {posText}
+                    </text>
+                  );
+                })()}
               </>
             ) : (
               <>
-                {config.fields.departmentPosition && (front.department || front.position1) && (
-                  <text
-                    x={config.fields.departmentPosition.x}
-                    y={config.fields.departmentPosition.y}
-                    fontSize={config.fields.departmentPosition.fontSize}
-                    fontWeight={config.fields.departmentPosition.fontWeight || "500"}
-                    fill={config.fields.departmentPosition.fill || "#1e293b"}
-                    dominantBaseline="hanging"
-                  >
-                    {key === "cheil"
-                      ? [front.department, front.position1].filter(Boolean).join(" / ")
-                      : [front.position1, front.department].filter(Boolean).join(" / ")}
-                  </text>
-                )}
-                {front.position2 && (
-                  <text
-                    x={config.fields.position2?.x || 268}
-                    y={config.fields.position2?.y || 94}
-                    fontSize={config.fields.position2?.fontSize || 12.2}
-                    fontWeight={config.fields.position2?.fontWeight || "700"}
-                    fill={config.fields.position2?.fill || "#1e293b"}
-                    dominantBaseline="hanging"
-                  >
-                    {front.position2}
-                  </text>
-                )}
+                {config.fields.departmentPosition && (front.department || front.position1) && (() => {
+                  const deptPosText = key === "cheil"
+                    ? [front.department, front.position1].filter(Boolean).join(" / ")
+                    : [front.position1, front.department].filter(Boolean).join(" / ");
+                  const threshold = key === "cheil" ? 24 : 21;
+                  return (
+                    <text
+                      x={config.fields.departmentPosition.x}
+                      y={config.fields.departmentPosition.y}
+                      fontSize={config.fields.departmentPosition.fontSize}
+                      fontWeight={config.fields.departmentPosition.fontWeight || "500"}
+                      fill={config.fields.departmentPosition.fill || "#1e293b"}
+                      letterSpacing={getCondensedLetterSpacing(deptPosText, threshold)}
+                      dominantBaseline="hanging"
+                    >
+                      {deptPosText}
+                    </text>
+                  );
+                })()}
+                {front.position2 && (() => {
+                  const threshold = key === "cheil" ? 24 : 21;
+                  return (
+                    <text
+                      x={config.fields.position2?.x || (key === "cheil" ? 220 : 268)}
+                      y={config.fields.position2?.y || (key === "cheil" ? 79 : 94)}
+                      fontSize={config.fields.position2?.fontSize || (key === "cheil" ? 12.5 : 12.2)}
+                      fontWeight={config.fields.position2?.fontWeight || (key === "cheil" ? "400" : "700")}
+                      fill={config.fields.position2?.fill || (key === "cheil" ? "#475569" : "#1e293b")}
+                      letterSpacing={getCondensedLetterSpacing(front.position2, threshold)}
+                      dominantBaseline="hanging"
+                    >
+                      {front.position2}
+                    </text>
+                  );
+                })()}
               </>
             )
           ) : (
             <>
               {key === "cheil" ? (
                 <>
-                  {(back.department || back.position1) && (
-                    <text
-                      x={config.fields.departmentPosition?.x || 220}
-                      y={62}
-                      fontSize={12.5}
-                      fontWeight="500"
-                      fill="#1e293b"
-                      dominantBaseline="hanging"
-                    >
-                      {[back.department, back.position1?.replace(/\/$/, "").trim()].filter(Boolean).join(" / ")}
-                    </text>
-                  )}
+                  {(back.department || back.position1) && (() => {
+                    const cBackText = [back.department, back.position1?.replace(/\/$/, "").trim()].filter(Boolean).join(" / ");
+                    return (
+                      <text
+                        x={config.fields.departmentPosition?.x || 220}
+                        y={62}
+                        fontSize={12.5}
+                        fontWeight="500"
+                        fill="#1e293b"
+                        letterSpacing={getCondensedLetterSpacing(cBackText, 25)}
+                        dominantBaseline="hanging"
+                      >
+                        {cBackText}
+                      </text>
+                    );
+                  })()}
                   {back.position2 && (
                     <text
                       x={config.fields.position2?.x || 220}
@@ -622,6 +653,7 @@ export default function SvgBusinessCardPreview({
                       fontSize={12.5}
                       fontWeight="400"
                       fill="#475569"
+                      letterSpacing={getCondensedLetterSpacing(back.position2, 25)}
                       dominantBaseline="hanging"
                     >
                       {back.position2}
@@ -630,20 +662,24 @@ export default function SvgBusinessCardPreview({
                 </>
               ) : (
                 <>
-                  {config.fields.position1 && back.position1 && (
-                    <text
-                      x={config.fields.position1.x}
-                      y={config.fields.position1.y}
-                      fontSize={config.fields.position1.fontSize}
-                      fontWeight={config.fields.position1.fontWeight || "400"}
-                      fill={config.fields.position1.fill || "#1e293b"}
-                      dominantBaseline="hanging"
-                    >
-                      {back.department && back.department.trim() !== ""
-                        ? (back.position1.endsWith("/") ? back.position1 : `${back.position1} /`)
-                        : back.position1.replace(/\/$/, "").trim()}
-                    </text>
-                  )}
+                  {config.fields.position1 && back.position1 && (() => {
+                    const hBackPos1 = back.department && back.department.trim() !== ""
+                      ? (back.position1.endsWith("/") ? back.position1 : `${back.position1} /`)
+                      : back.position1.replace(/\/$/, "").trim();
+                    return (
+                      <text
+                        x={config.fields.position1.x}
+                        y={config.fields.position1.y}
+                        fontSize={config.fields.position1.fontSize}
+                        fontWeight={config.fields.position1.fontWeight || "400"}
+                        fill={config.fields.position1.fill || "#1e293b"}
+                        letterSpacing={getCondensedLetterSpacing(hBackPos1, 22)}
+                        dominantBaseline="hanging"
+                      >
+                        {hBackPos1}
+                      </text>
+                    );
+                  })()}
                   {config.fields.department && back.department && (
                     <text
                       x={config.fields.department.x}
@@ -651,6 +687,7 @@ export default function SvgBusinessCardPreview({
                       fontSize={config.fields.department.fontSize}
                       fontWeight={config.fields.department.fontWeight || "400"}
                       fill={config.fields.department.fill || "#1e293b"}
+                      letterSpacing={getCondensedLetterSpacing(back.department, 22)}
                       dominantBaseline="hanging"
                     >
                       {back.department}
@@ -663,6 +700,7 @@ export default function SvgBusinessCardPreview({
                       fontSize={12.2}
                       fontWeight="700"
                       fill="#1e293b"
+                      letterSpacing={getCondensedLetterSpacing(back.position2, 22)}
                       dominantBaseline="hanging"
                     >
                       {back.position2}
@@ -827,8 +865,8 @@ export default function SvgBusinessCardPreview({
               {(cheilY.addressLines && cheilY.addressLines.length > 0
                 ? cheilY.addressLines
                 : front.address
-                ? getCheilOfficeAddressLines(front.address, "본사", 38).map((text, idx) => ({ text, y: cheilY.address + idx * 18 }))
-                : []
+                  ? getCheilOfficeAddressLines(front.address, "본사", 38).map((text, idx) => ({ text, y: cheilY.address + idx * 18 }))
+                  : []
               ).map((lineObj: { text: string; y: number }, idx: number) => (
                 <text
                   key={`cheil-office-addr-${idx}`}
@@ -845,8 +883,8 @@ export default function SvgBusinessCardPreview({
               {(cheilY.fieldAddressLines && cheilY.fieldAddressLines.length > 0
                 ? cheilY.fieldAddressLines
                 : front.fieldAddress
-                ? getCheilOfficeAddressLines(front.fieldAddress, "현장", 38).map((text, idx) => ({ text, y: cheilY.fieldAddress + idx * 18 }))
-                : []
+                  ? getCheilOfficeAddressLines(front.fieldAddress, "현장", 38).map((text, idx) => ({ text, y: cheilY.fieldAddress + idx * 18 }))
+                  : []
               ).map((lineObj: { text: string; y: number }, idx: number) => (
                 <text
                   key={`cheil-office-field-addr-${idx}`}

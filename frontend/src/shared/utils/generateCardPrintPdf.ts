@@ -2,7 +2,7 @@ import { jsPDF } from "jspdf";
 import * as opentype from "opentype.js";
 import type { BusinessCardInputData } from "@/shared/types/businessCard";
 import { CARD_TEMPLATE_SPECS } from "@/shared/constants/cardTemplates";
-import { getHanmiFrontAddressLines, getHanmiBackAddressLines, getCheilBackAddressLines, getCheilOfficeAddressLines } from "@/components/card/SvgBusinessCardPreview";
+import { getHanmiFrontAddressLines, getHanmiBackAddressLines, getCheilBackAddressLines, getCheilOfficeAddressLines, getCondensedLetterSpacing } from "@/components/card/SvgBusinessCardPreview";
 
 interface OrderLike {
   id?: string;
@@ -579,26 +579,45 @@ async function createSvgMarkupWithOutlines(
 
       ${config.fields.name && nameText ? `<text x="${config.fields.name.x}" y="${config.fields.name.y}" font-size="${config.fields.name.fontSize}" font-weight="${config.fields.name.fontWeight || "700"}" fill="${config.fields.name.fill || "#0f172a"}" letter-spacing="${!isBack && key === "cheil" ? "0.35em" : !isBack ? "0.25em" : "normal"}" dominant-baseline="hanging">${nameText}</text>` : ""}
 
-      ${!isBack ? (
-        isCheilOffice ? `
-          ${front.department ? `<text x="220" y="60" font-size="12.5" font-weight="500" fill="#1e293b" dominant-baseline="hanging">${front.department}</text>` : ""}
-          ${(front.position1 || front.position2) ? `<text x="220" y="${front.department ? 77 : 60}" font-size="12.5" font-weight="500" fill="#1e293b" dominant-baseline="hanging">${[front.position1, front.position2].filter(Boolean).join(" / ")}</text>` : ""}
-        ` : `
-          ${config.fields.departmentPosition && deptPosText ? `<text x="${config.fields.departmentPosition.x}" y="${config.fields.departmentPosition.y}" font-size="${config.fields.departmentPosition.fontSize}" font-weight="500" fill="#1e293b" dominant-baseline="hanging">${deptPosText}</text>` : ""}
-          ${front.position2 ? `<text x="${config.fields.position2?.x || 268}" y="${config.fields.position2?.y || 94}" font-size="${config.fields.position2?.fontSize || 12.2}" font-weight="${config.fields.position2?.fontWeight || "700"}" fill="${config.fields.position2?.fill || "#1e293b"}" dominant-baseline="hanging">${front.position2}</text>` : ""}
-        `
-      ) : ""}
+      ${!isBack ? (() => {
+        if (isCheilOffice) {
+          const deptText = front.department || "";
+          const posText = [front.position1, front.position2].filter(Boolean).join(" / ");
+          return `
+            ${deptText ? `<text x="220" y="60" font-size="12.5" font-weight="500" fill="#1e293b" letter-spacing="${getCondensedLetterSpacing(deptText, 24) || "normal"}" dominant-baseline="hanging">${deptText}</text>` : ""}
+            ${posText ? `<text x="220" y="${deptText ? 77 : 60}" font-size="12.5" font-weight="500" fill="#1e293b" letter-spacing="${getCondensedLetterSpacing(posText, 24) || "normal"}" dominant-baseline="hanging">${posText}</text>` : ""}
+          `;
+        }
+        const threshold = key === "cheil" ? 24 : 21;
+        const deptPosFontSz = config.fields.departmentPosition?.fontSize || (key === "cheil" ? 12.5 : 12.2);
+        const pos2Text = front.position2 || "";
+        const pos2FontSz = config.fields.position2?.fontSize || (key === "cheil" ? 12.5 : 12.2);
+        return `
+          ${config.fields.departmentPosition && deptPosText ? `<text x="${config.fields.departmentPosition.x}" y="${config.fields.departmentPosition.y}" font-size="${deptPosFontSz}" font-weight="${config.fields.departmentPosition.fontWeight || "500"}" fill="${config.fields.departmentPosition.fill || "#1e293b"}" letter-spacing="${getCondensedLetterSpacing(deptPosText, threshold) || "normal"}" dominant-baseline="hanging">${deptPosText}</text>` : ""}
+          ${pos2Text ? `<text x="${config.fields.position2?.x || (key === "cheil" ? 220 : 268)}" y="${config.fields.position2?.y || (key === "cheil" ? 79 : 94)}" font-size="${pos2FontSz}" font-weight="${config.fields.position2?.fontWeight || (key === "cheil" ? "400" : "700")}" fill="${config.fields.position2?.fill || (key === "cheil" ? "#475569" : "#1e293b")}" letter-spacing="${getCondensedLetterSpacing(pos2Text, threshold) || "normal"}" dominant-baseline="hanging">${pos2Text}</text>` : ""}
+        `;
+      })() : ""}
 
-      ${isBack ? (
-        key === "cheil" ? `
-          ${(back.department || back.position1) ? `<text x="220" y="62" font-size="12.5" font-weight="500" fill="#1e293b" dominant-baseline="hanging">${[back.department, back.position1?.replace(/\/$/, "").trim()].filter(Boolean).join(" / ")}</text>` : ""}
-          ${back.position2 ? `<text x="220" y="79" font-size="12.5" font-weight="400" fill="#475569" dominant-baseline="hanging">${back.position2}</text>` : ""}
-        ` : `
-          ${config.fields.position1 && back.position1 ? `<text x="${config.fields.position1.x}" y="${config.fields.position1.y}" font-size="${config.fields.position1.fontSize}" font-weight="400" fill="#1e293b" dominant-baseline="hanging">${(back.department && back.department.trim() !== "") ? (back.position1.endsWith("/") ? back.position1 : back.position1 + " /") : back.position1.replace(/\/$/, "").trim()}</text>` : ""}
-          ${config.fields.department && back.department ? `<text x="${config.fields.department.x}" y="${config.fields.department.y}" font-size="${config.fields.department.fontSize}" font-weight="500" fill="#1e293b" dominant-baseline="hanging">${back.department}</text>` : ""}
-          ${key === "hanmi" && back.position2 ? `<text x="268" y="108" font-size="12.2" font-weight="700" fill="#1e293b" dominant-baseline="hanging">${back.position2}</text>` : ""}
-        `
-      ) : ""}
+      ${isBack ? (() => {
+        if (key === "cheil") {
+          const cBackText = [back.department, back.position1?.replace(/\/$/, "").trim()].filter(Boolean).join(" / ");
+          const pos2Text = back.position2 || "";
+          return `
+            ${cBackText ? `<text x="220" y="62" font-size="12.5" font-weight="500" fill="#1e293b" letter-spacing="${getCondensedLetterSpacing(cBackText, 25) || "normal"}" dominant-baseline="hanging">${cBackText}</text>` : ""}
+            ${pos2Text ? `<text x="220" y="79" font-size="12.5" font-weight="400" fill="#475569" letter-spacing="${getCondensedLetterSpacing(pos2Text, 25) || "normal"}" dominant-baseline="hanging">${pos2Text}</text>` : ""}
+          `;
+        }
+        const hBackPos1 = (config.fields.position1 && back.position1)
+          ? ((back.department && back.department.trim() !== "") ? (back.position1.endsWith("/") ? back.position1 : back.position1 + " /") : back.position1.replace(/\/$/, "").trim())
+          : "";
+        const hBackDept = back.department || "";
+        const hBackPos2 = back.position2 || "";
+        return `
+          ${hBackPos1 ? `<text x="${config.fields.position1.x}" y="${config.fields.position1.y}" font-size="${config.fields.position1.fontSize}" font-weight="400" fill="#1e293b" letter-spacing="${getCondensedLetterSpacing(hBackPos1, 22) || "normal"}" dominant-baseline="hanging">${hBackPos1}</text>` : ""}
+          ${hBackDept ? `<text x="${config.fields.department.x}" y="${config.fields.department.y}" font-size="${config.fields.department.fontSize}" font-weight="500" fill="#1e293b" letter-spacing="${getCondensedLetterSpacing(hBackDept, 22) || "normal"}" dominant-baseline="hanging">${hBackDept}</text>` : ""}
+          ${hBackPos2 ? `<text x="268" y="108" font-size="12.2" font-weight="700" fill="#1e293b" letter-spacing="${getCondensedLetterSpacing(hBackPos2, 22) || "normal"}" dominant-baseline="hanging">${hBackPos2}</text>` : ""}
+        `;
+      })() : ""}
 
       ${companyHtml}
 
