@@ -86,12 +86,16 @@ function arrayBufferToBase64(buffer: ArrayBuffer): string {
 
 async function registerFontToDoc(doc: jsPDF, fontUrl: string, fontName: string, fontStyle = "normal") {
   try {
+    // jsPDF는 폰트 명칭 및 파일명에 오직 ASCII (영문/숫자) 객체 이름만 허용하므로 한글 파싱 및 필터링 적용
+    const asciiFontName = fontName.replace(/[^\x00-\x7F]/g, "").trim();
+    if (!asciiFontName) return;
+
     const buffer = await fetchArrayBuffer(fontUrl);
     if (!buffer) return;
     const base64 = arrayBufferToBase64(buffer);
-    const fileName = `${fontName}.ttf`;
+    const fileName = `${asciiFontName}.ttf`;
     doc.addFileToVFS(fileName, base64);
-    doc.addFont(fileName, fontName, fontStyle);
+    doc.addFont(fileName, asciiFontName, fontStyle);
   } catch (e) {
     console.warn(`Failed to register font ${fontName} to jsPDF VFS:`, e);
   }
@@ -115,10 +119,10 @@ export async function generateCardPrintPdf(order: OrderLike): Promise<void> {
   const key = tidStr.includes("hanmi") || tidStr === "3" ? "hanmi" : "cheil";
   const specGroup = CARD_TEMPLATE_SPECS[key] || CARD_TEMPLATE_SPECS.cheil;
 
-  // 폰트 파일 미리 로드
-  const fontUlsungdo = await loadFontFile("/fonts/HYWULM.TTF");
-  const fontPadosori = await loadFontFile("/fonts/a파도소리_3.otf");
-  const fontNanumSquare = await loadFontFile("/fonts/NanumSquareEB.ttf") || await loadFontFile("/fonts/NanumSquareB_1.ttf");
+  // public/fonts 디렉토리 내 실존 폰트 파일 100% 매핑 로드
+  const fontUlsungdo = await loadFontFile("/fonts/HYWULM.TTF") || await loadFontFile(encodeURI("/fonts/HY울릉도E.ttf"));
+  const fontPadosori = await loadFontFile(encodeURI("/fonts/a파도소리_3.otf"));
+  const fontNanumSquare = await loadFontFile("/fonts/NanumSquareEB.ttf") || await loadFontFile("/fonts/NanumSquareB_1.ttf") || await loadFontFile("/fonts/NanumSquare.ttf");
 
   // 오프스크린 렌더링 컨테이너
   const container = document.createElement("div");
@@ -139,10 +143,16 @@ export async function generateCardPrintPdf(order: OrderLike): Promise<void> {
       compress: true,
     });
 
-    // jsPDF VFS 폰트 등록 (살아있는 텍스트 렌더링 지원)
-    await registerFontToDoc(doc, "/fonts/HYWULM.TTF", "HY울릉도M");
+    // jsPDF VFS ASCII 폰트 100% 매핑 등록 (실제 public/fonts/ 내 모든 폰트 탑재)
     await registerFontToDoc(doc, "/fonts/HYWULM.TTF", "HYUlsungdoM");
-    await registerFontToDoc(doc, "/fonts/NanumSquareEB.ttf", "NanumSquare");
+    await registerFontToDoc(doc, "/fonts/HYWULB.TTF", "HYUlsungdoB");
+    await registerFontToDoc(doc, encodeURI("/fonts/HY울릉도E.ttf"), "HYUlsungdoE");
+    await registerFontToDoc(doc, encodeURI("/fonts/HY울릉도L.ttf"), "HYUlsungdoL");
+    await registerFontToDoc(doc, encodeURI("/fonts/a파도소리_3.otf"), "aPadosori");
+    await registerFontToDoc(doc, "/fonts/NanumSquareEB.ttf", "NanumSquareEB");
+    await registerFontToDoc(doc, "/fonts/NanumSquareB_1.ttf", "NanumSquareB");
+    await registerFontToDoc(doc, "/fonts/NanumSquareR.ttf", "NanumSquareR");
+    await registerFontToDoc(doc, "/fonts/NanumSquare.ttf", "NanumSquare");
 
     // --- Page 1: 앞면 (국문 텍스트 100% 보존 Native Vector SVG PDF) ---
     const frontLogoBase64 = await fetchLogoBase64(specGroup.front.logoUrl);
