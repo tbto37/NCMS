@@ -74,6 +74,10 @@ export default function OrderFormPage() {
     ? { front: orderDraft.front, back: orderDraft.back }
     : defaultCardData;
 
+  const tidStr = String(orderDraft?.template?.id || reorderData?.templateId || "").toLowerCase();
+  const isHanmi = tidStr.includes("hanmi") || tidStr === "3" || companyCode === "hanmi";
+  const isCheilOffice = tidStr === "5" || tidStr.includes("cheil_build_office") || tidStr.includes("본사 현장사무실");
+
   const [recipientName, setRecipientName] = useState(
     reorderData?.recipientName || orderDraft?.front?.name || "",
   );
@@ -84,13 +88,13 @@ export default function OrderFormPage() {
       "",
   );
   const [recipientAddress, setRecipientAddress] = useState(
-    reorderData?.address || orderDraft?.front?.address || "",
+    reorderData?.address || (isCheilOffice ? (orderDraft?.front?.fieldAddress || orderDraft?.front?.address || "") : (orderDraft?.front?.address || "")),
   );
   const [recipientDetailAddress, setRecipientDetailAddress] = useState(
     reorderData?.addressDetail || "",
   );
   const [orderMemo, setOrderMemo] = useState("");
-  const [isManualAddress, setIsManualAddress] = useState(false);
+  const [isManualAddress, setIsManualAddress] = useState(isCheilOffice);
   const [isAddressSearchOpen, setIsAddressSearchOpen] = useState(false);
   const [searchKeyword, setSearchKeyword] = useState("");
 
@@ -110,9 +114,15 @@ export default function OrderFormPage() {
       if (orderDraft.front.name) setRecipientName(orderDraft.front.name);
       const phoneVal = orderDraft.front.mobile || orderDraft.front.telephone;
       if (phoneVal) setRecipientPhone(phoneVal);
-      if (orderDraft.front.address) setRecipientAddress(orderDraft.front.address);
+      if (isCheilOffice) {
+        setIsManualAddress(true);
+        const initAddr = orderDraft.front.fieldAddress || orderDraft.front.address || "";
+        if (initAddr) setRecipientAddress(initAddr);
+      } else {
+        if (orderDraft.front.address) setRecipientAddress(orderDraft.front.address);
+      }
     }
-  }, [location.state, orderDraft, reorderData]);
+  }, [location.state, orderDraft, reorderData, isCheilOffice]);
 
   const handleCompleteAddress = (data: Address) => {
     let fullAddress = data.address;
@@ -138,9 +148,6 @@ export default function OrderFormPage() {
   const [selectedPaper, setSelectedPaper] = useState("");
   const [selectedQty, setSelectedQty] = useState("");
 
-  const tidStr = String(orderDraft?.template?.id || reorderData?.templateId || "").toLowerCase();
-  const isHanmi = tidStr.includes("hanmi") || tidStr === "3";
-
   useEffect(() => {
     async function loadOptions() {
       try {
@@ -161,16 +168,23 @@ export default function OrderFormPage() {
           const json = await paperRes.json();
           if (json.data && Array.isArray(json.data) && json.data.length > 0) {
             papers = json.data;
-            if (!papers.some((p) => p.name === "아르미230")) {
-              papers.unshift({ id: "OPT_P0", category: "PAPER", name: "아르미230", sortOrder: 0 });
-            }
           }
         }
+
         if (isHanmi) {
+          // 한미글로벌: 휘라레 제외, 아르미230 지정
           papers = papers.filter((p) => !p.name.includes("휘라레"));
+          if (!papers.some((p) => p.name === "아르미230")) {
+            papers.unshift({ id: "OPT_P0", category: "PAPER", name: "아르미230", sortOrder: 0 });
+          }
+          setPaperOptions(papers);
+          setSelectedPaper("아르미230");
+        } else {
+          // 제일엔지니어링: 아르미230 제외, 오직 '휘라레 216g'만 선택지에 제공
+          papers = [{ id: "OPT_P1", category: "PAPER", name: "휘라레 216g", sortOrder: 1 }];
+          setPaperOptions(papers);
+          setSelectedPaper("휘라레 216g");
         }
-        setPaperOptions(papers);
-        setSelectedPaper(isHanmi ? "아르미230" : papers[0]?.name || "아르미230");
 
         let qtys: ProductOptionItem[] = [
           { id: "OPT_Q1", category: "QTY", name: "100매", sortOrder: 1 },
@@ -190,15 +204,13 @@ export default function OrderFormPage() {
         setSelectedQty(isHanmi ? "300매" : "200매");
       } catch (e) {
         console.warn("ProductOption DB 조회 실패 - 가라데이터 표시:", e);
-        let fallbackPapers = [
-          { id: "OPT_P0", category: "PAPER", name: "아르미230", sortOrder: 0 },
-          { id: "OPT_P1", category: "PAPER", name: "휘라레 216g", sortOrder: 1 },
-          { id: "OPT_P2", category: "PAPER", name: "스노우지 250g", sortOrder: 2 },
-          { id: "OPT_P3", category: "PAPER", name: "랑데뷰 240g", sortOrder: 3 },
-          { id: "OPT_P4", category: "PAPER", name: "띤또레또 250g", sortOrder: 4 },
-        ];
+        let fallbackPapers: ProductOptionItem[] = [];
         if (isHanmi) {
-          fallbackPapers = fallbackPapers.filter((p) => !p.name.includes("휘라레"));
+          fallbackPapers = [{ id: "OPT_P0", category: "PAPER", name: "아르미230", sortOrder: 0 }];
+          setSelectedPaper("아르미230");
+        } else {
+          fallbackPapers = [{ id: "OPT_P1", category: "PAPER", name: "휘라레 216g", sortOrder: 1 }];
+          setSelectedPaper("휘라레 216g");
         }
         const fallbackQtys = [
           { id: "OPT_Q1", category: "QTY", name: "100매", sortOrder: 1 },
@@ -208,7 +220,6 @@ export default function OrderFormPage() {
           { id: "OPT_Q5", category: "QTY", name: "1000매", sortOrder: 5 },
         ];
         setPaperOptions(fallbackPapers);
-        setSelectedPaper(isHanmi ? "아르미230" : "아르미230");
         setQtyOptions(fallbackQtys);
         setSelectedQty(isHanmi ? "300매" : "200매");
       }
@@ -382,10 +393,15 @@ export default function OrderFormPage() {
               <button
                 type="button"
                 onClick={() => {
+                  setIsManualAddress(false);
                   setRecipientAddress("06164 서울시 강남구 테헤란로 87길 36 도심공항타워 (본사입고)");
                   setRecipientDetailAddress("본사 수령");
                 }}
-                className="flex items-center gap-1.5 rounded-md border border-primary/40 bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary transition hover:bg-primary hover:text-primary-foreground"
+                className={`flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-semibold transition ${
+                  !isManualAddress
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-border bg-background text-foreground hover:bg-secondary"
+                }`}
               >
                 <Building2 size={13} />
                 본사입고 (주소 생략)
@@ -393,11 +409,15 @@ export default function OrderFormPage() {
 
               <button
                 type="button"
-                onClick={() => setIsManualAddress(!isManualAddress)}
-                className="flex items-center gap-1 rounded-md border border-border bg-background px-3 py-1.5 text-xs font-medium text-foreground transition hover:bg-secondary"
+                onClick={() => setIsManualAddress(true)}
+                className={`flex items-center gap-1.5 rounded-md border px-3 py-1.5 text-xs font-semibold transition ${
+                  isManualAddress
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-border bg-background text-foreground hover:bg-secondary"
+                }`}
               >
                 <PenTool size={12} />
-                {isManualAddress ? "주소검색 모드" : "공사현장/수기입력"}
+                공사현장/수기입력
               </button>
             </div>
           </div>
