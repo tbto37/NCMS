@@ -473,12 +473,12 @@ export default function SvgBusinessCardPreview({
     transformOrigin: "center center",
   };
 
-  // 로고 사양 (한미글로벌 앞면 로고 확대 및 세로 비율 슬림화 1:1 동기화)
-  const logoSpec = {
-    x: key === "cheil" ? 35 : (isBack ? 30 : 28),
-    y: key === "cheil" ? 42 : (isBack ? 52 : 44),
-    width: key === "cheil" ? 145 : (isBack ? 152 : 172),
-    height: key === "cheil" ? 50 : (isBack ? 30 : 34),
+  // 로고 사양 (기본값 설정)
+  const logoSpec = config.logoSpec || {
+    x: key === "cheil" ? 35 : 30,
+    y: key === "cheil" ? 42 : 48,
+    width: key === "cheil" ? 145 : 150,
+    height: 50,
   };
 
   const sloganSpec = config.sloganSpec || {
