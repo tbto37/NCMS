@@ -2,7 +2,7 @@ import { jsPDF } from "jspdf";
 import * as opentype from "opentype.js";
 import type { BusinessCardInputData } from "@/shared/types/businessCard";
 import { CARD_TEMPLATE_SPECS } from "@/shared/constants/cardTemplates";
-import { getHanmiFrontAddressLines, getHanmiBackAddressLines, getCheilBackAddressLines } from "@/components/card/SvgBusinessCardPreview";
+import { getHanmiFrontAddressLines, getHanmiBackAddressLines, getCheilBackAddressLines, getCheilOfficeAddressLines } from "@/components/card/SvgBusinessCardPreview";
 
 interface OrderLike {
   id?: string;
@@ -278,7 +278,7 @@ async function createSvgMarkupWithOutlines(
   const cardY = (() => {
     if (isCheilOffice) {
       let currentY = 255;
-      const res = {
+      const res: any = {
         website: 255,
         email: 237,
         mobile: 219,
@@ -291,6 +291,8 @@ async function createSvgMarkupWithOutlines(
         address3: 242,
         telephone: 201,
         companyName: 145,
+        fieldAddressLines: [] as { text: string; y: number }[],
+        addressLines: [] as { text: string; y: number }[],
       };
       const step = 18;
       res.website = currentY;
@@ -308,12 +310,24 @@ async function createSvgMarkupWithOutlines(
         res.telAndFax = currentY;
       }
       if (front.fieldAddress) {
-        currentY -= step;
-        res.fieldAddress = currentY;
+        const lines = getCheilOfficeAddressLines(front.fieldAddress, "현장", 38);
+        const lineObjects = [];
+        for (let i = lines.length - 1; i >= 0; i--) {
+          currentY -= step;
+          lineObjects.unshift({ text: lines[i], y: currentY });
+        }
+        res.fieldAddressLines = lineObjects;
+        res.fieldAddress = lineObjects[0]?.y || currentY;
       }
       if (front.address) {
-        currentY -= step;
-        res.address = currentY;
+        const lines = getCheilOfficeAddressLines(front.address, "본사", 38);
+        const lineObjects = [];
+        for (let i = lines.length - 1; i >= 0; i--) {
+          currentY -= step;
+          lineObjects.unshift({ text: lines[i], y: currentY });
+        }
+        res.addressLines = lineObjects;
+        res.address = lineObjects[0]?.y || currentY;
       }
       currentY -= 20;
       res.companyName = currentY;
@@ -609,8 +623,18 @@ async function createSvgMarkupWithOutlines(
       })() : ""}
 
       ${isCheilOffice && !isBack ? `
-        ${front.address ? `<text x="${config.fields.address?.x || 220}" y="${cheilY.address}" font-size="${config.fields.address?.fontSize || 10}" font-weight="400" fill="#334155" dominant-baseline="hanging">${front.address.startsWith("본사") ? (front.address.startsWith("본사 :") ? front.address : front.address.replace(/^본사\s*:?\s*/, "본사 : ")) : `본사 : ${front.address}`}</text>` : ""}
-        ${front.fieldAddress ? `<text x="${config.fields.address?.x || 220}" y="${cheilY.fieldAddress}" font-size="${config.fields.address?.fontSize || 10}" font-weight="400" fill="#334155" dominant-baseline="hanging">${front.fieldAddress.startsWith("현장") ? (front.fieldAddress.startsWith("현장 :") ? front.fieldAddress : front.fieldAddress.replace(/^현장\s*:?\s*/, "현장 : ")) : `현장 : ${front.fieldAddress}`}</text>` : ""}
+        ${(cheilY.addressLines && cheilY.addressLines.length > 0
+          ? cheilY.addressLines
+          : front.address
+          ? getCheilOfficeAddressLines(front.address, "본사", 38).map((text, idx) => ({ text, y: cheilY.address + idx * 18 }))
+          : []
+        ).map((l: any) => `<text x="${config.fields.address?.x || 220}" y="${l.y}" font-size="${config.fields.address?.fontSize || 10}" font-weight="400" fill="#334155" dominant-baseline="hanging">${l.text}</text>`).join("")}
+        ${(cheilY.fieldAddressLines && cheilY.fieldAddressLines.length > 0
+          ? cheilY.fieldAddressLines
+          : front.fieldAddress
+          ? getCheilOfficeAddressLines(front.fieldAddress, "현장", 38).map((text, idx) => ({ text, y: cheilY.fieldAddress + idx * 18 }))
+          : []
+        ).map((l: any) => `<text x="${config.fields.address?.x || 220}" y="${l.y}" font-size="${config.fields.address?.fontSize || 10}" font-weight="400" fill="#334155" dominant-baseline="hanging">${l.text}</text>`).join("")}
       ` : (key === "cheil" && !isBack && front.address ? `
         <text x="${config.fields.address?.x}" y="${cheilY.address}" font-size="${config.fields.address?.fontSize}" font-weight="400" fill="#334155" dominant-baseline="hanging">${front.address}</text>
       ` : "")}

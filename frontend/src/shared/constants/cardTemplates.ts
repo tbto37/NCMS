@@ -47,11 +47,12 @@ export function wrapTextLines(text: string, maxCharsPerLine: number = 28): strin
   if (!text) return [];
   const trimmed = text.trim();
   if (!trimmed) return [];
-  if (trimmed.length <= maxCharsPerLine) return [trimmed];
-  
+
   if (trimmed.includes("\n")) {
     return trimmed.split("\n").flatMap((line) => wrapTextLines(line, maxCharsPerLine));
   }
+  
+  if (trimmed.length <= maxCharsPerLine) return [trimmed];
 
   const words = trimmed.split(/\s+/);
   const lines: string[] = [];

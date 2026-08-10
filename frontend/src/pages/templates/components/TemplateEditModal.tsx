@@ -463,13 +463,14 @@ export default function TemplateEditModal({
                   </div>
 
                   {isCheilOffice && (
-                    <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
-                      <label className="text-xs font-medium text-muted-foreground">현장 주소</label>
-                      <input
+                    <div className="grid grid-cols-[108px_minmax(0,1fr)] items-start gap-3">
+                      <label className="mt-2 text-xs font-medium text-muted-foreground">현장 주소</label>
+                      <textarea
+                        rows={2}
                         value={cardData.front.fieldAddress || ""}
                         onChange={(e) => handleFrontChange("fieldAddress", e.target.value)}
                         placeholder="현장주소 수기 입력 가능"
-                        className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
+                        className="w-full resize-none rounded-md border border-border bg-background px-3 py-2 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
                       />
                     </div>
                   )}
@@ -547,146 +548,146 @@ export default function TemplateEditModal({
               {/* 뒷면 입력 폼 (단면 템플릿의 경우 숨김) */}
               {!isSingleSided && (
                 <section className="overflow-hidden rounded-xl border border-border bg-card">
-                <div className="border-b border-border px-5 py-4">
-                  <h3 className="text-sm font-semibold text-foreground">뒷면 정보</h3>
-                  <p className="mt-1 text-xs text-muted-foreground">영문 명함에 표시할 정보를 입력합니다.</p>
-                </div>
-                <div className="space-y-3 px-5 py-5">
-                  {/* 1. 이름 (영문) */}
-                  <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
-                    <label className="text-xs font-medium text-muted-foreground">이름</label>
-                    <input
-                      value={cardData.back.name}
-                      onChange={(e) => handleBackChange("name", e.target.value)}
-                      className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
-                    />
+                  <div className="border-b border-border px-5 py-4">
+                    <h3 className="text-sm font-semibold text-foreground">뒷면 정보</h3>
+                    <p className="mt-1 text-xs text-muted-foreground">영문 명함에 표시할 정보를 입력합니다.</p>
                   </div>
-
-                  {/* 2. 부서 (영문) */}
-                  <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
-                    <label className="text-xs font-medium text-muted-foreground">부서</label>
-                    <input
-                      value={cardData.back.department}
-                      onChange={(e) => handleBackChange("department", e.target.value)}
-                      className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
-                    />
-                  </div>
-
-                  {/* 3. 직책 (영문) */}
-                  <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
-                    <label className="text-xs font-medium text-muted-foreground">직책</label>
-                    <input
-                      value={cardData.back.position1}
-                      onChange={(e) => handleBackChange("position1", e.target.value)}
-                      className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
-                    />
-                  </div>
-
-                  {/* 4. 직책2 (한미글로벌 수기입력) / 자격사항 (제일엔지니어링) */}
-                  <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
-                    <label className="text-xs font-medium text-muted-foreground">{isHanmi ? "직책2 (수기입력)" : "자격사항"}</label>
-                    <input
-                      value={cardData.back.position2 || ""}
-                      onChange={(e) => handleBackChange("position2", e.target.value)}
-                      placeholder={isHanmi ? "직책2 영문 수기 입력 가능" : "자격사항 직접 입력 가능"}
-                      className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
-                    />
-                  </div>
-
-                  {/* 5. 주소 1행 (영문) */}
-                  <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
-                    <label className="text-xs font-medium text-muted-foreground">주소 1행</label>
-                    <input
-                      value={cardData.back.address1}
-                      onChange={(e) => handleBackChange("address1", e.target.value)}
-                      placeholder="City Air Tower Bldg., 36, Teheran-ro"
-                      className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
-                    />
-                  </div>
-
-                  {/* 6. 주소 2행 (영문) */}
-                  <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
-                    <label className="text-xs font-medium text-muted-foreground">주소 2행</label>
-                    <input
-                      value={cardData.back.address2}
-                      onChange={(e) => handleBackChange("address2", e.target.value)}
-                      placeholder="87-gil, Gangnam-gu, Seoul, 06164,"
-                      className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
-                    />
-                  </div>
-
-                  {/* 7. 주소 3행 (영문) */}
-                  <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
-                    <label className="text-xs font-medium text-muted-foreground">주소 3행</label>
-                    <input
-                      value={cardData.back.address3 || ""}
-                      onChange={(e) => handleBackChange("address3", e.target.value)}
-                      placeholder="Korea"
-                      className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
-                    />
-                  </div>
-
-                  {/* 8. 전화번호 */}
-                  <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
-                    <label className="text-xs font-medium text-muted-foreground">
-                      {isHanmi ? "전화번호" : "대표번호"}
-                    </label>
-                    <input
-                      value={cardData.back.telephone}
-                      onChange={(e) => handleBackChange("telephone", e.target.value)}
-                      className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
-                    />
-                  </div>
-
-                  {/* 9. 팩스 (한미글로벌 제외) */}
-                  {!isHanmi && (
+                  <div className="space-y-3 px-5 py-5">
+                    {/* 1. 이름 (영문) */}
                     <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
-                      <label className="text-xs font-medium text-muted-foreground">팩스</label>
+                      <label className="text-xs font-medium text-muted-foreground">이름</label>
                       <input
-                        value={cardData.back.fax}
-                        onChange={(e) => handleBackChange("fax", e.target.value)}
+                        value={cardData.back.name}
+                        onChange={(e) => handleBackChange("name", e.target.value)}
                         className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
                       />
                     </div>
-                  )}
 
-                  {/* 10. 직통번호 (한미글로벌 제외) */}
-                  {!isHanmi && (
+                    {/* 2. 부서 (영문) */}
                     <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
-                      <label className="text-xs font-medium text-muted-foreground">직통번호</label>
+                      <label className="text-xs font-medium text-muted-foreground">부서</label>
                       <input
-                        value={cardData.back.directTelephone}
-                        onChange={(e) => handleBackChange("directTelephone", e.target.value)}
+                        value={cardData.back.department}
+                        onChange={(e) => handleBackChange("department", e.target.value)}
                         className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
                       />
                     </div>
-                  )}
 
-                  {/* 11. 핸드폰 */}
-                  <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
-                    <label className="text-xs font-medium text-muted-foreground">핸드폰</label>
-                    <input
-                      value={cardData.back.mobile}
-                      onChange={(e) => handleBackChange("mobile", e.target.value)}
-                      className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
-                    />
-                  </div>
+                    {/* 3. 직책 (영문) */}
+                    <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
+                      <label className="text-xs font-medium text-muted-foreground">직책</label>
+                      <input
+                        value={cardData.back.position1}
+                        onChange={(e) => handleBackChange("position1", e.target.value)}
+                        className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
+                      />
+                    </div>
 
-                  {/* 12. 이메일 */}
-                  <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
-                    <label className="text-xs font-medium text-muted-foreground">이메일</label>
-                    <input
-                      value={cardData.back.email}
-                      onChange={(e) => handleBackChange("email", e.target.value)}
-                      className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
-                    />
-                  </div>
+                    {/* 4. 직책2 (한미글로벌 수기입력) / 자격사항 (제일엔지니어링) */}
+                    <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
+                      <label className="text-xs font-medium text-muted-foreground">{isHanmi ? "직책2 (수기입력)" : "자격사항"}</label>
+                      <input
+                        value={cardData.back.position2 || ""}
+                        onChange={(e) => handleBackChange("position2", e.target.value)}
+                        placeholder={isHanmi ? "직책2 영문 수기 입력 가능" : "자격사항 직접 입력 가능"}
+                        className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
+                      />
+                    </div>
 
-                  {/* 13. 웹사이트 (뒷면 영문 웹사이트 항상 표시) */}
-                  <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
-                    <label className="text-xs font-medium text-muted-foreground">웹사이트</label>
-                    <input
-                      value={cardData.back.website}
+                    {/* 5. 주소 1행 (영문) */}
+                    <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
+                      <label className="text-xs font-medium text-muted-foreground">주소 1행</label>
+                      <input
+                        value={cardData.back.address1}
+                        onChange={(e) => handleBackChange("address1", e.target.value)}
+                        placeholder="City Air Tower Bldg., 36, Teheran-ro"
+                        className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
+                      />
+                    </div>
+
+                    {/* 6. 주소 2행 (영문) */}
+                    <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
+                      <label className="text-xs font-medium text-muted-foreground">주소 2행</label>
+                      <input
+                        value={cardData.back.address2}
+                        onChange={(e) => handleBackChange("address2", e.target.value)}
+                        placeholder="87-gil, Gangnam-gu, Seoul, 06164,"
+                        className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
+                      />
+                    </div>
+
+                    {/* 7. 주소 3행 (영문) */}
+                    <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
+                      <label className="text-xs font-medium text-muted-foreground">주소 3행</label>
+                      <input
+                        value={cardData.back.address3 || ""}
+                        onChange={(e) => handleBackChange("address3", e.target.value)}
+                        placeholder="Korea"
+                        className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
+                      />
+                    </div>
+
+                    {/* 8. 전화번호 */}
+                    <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
+                      <label className="text-xs font-medium text-muted-foreground">
+                        {isHanmi ? "전화번호" : "대표번호"}
+                      </label>
+                      <input
+                        value={cardData.back.telephone}
+                        onChange={(e) => handleBackChange("telephone", e.target.value)}
+                        className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
+                      />
+                    </div>
+
+                    {/* 9. 팩스 (한미글로벌 제외) */}
+                    {!isHanmi && (
+                      <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
+                        <label className="text-xs font-medium text-muted-foreground">팩스</label>
+                        <input
+                          value={cardData.back.fax}
+                          onChange={(e) => handleBackChange("fax", e.target.value)}
+                          className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
+                        />
+                      </div>
+                    )}
+
+                    {/* 10. 직통번호 (한미글로벌 제외) */}
+                    {!isHanmi && (
+                      <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
+                        <label className="text-xs font-medium text-muted-foreground">직통번호</label>
+                        <input
+                          value={cardData.back.directTelephone}
+                          onChange={(e) => handleBackChange("directTelephone", e.target.value)}
+                          className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
+                        />
+                      </div>
+                    )}
+
+                    {/* 11. 핸드폰 */}
+                    <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
+                      <label className="text-xs font-medium text-muted-foreground">핸드폰</label>
+                      <input
+                        value={cardData.back.mobile}
+                        onChange={(e) => handleBackChange("mobile", e.target.value)}
+                        className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
+                      />
+                    </div>
+
+                    {/* 12. 이메일 */}
+                    <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
+                      <label className="text-xs font-medium text-muted-foreground">이메일</label>
+                      <input
+                        value={cardData.back.email}
+                        onChange={(e) => handleBackChange("email", e.target.value)}
+                        className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
+                      />
+                    </div>
+
+                    {/* 13. 웹사이트 (뒷면 영문 웹사이트 항상 표시) */}
+                    <div className="grid grid-cols-[108px_minmax(0,1fr)] items-center gap-3">
+                      <label className="text-xs font-medium text-muted-foreground">웹사이트</label>
+                      <input
+                        value={cardData.back.website}
                         onChange={(e) => handleBackChange("website", e.target.value)}
                         placeholder={isHanmi ? "www.hanmiglobal.com" : "www.cheileng.com"}
                         className="h-9 w-full rounded-md border border-border bg-background px-3 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"

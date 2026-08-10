@@ -52,6 +52,21 @@ export function getHanmiFrontAddressLines(front: any): [string, string] {
   return [raw, ""];
 }
 
+// 제일엔지니어링 본사 현장사무실 주소겸용 (템플릿 5) 스마트 래핑 분할 처리
+export function getCheilOfficeAddressLines(rawText?: string, prefix: "본사" | "현장" = "현장", maxChars = 38): string[] {
+  if (!rawText) return [];
+  const trimmed = rawText.trim();
+  if (!trimmed) return [];
+
+  const prefStr = `${prefix} : `;
+  // 사용자가 이미 "현장 :" 또는 "본사 :"와 같이 명시적인 콜론(:) 접두사를 입력한 경우에만 중복 제거
+  const regex = new RegExp(`^${prefix}\\s*:\\s*`);
+  const cleanBody = trimmed.replace(regex, "");
+  const normalized = `${prefStr}${cleanBody}`;
+
+  return wrapTextLines(normalized, maxChars);
+}
+
 // 제일엔지니어링 영문 뒷면 주소 (2줄) 스마트 래핑 및 동적 분할 처리
 export function getCheilBackAddressLines(back: any, maxChars = 38): [string, string] {
   const raw1 = (back?.address1 || "").trim();
@@ -167,7 +182,7 @@ export default function SvgBusinessCardPreview({
   const cardY = (() => {
     if (isCheilOffice) {
       let currentY = 255;
-      const res = {
+      const res: any = {
         website: 255,
         email: 237,
         mobile: 219,
@@ -180,6 +195,8 @@ export default function SvgBusinessCardPreview({
         address3: 242,
         telephone: 201,
         companyName: 145,
+        fieldAddressLines: [] as { text: string; y: number }[],
+        addressLines: [] as { text: string; y: number }[],
       };
       const step = 18;
       res.website = currentY;
@@ -197,12 +214,24 @@ export default function SvgBusinessCardPreview({
         res.telAndFax = currentY;
       }
       if (front.fieldAddress) {
-        currentY -= step;
-        res.fieldAddress = currentY;
+        const lines = getCheilOfficeAddressLines(front.fieldAddress, "현장", 38);
+        const lineObjects = [];
+        for (let i = lines.length - 1; i >= 0; i--) {
+          currentY -= step;
+          lineObjects.unshift({ text: lines[i], y: currentY });
+        }
+        res.fieldAddressLines = lineObjects;
+        res.fieldAddress = lineObjects[0]?.y || currentY;
       }
       if (front.address) {
-        currentY -= step;
-        res.address = currentY;
+        const lines = getCheilOfficeAddressLines(front.address, "본사", 38);
+        const lineObjects = [];
+        for (let i = lines.length - 1; i >= 0; i--) {
+          currentY -= step;
+          lineObjects.unshift({ text: lines[i], y: currentY });
+        }
+        res.addressLines = lineObjects;
+        res.address = lineObjects[0]?.y || currentY;
       }
       currentY -= 20;
       res.companyName = currentY;
@@ -795,30 +824,42 @@ export default function SvgBusinessCardPreview({
           {/* 10. 주소 (Address & Field Address) */}
           {isCheilOffice && !isBack ? (
             <>
-              {front.address && (
+              {(cheilY.addressLines && cheilY.addressLines.length > 0
+                ? cheilY.addressLines
+                : front.address
+                ? getCheilOfficeAddressLines(front.address, "본사", 38).map((text, idx) => ({ text, y: cheilY.address + idx * 18 }))
+                : []
+              ).map((lineObj: { text: string; y: number }, idx: number) => (
                 <text
+                  key={`cheil-office-addr-${idx}`}
                   x={config.fields.address?.x || 220}
-                  y={cheilY.address}
+                  y={lineObj.y}
                   fontSize={config.fields.address?.fontSize || 10}
                   fontWeight="400"
                   fill="#334155"
                   dominantBaseline="hanging"
                 >
-                  {front.address.startsWith("본사") ? (front.address.startsWith("본사 :") ? front.address : front.address.replace(/^본사\s*:?\s*/, "본사 : ")) : `본사 : ${front.address}`}
+                  {lineObj.text}
                 </text>
-              )}
-              {front.fieldAddress && (
+              ))}
+              {(cheilY.fieldAddressLines && cheilY.fieldAddressLines.length > 0
+                ? cheilY.fieldAddressLines
+                : front.fieldAddress
+                ? getCheilOfficeAddressLines(front.fieldAddress, "현장", 38).map((text, idx) => ({ text, y: cheilY.fieldAddress + idx * 18 }))
+                : []
+              ).map((lineObj: { text: string; y: number }, idx: number) => (
                 <text
+                  key={`cheil-office-field-addr-${idx}`}
                   x={config.fields.address?.x || 220}
-                  y={cheilY.fieldAddress}
+                  y={lineObj.y}
                   fontSize={config.fields.address?.fontSize || 10}
                   fontWeight="400"
                   fill="#334155"
                   dominantBaseline="hanging"
                 >
-                  {front.fieldAddress.startsWith("현장") ? (front.fieldAddress.startsWith("현장 :") ? front.fieldAddress : front.fieldAddress.replace(/^현장\s*:?\s*/, "현장 : ")) : `현장 : ${front.fieldAddress}`}
+                  {lineObj.text}
                 </text>
-              )}
+              ))}
             </>
           ) : key === "cheil" && config.fields.address && front.address && (
             <text
