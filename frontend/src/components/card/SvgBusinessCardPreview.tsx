@@ -771,8 +771,8 @@ export default function SvgBusinessCardPreview({
             </text>
           )}
 
-          {/* 5. 한미글로벌 전용 대표전화 (+82 국가번호 반영 및 X=301 칼선 정렬) */}
-          {key === "hanmi" && config.fields.telephone && currentData.telephone && (
+          {/* 5. 한미글로벌 전용 대표전화 (앞면 전용 - 뒷면 영문 명함에서는 100% 제거) */}
+          {key === "hanmi" && !isBack && config.fields.telephone && currentData.telephone && (
             <text
               x={config.fields.telephone.x}
               y={cardY.telephone}

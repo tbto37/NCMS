@@ -134,14 +134,17 @@ function renderBackgroundGraphics(
     }
   }
 
-  // 2. 로고 이미지 (Logo)
+  // 2. 로고 이미지 (Logo - 세로 비율 좁혀 슬림화)
   if (logoBase64) {
-    const logoSpec = config.logoSpec || {
-      x: key === "cheil" ? 32 : 30,
-      y: key === "cheil" ? 36 : 48,
-      width: key === "cheil" ? 155 : 150,
-      height: 48,
-    };
+    const defaultLogoH = key === "cheil" ? 48 : 36;
+    const logoSpec = config.logoSpec
+      ? { ...config.logoSpec, height: key === "hanmi" ? 36 : config.logoSpec.height }
+      : {
+          x: key === "cheil" ? 32 : 30,
+          y: key === "cheil" ? 36 : (isBack ? 52 : 48),
+          width: key === "cheil" ? 155 : 150,
+          height: defaultLogoH,
+        };
     try {
       doc.addImage(
         logoBase64,
@@ -463,7 +466,7 @@ function renderPureNativeTextStream(
     doc.text(text, config.fields.telAndFax.x * sx, (cheilY.telAndFax + 12.5 * 0.76) * sy);
   }
 
-  if (key === "hanmi" && currentData.telephone) {
+  if (key === "hanmi" && !isBack && currentData.telephone) {
     const telVal = currentData.telephone.startsWith("+82")
       ? currentData.telephone
       : `+82 (0)${currentData.telephone.replace(/^0/, "")}`;
