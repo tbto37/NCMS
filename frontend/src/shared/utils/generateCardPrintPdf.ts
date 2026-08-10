@@ -309,12 +309,12 @@ async function createSvgMarkupWithOutlines(
         currentY -= step;
         res.telAndFax = currentY;
       }
-      if (front.fieldAddress) {
-        const lines = getCheilOfficeAddressLines(front.fieldAddress, "현장", 38);
+      const fieldAddrLines = getCheilOfficeAddressLines(front.fieldAddress, "현장", 38);
+      if (fieldAddrLines.length > 0) {
         const lineObjects = [];
-        for (let i = lines.length - 1; i >= 0; i--) {
+        for (let i = fieldAddrLines.length - 1; i >= 0; i--) {
           currentY -= step;
-          lineObjects.unshift({ text: lines[i], y: currentY });
+          lineObjects.unshift({ text: fieldAddrLines[i], y: currentY });
         }
         res.fieldAddressLines = lineObjects;
         res.fieldAddress = lineObjects[0]?.y || currentY;

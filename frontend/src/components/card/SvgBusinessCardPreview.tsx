@@ -54,16 +54,21 @@ export function getHanmiFrontAddressLines(front: any): [string, string] {
 
 // 제일엔지니어링 본사 현장사무실 주소겸용 (템플릿 5) 스마트 래핑 분할 처리
 export function getCheilOfficeAddressLines(rawText?: string, prefix: "본사" | "현장" = "현장", maxChars = 38): string[] {
-  if (!rawText) return [];
-  const trimmed = rawText.trim();
-  if (!trimmed) return [];
+  const trimmed = (rawText || "").trim();
 
   const prefStr = `${prefix} : `;
   // 사용자가 이미 "현장 :" 또는 "본사 :"와 같이 명시적인 콜론(:) 접두사를 입력한 경우에만 중복 제거
   const regex = new RegExp(`^${prefix}\\s*:\\s*`);
   const cleanBody = trimmed.replace(regex, "");
-  const normalized = `${prefStr}${cleanBody}`;
 
+  if (!cleanBody && prefix === "현장") {
+    return [`${prefix} : `];
+  }
+  if (!cleanBody) {
+    return [];
+  }
+
+  const normalized = `${prefStr}${cleanBody}`;
   return wrapTextLines(normalized, maxChars);
 }
 
@@ -227,12 +232,12 @@ export default function SvgBusinessCardPreview({
         currentY -= step;
         res.telAndFax = currentY;
       }
-      if (front.fieldAddress) {
-        const lines = getCheilOfficeAddressLines(front.fieldAddress, "현장", 38);
+      const fieldAddrLines = getCheilOfficeAddressLines(front.fieldAddress, "현장", 38);
+      if (fieldAddrLines.length > 0) {
         const lineObjects = [];
-        for (let i = lines.length - 1; i >= 0; i--) {
+        for (let i = fieldAddrLines.length - 1; i >= 0; i--) {
           currentY -= step;
-          lineObjects.unshift({ text: lines[i], y: currentY });
+          lineObjects.unshift({ text: fieldAddrLines[i], y: currentY });
         }
         res.fieldAddressLines = lineObjects;
         res.fieldAddress = lineObjects[0]?.y || currentY;

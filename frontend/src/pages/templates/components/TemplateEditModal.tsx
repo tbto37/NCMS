@@ -457,7 +457,7 @@ export default function TemplateEditModal({
                       rows={2}
                       value={cardData.front.address}
                       onChange={(e) => handleFrontChange("address", e.target.value)}
-                      placeholder={isCheilOffice ? "서울시 서초구 강남대로16길 22-6(양재동)" : "06164, 서울시 강남구 테헤란로 87길&#10;36 도심공항타워"}
+                      placeholder={isCheilOffice ? "서울시 서초구 강남대로16길 22-6(양재동)" : "06164, 서울시 강남구 테헤란로 87길\n36 도심공항타워"}
                       className="w-full resize-none rounded-md border border-border bg-background px-3 py-2 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
                     />
                   </div>
@@ -469,7 +469,7 @@ export default function TemplateEditModal({
                         rows={2}
                         value={cardData.front.fieldAddress || ""}
                         onChange={(e) => handleFrontChange("fieldAddress", e.target.value)}
-                        placeholder="현장주소 수기 입력 가능"
+                        placeholder="현장주소 수기 입력 가능 (줄바꿈 : 엔터)"
                         className="w-full resize-none rounded-md border border-border bg-background px-3 py-2 text-xs text-foreground outline-none transition focus:border-ring focus:ring-2 focus:ring-ring/15"
                       />
                     </div>
