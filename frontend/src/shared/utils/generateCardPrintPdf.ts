@@ -614,10 +614,9 @@ async function createSvgMarkupWithOutlines(
     : "";
 
   return `
-    <svg viewBox="-5.767 -5.767 530.533 299.866" width="530.533" height="299.866" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="background:#ffffff; font-family:${key === "hanmi" ? "'NanumSquare', 'Pretendard Variable', Pretendard, sans-serif" : "'Pretendard Variable', Pretendard, -apple-system, sans-serif"}; display:block;">
+    <svg viewBox="-5.767 -5.767 530.533 299.866" width="530.533" height="299.866" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="background:#ffffff; font-family:${key === "hanmi" ? "'NanumSquare', sans-serif" : "'HYUlsungdoM', 'NanumSquare', sans-serif"}; display:block;">
       <defs>
         <style>
-          @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css');
           text { forced-color-adjust: none; color-scheme: light; }
         </style>
       </defs>
@@ -625,7 +624,7 @@ async function createSvgMarkupWithOutlines(
       ${logoBase64 ? `<image href="${logoBase64}" xlink:href="${logoBase64}" x="${logoSpec.x}" y="${logoSpec.y}" width="${logoSpec.width}" height="${logoSpec.height}" preserveAspectRatio="xMinYMin meet" />` : ""}
       ${sloganHtml}
 
-      ${config.fields.name && nameText ? `<text x="${config.fields.name.x}" y="${config.fields.name.y}" font-size="${config.fields.name.fontSize}" font-weight="${config.fields.name.fontWeight || "700"}" fill="${config.fields.name.fill || "#0f172a"}" letter-spacing="${!isBack && key === "cheil" ? "0.35em" : !isBack ? "0.25em" : "normal"}" dominant-baseline="hanging">${nameText}</text>` : ""}
+      ${config.fields.name && nameText ? `<text x="${config.fields.name.x}" y="${config.fields.name.y}" font-size="${config.fields.name.fontSize}" font-weight="${config.fields.name.fontWeight || "700"}" fill="${config.fields.name.fill || "#0f172a"}" font-family="${!isBack && key === "cheil" ? "HYUlsungdoM" : "NanumSquare"}" letter-spacing="${!isBack && key === "cheil" ? "0.35em" : !isBack ? "0.25em" : "normal"}" dominant-baseline="hanging">${nameText}</text>` : ""}
 
       ${!isBack ? (() => {
         if (isCheilOffice) {
