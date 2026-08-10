@@ -125,14 +125,83 @@ flowchart TD
 
 ### 4.8 고객사 맞춤형 메뉴 & 이용가이드 & 실데이터 매핑 (Tenant Guide & Data) - [완료]
 - **GUI-001 테넌트(cheil/hanmi) 전용 이용가이드 및 커스텀 브랜드 로고/타이틀**: `siteCode`가 `cheil` 또는 `hanmi`인 경우 및 로그컴 관리자(`logcom`) 접속 시 로그인 화면([LoginPage.tsx](file:///c:/NCMS/frontend/src/pages/auth/LoginPage.tsx))과 메인 사이드바([Sidebar.tsx](file:///c:/NCMS/frontend/src/components/layout/Sidebar.tsx)) 상단에 브랜드 로고 자산(`cheil_logo.png`, `hanmi_logo.png`, `logcom_logo.jpg`)을 렌더링하도록 일체화. 로그인 하단 문의 영역 정보(이메일: `logcom2@naver.com`, 전화: `02-552-7942`) 업데이트 완료. 또한 사이드바 `이용가이드` 메뉴 및 가이드 모달(`UserGuideModal`) 연동 완료.
-- **DAT-001 테넌트별 레이아웃 정밀 조정 및 미리보기-PDF 100% 동기화**: `/public/hanmi/` 및 `/public/cheil/` 하위 자산 구조 정형화. 제일엔지니어링 앞면 상호(y: 133) 및 뒷면 상호(y: 136), 슬로건 위치(x: 38, y: 237) 등 모든 수직/수평 좌표 체계를 공통 명함 스펙(`CARD_TEMPLATE_SPECS`)과 `cheilY` 연산 객체로 통합 관리하여 웹 미리보기(`SvgBusinessCardPreview.tsx`)와 고해상도 인쇄용 PDF 다운로드 엔진(`generateCardPrintPdf.ts`)에 100% 동일하게 일치 적용 완료.
+- **DAT-001 테넌트별 레이아웃 정밀 조정 및 미리보기-PDF 100% 동기화**: `/public/hanmi/` 및 `/public/cheil/` 하위 자산 구조 정형화. 제일엔지니어링 앞면 상호(y: 124) 및 뒷면 상호(y: 121), 슬로건 위치(x: 35, y: 236) 등 모든 수직/수평 좌표 체계를 공통 명함 스펙(`CARD_TEMPLATE_SPECS`)과 `cheilY` 연산 객체로 통합 관리하여 웹 미리보기(`SvgBusinessCardPreview.tsx`)와 고해상도 인쇄용 PDF 다운로드 엔진(`generateCardPrintPdf.ts`)에 100% 동일하게 일치 적용 완료.
 - **DAT-002 향후 DB 부서/직급 마스터 연동 대비 표준화**: 명함 데이터(`card_data` JSONB)는 기존 자유 입력을 100% 보존하면서, 표준 인터페이스(`StandardCardFieldData`: `departmentName`, `departmentId`, `positionName`, `positionId`) 적용 및 DB `departments` 마스터 시드 데이터([V7__add_standard_department_seeds.sql](file:///c:/NCMS/backend/src/main/resources/db/migration/V7__add_standard_department_seeds.sql))를 최신 `companyData` 데이터셋과 100% 동기화 보강 완료.
 
 
 ---
 
-## 5. 2차 개발 이전 및 간소화 사항 (MVP 제외)
+## 5. 고객사별 명함 PDF 레이아웃 및 폰트 디자인 명세
+
+### 5.1 공통 인쇄 PDF 규격
+- **캔버스 스케일**: 519 × 288.333 SVG coordinate scale ➔ **jsPDF 92mm × 52mm (가로 92mm, 세로 52mm landscape)**
+- **좌표 축척 변환율**: `sx = 92 / 519`, `sy = 52 / 288.333`
+- **TrueType ASCII VFS 폰트 레지스트리**:
+  - `NanumSquareEB` ➔ `/fonts/NanumSquareEB.ttf`
+  - `NanumSquareB` ➔ `/fonts/NanumSquareB_1.ttf`
+  - `NanumSquareR` ➔ `/fonts/NanumSquareR.ttf`
+  - `AppleSDGothicNeoL00` / `AppleSDGothicNeo` ➔ `/fonts/NanumSquareR.ttf`
+  - `AppleSDGothicNeoB00` / `AppleSDGothicNeoB` ➔ `/fonts/NanumSquareB_1.ttf`
+
+---
+
+### 5.2 한미글로벌 (HanmiGlobal) PDF 사양
+- **로고 Y좌표**: 앞면 `y = 67`, 뒷면 `y = 71` (우측 이동 X: `28`)
+- **앞면 (국문)**:
+  - **성명 (Name)**: `NanumSquareEB` 13pt (`y = 44`, baseline `44 + 13 * 0.76`)
+  - **부서/직급**: `NanumSquareB` 6pt
+  - **상호명 이미지 Asset**: `y = 148`, 가로 `143.7`, 세로 `14.2`
+  - **하단 연락처 & 주소 항목**: `NanumSquareB` 7pt
+    - 라벨/값 2pt 이격 간격 적용 (값 시작 X: `288`)
+    - T (대표전화): `y = 172`
+    - M (핸드폰): `y = 193`
+    - E (이메일): `y = 214`
+    - Addr1 (주소 1행): `y = 238`
+    - Addr2 (주소 2행): `y = 258`
+- **뒷면 (영문)**:
+  - **상호명 이미지 Asset**: `y = 164`, 가로 `159.9`, 세로 `14.2`
+  - **웹사이트 (`www.hanmiglobal.com`)**: `y = 188` (독립 위치)
+  - **영문 주소 (3줄)**: `y = 209`, `227`, `245`
+  - **직책 2 (`position2`)**: `y = 110` (`x = 268`)
+
+---
+
+### 5.3 제일엔지니어링 (Cheil Engineering) PDF 사양
+- **성명 (Name)**: `NanumSquareEB` 11pt
+  - Y좌표: `54` (기본 44 대비 +10pt 하향 조정)
+- **부서 / 직급 (Department & Position)**: `NanumSquareB` 6pt
+  - **장문 자동 자간 축소**: 영문 부서/직급 텍스트 길이가 **45자 이상**일 경우 우측 잘림 방지를 위해 자동으로 **자간 10 축소 (`{ charSpace: -0.12 }`)** 렌더링 적용
+- **상호명 이미지 Asset (Company Name Image)**:
+  - **앞면 `templateId === 4` (`cheil_front_name.jpg`)**: `y = 124`, `height = 16`, `width = 122` (가로 늘어짐 방지 축소 보정)
+  - **앞면 기타 템플릿 (`cheil_build_front_name.jpg`)**: `y = 124`, `height = 16`, `width = 252`
+  - **뒷면 전체 템플릿 (`cheil_back_name.jpg`)**: `y = 121`, `height = 9.5`, `width = 234` (전체 뒷면 9.5pt 축소)
+- **슬로건 이미지 Asset ("Smiling Technology")**:
+  - `y = 236`, `height = 15.5`, `width = 135` (세로 비율 축소)
+- **주소 및 연락처 블록 (Address & Contacts)**:
+  - **폰트**: `AppleSDGothicNeoL00` 7pt (일반 텍스트), `AppleSDGothicNeoB00` 7pt (웹사이트)
+  - **자간**: **`-30` em** (`{ charSpace: -0.24 }`)
+  - **앞면 국문 레이아웃**:
+    - 주소 Line 1: `151`
+    - 대표전화/팩스 (`telAndFax`): `170`
+    - 직통전화 (`directTel`): `189`
+    - 핸드폰 (`mobile`): `208`
+    - 이메일 (`email`): `227`
+    - 웹사이트 (`website`): `246`
+  - **뒷면 영문 레이아웃 (개별 완전 독립 분리 & 줄간격 +2 확장)**:
+    - 상호명: `121`
+    - 주소 Line 1 (`address1`): `141` (`22-6, Gangnamdaero 16gil, Seocho-gu,`)
+    - 주소 Line 2 (`address2`): `156` (`Seoul, Korea (06779)`) - *전화번호 라인과 겹침 100% 방지*
+    - 대표전화 (`telAndFax`): `174` (+18pt 확장)
+    - 직통전화 (`directTel`): `192` (+18pt 확장)
+    - 핸드폰 (`mobile`): `210` (+18pt 확장)
+    - 이메일 (`email`): `228` (+18pt 확장)
+    - 웹사이트 (`website`): `246` (+18pt 확장)
+
+---
+
+## 6. 2차 개발 이전 및 간소화 사항 (MVP 제외)
 - 복잡한 캔버스 좌표/폰트 정밀 validation 엔진 (`EDT-006` 정밀 처리 등)
 - DB 비동기 메일 발송 큐 및 재시도 워커 (`notifications` 세부 스케줄링)
 - 31개 세부 이력/감사 로그 테이블 및 SHA-256 파일 체크섬 일치 검사
 - 결제 시스템(토스페이먼츠) 및 월별 정산 시스템
+

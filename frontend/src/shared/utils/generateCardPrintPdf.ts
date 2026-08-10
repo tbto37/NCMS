@@ -194,12 +194,17 @@ function renderBackgroundGraphics(
     }
   }
 
-  // 4. 상호 이미지 (Company Name Asset - 제일엔지니어링 상호만 위로 -2 상향 이동)
+  // 4. 상호 이미지 (Company Name Asset - 제일엔지니어링 앞면 templateId 4: 122pt, 뒷면 전체 상호 9.5pt 축소)
   if (config.fields.companyName && companyNameAssetBase64) {
     let companyX = config.fields.companyName.x * sx;
     let companyY = (!isBack ? 124 : 121) * sy;
-    let companyW = (!isBack ? 252 : 258) * sx;
-    let companyH = (!isBack ? 16 : 10.5) * sy;
+    let companyW = (!isBack ? 252 : 234) * sx;
+    let companyH = (!isBack ? 16 : 9.5) * sy;
+
+    const isTemplate4 = tidStr === "4" || tidStr.includes("cheil_front_name");
+    if (key === "cheil" && isTemplate4 && !isBack) {
+      companyW = 122 * sx;
+    }
 
     if (key === "hanmi") {
       companyY = (!isBack ? 148 : 164) * sy;
@@ -463,21 +468,31 @@ function renderPureNativeTextStream(
     doc.text(front.position2, x, y);
   }
 
-  // 3. 뒷면 영문 부서 / 직급 (제일엔지니어링 디자인 명세 6pt NanumSquareB 적용)
+  // 3. 뒷면 영문 부서 / 직급 (제일엔지니어링 디자인 명세 6pt NanumSquareB 적용 - 45자 이상 시 자간 10 축소)
   if (isBack) {
     if (key === "cheil") {
       const cBackText = [back.department, back.position1?.replace(/\/$/, "").trim()].filter(Boolean).join(" / ");
       if (cBackText) {
+        const options = cBackText.length >= 45 ? { charSpace: -0.12 } : undefined;
         doc.setFont("NanumSquareB", "normal");
         doc.setFontSize(6);
         doc.setTextColor(30, 41, 59);
-        doc.text(cBackText, 220 * sx, (62 + 6 * 0.76) * sy);
+        if (options) {
+          doc.text(cBackText, 220 * sx, (62 + 6 * 0.76) * sy, options);
+        } else {
+          doc.text(cBackText, 220 * sx, (62 + 6 * 0.76) * sy);
+        }
       }
       if (back.position2) {
+        const options2 = back.position2.length >= 45 ? { charSpace: -0.12 } : undefined;
         doc.setFont("NanumSquareB", "normal");
         doc.setFontSize(6);
         doc.setTextColor(71, 85, 105);
-        doc.text(back.position2, 220 * sx, (79 + 6 * 0.76) * sy);
+        if (options2) {
+          doc.text(back.position2, 220 * sx, (79 + 6 * 0.76) * sy, options2);
+        } else {
+          doc.text(back.position2, 220 * sx, (79 + 6 * 0.76) * sy);
+        }
       }
     } else {
       if (back.position1) {
