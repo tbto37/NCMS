@@ -93,7 +93,12 @@ async function registerFontToDoc(doc: jsPDF, fontUrl: string, fontName: string, 
     const buffer = await fetchArrayBuffer(fontUrl);
     if (!buffer) return;
     const base64 = arrayBufferToBase64(buffer);
-    const fileName = `${asciiFontName}.ttf`;
+
+    // OTF와 TTF 확장자를 정확히 구분하여 등록 (Acrobat Invalid /BBox 에러 방지)
+    const isOtf = fontUrl.toLowerCase().includes(".otf");
+    const ext = isOtf ? "otf" : "ttf";
+    const fileName = `${asciiFontName}.${ext}`;
+
     doc.addFileToVFS(fileName, base64);
     doc.addFont(fileName, asciiFontName, fontStyle);
   } catch (e) {
