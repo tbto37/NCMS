@@ -82,7 +82,7 @@ public class OrderService {
 
         if (isCheilCompany && (isCheilEmpUser || "ROLE_EMPLOYEE".equals(member.getUsername()) || isCheilCompany)) {
             java.util.Optional<Member> cheilAdminOpt = memberRepository.findByUsername("cheil_admin");
-            String targetEmail = cheilAdminOpt.map(Member::getEmail).orElse(null);
+            String targetEmail = cheilAdminOpt.map(m -> m.getEmail()).orElse(null);
 
             if (targetEmail == null || targetEmail.isBlank()) {
                 List<Member> companyMembers = memberRepository.findByCompanyId(company.getId());
