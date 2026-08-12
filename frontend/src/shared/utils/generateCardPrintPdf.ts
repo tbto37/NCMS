@@ -582,7 +582,8 @@ function renderPureNativeTextStream(
 
   if (!isBack) {
     if (key === "cheil" && front.address) {
-      doc.text(front.address, (config.fields.address?.x || 220) * sx, (cheilY.address + 7 * 0.76) * sy, { charSpace: cheilBottomCharSpace });
+      const addrCharSpace = front.address.length >= 36 ? -0.28 : cheilBottomCharSpace;
+      doc.text(front.address, (config.fields.address?.x || 220) * sx, (cheilY.address + 7 * 0.76) * sy, { charSpace: addrCharSpace });
     } else if (key === "hanmi") {
       const [addr1, addr2] = getHanmiFrontAddressLines(front);
       if (addr1) doc.text(addr1, (config.fields.address1?.x || 268) * sx, (cardY.address1 + 7 * 0.76) * sy);
@@ -591,8 +592,10 @@ function renderPureNativeTextStream(
   } else {
     if (key === "cheil") {
       const [c1, c2] = getCheilBackAddressLines(back);
-      if (c1) doc.text(c1, (config.fields.address1?.x || 220) * sx, (cheilY.address1 + 7 * 0.76) * sy, { charSpace: cheilBottomCharSpace });
-      if (c2) doc.text(c2, (config.fields.address2?.x || 220) * sx, (cheilY.address2 + 7 * 0.76) * sy, { charSpace: cheilBottomCharSpace });
+      const c1CharSpace = (c1 && c1.length >= 36) ? -0.15 : cheilBottomCharSpace;
+      const c2CharSpace = (c2 && c2.length >= 36) ? -0.15 : cheilBottomCharSpace;
+      if (c1) doc.text(c1, (config.fields.address1?.x || 220) * sx, (cheilY.address1 + 7 * 0.76) * sy, { charSpace: c1CharSpace });
+      if (c2) doc.text(c2, (config.fields.address2?.x || 220) * sx, (cheilY.address2 + 7 * 0.76) * sy, { charSpace: c2CharSpace });
     } else if (key === "hanmi") {
       const [a1, a2, a3] = getHanmiBackAddressLines(back);
       if (a1) doc.text(a1, (config.fields.address1?.x || 268) * sx, (cardY.address1 + 7 * 0.76) * sy);
