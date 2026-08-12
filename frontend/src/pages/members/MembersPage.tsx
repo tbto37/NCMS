@@ -236,6 +236,7 @@ export default function MembersPage() {
       id: member.id,
       loginId: member.loginId,
       password: member.password,
+      email: member.email,
       department: member.dept,
     });
   }
@@ -303,10 +304,10 @@ export default function MembersPage() {
 
     if (applied.filterValue) {
       const value = applied.filterValue.toLowerCase();
-      const field = applied.filterField as "loginId" | "password";
+      const field = applied.filterField as "loginId" | "password" | "email";
 
       if (
-        !String(member[field])
+        !String(member[field] ?? "")
           .toLowerCase()
           .includes(value)
       ) {
@@ -533,9 +534,10 @@ export default function MembersPage() {
               <table className="w-full min-w-[760px] table-fixed">
                 <colgroup>
                   <col style={{ width: "48px" }} />
+                  <col style={{ width: "18%" }} />
+                  <col style={{ width: "22%" }} />
+                  <col style={{ width: "22%" }} />
                   <col style={{ width: "24%" }} />
-                  <col style={{ width: "31%" }} />
-                  <col style={{ width: "31%" }} />
                   <col style={{ width: "96px" }} />
                 </colgroup>
 
@@ -554,6 +556,7 @@ export default function MembersPage() {
                     "회사명",
                     "ID",
                     "패스워드",
+                    "이메일",
                     "액션",
                   ].map((header) => (
                     <th
@@ -614,6 +617,10 @@ export default function MembersPage() {
 
                       <td className="px-4 py-2 font-mono text-xs text-muted-foreground">
                         {member.password}
+                      </td>
+
+                      <td className="px-4 py-2 text-xs text-muted-foreground truncate">
+                        {member.email || "-"}
                       </td>
 
                       <td
@@ -691,8 +698,9 @@ export default function MembersPage() {
                         </span>
                       </div>
 
-                      <div className="mt-1 font-mono text-xs text-muted-foreground">
-                        패스워드: {member.password}
+                      <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
+                        <span className="font-mono">패스워드: {member.password}</span>
+                        <span className="truncate">이메일: {member.email || "-"}</span>
                       </div>
 
                       <div
@@ -748,15 +756,36 @@ export default function MembersPage() {
             } catch (err) {
               console.error("비밀번호 변경 실패:", err);
             }
-
-            setMembers((prevMembers) =>
-              prevMembers.map((m) =>
-                m.id === updatedMember.id || m.loginId === updatedMember.loginId
-                  ? { ...m, password: updatedMember.password || m.password }
-                  : m
-              )
-            );
           }
+
+          if (updatedMember.email !== undefined) {
+            try {
+              await fetch(`${API_BASE_URL}/api/v1/company/members/${updatedMember.id}`, {
+                method: "PUT",
+                headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${accessToken}`,
+                },
+                body: JSON.stringify({
+                  email: updatedMember.email,
+                }),
+              });
+            } catch (err) {
+              console.error("이메일 수정 실패:", err);
+            }
+          }
+
+          setMembers((prevMembers) =>
+            prevMembers.map((m) =>
+              String(m.id) === String(updatedMember.id) || m.loginId === updatedMember.loginId
+                ? {
+                    ...m,
+                    password: updatedMember.password || m.password,
+                    email: updatedMember.email !== undefined ? updatedMember.email : m.email,
+                  }
+                : m
+            )
+          );
 
           setSelectedMember(null);
         }}

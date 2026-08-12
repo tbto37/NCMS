@@ -1,6 +1,6 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { Trash2, TriangleAlert, X } from "lucide-react";
+import { Loader2, Trash2, TriangleAlert, X } from "lucide-react";
 
 export interface MemberDeleteData {
   id: string | number;
@@ -13,7 +13,7 @@ interface MemberDeleteConfirmModalProps {
   open: boolean;
   member: MemberDeleteData | null;
   onClose: () => void;
-  onConfirm?: (member: MemberDeleteData) => void;
+  onConfirm?: (member: MemberDeleteData) => Promise<void> | void;
 }
 
 export default function MemberDeleteConfirmModal({
@@ -22,11 +22,16 @@ export default function MemberDeleteConfirmModal({
                                                    onClose,
                                                    onConfirm,
                                                  }: MemberDeleteConfirmModalProps) {
+  const [submitting, setSubmitting] = useState(false);
+
   useEffect(() => {
-    if (!open) return;
+    if (!open) {
+      setSubmitting(false);
+      return;
+    }
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
+      if (event.key === "Escape" && !submitting) {
         onClose();
       }
     };
@@ -36,15 +41,28 @@ export default function MemberDeleteConfirmModal({
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [open, onClose]);
+  }, [open, onClose, submitting]);
 
   if (!open || !member) return null;
+
+  const handleConfirm = async () => {
+    if (submitting) return;
+
+    try {
+      setSubmitting(true);
+      await onConfirm?.(member);
+    } catch (error) {
+      console.error("회원 삭제 처리 중 오류:", error);
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return createPortal(
     <div
       className="fixed inset-0 z-[230] flex items-center justify-center bg-black/55 p-4 backdrop-blur-[2px]"
       onMouseDown={(event) => {
-        if (event.target === event.currentTarget) {
+        if (!submitting && event.target === event.currentTarget) {
           onClose();
         }
       }}
@@ -78,9 +96,10 @@ export default function MemberDeleteConfirmModal({
 
           <button
             type="button"
-            onClick={onClose}
+            onClick={() => !submitting && onClose()}
+            disabled={submitting}
             aria-label="회원 삭제 창 닫기"
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-muted-foreground transition hover:bg-secondary hover:text-foreground"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-muted-foreground transition hover:bg-secondary hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <X size={18} />
           </button>
@@ -142,19 +161,30 @@ export default function MemberDeleteConfirmModal({
         <footer className="flex shrink-0 items-center justify-end gap-2 border-t border-border bg-card px-5 py-4 sm:px-6">
           <button
             type="button"
-            onClick={onClose}
-            className="h-10 rounded-md border border-border bg-background px-4 text-xs font-medium text-foreground transition hover:bg-secondary"
+            onClick={() => !submitting && onClose()}
+            disabled={submitting}
+            className="h-10 rounded-md border border-border bg-background px-4 text-xs font-medium text-foreground transition hover:bg-secondary disabled:opacity-50 disabled:cursor-not-allowed"
           >
             취소
           </button>
 
           <button
             type="button"
-            onClick={() => onConfirm?.(member)}
-            className="flex h-10 items-center gap-2 rounded-md bg-red-500 px-4 text-xs font-medium text-white transition hover:bg-red-600"
+            onClick={handleConfirm}
+            disabled={submitting}
+            className="flex h-10 items-center gap-2 rounded-md bg-red-500 px-4 text-xs font-medium text-white transition hover:bg-red-600 disabled:opacity-60 disabled:cursor-not-allowed"
           >
-            <Trash2 size={14} />
-            삭제
+            {submitting ? (
+              <>
+                <Loader2 size={14} className="animate-spin" />
+                <span>삭제 중...</span>
+              </>
+            ) : (
+              <>
+                <Trash2 size={14} />
+                <span>삭제</span>
+              </>
+            )}
           </button>
         </footer>
       </div>

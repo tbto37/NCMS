@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
-import { Pencil, X } from "lucide-react";
+import { Loader2, Pencil, X } from "lucide-react";
 
 export interface MemberEditData {
   id: number | string;
   loginId?: string;
   password?: string;
+  email?: string;
   department?: string;
 }
 
@@ -13,7 +14,7 @@ interface MemberEditModalProps {
   open: boolean;
   member: MemberEditData | null;
   onClose: () => void;
-  onSubmit?: (member: MemberEditData) => void;
+  onSubmit?: (member: MemberEditData) => Promise<void> | void;
 }
 
 export default function MemberEditModal({
@@ -26,8 +27,10 @@ export default function MemberEditModal({
     id: "",
     loginId: "",
     password: "",
+    email: "",
     department: "",
   });
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     if (!open || !member) return;
@@ -36,15 +39,17 @@ export default function MemberEditModal({
       id: member.id ?? "",
       loginId: member.loginId ?? String(member.id ?? ""),
       password: member.password ?? "",
+      email: member.email ?? "",
       department: member.department ?? "",
     });
+    setSubmitting(false);
   }, [open, member]);
 
   useEffect(() => {
     if (!open) return;
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
+      if (event.key === "Escape" && !submitting) {
         onClose();
       }
     };
@@ -54,7 +59,7 @@ export default function MemberEditModal({
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [open, onClose]);
+  }, [open, onClose, submitting]);
 
   if (!open || !member) return null;
 
@@ -68,16 +73,25 @@ export default function MemberEditModal({
     }));
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    onSubmit?.(form);
+    if (submitting) return;
+
+    try {
+      setSubmitting(true);
+      await onSubmit?.(form);
+    } catch (error) {
+      console.error("회원 정보 수정 처리 중 오류:", error);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return createPortal(
     <div
       className="fixed inset-0 z-[220] flex items-center justify-center bg-black/55 p-4 backdrop-blur-[2px]"
       onMouseDown={(event) => {
-        if (event.target === event.currentTarget) {
+        if (!submitting && event.target === event.currentTarget) {
           onClose();
         }
       }}
@@ -110,9 +124,10 @@ export default function MemberEditModal({
 
           <button
             type="button"
-            onClick={onClose}
+            onClick={() => !submitting && onClose()}
+            disabled={submitting}
             aria-label="회원 수정 창 닫기"
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-muted-foreground transition hover:bg-secondary hover:text-foreground"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-muted-foreground transition hover:bg-secondary hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <X size={18} />
           </button>
@@ -152,11 +167,34 @@ export default function MemberEditModal({
                 id="member-edit-password"
                 type="text"
                 value={form.password ?? ""}
+                disabled={submitting}
                 onChange={(event) =>
                   handleChange("password", event.target.value)
                 }
                 placeholder="변경할 비밀번호를 입력하세요"
-                className="h-10 w-full rounded-md border border-border bg-secondary/45 px-3 text-xs font-mono text-foreground outline-none transition placeholder:text-muted-foreground/70 focus:border-ring focus:bg-background focus:ring-2 focus:ring-ring/15"
+                className="h-10 w-full rounded-md border border-border bg-secondary/45 px-3 text-xs font-mono text-foreground outline-none transition placeholder:text-muted-foreground/70 focus:border-ring focus:bg-background focus:ring-2 focus:ring-ring/15 disabled:opacity-60 disabled:cursor-not-allowed"
+              />
+            </div>
+
+            {/* 이메일 (Editable) */}
+            <div>
+              <label
+                htmlFor="member-edit-email"
+                className="mb-1.5 block text-xs font-semibold text-foreground"
+              >
+                이메일
+              </label>
+
+              <input
+                id="member-edit-email"
+                type="email"
+                value={form.email ?? ""}
+                disabled={submitting}
+                onChange={(event) =>
+                  handleChange("email", event.target.value)
+                }
+                placeholder="이메일 주소를 입력하세요"
+                className="h-10 w-full rounded-md border border-border bg-secondary/45 px-3 text-xs text-foreground outline-none transition placeholder:text-muted-foreground/70 focus:border-ring focus:bg-background focus:ring-2 focus:ring-ring/15 disabled:opacity-60 disabled:cursor-not-allowed"
               />
             </div>
 
@@ -183,17 +221,26 @@ export default function MemberEditModal({
           <footer className="flex items-center justify-end gap-2 border-t border-border bg-card px-5 py-4">
             <button
               type="button"
-              onClick={onClose}
-              className="h-9 rounded-md border border-border bg-background px-4 text-xs font-medium text-foreground transition hover:bg-secondary"
+              onClick={() => !submitting && onClose()}
+              disabled={submitting}
+              className="h-9 rounded-md border border-border bg-background px-4 text-xs font-medium text-foreground transition hover:bg-secondary disabled:opacity-50 disabled:cursor-not-allowed"
             >
               취소
             </button>
 
             <button
               type="submit"
-              className="h-9 rounded-md bg-primary px-4 text-xs font-medium text-primary-foreground transition hover:opacity-90"
+              disabled={submitting}
+              className="flex items-center gap-1.5 h-9 rounded-md bg-primary px-4 text-xs font-medium text-primary-foreground transition hover:opacity-90 disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              수정
+              {submitting ? (
+                <>
+                  <Loader2 size={13} className="animate-spin" />
+                  <span>수정 중...</span>
+                </>
+              ) : (
+                <span>수정</span>
+              )}
             </button>
           </footer>
         </form>

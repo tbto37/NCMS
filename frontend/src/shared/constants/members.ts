@@ -47,6 +47,10 @@ export const MEMBER_FILTER_FIELDS = [
     value: "password",
     label: "패스워드",
   },
+  {
+    value: "email",
+    label: "이메일",
+  },
 ] as const;
 
 export const MEMBER_TAB_ACTIONS: {
