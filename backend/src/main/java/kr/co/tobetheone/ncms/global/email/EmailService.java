@@ -55,4 +55,47 @@ public class EmailService {
             log.error("[EMAIL NOTIFICATION] Failed to send approval email for OrderNo: {}. Error: {}", orderNo, e.getMessage(), e);
         }
     }
+
+    public void sendCheilOrderNotification(Order order, String targetEmail) {
+        if (targetEmail == null || targetEmail.isBlank()) {
+            log.warn("[EMAIL NOTIFICATION] cheil_admin email is missing. Skipping email notification.");
+            return;
+        }
+
+        String orderNo = order != null && order.getOrderNo() != null ? order.getOrderNo() : "-";
+        String recipientName = order != null && order.getRecipientName() != null ? order.getRecipientName() : "주문자";
+        String memberName = (order != null && order.getMember() != null && order.getMember().getName() != null)
+                ? order.getMember().getName()
+                : recipientName;
+
+        String subject = String.format("[제일엔지니어링] 신규 주문이 접수되었습니다. (주문번호: %s)", orderNo);
+        String body = String.format(
+                "안녕하세요, 제일엔지니어링 기업 관리자님.\n\n" +
+                "소속 임직원(%s)의 신규 명함 주문이 완결/접수되었습니다.\n\n" +
+                "- 고객사: 제일엔지니어링\n" +
+                "- 주문번호: %s\n" +
+                "- 주문자/수령인: %s\n" +
+                "- 진행 상태: PENDING (검수 대기)\n\n" +
+                "감사합니다.",
+                memberName, orderNo, recipientName
+        );
+
+        log.info("[EMAIL NOTIFICATION] Sending Cheil order completion mail for OrderNo: {} to cheil_admin ({})", orderNo, targetEmail);
+
+        if (mailSender == null) {
+            log.warn("[EMAIL NOTIFICATION] JavaMailSender is not configured. Mail notification simulated for OrderNo: {} to {}", orderNo, targetEmail);
+            return;
+        }
+
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setTo(targetEmail);
+            message.setSubject(subject);
+            message.setText(body);
+            mailSender.send(message);
+            log.info("[EMAIL NOTIFICATION] Cheil order completion email successfully sent to {} for OrderNo: {}", targetEmail, orderNo);
+        } catch (Exception e) {
+            log.error("[EMAIL NOTIFICATION] Failed to send Cheil order email for OrderNo: {}. Error: {}", orderNo, e.getMessage(), e);
+        }
+    }
 }

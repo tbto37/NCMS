@@ -76,6 +76,29 @@ public class OrderService {
 
         orderSnapshotRepository.save(snapshot);
 
+        // 제일엔지니어링의 경우 cheil_emp (또는 제일엔지니어링 소속 계정)가 주문을 수행했을 때 cheil_admin의 email로 알림 메일 발송
+        boolean isCheilCompany = company != null && ("cheil".equalsIgnoreCase(company.getSiteCode()) || "제일엔지니어링".equals(company.getName()));
+        boolean isCheilEmpUser = member != null && "cheil_emp".equalsIgnoreCase(member.getUsername());
+
+        if (isCheilCompany && (isCheilEmpUser || "ROLE_EMPLOYEE".equals(member.getUsername()) || isCheilCompany)) {
+            java.util.Optional<Member> cheilAdminOpt = memberRepository.findByUsername("cheil_admin");
+            String targetEmail = cheilAdminOpt.map(Member::getEmail).orElse(null);
+
+            if (targetEmail == null || targetEmail.isBlank()) {
+                List<Member> companyMembers = memberRepository.findByCompanyId(company.getId());
+                for (Member cm : companyMembers) {
+                    if (cm.getEmail() != null && !cm.getEmail().isBlank()) {
+                        targetEmail = cm.getEmail();
+                        break;
+                    }
+                }
+            }
+
+            if (targetEmail != null && !targetEmail.isBlank()) {
+                emailService.sendCheilOrderNotification(order, targetEmail);
+            }
+        }
+
         return toResponse(order);
     }
 
