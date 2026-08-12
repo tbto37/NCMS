@@ -124,10 +124,11 @@ export function getCheilCardY(
     address2: isSvgPreview ? 170 : 156,
     address3: 233,
     telephone: 149,
-    companyName: isSvgPreview ? (!isBack ? 141 : 136) : (!isBack ? 124 : 121),
+    companyName: isSvgPreview ? (!isBack ? 141 : 137.5) : (!isBack ? 132 : 128.5),
   };
 
-  const step = !isBack ? 19 : (isSvgPreview ? 17 : 18);
+  // 행간(Leading 비율): 앞면 1.39 (step=19), 뒷면 1.27 (step=17.5) 균일 연동
+  const step = !isBack ? 19 : 17.5;
   res.website = currentY;
 
   if (config.fields.email && currentData.email) {
@@ -162,13 +163,13 @@ export function getCheilCardY(
       res.address2 = currentY;
     }
     if (c1) {
-      currentY -= (isSvgPreview ? step : 15);
+      currentY -= step;
       res.address1 = currentY;
       res.address = currentY;
     }
   }
   if (config.fields.companyName) {
-    currentY -= (!isBack ? 27 : 20);
+    currentY -= step;
     res.companyName = currentY;
   }
   return res;
@@ -526,6 +527,31 @@ export default function SvgBusinessCardPreview({
           <defs>
             <style>{`
               @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css');
+              @font-face {
+                font-family: 'NanumSquareEB';
+                src: url('/fonts/NanumSquareEB.ttf') format('truetype');
+                font-weight: 800;
+              }
+              @font-face {
+                font-family: 'NanumSquareB';
+                src: url('/fonts/NanumSquareB_1.ttf') format('truetype');
+                font-weight: 700;
+              }
+              @font-face {
+                font-family: 'NanumSquareR';
+                src: url('/fonts/NanumSquareR.ttf') format('truetype');
+                font-weight: 400;
+              }
+              @font-face {
+                font-family: 'AppleSDGothicNeoL00';
+                src: url('/fonts/NanumSquareR.ttf') format('truetype');
+                font-weight: 400;
+              }
+              @font-face {
+                font-family: 'AppleSDGothicNeoB00';
+                src: url('/fonts/NanumSquareB_1.ttf') format('truetype');
+                font-weight: 700;
+              }
               text { forced-color-adjust: none; color-scheme: light; }
             `}</style>
           </defs>
@@ -578,7 +604,8 @@ export default function SvgBusinessCardPreview({
               x={config.fields.name.x}
               y={config.fields.name.y}
               fontSize={config.fields.name.fontSize}
-              fontWeight={config.fields.name.fontWeight || "700"}
+              fontWeight={key === "cheil" ? "800" : (config.fields.name.fontWeight || "700")}
+              fontFamily={key === "cheil" ? "'NanumSquareEB', 'NanumSquare', sans-serif" : undefined}
               fill={config.fields.name.fill || "#0f172a"}
               letterSpacing={!isBack && key === "cheil" ? "0.35em" : !isBack ? "0.25em" : "normal"}
               dominantBaseline="hanging"
@@ -635,7 +662,8 @@ export default function SvgBusinessCardPreview({
                       x={config.fields.departmentPosition.x}
                       y={config.fields.departmentPosition.y}
                       fontSize={config.fields.departmentPosition.fontSize}
-                      fontWeight={config.fields.departmentPosition.fontWeight || "500"}
+                      fontWeight={key === "cheil" ? "700" : (config.fields.departmentPosition.fontWeight || "500")}
+                      fontFamily={key === "cheil" ? "'NanumSquareB', 'NanumSquare', sans-serif" : undefined}
                       fill={config.fields.departmentPosition.fill || "#1e293b"}
                       letterSpacing={getCondensedLetterSpacing(deptPosText, threshold)}
                       dominantBaseline="hanging"
@@ -652,6 +680,7 @@ export default function SvgBusinessCardPreview({
                       y={config.fields.position2?.y || (key === "cheil" ? 79 : 94)}
                       fontSize={config.fields.position2?.fontSize || (key === "cheil" ? 12.5 : 12.2)}
                       fontWeight={config.fields.position2?.fontWeight || (key === "cheil" ? "400" : "700")}
+                      fontFamily={key === "cheil" ? "'NanumSquareB', 'NanumSquare', sans-serif" : undefined}
                       fill={config.fields.position2?.fill || (key === "cheil" ? "#475569" : "#1e293b")}
                       letterSpacing={getCondensedLetterSpacing(front.position2, threshold)}
                       dominantBaseline="hanging"
@@ -673,7 +702,8 @@ export default function SvgBusinessCardPreview({
                         x={config.fields.departmentPosition?.x || 220}
                         y={62}
                         fontSize={12.5}
-                        fontWeight="500"
+                        fontWeight="700"
+                        fontFamily="'NanumSquareB', 'NanumSquare', sans-serif"
                         fill="#1e293b"
                         letterSpacing={getCondensedLetterSpacing(cBackText, 30)}
                         dominantBaseline="hanging"
@@ -688,6 +718,7 @@ export default function SvgBusinessCardPreview({
                       y={79}
                       fontSize={12.5}
                       fontWeight="400"
+                      fontFamily="'NanumSquareB', 'NanumSquare', sans-serif"
                       fill="#475569"
                       letterSpacing={getCondensedLetterSpacing(back.position2, 30)}
                       dominantBaseline="hanging"
@@ -779,6 +810,8 @@ export default function SvgBusinessCardPreview({
               y={key === "cheil" ? cheilY.telAndFax : config.fields.telAndFax.y}
               fontSize={config.fields.telAndFax.fontSize}
               fontWeight="400"
+              fontFamily={key === "cheil" ? "'Apple SD Gothic Neo', 'NanumSquareR', 'NanumSquare', sans-serif" : undefined}
+              letterSpacing={key === "cheil" ? "-0.03em" : undefined}
               fill="#1e293b"
               dominantBaseline="hanging"
             >
@@ -816,6 +849,8 @@ export default function SvgBusinessCardPreview({
               y={key === "cheil" ? cheilY.directTel : config.fields.directTelephone.y}
               fontSize={config.fields.directTelephone.fontSize}
               fontWeight="400"
+              fontFamily={key === "cheil" ? "'Apple SD Gothic Neo', 'NanumSquareR', 'NanumSquare', sans-serif" : undefined}
+              letterSpacing={key === "cheil" ? "-0.03em" : undefined}
               fill="#1e293b"
               dominantBaseline="hanging"
             >
@@ -834,6 +869,8 @@ export default function SvgBusinessCardPreview({
               y={key === "cheil" ? cheilY.mobile : (key === "hanmi" ? cardY.mobile : config.fields.mobile.y)}
               fontSize={config.fields.mobile.fontSize}
               fontWeight="400"
+              fontFamily={key === "cheil" ? "'Apple SD Gothic Neo', 'NanumSquareR', 'NanumSquare', sans-serif" : undefined}
+              letterSpacing={key === "cheil" ? "-0.03em" : undefined}
               fill="#1e293b"
               dominantBaseline="hanging"
             >
@@ -863,6 +900,8 @@ export default function SvgBusinessCardPreview({
               y={key === "cheil" ? cheilY.email : (key === "hanmi" ? cardY.email : config.fields.email.y)}
               fontSize={config.fields.email.fontSize}
               fontWeight="400"
+              fontFamily={key === "cheil" ? "'Apple SD Gothic Neo', 'NanumSquareR', 'NanumSquare', sans-serif" : undefined}
+              letterSpacing={key === "cheil" ? "-0.03em" : undefined}
               fill="#1e293b"
               dominantBaseline="hanging"
             >
@@ -888,6 +927,8 @@ export default function SvgBusinessCardPreview({
               y={key === "cheil" ? cheilY.website : (key === "hanmi" ? cardY.website : config.fields.website.y)}
               fontSize={config.fields.website.fontSize}
               fontWeight={key === "cheil" ? "700" : "500"}
+              fontFamily={key === "cheil" ? "'Apple SD Gothic Neo', 'NanumSquareB', 'NanumSquare', sans-serif" : undefined}
+              letterSpacing={key === "cheil" ? "-0.03em" : undefined}
               fill={config.fields.website.fill || "#004B96"}
               dominantBaseline="hanging"
             >
@@ -992,6 +1033,8 @@ export default function SvgBusinessCardPreview({
               y={cheilY.address}
               fontSize={config.fields.address.fontSize}
               fontWeight="400"
+              fontFamily="'Apple SD Gothic Neo', 'NanumSquareR', 'NanumSquare', sans-serif"
+              letterSpacing="-0.03em"
               fill="#334155"
               dominantBaseline="hanging"
             >
@@ -1039,6 +1082,8 @@ export default function SvgBusinessCardPreview({
                     x={config.fields.address1?.x}
                     y={cheilY.address1}
                     fontSize={config.fields.address1?.fontSize}
+                    fontFamily="'Apple SD Gothic Neo', 'NanumSquareR', 'NanumSquare', sans-serif"
+                    letterSpacing="-0.03em"
                     fill="#334155"
                     dominantBaseline="hanging"
                   >
@@ -1048,6 +1093,8 @@ export default function SvgBusinessCardPreview({
                     x={config.fields.address2?.x}
                     y={cheilY.address2}
                     fontSize={config.fields.address2?.fontSize}
+                    fontFamily="'Apple SD Gothic Neo', 'NanumSquareR', 'NanumSquare', sans-serif"
+                    letterSpacing="-0.03em"
                     fill="#334155"
                     dominantBaseline="hanging"
                   >

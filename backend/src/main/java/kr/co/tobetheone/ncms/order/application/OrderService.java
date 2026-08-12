@@ -121,6 +121,10 @@ public class OrderService {
 
         order.updateStatus(status);
 
+        if ("APPROVED".equalsIgnoreCase(status)) {
+            emailService.sendApprovalNotification(order);
+        }
+
         if (carrierCode != null && trackingNumber != null) {
             Shipment shipment = shipmentRepository.findByOrderId(orderId)
                     .orElseGet(() -> Shipment.builder().order(order).carrierCode(carrierCode)

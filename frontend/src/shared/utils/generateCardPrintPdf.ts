@@ -195,10 +195,14 @@ function renderBackgroundGraphics(
     }
   }
 
-  // 4. 상호 이미지 (Company Name Asset - 제일엔지니어링 앞면 templateId 4: 122pt, 뒷면 전체 상호 9.5pt 축소)
+  // 4. 상호 이미지 (Company Name Asset - 제일엔지니어링 앞면 -6, 뒷면 -2 오프셋 적용)
   if (config.fields.companyName && companyNameAssetBase64) {
+    let companyYBase = (key === "cheil" && cheilY?.companyName !== undefined ? cheilY.companyName : (!isBack ? 124 : 121));
+    if (key === "cheil") {
+      companyYBase -= (!isBack ? 6 : 2);
+    }
     let companyX = config.fields.companyName.x * sx;
-    let companyY = (key === "cheil" && cheilY?.companyName !== undefined ? cheilY.companyName : (!isBack ? 124 : 121)) * sy;
+    let companyY = companyYBase * sy;
     let companyW = (!isBack ? 252 : 234) * sx;
     let companyH = (!isBack ? 16 : 9.5) * sy;
 
@@ -394,8 +398,10 @@ function renderPureNativeTextStream(
   })();
 
   const cheilY = cardY;
+  // Adobe Acrobat VA -0.50 (앞면, -0.17mm) 및 VA -0.25 (뒷면, -0.08mm) 음수 자간(Condensed) 적용
+  const cheilBottomCharSpace = !isBack ? -0.17 : -0.08;
 
-  // 1. 성명 (Name - 제일엔지니어링 아래로 +2 추가 하향 이동)
+  // 1. 성명 (Name - 원복)
   const nameText = !isBack ? formatKoreanName(front.name) : back.name;
   if (config.fields.name && nameText) {
     const x = config.fields.name.x * sx;
@@ -489,7 +495,7 @@ function renderPureNativeTextStream(
     }
   }
 
-  // 4. 연락처 (T, M, E - 제일엔지니어링 디자인 명세 AppleSDGothicNeoL00 7pt 자간 -30 적용)
+  // 4. 연락처 (T, M, E - 제일엔지니어링 자간 앞면 0.5VA, 뒷면 0.25VA 적용)
   if (key === "cheil" && config.fields.telAndFax && (currentData.telephone || currentData.fax)) {
     const text = !isBack
       ? `${currentData.telephone ? `${isCheilOffice ? "전화 :" : "대표 :"} ${currentData.telephone}` : ""}${currentData.telephone && currentData.fax ? "   " : ""}${currentData.fax ? `팩스 : ${currentData.fax}` : ""}`
@@ -497,7 +503,7 @@ function renderPureNativeTextStream(
     doc.setFont("AppleSDGothicNeoL00", "normal");
     doc.setFontSize(7);
     doc.setTextColor(30, 41, 59);
-    doc.text(text, config.fields.telAndFax.x * sx, (cheilY.telAndFax + 7 * 0.76) * sy, { charSpace: -0.24 });
+    doc.text(text, config.fields.telAndFax.x * sx, (cheilY.telAndFax + 7 * 0.76) * sy, { charSpace: cheilBottomCharSpace });
   }
 
   if (key === "hanmi" && !isBack && currentData.telephone) {
@@ -521,7 +527,7 @@ function renderPureNativeTextStream(
     doc.setFontSize(key === "cheil" ? 7 : (key === "hanmi" ? 7 : 12.5 * 0.35));
     doc.setTextColor(30, 41, 59);
     if (key === "cheil") {
-      doc.text(text, config.fields.directTelephone.x * sx, (cheilY.directTel + 7 * 0.76) * sy, { charSpace: -0.24 });
+      doc.text(text, config.fields.directTelephone.x * sx, (cheilY.directTel + 7 * 0.76) * sy, { charSpace: cheilBottomCharSpace });
     } else {
       doc.text(text, config.fields.directTelephone.x * sx, (config.fields.directTelephone.y + 7 * 0.76) * sy);
     }
@@ -540,7 +546,7 @@ function renderPureNativeTextStream(
       doc.text("M", xBase * sx, yVal);
       doc.text(mobileVal, (xBase + 20) * sx, yVal);
     } else {
-      doc.text(!isBack ? `핸드폰 : ${currentData.mobile}` : `Mobile: ${currentData.mobile}`, xBase * sx, yVal, { charSpace: -0.24 });
+      doc.text(!isBack ? `핸드폰 : ${currentData.mobile}` : `Mobile: ${currentData.mobile}`, xBase * sx, yVal, { charSpace: cheilBottomCharSpace });
     }
   }
 
@@ -554,7 +560,7 @@ function renderPureNativeTextStream(
       doc.text("E", xBase * sx, yVal);
       doc.text(currentData.email, (xBase + 20) * sx, yVal);
     } else {
-      doc.text(`E-mail: ${currentData.email}`, xBase * sx, yVal, { charSpace: -0.24 });
+      doc.text(`E-mail: ${currentData.email}`, xBase * sx, yVal, { charSpace: cheilBottomCharSpace });
     }
   }
 
@@ -563,20 +569,20 @@ function renderPureNativeTextStream(
     doc.setFontSize(key === "cheil" ? 7 : (key === "hanmi" ? 7 : 13.5 * 0.35));
     doc.setTextColor(key === "cheil" ? 15 : 0, key === "cheil" ? 23 : 75, key === "cheil" ? 42 : 150);
     if (key === "cheil") {
-      doc.text(currentData.website, config.fields.website.x * sx, (cheilY.website + 7 * 0.76) * sy, { charSpace: -0.24 });
+      doc.text(currentData.website, config.fields.website.x * sx, (cheilY.website + 7 * 0.76) * sy, { charSpace: cheilBottomCharSpace });
     } else {
       doc.text(currentData.website, config.fields.website.x * sx, (cardY.website + 7 * 0.76) * sy);
     }
   }
 
-  // 5. 주소 (Address - 제일엔지니어링 디자인 명세 AppleSDGothicNeoL00 7pt 자간 -30 적용)
+  // 5. 주소 (Address - 제일엔지니어링 자간 앞면 0.5VA, 뒷면 0.25VA 적용)
   doc.setFont(key === "cheil" ? "AppleSDGothicNeoL00" : "NanumSquareB", "normal");
   doc.setFontSize(key === "cheil" ? 7 : 7);
   doc.setTextColor(51, 65, 85); // #334155
 
   if (!isBack) {
     if (key === "cheil" && front.address) {
-      doc.text(front.address, (config.fields.address?.x || 220) * sx, (cheilY.address + 7 * 0.76) * sy, { charSpace: -0.24 });
+      doc.text(front.address, (config.fields.address?.x || 220) * sx, (cheilY.address + 7 * 0.76) * sy, { charSpace: cheilBottomCharSpace });
     } else if (key === "hanmi") {
       const [addr1, addr2] = getHanmiFrontAddressLines(front);
       if (addr1) doc.text(addr1, (config.fields.address1?.x || 268) * sx, (cardY.address1 + 7 * 0.76) * sy);
@@ -585,8 +591,8 @@ function renderPureNativeTextStream(
   } else {
     if (key === "cheil") {
       const [c1, c2] = getCheilBackAddressLines(back);
-      if (c1) doc.text(c1, (config.fields.address1?.x || 220) * sx, (cheilY.address1 + 7 * 0.76) * sy, { charSpace: -0.24 });
-      if (c2) doc.text(c2, (config.fields.address2?.x || 220) * sx, (cheilY.address2 + 7 * 0.76) * sy, { charSpace: -0.24 });
+      if (c1) doc.text(c1, (config.fields.address1?.x || 220) * sx, (cheilY.address1 + 7 * 0.76) * sy, { charSpace: cheilBottomCharSpace });
+      if (c2) doc.text(c2, (config.fields.address2?.x || 220) * sx, (cheilY.address2 + 7 * 0.76) * sy, { charSpace: cheilBottomCharSpace });
     } else if (key === "hanmi") {
       const [a1, a2, a3] = getHanmiBackAddressLines(back);
       if (a1) doc.text(a1, (config.fields.address1?.x || 268) * sx, (cardY.address1 + 7 * 0.76) * sy);
@@ -971,7 +977,8 @@ async function createSvgMarkupWithOutlines(
     } else {
       const defaultCheilFront = (tidStr === "4" || tidStr.includes("cheil_front_name")) ? "/cheil/cheil_front_name.jpg" : "/cheil/cheil_build_front_name.jpg";
       const src = companyNameAssetBase64 || (!isBack ? defaultCheilFront : "/cheil/cheil_back_name.jpg");
-      companyHtml = `<image href="${src}" xlink:href="${src}" x="${config.fields.companyName.x}" y="${cheilY.companyName}" width="${!isBack ? 252 : 258}" height="${!isBack ? 16 : 10.5}" preserveAspectRatio="xMinYMin meet" />`;
+      const companyYVal = cheilY.companyName - (!isBack ? 6 : 2);
+      companyHtml = `<image href="${src}" xlink:href="${src}" x="${config.fields.companyName.x}" y="${companyYVal}" width="${!isBack ? 252 : 258}" height="${!isBack ? 16 : 10.5}" preserveAspectRatio="xMinYMin meet" />`;
     }
   }
 
@@ -998,47 +1005,47 @@ async function createSvgMarkupWithOutlines(
       ${logoBase64 ? `<image href="${logoBase64}" xlink:href="${logoBase64}" x="${logoSpec.x}" y="${logoSpec.y}" width="${logoSpec.width}" height="${logoSpec.height}" preserveAspectRatio="xMinYMin meet" />` : ""}
       ${sloganHtml}
 
-      ${config.fields.name && nameText ? `<text x="${config.fields.name.x}" y="${config.fields.name.y}" font-size="${config.fields.name.fontSize}" font-weight="${config.fields.name.fontWeight || "700"}" fill="${config.fields.name.fill || "#0f172a"}" font-family="${!isBack && key === "cheil" ? "HYUlsungdoM" : "NanumSquare"}" letter-spacing="${!isBack && key === "cheil" ? "0.35em" : !isBack ? "0.25em" : "normal"}" dominant-baseline="hanging">${nameText}</text>` : ""}
+      ${config.fields.name && nameText ? `<text x="${config.fields.name.x}" y="${config.fields.name.y}" font-size="${config.fields.name.fontSize}" font-weight="${config.fields.name.fontWeight || "700"}" fill="${config.fields.name.fill || "#0f172a"}" font-family="${!isBack && key === "cheil" ? "HYUlsungdoM" : "NanumSquare"}" letter-spacing="${key === "cheil" ? (!isBack ? "0.5em" : "0.25em") : (!isBack ? "0.25em" : "normal")}" dominant-baseline="hanging">${nameText}</text>` : ""}
 
       ${!isBack ? (() => {
-        if (isCheilOffice) {
-          const deptText = front.department || "";
-          const posText = [front.position1, front.position2].filter(Boolean).join(" / ");
-          return `
+      if (isCheilOffice) {
+        const deptText = front.department || "";
+        const posText = [front.position1, front.position2].filter(Boolean).join(" / ");
+        return `
             ${deptText ? `<text x="220" y="60" font-size="12.5" font-weight="500" fill="#1e293b" letter-spacing="${getCondensedLetterSpacing(deptText, 29) || "normal"}" dominant-baseline="hanging">${deptText}</text>` : ""}
             ${posText ? `<text x="220" y="${deptText ? 77 : 60}" font-size="12.5" font-weight="500" fill="#1e293b" letter-spacing="${getCondensedLetterSpacing(posText, 29) || "normal"}" dominant-baseline="hanging">${posText}</text>` : ""}
           `;
-        }
-        const threshold = key === "cheil" ? 29 : 26;
-        const deptPosFontSz = config.fields.departmentPosition?.fontSize || (key === "cheil" ? 12.5 : 12.2);
-        const pos2Text = front.position2 || "";
-        const pos2FontSz = config.fields.position2?.fontSize || (key === "cheil" ? 12.5 : 12.2);
-        return `
+      }
+      const threshold = key === "cheil" ? 29 : 26;
+      const deptPosFontSz = config.fields.departmentPosition?.fontSize || (key === "cheil" ? 12.5 : 12.2);
+      const pos2Text = front.position2 || "";
+      const pos2FontSz = config.fields.position2?.fontSize || (key === "cheil" ? 12.5 : 12.2);
+      return `
           ${config.fields.departmentPosition && deptPosText ? `<text x="${config.fields.departmentPosition.x}" y="${config.fields.departmentPosition.y}" font-size="${deptPosFontSz}" font-weight="${config.fields.departmentPosition.fontWeight || "500"}" fill="${config.fields.departmentPosition.fill || "#1e293b"}" letter-spacing="${getCondensedLetterSpacing(deptPosText, threshold) || "normal"}" dominant-baseline="hanging">${deptPosText}</text>` : ""}
           ${pos2Text ? `<text x="${config.fields.position2?.x || (key === "cheil" ? 220 : 268)}" y="${config.fields.position2?.y || (key === "cheil" ? 79 : 94)}" font-size="${pos2FontSz}" font-weight="${config.fields.position2?.fontWeight || (key === "cheil" ? "400" : "700")}" fill="${config.fields.position2?.fill || (key === "cheil" ? "#475569" : "#1e293b")}" letter-spacing="${getCondensedLetterSpacing(pos2Text, threshold) || "normal"}" dominant-baseline="hanging">${pos2Text}</text>` : ""}
         `;
-      })() : ""}
+    })() : ""}
 
       ${isBack ? (() => {
-        if (key === "cheil") {
-          const cBackText = [back.department, back.position1?.replace(/\/$/, "").trim()].filter(Boolean).join(" / ");
-          const pos2Text = back.position2 || "";
-          return `
+      if (key === "cheil") {
+        const cBackText = [back.department, back.position1?.replace(/\/$/, "").trim()].filter(Boolean).join(" / ");
+        const pos2Text = back.position2 || "";
+        return `
             ${cBackText ? `<text x="220" y="62" font-size="12.5" font-weight="500" fill="#1e293b" letter-spacing="${getCondensedLetterSpacing(cBackText, 30) || "normal"}" dominant-baseline="hanging">${cBackText}</text>` : ""}
             ${pos2Text ? `<text x="220" y="79" font-size="12.5" font-weight="400" fill="#475569" letter-spacing="${getCondensedLetterSpacing(pos2Text, 30) || "normal"}" dominant-baseline="hanging">${pos2Text}</text>` : ""}
           `;
-        }
-        const hBackPos1 = (config.fields.position1 && back.position1)
-          ? ((back.department && back.department.trim() !== "") ? (back.position1.endsWith("/") ? back.position1 : back.position1 + " /") : back.position1.replace(/\/$/, "").trim())
-          : "";
-        const hBackDept = back.department || "";
-        const hBackPos2 = back.position2 || "";
-        return `
+      }
+      const hBackPos1 = (config.fields.position1 && back.position1)
+        ? ((back.department && back.department.trim() !== "") ? (back.position1.endsWith("/") ? back.position1 : back.position1 + " /") : back.position1.replace(/\/$/, "").trim())
+        : "";
+      const hBackDept = back.department || "";
+      const hBackPos2 = back.position2 || "";
+      return `
           ${hBackPos1 ? `<text x="${config.fields.position1.x}" y="${config.fields.position1.y}" font-size="${config.fields.position1.fontSize}" font-weight="400" fill="#1e293b" letter-spacing="${getCondensedLetterSpacing(hBackPos1, 28) || "normal"}" dominant-baseline="hanging">${hBackPos1}</text>` : ""}
           ${hBackDept ? `<text x="${config.fields.department.x}" y="${config.fields.department.y}" font-size="${config.fields.department.fontSize}" font-weight="500" fill="#1e293b" letter-spacing="${getCondensedLetterSpacing(hBackDept, 28) || "normal"}" dominant-baseline="hanging">${hBackDept}</text>` : ""}
           ${hBackPos2 ? `<text x="268" y="110" font-size="12.2" font-weight="700" fill="#1e293b" letter-spacing="${getCondensedLetterSpacing(hBackPos2, 28) || "normal"}" dominant-baseline="hanging">${hBackPos2}</text>` : ""}
         `;
-      })() : ""}
+    })() : ""}
 
       ${companyHtml}
 
@@ -1055,58 +1062,58 @@ async function createSvgMarkupWithOutlines(
       ${config.fields.website && currentData.website ? `<text x="${config.fields.website.x}" y="${key === "cheil" ? cheilY.website : (key === "hanmi" ? cardY.website : config.fields.website.y)}" font-size="${config.fields.website.fontSize}" font-weight="700" fill="${key === "cheil" ? "#0f172a" : "#004B96"}" dominant-baseline="hanging">${currentData.website}</text>` : ""}
 
       ${key === "hanmi" && !isBack ? (() => {
-        const [addr1, addr2] = getHanmiFrontAddressLines(front);
-        return `
+      const [addr1, addr2] = getHanmiFrontAddressLines(front);
+      return `
           ${addr1 ? `<text x="${config.fields.address1?.x}" y="${cardY.address1}" font-size="${config.fields.address1?.fontSize}" font-weight="400" fill="#334155" dominant-baseline="hanging">${addr1}</text>` : ""}
           ${addr2 ? `<text x="${config.fields.address2?.x}" y="${cardY.address2}" font-size="${config.fields.address2?.fontSize}" font-weight="400" fill="#334155" dominant-baseline="hanging">${addr2}</text>` : ""}
         `;
-      })() : ""}
+    })() : ""}
 
       ${isCheilOffice && !isBack ? (() => {
-        const labelX = config.fields.address?.x || 220;
-        const bodyX = labelX + 31;
-        const fontSize = config.fields.address?.fontSize || 10;
+      const labelX = config.fields.address?.x || 220;
+      const bodyX = labelX + 31;
+      const fontSize = config.fields.address?.fontSize || 10;
 
-        const addrLines = cheilY.addressLines && cheilY.addressLines.length > 0
-          ? cheilY.addressLines.map((l: any) => l.text)
-          : (front.address ? getCheilOfficeAddressLines(front.address, "본사", 34) : []);
+      const addrLines = cheilY.addressLines && cheilY.addressLines.length > 0
+        ? cheilY.addressLines.map((l: any) => l.text)
+        : (front.address ? getCheilOfficeAddressLines(front.address, "본사", 34) : []);
 
-        const fieldLines = cheilY.fieldAddressLines && cheilY.fieldAddressLines.length > 0
-          ? cheilY.fieldAddressLines.map((l: any) => l.text)
-          : (front.fieldAddress ? getCheilOfficeAddressLines(front.fieldAddress, "현장", 34) : [""]);
+      const fieldLines = cheilY.fieldAddressLines && cheilY.fieldAddressLines.length > 0
+        ? cheilY.fieldAddressLines.map((l: any) => l.text)
+        : (front.fieldAddress ? getCheilOfficeAddressLines(front.fieldAddress, "현장", 34) : [""]);
 
-        const renderBlock = (lines: string[], prefix: string, startY: number) => {
-          if (lines.length === 0) return "";
-          return lines.map((text, idx) => {
-            const lineY = startY + idx * 18;
-            if (idx === 0) {
-              return `<text y="${lineY}" font-size="${fontSize}" font-weight="400" fill="#334155" dominant-baseline="hanging"><tspan x="${labelX}">${prefix} : </tspan><tspan x="${bodyX}">${text}</tspan></text>`;
-            }
-            return `<text x="${bodyX}" y="${lineY}" font-size="${fontSize}" font-weight="400" fill="#334155" dominant-baseline="hanging">${text}</text>`;
-          }).join("");
-        };
+      const renderBlock = (lines: string[], prefix: string, startY: number) => {
+        if (lines.length === 0) return "";
+        return lines.map((text, idx) => {
+          const lineY = startY + idx * 18;
+          if (idx === 0) {
+            return `<text y="${lineY}" font-size="${fontSize}" font-weight="400" fill="#334155" dominant-baseline="hanging"><tspan x="${labelX}">${prefix} : </tspan><tspan x="${bodyX}">${text}</tspan></text>`;
+          }
+          return `<text x="${bodyX}" y="${lineY}" font-size="${fontSize}" font-weight="400" fill="#334155" dominant-baseline="hanging">${text}</text>`;
+        }).join("");
+      };
 
-        return renderBlock(addrLines, "본사", cheilY.address) + renderBlock(fieldLines, "현장", cheilY.fieldAddress);
-      })() : (key === "cheil" && !isBack && front.address ? `
+      return renderBlock(addrLines, "본사", cheilY.address) + renderBlock(fieldLines, "현장", cheilY.fieldAddress);
+    })() : (key === "cheil" && !isBack && front.address ? `
         <text x="${config.fields.address?.x}" y="${cheilY.address}" font-size="${config.fields.address?.fontSize}" font-weight="400" fill="#334155" dominant-baseline="hanging">${front.address}</text>
       ` : "")}
 
       ${isBack && key === "cheil" ? (() => {
-        const [cAddr1, cAddr2] = getCheilBackAddressLines(back);
-        return `
+      const [cAddr1, cAddr2] = getCheilBackAddressLines(back);
+      return `
           <text x="${config.fields.address1?.x}" y="${cheilY.address1}" font-size="${config.fields.address1?.fontSize}" fill="#334155" dominant-baseline="hanging">${cAddr1}</text>
           <text x="${config.fields.address2?.x}" y="${cheilY.address2}" font-size="${config.fields.address2?.fontSize}" fill="#334155" dominant-baseline="hanging">${cAddr2}</text>
         `;
-      })() : ""}
+    })() : ""}
 
       ${isBack && key === "hanmi" ? (() => {
-        const [bAddr1, bAddr2, bAddr3] = getHanmiBackAddressLines(back);
-        return `
+      const [bAddr1, bAddr2, bAddr3] = getHanmiBackAddressLines(back);
+      return `
           ${bAddr1 ? `<text x="${config.fields.address1?.x}" y="${cardY.address1}" font-size="${config.fields.address1?.fontSize}" fill="#334155" dominant-baseline="hanging">${bAddr1}</text>` : ""}
           ${bAddr2 ? `<text x="${config.fields.address2?.x}" y="${cardY.address2}" font-size="${config.fields.address2?.fontSize}" fill="#334155" dominant-baseline="hanging">${bAddr2}</text>` : ""}
           ${bAddr3 ? `<text x="${config.fields.address3?.x}" y="${cardY.address3}" font-size="${config.fields.address3?.fontSize}" fill="#334155" dominant-baseline="hanging">${bAddr3}</text>` : ""}
         `;
-      })() : ""}
+    })() : ""}
     </svg>
   `;
 }
