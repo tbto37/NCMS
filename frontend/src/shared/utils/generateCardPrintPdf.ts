@@ -2,7 +2,7 @@ import { jsPDF } from "jspdf";
 import * as opentype from "opentype.js";
 import type { BusinessCardInputData } from "@/shared/types/businessCard";
 import { CARD_TEMPLATE_SPECS } from "@/shared/constants/cardTemplates";
-import { getHanmiFrontAddressLines, getHanmiBackAddressLines, getCheilBackAddressLines, getCheilOfficeAddressLines, getCondensedLetterSpacing } from "@/components/card/SvgBusinessCardPreview";
+import { getHanmiFrontAddressLines, getHanmiBackAddressLines, getCheilBackAddressLines, getCheilOfficeAddressLines, getCondensedLetterSpacing, getCheilCardY } from "@/components/card/SvgBusinessCardPreview";
 
 interface OrderLike {
   id?: string;
@@ -116,7 +116,8 @@ function renderBackgroundGraphics(
   logoBase64: string,
   companyNameAssetBase64: string = "",
   sloganAssetBase64: string = "",
-  tidStr: string = ""
+  tidStr: string = "",
+  cheilY?: any
 ) {
   const sx = 92 / 519;
   const sy = 52 / 288.333;
@@ -197,7 +198,7 @@ function renderBackgroundGraphics(
   // 4. 상호 이미지 (Company Name Asset - 제일엔지니어링 앞면 templateId 4: 122pt, 뒷면 전체 상호 9.5pt 축소)
   if (config.fields.companyName && companyNameAssetBase64) {
     let companyX = config.fields.companyName.x * sx;
-    let companyY = (!isBack ? 124 : 121) * sy;
+    let companyY = (key === "cheil" && cheilY?.companyName !== undefined ? cheilY.companyName : (!isBack ? 124 : 121)) * sy;
     let companyW = (!isBack ? 252 : 234) * sx;
     let companyH = (!isBack ? 16 : 9.5) * sy;
 
@@ -371,40 +372,9 @@ function renderPureNativeTextStream(
       }
     }
 
-    // 제일엔지니어링 앞면/뒷면 주소 및 연락처 블록 Y좌표 (뒷면 주소 2줄 겹침 현상 완벽 방지: address1: 144, address2: 157, telAndFax: 173, directTel: 189, mobile: 205, email: 221, website: 237)
+    // 제일엔지니어링 앞면/뒷면 주소 및 연락처 블록 Y좌표 (데이터 없으면 하단 웹사이트 기준으로 동적 밀착 배치)
     if (key === "cheil") {
-      if (!isBack) {
-        return {
-          website: 246,
-          email: 227,
-          mobile: 208,
-          directTel: 189,
-          telAndFax: 170,
-          fieldAddress: 174,
-          telephone: 149,
-          address: 151,
-          address1: 151,
-          address2: 167,
-          address3: 233,
-          companyName: 124,
-        };
-      } else {
-        // 제일엔지니어링 뒷면 영문 (상호만 위로 -2 상향)
-        return {
-          website: 246,
-          email: 228,
-          mobile: 210,
-          directTel: 192,
-          telAndFax: 174,
-          fieldAddress: 174,
-          telephone: 149,
-          address: 141,
-          address1: 141,
-          address2: 156,
-          address3: 233,
-          companyName: 121,
-        };
-      }
+      return getCheilCardY(cardData, config, isBack, false);
     }
 
     return {
@@ -693,6 +663,7 @@ export async function generateCardPrintPdf(order: OrderLike): Promise<void> {
     const cheilSmileBase64 = key === "cheil" ? await fetchLogoBase64("/cheil/cheil_smile.jpg") : "";
 
     // 앞면 배경 그래픽 100% 신뢰성 직출력 (하단 바, 로고 이미지, 슬로건 이미지, 상호 이미지)
+    const frontCheilY = getCheilCardY(cardData, specGroup.front, false, false);
     renderBackgroundGraphics(
       doc,
       key,
@@ -701,7 +672,8 @@ export async function generateCardPrintPdf(order: OrderLike): Promise<void> {
       frontLogoBase64,
       companyNameFrontAssetBase64,
       cheilSmileBase64,
-      tidStr
+      tidStr,
+      frontCheilY
     );
 
     // 앞면 100% 살아있는 Pure Native Vector Text Stream 직접 출력
@@ -718,6 +690,7 @@ export async function generateCardPrintPdf(order: OrderLike): Promise<void> {
         : await fetchLogoBase64("/cheil/cheil_back_name.jpg");
 
       // 뒷면 배경 그래픽 100% 신뢰성 직출력 (하단 바, 로고 이미지, 슬로건 이미지, 상호 이미지)
+      const backCheilY = getCheilCardY(cardData, specGroup.back, true, false);
       renderBackgroundGraphics(
         doc,
         key,
@@ -726,7 +699,8 @@ export async function generateCardPrintPdf(order: OrderLike): Promise<void> {
         backLogoBase64,
         companyNameBackAssetBase64,
         cheilSmileBase64,
-        tidStr
+        tidStr,
+        backCheilY
       );
 
       // 뒷면 100% 살아있는 Pure Native Vector Text Stream 직접 출력
@@ -849,65 +823,7 @@ async function createSvgMarkupWithOutlines(
     }
 
     if (key === "cheil") {
-      let currentY = 255;
-      const res = {
-        website: 255,
-        email: 236,
-        mobile: 217,
-        directTel: 198,
-        telAndFax: 179,
-        fieldAddress: 183,
-        address: 160,
-        address1: 153,
-        address2: 170,
-        address3: 242,
-        telephone: 158,
-        companyName: !isBack ? 141 : 136,
-      };
-
-      const step = !isBack ? 19 : 17;
-      res.website = currentY;
-
-      if (config.fields.email && currentData.email) {
-        currentY -= step;
-        res.email = currentY;
-      }
-      if (config.fields.mobile && currentData.mobile) {
-        currentY -= step;
-        res.mobile = currentY;
-      }
-      if (config.fields.directTelephone && currentData.directTelephone) {
-        currentY -= step;
-        res.directTel = currentY;
-      }
-      const hasTelAndFax = Boolean(
-        config.fields.telAndFax && (currentData.telephone || currentData.fax)
-      );
-      if (hasTelAndFax) {
-        currentY -= step;
-        res.telAndFax = currentY;
-      }
-      if (!isBack) {
-        if (config.fields.address && front.address) {
-          currentY -= step;
-          res.address = currentY;
-        }
-      } else {
-        const [c1, c2] = getCheilBackAddressLines(back);
-        if (c2) {
-          currentY -= step;
-          res.address2 = currentY;
-        }
-        if (c1) {
-          currentY -= step;
-          res.address1 = currentY;
-        }
-      }
-      if (config.fields.companyName) {
-        currentY -= step;
-        res.companyName = currentY;
-      }
-      return res;
+      return getCheilCardY(cardData, config, isBack, true);
     }
 
     if (key === "hanmi") {
@@ -1055,7 +971,7 @@ async function createSvgMarkupWithOutlines(
     } else {
       const defaultCheilFront = (tidStr === "4" || tidStr.includes("cheil_front_name")) ? "/cheil/cheil_front_name.jpg" : "/cheil/cheil_build_front_name.jpg";
       const src = companyNameAssetBase64 || (!isBack ? defaultCheilFront : "/cheil/cheil_back_name.jpg");
-      companyHtml = `<image href="${src}" xlink:href="${src}" x="${config.fields.companyName.x}" y="${!isBack ? 130 : 127}" width="${!isBack ? 252 : 258}" height="${!isBack ? 16 : 10.5}" preserveAspectRatio="xMinYMin meet" />`;
+      companyHtml = `<image href="${src}" xlink:href="${src}" x="${config.fields.companyName.x}" y="${cheilY.companyName}" width="${!isBack ? 252 : 258}" height="${!isBack ? 16 : 10.5}" preserveAspectRatio="xMinYMin meet" />`;
     }
   }
 

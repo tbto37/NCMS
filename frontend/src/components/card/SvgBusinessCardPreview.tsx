@@ -99,6 +99,81 @@ export function getCondensedLetterSpacing(text?: string, threshold = 28): string
   return "-0.18em";
 }
 
+export function getCheilCardY(
+  cardData: any,
+  config: any,
+  isBack: boolean,
+  isSvgPreview = false
+) {
+  const front = cardData?.front || {};
+  const back = cardData?.back || {};
+  const currentData = isBack ? back : front;
+
+  const baseY = isSvgPreview ? 255 : 246;
+  let currentY = baseY;
+
+  const res: any = {
+    website: baseY,
+    email: isSvgPreview ? 236 : 227,
+    mobile: isSvgPreview ? 217 : 208,
+    directTel: isSvgPreview ? 198 : 189,
+    telAndFax: isSvgPreview ? 179 : 170,
+    fieldAddress: 174,
+    address: isSvgPreview ? 160 : 151,
+    address1: isSvgPreview ? 153 : 141,
+    address2: isSvgPreview ? 170 : 156,
+    address3: 233,
+    telephone: 149,
+    companyName: isSvgPreview ? (!isBack ? 141 : 136) : (!isBack ? 124 : 121),
+  };
+
+  const step = !isBack ? 19 : (isSvgPreview ? 17 : 18);
+  res.website = currentY;
+
+  if (config.fields.email && currentData.email) {
+    currentY -= step;
+    res.email = currentY;
+  }
+  if (config.fields.mobile && currentData.mobile) {
+    currentY -= step;
+    res.mobile = currentY;
+  }
+  if (config.fields.directTelephone && currentData.directTelephone) {
+    currentY -= step;
+    res.directTel = currentY;
+  }
+  const hasTelAndFax = Boolean(
+    config.fields.telAndFax && (currentData.telephone || currentData.fax)
+  );
+  if (hasTelAndFax) {
+    currentY -= step;
+    res.telAndFax = currentY;
+  }
+  if (!isBack) {
+    if (config.fields.address && front.address) {
+      currentY -= step;
+      res.address = currentY;
+      res.address1 = currentY;
+    }
+  } else {
+    const [c1, c2] = getCheilBackAddressLines(back);
+    if (c2) {
+      currentY -= step;
+      res.address2 = currentY;
+    }
+    if (c1) {
+      currentY -= (isSvgPreview ? step : 15);
+      res.address1 = currentY;
+      res.address = currentY;
+    }
+  }
+  if (config.fields.companyName) {
+    currentY -= (!isBack ? 27 : 20);
+    res.companyName = currentY;
+  }
+  return res;
+}
+
 // 제일엔지니어링 영문 뒷면 주소 (2줄) 스마트 래핑 및 동적 분할 처리
 export function getCheilBackAddressLines(back: any, maxChars = 38): [string, string] {
   const raw1 = (back?.address1 || "").trim();
@@ -271,65 +346,7 @@ export default function SvgBusinessCardPreview({
     }
 
     if (key === "cheil") {
-      let currentY = 255;
-      const res = {
-        website: 255,
-        email: 236,
-        mobile: 217,
-        directTel: 198,
-        telAndFax: 179,
-        fieldAddress: 183,
-        address: 160,
-        address1: 153,
-        address2: 170,
-        address3: 242,
-        telephone: 158,
-        companyName: !isBack ? 141 : 136,
-      };
-
-      const step = !isBack ? 19 : 17;
-      res.website = currentY;
-
-      if (config.fields.email && currentData.email) {
-        currentY -= step;
-        res.email = currentY;
-      }
-      if (config.fields.mobile && currentData.mobile) {
-        currentY -= step;
-        res.mobile = currentY;
-      }
-      if (config.fields.directTelephone && currentData.directTelephone) {
-        currentY -= step;
-        res.directTel = currentY;
-      }
-      const hasTelAndFax = Boolean(
-        config.fields.telAndFax && (currentData.telephone || currentData.fax)
-      );
-      if (hasTelAndFax) {
-        currentY -= step;
-        res.telAndFax = currentY;
-      }
-      if (!isBack) {
-        if (config.fields.address && front.address) {
-          currentY -= step;
-          res.address = currentY;
-        }
-      } else {
-        const [c1, c2] = getCheilBackAddressLines(back);
-        if (c2) {
-          currentY -= step;
-          res.address2 = currentY;
-        }
-        if (c1) {
-          currentY -= step;
-          res.address1 = currentY;
-        }
-      }
-      if (config.fields.companyName) {
-        currentY -= step;
-        res.companyName = currentY;
-      }
-      return res;
+      return getCheilCardY(cardData, config, isBack, true);
     }
 
     if (key === "hanmi") {
