@@ -198,9 +198,13 @@ function renderBackgroundGraphics(
 
   // 4. 상호 이미지 (Company Name Asset - 제일엔지니어링 앞면 -6, 뒷면 -2 오프셋 적용)
   if (config.fields.companyName && companyNameAssetBase64) {
+    const isCheilOffice = tidStr === "5" || tidStr.includes("cheil_build_office") || tidStr.includes("본사 현장사무실");
     let companyYBase = (key === "cheil" && cheilY?.companyName !== undefined ? cheilY.companyName : (!isBack ? 124 : 121));
-    if (key === "cheil") {
+    if (key === "cheil" && !isCheilOffice) {
       companyYBase -= (!isBack ? 6 : 2);
+    }
+    if (isCheilOffice) {
+      companyYBase -= 11;
     }
     let companyX = config.fields.companyName.x * sx;
     let companyY = companyYBase * sy;
@@ -253,20 +257,22 @@ function renderPureNativeTextStream(
   // 미리보기(SvgBusinessCardPreview)와 1:1 완벽 동기화되는 cardY 동적 위치 포지션 계산기
   const cardY = (() => {
     if (isCheilOffice) {
-      let currentY = 246;
+      let currentY = 255;
       const res: any = {
-        website: 246,
-        email: 228,
-        mobile: 210,
-        directTel: 189,
-        telAndFax: 192,
-        fieldAddress: 174,
-        address: 156,
-        address1: 156,
-        address2: 174,
-        address3: 233,
-        telephone: 192,
-        companyName: 136,
+        website: 255,
+        email: 237,
+        mobile: 219,
+        directTel: 198,
+        telAndFax: 201,
+        fieldAddress: 183,
+        address: 165,
+        address1: 165,
+        address2: 183,
+        address3: 242,
+        telephone: 201,
+        companyName: 145,
+        fieldAddressLines: [] as { text: string; y: number }[],
+        addressLines: [] as { text: string; y: number }[],
       };
       const step = 18;
       res.website = currentY;
@@ -283,23 +289,32 @@ function renderPureNativeTextStream(
         currentY -= step;
         res.telAndFax = currentY;
       }
-      const c1 = front.address || "";
-      const c2 = front.fieldAddress || "";
-      if (c1 || c2) {
-        if (c2) {
+      const fieldAddrLines = getCheilOfficeAddressLines(front.fieldAddress, "현장", 38);
+      if (fieldAddrLines.length > 0) {
+        const lineObjects = [];
+        for (let i = fieldAddrLines.length - 1; i >= 0; i--) {
           currentY -= step;
-          res.fieldAddress = currentY;
+          lineObjects.unshift({ text: fieldAddrLines[i], y: currentY });
         }
-        if (c1) {
-          currentY -= step;
-          res.address = currentY;
-          res.address1 = currentY;
-        }
-      }
-      if (config.fields.companyName) {
+        res.fieldAddressLines = lineObjects;
+        res.fieldAddress = lineObjects[0]?.y || currentY;
+      } else {
         currentY -= step;
-        res.companyName = currentY;
+        res.fieldAddressLines = [{ text: "", y: currentY }];
+        res.fieldAddress = currentY;
       }
+      if (front.address) {
+        const lines = getCheilOfficeAddressLines(front.address, "본사", 38);
+        const lineObjects = [];
+        for (let i = lines.length - 1; i >= 0; i--) {
+          currentY -= step;
+          lineObjects.unshift({ text: lines[i], y: currentY });
+        }
+        res.addressLines = lineObjects;
+        res.address = lineObjects[0]?.y || currentY;
+      }
+      currentY -= 20;
+      res.companyName = currentY;
       return res;
     }
 
@@ -420,38 +435,83 @@ function renderPureNativeTextStream(
   }
 
   // 2. 부서 / 직급 (제일엔지니어링 디자인 명세 6pt NanumSquareB 적용)
-  const deptPosText = !isBack
-    ? key === "cheil"
-      ? [front.department, front.position1].filter(Boolean).join(" / ")
-      : [front.position1, front.department].filter(Boolean).join(" / ")
-    : "";
+  if (!isBack) {
+    if (isCheilOffice) {
+      if (front.department) {
+        const deptY = (60 + 6 * 0.76) * sy + 2.0;
+        doc.setFont("NanumSquareB", "normal");
+        doc.setFontSize(6);
+        doc.setTextColor(30, 41, 59);
+        doc.text(front.department, 220 * sx, deptY);
+      }
+      if (front.position1 || front.position2) {
+        const pos1 = (front.position1 || "").trim();
+        const pos2 = (front.position2 || "").trim();
+        const combinedPos = [pos1, pos2].filter(Boolean).join(" / ");
+        const basePosSvgY = front.department ? 77 : 60;
 
-  if (!isBack && config.fields.departmentPosition && deptPosText) {
-    const x = config.fields.departmentPosition.x * sx;
-    const fontSize = key === "cheil" ? 6 : (key === "hanmi" ? 6 : (config.fields.departmentPosition.fontSize || 12.5) * 0.35);
-    const fontCapHeight = key === "cheil" ? 6 * 0.76 : (config.fields.departmentPosition.fontSize || 12.5) * 0.76;
-    let y = (config.fields.departmentPosition.y + fontCapHeight) * sy;
-    if (key === "cheil") {
-      y += 2.0;
-    }
-    doc.setFont("NanumSquareB", "normal");
-    doc.setFontSize(fontSize);
-    doc.setTextColor(30, 41, 59); // #1e293b
-    doc.text(deptPosText, x, y);
-  }
+        if (pos1 && pos2 && combinedPos.length > 30) {
+          // 직책 과 직급이 합쳐서 30 자 넘어가면 직급이 다음줄로
+          const pos1PdfY = (basePosSvgY + 6 * 0.76) * sy + 2.0;
+          doc.setFont("NanumSquareB", "normal");
+          doc.setFontSize(6);
+          doc.setTextColor(30, 41, 59);
+          if (pos1.length > 28) {
+            doc.text(pos1, 220 * sx, pos1PdfY, { charSpace: -0.5 });
+          } else {
+            doc.text(pos1, 220 * sx, pos1PdfY);
+          }
 
-  if (!isBack && front.position2) {
-    const x = (config.fields.position2?.x || (key === "cheil" ? 220 : 268)) * sx;
-    const fontSize = key === "cheil" ? 6 : (key === "hanmi" ? 6 : 12.5 * 0.35);
-    const fontCapHeight = key === "cheil" ? 6 * 0.76 : 12.5 * 0.76;
-    let y = ((config.fields.position2?.y || (key === "cheil" ? 79 : 94)) + fontCapHeight) * sy;
-    if (key === "cheil") {
-      y += 2.0;
+          const pos2PdfY = (basePosSvgY + 17 + 6 * 0.76) * sy + 2.0;
+          doc.setFont("NanumSquareB", "normal");
+          doc.setFontSize(6);
+          doc.setTextColor(71, 85, 105);
+          doc.text(pos2, 220 * sx, pos2PdfY);
+        } else if (combinedPos) {
+          const posPdfY = (basePosSvgY + 6 * 0.76) * sy + 2.0;
+          doc.setFont("NanumSquareB", "normal");
+          doc.setFontSize(6);
+          doc.setTextColor(30, 41, 59);
+          if (pos1.length > 28) {
+            doc.text(combinedPos, 220 * sx, posPdfY, { charSpace: -0.5 });
+          } else {
+            doc.text(combinedPos, 220 * sx, posPdfY);
+          }
+        }
+      }
+    } else {
+      const deptPosText = key === "cheil"
+        ? [front.department, front.position1].filter(Boolean).join(" / ")
+        : [front.position1, front.department].filter(Boolean).join(" / ");
+
+      if (config.fields.departmentPosition && deptPosText) {
+        const x = config.fields.departmentPosition.x * sx;
+        const fontSize = key === "cheil" ? 6 : (key === "hanmi" ? 6 : (config.fields.departmentPosition.fontSize || 12.5) * 0.35);
+        const fontCapHeight = key === "cheil" ? 6 * 0.76 : (config.fields.departmentPosition.fontSize || 12.5) * 0.76;
+        let y = (config.fields.departmentPosition.y + fontCapHeight) * sy;
+        if (key === "cheil") {
+          y += 2.0;
+        }
+        doc.setFont("NanumSquareB", "normal");
+        doc.setFontSize(fontSize);
+        doc.setTextColor(30, 41, 59); // #1e293b
+        doc.text(deptPosText, x, y);
+      }
+
+      if (front.position2) {
+        const x = (config.fields.position2?.x || (key === "cheil" ? 220 : 268)) * sx;
+        const fontSize = key === "cheil" ? 6 : (key === "hanmi" ? 6 : 12.5 * 0.35);
+        const fontCapHeight = key === "cheil" ? 6 * 0.76 : 12.5 * 0.76;
+        let y = ((config.fields.position2?.y || (key === "cheil" ? 79 : 94)) + fontCapHeight) * sy;
+        if (key === "cheil") {
+          y += 2.0;
+        }
+        doc.setFont("NanumSquareB", "normal");
+        doc.setFontSize(fontSize);
+        doc.setTextColor(key === "cheil" ? 71 : 30, key === "cheil" ? 85 : 41, key === "cheil" ? 105 : 59);
+        doc.text(front.position2, x, y);
+      }
     }
-    doc.setFont("NanumSquareB", "normal");
-    doc.setFontSize(fontSize);
-    doc.setTextColor(key === "cheil" ? 71 : 30, key === "cheil" ? 85 : 41, key === "cheil" ? 105 : 59);
-    doc.text(front.position2, x, y);
   }
 
   // 3. 뒷면 영문 부서 / 직급 (제일엔지니어링 디자인 명세 6pt NanumSquareB 적용 - 45자 이상 시 자간 10 축소)
@@ -593,7 +653,42 @@ function renderPureNativeTextStream(
   doc.setTextColor(51, 65, 85); // #334155
 
   if (!isBack) {
-    if (key === "cheil" && front.address) {
+    if (isCheilOffice) {
+      const labelX = (config.fields.address?.x || 220) * sx;
+      const bodyX = labelX + (31 * sx);
+
+      // 본사 주소
+      if (cheilY.addressLines && cheilY.addressLines.length > 0) {
+        cheilY.addressLines.forEach((lineObj: { text: string; y: number }, idx: number) => {
+          const linePdfY = (lineObj.y + 7 * 0.76) * sy;
+          const charSpace = lineObj.text.length >= 36 ? -0.28 : cheilBottomCharSpace;
+          if (idx === 0) {
+            doc.text("본사 : ", labelX, linePdfY, { charSpace: cheilBottomCharSpace });
+            if (lineObj.text) {
+              doc.text(lineObj.text, bodyX, linePdfY, { charSpace });
+            }
+          } else {
+            doc.text(lineObj.text, bodyX, linePdfY, { charSpace });
+          }
+        });
+      }
+
+      // 현장 주소
+      if (cheilY.fieldAddressLines && cheilY.fieldAddressLines.length > 0) {
+        cheilY.fieldAddressLines.forEach((lineObj: { text: string; y: number }, idx: number) => {
+          const linePdfY = (lineObj.y + 7 * 0.76) * sy;
+          const charSpace = lineObj.text.length >= 36 ? -0.28 : cheilBottomCharSpace;
+          if (idx === 0) {
+            doc.text("현장 : ", labelX, linePdfY, { charSpace: cheilBottomCharSpace });
+            if (lineObj.text) {
+              doc.text(lineObj.text, bodyX, linePdfY, { charSpace });
+            }
+          } else {
+            doc.text(lineObj.text, bodyX, linePdfY, { charSpace });
+          }
+        });
+      }
+    } else if (key === "cheil" && front.address) {
       const addrCharSpace = front.address.length >= 36 ? -0.28 : cheilBottomCharSpace;
       doc.text(front.address, (config.fields.address?.x || 220) * sx, (cheilY.address + 7 * 0.76) * sy, { charSpace: addrCharSpace });
     } else if (key === "hanmi") {
