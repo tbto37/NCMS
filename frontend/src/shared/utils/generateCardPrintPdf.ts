@@ -445,7 +445,11 @@ function renderPureNativeTextStream(
         doc.setFont("NanumSquareB", "normal");
         doc.setFontSize(6);
         doc.setTextColor(30, 41, 59);
-        doc.text(front.department, 220 * sx, deptY);
+        if (front.department.length > 26) {
+          doc.text(front.department, 220 * sx, deptY, { charSpace: -0.23 });
+        } else {
+          doc.text(front.department, 220 * sx, deptY);
+        }
       }
       if (front.position1 || front.position2) {
         const pos1 = (front.position1 || "").trim();
@@ -460,7 +464,7 @@ function renderPureNativeTextStream(
           doc.setFontSize(6);
           doc.setTextColor(30, 41, 59);
           if (pos1.length > 28) {
-            doc.text(pos1, 220 * sx, pos1PdfY, { charSpace: -0.5 });
+            doc.text(pos1, 220 * sx, pos1PdfY, { charSpace: -0.23 });
           } else {
             doc.text(pos1, 220 * sx, pos1PdfY);
           }
@@ -476,7 +480,7 @@ function renderPureNativeTextStream(
           doc.setFontSize(6);
           doc.setTextColor(30, 41, 59);
           if (pos1.length > 28) {
-            doc.text(combinedPos, 220 * sx, posPdfY, { charSpace: -0.5 });
+            doc.text(combinedPos, 220 * sx, posPdfY, { charSpace: -0.23 });
           } else {
             doc.text(combinedPos, 220 * sx, posPdfY);
           }
