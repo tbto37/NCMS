@@ -167,9 +167,11 @@ flowchart TD
 ---
 
 ### 5.3 제일엔지니어링 (Cheil Engineering) PDF 사양
+- **로고 Y좌표**: 앞면 및 뒷면 로고 1mm 하향 조정 반영 (`logoSpec.y * sy + 1.0mm`)
 - **성명 (Name)**: `NanumSquareEB` 11pt
-  - Y좌표: `54` (기본 44 대비 +10pt 하향 조정)
-- **부서 / 직급 (Department & Position)**: `NanumSquareB` 6pt
+  - Y좌표: 앞면 및 뒷면 2mm 하향 조정 반영 (`+ 2.0mm`)
+- **부서 / 직급 / 직책 (Department & Position)**: `NanumSquareB` 6pt
+  - Y좌표: 앞면 및 뒷면 부서/직급/직책2 모두 2mm 하향 조정 반영 (`+ 2.0mm`)
   - **장문 자동 자간 축소**: 영문 부서/직급 텍스트 길이가 **45자 이상**일 경우 우측 잘림 방지를 위해 자동으로 **자간 10 축소 (`{ charSpace: -0.12 }`)** 렌더링 적용
 - **상호명 이미지 Asset (Company Name Image)**:
   - **앞면 `templateId === 4` (`cheil_front_name.jpg`)**: `y = 124`, `height = 16`, `width = 122` (가로 늘어짐 방지 축소 보정)

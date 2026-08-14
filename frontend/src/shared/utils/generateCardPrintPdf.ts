@@ -151,12 +151,13 @@ function renderBackgroundGraphics(
         height: isBack ? 32 : 36,
       };
     }
+    const logoYOffset = key === "cheil" ? 1.0 : 0;
     try {
       doc.addImage(
         logoBase64,
         "PNG",
         logoSpec.x * sx,
-        logoSpec.y * sy,
+        logoSpec.y * sy + logoYOffset,
         logoSpec.width * sx,
         logoSpec.height * sy
       );
@@ -408,7 +409,10 @@ function renderPureNativeTextStream(
     const fontSize = key === "cheil" ? 11 : (key === "hanmi" ? 13 : (config.fields.name.fontSize || 24.5) * 0.35);
     const fontCapHeight = key === "cheil" ? 11 * 0.76 : (config.fields.name.fontSize || 24.5) * 0.76;
     const nameYBase = key === "cheil" ? (config.fields.name.y + 10) : config.fields.name.y;
-    const y = (nameYBase + fontCapHeight) * sy;
+    let y = (nameYBase + fontCapHeight) * sy;
+    if (key === "cheil") {
+      y += 2.0;
+    }
     doc.setFont("NanumSquareEB", "normal");
     doc.setFontSize(fontSize);
     doc.setTextColor(15, 23, 42); // #0f172a
@@ -426,7 +430,10 @@ function renderPureNativeTextStream(
     const x = config.fields.departmentPosition.x * sx;
     const fontSize = key === "cheil" ? 6 : (key === "hanmi" ? 6 : (config.fields.departmentPosition.fontSize || 12.5) * 0.35);
     const fontCapHeight = key === "cheil" ? 6 * 0.76 : (config.fields.departmentPosition.fontSize || 12.5) * 0.76;
-    const y = (config.fields.departmentPosition.y + fontCapHeight) * sy;
+    let y = (config.fields.departmentPosition.y + fontCapHeight) * sy;
+    if (key === "cheil") {
+      y += 2.0;
+    }
     doc.setFont("NanumSquareB", "normal");
     doc.setFontSize(fontSize);
     doc.setTextColor(30, 41, 59); // #1e293b
@@ -437,7 +444,10 @@ function renderPureNativeTextStream(
     const x = (config.fields.position2?.x || (key === "cheil" ? 220 : 268)) * sx;
     const fontSize = key === "cheil" ? 6 : (key === "hanmi" ? 6 : 12.5 * 0.35);
     const fontCapHeight = key === "cheil" ? 6 * 0.76 : 12.5 * 0.76;
-    const y = ((config.fields.position2?.y || (key === "cheil" ? 79 : 94)) + fontCapHeight) * sy;
+    let y = ((config.fields.position2?.y || (key === "cheil" ? 79 : 94)) + fontCapHeight) * sy;
+    if (key === "cheil") {
+      y += 2.0;
+    }
     doc.setFont("NanumSquareB", "normal");
     doc.setFontSize(fontSize);
     doc.setTextColor(key === "cheil" ? 71 : 30, key === "cheil" ? 85 : 41, key === "cheil" ? 105 : 59);
@@ -453,10 +463,11 @@ function renderPureNativeTextStream(
         doc.setFont("NanumSquareB", "normal");
         doc.setFontSize(6);
         doc.setTextColor(30, 41, 59);
+        const y = (62 + 6 * 0.76) * sy + 2.0;
         if (options) {
-          doc.text(cBackText, 220 * sx, (62 + 6 * 0.76) * sy, options);
+          doc.text(cBackText, 220 * sx, y, options);
         } else {
-          doc.text(cBackText, 220 * sx, (62 + 6 * 0.76) * sy);
+          doc.text(cBackText, 220 * sx, y);
         }
       }
       if (back.position2) {
@@ -464,10 +475,11 @@ function renderPureNativeTextStream(
         doc.setFont("NanumSquareB", "normal");
         doc.setFontSize(6);
         doc.setTextColor(71, 85, 105);
+        const y = (79 + 6 * 0.76) * sy + 2.0;
         if (options2) {
-          doc.text(back.position2, 220 * sx, (79 + 6 * 0.76) * sy, options2);
+          doc.text(back.position2, 220 * sx, y, options2);
         } else {
-          doc.text(back.position2, 220 * sx, (79 + 6 * 0.76) * sy);
+          doc.text(back.position2, 220 * sx, y);
         }
       }
     } else {
