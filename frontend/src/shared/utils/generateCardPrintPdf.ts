@@ -203,9 +203,6 @@ function renderBackgroundGraphics(
     if (key === "cheil" && !isCheilOffice) {
       companyYBase -= (!isBack ? 6 : 2);
     }
-    if (isCheilOffice) {
-      companyYBase -= 11;
-    }
     let companyX = config.fields.companyName.x * sx;
     let companyY = companyYBase * sy;
     let companyW = (!isBack ? 252 : 234) * sx;
@@ -237,13 +234,77 @@ function renderBackgroundGraphics(
   }
 }
 
+export function computeCheilOfficePdfY(cardData: any) {
+  const front = cardData?.front || {};
+  let currentY = 255;
+  const res: any = {
+    website: 255,
+    email: 237,
+    mobile: 219,
+    directTel: 198,
+    telAndFax: 201,
+    fieldAddress: 183,
+    address: 165,
+    address1: 165,
+    address2: 183,
+    address3: 242,
+    telephone: 201,
+    companyName: 145,
+    fieldAddressLines: [] as { text: string; y: number }[],
+    addressLines: [] as { text: string; y: number }[],
+  };
+  const step = 18;
+  res.website = currentY;
+
+  if (front.email) {
+    currentY -= step;
+    res.email = currentY;
+  }
+  if (front.mobile) {
+    currentY -= step;
+    res.mobile = currentY;
+  }
+  if (front.telephone || front.fax) {
+    currentY -= step;
+    res.telAndFax = currentY;
+  }
+  const fieldAddrLines = getCheilOfficeAddressLines(front.fieldAddress, "현장", 38);
+  if (fieldAddrLines.length > 0) {
+    const lineObjects = [];
+    for (let i = fieldAddrLines.length - 1; i >= 0; i--) {
+      currentY -= step;
+      lineObjects.unshift({ text: fieldAddrLines[i], y: currentY });
+    }
+    res.fieldAddressLines = lineObjects;
+    res.fieldAddress = lineObjects[0]?.y || currentY;
+  } else {
+    currentY -= step;
+    res.fieldAddressLines = [{ text: "", y: currentY }];
+    res.fieldAddress = currentY;
+  }
+  if (front.address) {
+    const lines = getCheilOfficeAddressLines(front.address, "본사", 38);
+    const lineObjects = [];
+    for (let i = lines.length - 1; i >= 0; i--) {
+      currentY -= step;
+      lineObjects.unshift({ text: lines[i], y: currentY });
+    }
+    res.addressLines = lineObjects;
+    res.address = lineObjects[0]?.y || currentY;
+  }
+  currentY -= 25;
+  res.companyName = currentY;
+  return res;
+}
+
 function renderPureNativeTextStream(
   doc: jsPDF,
   key: string,
   config: any,
   cardData: any,
   isBack: boolean,
-  tidStr: string
+  tidStr: string,
+  cheilYParam?: any
 ) {
   const front = cardData.front || {};
   const back = cardData.back || {};
@@ -255,67 +316,9 @@ function renderPureNativeTextStream(
   const isCheilOffice = tidStr === "5" || tidStr.includes("cheil_build_office") || tidStr.includes("본사 현장사무실");
 
   // 미리보기(SvgBusinessCardPreview)와 1:1 완벽 동기화되는 cardY 동적 위치 포지션 계산기
-  const cardY = (() => {
+  const cardY = cheilYParam || (() => {
     if (isCheilOffice) {
-      let currentY = 255;
-      const res: any = {
-        website: 255,
-        email: 237,
-        mobile: 219,
-        directTel: 198,
-        telAndFax: 201,
-        fieldAddress: 183,
-        address: 165,
-        address1: 165,
-        address2: 183,
-        address3: 242,
-        telephone: 201,
-        companyName: 145,
-        fieldAddressLines: [] as { text: string; y: number }[],
-        addressLines: [] as { text: string; y: number }[],
-      };
-      const step = 18;
-      res.website = currentY;
-
-      if (front.email) {
-        currentY -= step;
-        res.email = currentY;
-      }
-      if (front.mobile) {
-        currentY -= step;
-        res.mobile = currentY;
-      }
-      if (front.telephone || front.fax) {
-        currentY -= step;
-        res.telAndFax = currentY;
-      }
-      const fieldAddrLines = getCheilOfficeAddressLines(front.fieldAddress, "현장", 38);
-      if (fieldAddrLines.length > 0) {
-        const lineObjects = [];
-        for (let i = fieldAddrLines.length - 1; i >= 0; i--) {
-          currentY -= step;
-          lineObjects.unshift({ text: fieldAddrLines[i], y: currentY });
-        }
-        res.fieldAddressLines = lineObjects;
-        res.fieldAddress = lineObjects[0]?.y || currentY;
-      } else {
-        currentY -= step;
-        res.fieldAddressLines = [{ text: "", y: currentY }];
-        res.fieldAddress = currentY;
-      }
-      if (front.address) {
-        const lines = getCheilOfficeAddressLines(front.address, "본사", 38);
-        const lineObjects = [];
-        for (let i = lines.length - 1; i >= 0; i--) {
-          currentY -= step;
-          lineObjects.unshift({ text: lines[i], y: currentY });
-        }
-        res.addressLines = lineObjects;
-        res.address = lineObjects[0]?.y || currentY;
-      }
-      currentY -= 20;
-      res.companyName = currentY;
-      return res;
+      return computeCheilOfficePdfY(cardData);
     }
 
     if (key === "hanmi") {
@@ -779,7 +782,11 @@ export async function generateCardPrintPdf(order: OrderLike): Promise<void> {
     const cheilSmileBase64 = key === "cheil" ? await fetchLogoBase64("/cheil/cheil_smile.jpg") : "";
 
     // 앞면 배경 그래픽 100% 신뢰성 직출력 (하단 바, 로고 이미지, 슬로건 이미지, 상호 이미지)
-    const frontCheilY = getCheilCardY(cardData, specGroup.front, false, false);
+    const isCheilOffice = tidStr === "5" || tidStr.includes("cheil_build_office") || tidStr.includes("본사 현장사무실");
+    const frontCheilY = isCheilOffice
+      ? computeCheilOfficePdfY(cardData)
+      : getCheilCardY(cardData, specGroup.front, false, false);
+
     renderBackgroundGraphics(
       doc,
       key,
@@ -793,7 +800,7 @@ export async function generateCardPrintPdf(order: OrderLike): Promise<void> {
     );
 
     // 앞면 100% 살아있는 Pure Native Vector Text Stream 직접 출력
-    renderPureNativeTextStream(doc, key, specGroup.front, cardData, false, tidStr);
+    renderPureNativeTextStream(doc, key, specGroup.front, cardData, false, tidStr, frontCheilY);
 
     const isSingleSided = tidStr === "5" || tidStr.includes("cheil_build_office") || tidStr.includes("본사 현장사무실");
 
