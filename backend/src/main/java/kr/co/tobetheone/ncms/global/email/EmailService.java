@@ -21,7 +21,7 @@ public class EmailService {
     @Autowired(required = false)
     private JavaMailSender mailSender;
 
-    @Value("${spring.mail.username:logcom2@naver.com}")
+    @Value("${spring.mail.username:chohw37@naver.com}")
     private String fromEmail;
 
     private static final String[] DEFAULT_TARGET_EMAILS = {
