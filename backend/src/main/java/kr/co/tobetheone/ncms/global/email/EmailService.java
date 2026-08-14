@@ -4,9 +4,14 @@ import kr.co.tobetheone.ncms.order.domain.Order;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -16,7 +21,13 @@ public class EmailService {
     @Autowired(required = false)
     private JavaMailSender mailSender;
 
-    private static final String TARGET_EMAIL = "logcom2@naver.com";
+    @Value("${spring.mail.username:logcom2@naver.com}")
+    private String fromEmail;
+
+    private static final String[] DEFAULT_TARGET_EMAILS = {
+            "logcom2@naver.com",
+            "chohw37@naver.com"
+    };
 
     public void sendApprovalNotification(Order order) {
         String orderNo = order != null && order.getOrderNo() != null ? order.getOrderNo() : "-";
@@ -37,7 +48,7 @@ public class EmailService {
                 companyName, orderNo, recipientName
         );
 
-        log.info("[EMAIL NOTIFICATION] Sending approval mail for OrderNo: {} to {}", orderNo, TARGET_EMAIL);
+        log.info("[EMAIL NOTIFICATION] Sending approval mail for OrderNo: {} to {}", orderNo, Arrays.toString(DEFAULT_TARGET_EMAILS));
 
         if (mailSender == null) {
             log.warn("[EMAIL NOTIFICATION] JavaMailSender is not configured. Mail notification simulated for OrderNo: {}", orderNo);
@@ -46,11 +57,12 @@ public class EmailService {
 
         try {
             SimpleMailMessage message = new SimpleMailMessage();
-            message.setTo(TARGET_EMAIL);
+            message.setFrom(fromEmail);
+            message.setTo(DEFAULT_TARGET_EMAILS);
             message.setSubject(subject);
             message.setText(body);
             mailSender.send(message);
-            log.info("[EMAIL NOTIFICATION] Approval email successfully sent to {} for OrderNo: {}", TARGET_EMAIL, orderNo);
+            log.info("[EMAIL NOTIFICATION] Approval email successfully sent to {} for OrderNo: {}", Arrays.toString(DEFAULT_TARGET_EMAILS), orderNo);
         } catch (Exception e) {
             log.error("[EMAIL NOTIFICATION] Failed to send approval email for OrderNo: {}. Error: {}", orderNo, e.getMessage(), e);
         }
@@ -61,6 +73,13 @@ public class EmailService {
             log.warn("[EMAIL NOTIFICATION] cheil_admin email is missing. Skipping email notification.");
             return;
         }
+
+        List<String> recipientsList = new ArrayList<>();
+        recipientsList.add(targetEmail);
+        if (!recipientsList.contains("chohw37@naver.com")) {
+            recipientsList.add("chohw37@naver.com");
+        }
+        String[] recipients = recipientsList.toArray(new String[0]);
 
         String orderNo = order != null && order.getOrderNo() != null ? order.getOrderNo() : "-";
         String recipientName = order != null && order.getRecipientName() != null ? order.getRecipientName() : "주문자";
@@ -80,20 +99,21 @@ public class EmailService {
                 memberName, orderNo, recipientName
         );
 
-        log.info("[EMAIL NOTIFICATION] Sending Cheil order completion mail for OrderNo: {} to cheil_admin ({})", orderNo, targetEmail);
+        log.info("[EMAIL NOTIFICATION] Sending Cheil order completion mail for OrderNo: {} to {}", orderNo, Arrays.toString(recipients));
 
         if (mailSender == null) {
-            log.warn("[EMAIL NOTIFICATION] JavaMailSender is not configured. Mail notification simulated for OrderNo: {} to {}", orderNo, targetEmail);
+            log.warn("[EMAIL NOTIFICATION] JavaMailSender is not configured. Mail notification simulated for OrderNo: {} to {}", orderNo, Arrays.toString(recipients));
             return;
         }
 
         try {
             SimpleMailMessage message = new SimpleMailMessage();
-            message.setTo(targetEmail);
+            message.setFrom(fromEmail);
+            message.setTo(recipients);
             message.setSubject(subject);
             message.setText(body);
             mailSender.send(message);
-            log.info("[EMAIL NOTIFICATION] Cheil order completion email successfully sent to {} for OrderNo: {}", targetEmail, orderNo);
+            log.info("[EMAIL NOTIFICATION] Cheil order completion email successfully sent to {} for OrderNo: {}", Arrays.toString(recipients), orderNo);
         } catch (Exception e) {
             log.error("[EMAIL NOTIFICATION] Failed to send Cheil order email for OrderNo: {}. Error: {}", orderNo, e.getMessage(), e);
         }
